@@ -1,0 +1,12 @@
+lucid32
+
+sudo apt-get install curl
+sudo apt-get install git-core
+
+echo '[[ -s "/home/vagrant/.rvm/scripts/rvm" ]] && source "/home/vagrant/.rvm/scripts/rvm"' >> ~/.bashrc
+source ~/.bashrc
+
+rvm install 1.9.2
+rvm use --default 1.9.2
+gem install bundler
+
