@@ -5,7 +5,7 @@ require 'fileutils'
 require 'patches/net/ssh/shell/process'
 
 module Travis
-  module Worker
+  module Shell
     class SSH
       attr_reader :vm, :shell, :log
 
