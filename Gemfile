@@ -2,7 +2,11 @@ source :rubygems
 gem 'resque',              '~> 1.17.0'
 gem 'resque-meta',         '~> 1.0.3'
 gem 'resque-heartbeat'
+
+gem 'eventmachine'
 gem 'em-http-request',     '~> 0.3.0'
+gem 'em-stdout'
+
 gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'

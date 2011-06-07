@@ -13,23 +13,7 @@ class JobBuildTest < Test::Unit::TestCase
     super
 
     Build.any_instance.stubs(:puts) # silence output
-    @payload = {
-      :repository => {
-        :url => 'https://github.com/travis-ci/test-project-1'
-      },
-      :build => {
-        :commit => '123456',
-        :config => {
-          :rvm           => '1.9.2',
-          :gemfile       => 'Gemfile.rails-3.1',
-          :env           => 'FOO=bar',
-          :before_script => ['bundle exec rake ci:before'],
-          :after_script  => ['bundle exec rake ci:after'],
-          :bundler_args  => 'bundler_arg=1'
-        }
-      }
-    }
-
+    @payload = INCOMING_PAYLOADS['build:gem-release']
     @build = Build.new(payload)
     @build.repository.config.stubs(:gemfile?).returns(true)
 
@@ -48,8 +32,8 @@ class JobBuildTest < Test::Unit::TestCase
 
   test 'perform: builds and returns the result' do
     build.expects(:build!).returns(true)
-    build.notify(:data, :log => 'log')
-    assert_equal({ :build => { :log => 'log', :status => 0 } }, build.perform)
+    build.notify(:update, :log => 'log')
+    assert_equal({ :log => 'log', :status => 0 }, build.perform)
   end
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
@@ -59,8 +43,8 @@ class JobBuildTest < Test::Unit::TestCase
       'rvm use 1.9.2',
       'BUNDLE_GEMFILE=Gemfile.rails-3.1',
       'FOO=bar',
-      "git clone git://github.com/travis-ci/test-project-1.git #{build.build_dir.realpath}",
-      'git checkout -qf 123456',
+      "git clone git://github.com/svenfuchs/gem-release.git #{build.build_dir.realpath}",
+      'git checkout -qf 1234567',
       'bundle install bundler_arg=1',
       'bundle exec rake ci:before',
       'bundle exec rake',
@@ -70,12 +54,12 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'build_dir: the path from the github url local to the base builds dir' do
-    assert_equal '/tmp/travis/test/travis-ci/test-project-1', build.build_dir.to_s
+    assert_equal '/tmp/travis/test/svenfuchs/gem-release', build.build_dir.to_s
   end
 
-  test 'on_data: appends the log data' do
-    build.notify(:data, :log => 'log and ')
-    build.notify(:data, :log => 'more log')
+  test 'on_update: appends the log data' do
+    build.notify(:update, :log => 'log and ')
+    build.notify(:update, :log => 'more log')
     assert_equal 'log and more log', build.log
   end
 

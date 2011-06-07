@@ -14,7 +14,7 @@ module Travis
         end
       end
 
-      include Travis::Shell
+      include Travis::Shell, Travis::Job::Stdout
 
       attr_reader :payload, :observers
 
@@ -29,26 +29,27 @@ module Travis
         finish(result)
       end
 
+      def repository
+        @repository ||= Repository.new(payload.repository.slug, build.config)
+      end
+
+      def config
+        repository.config ||= Hashie::Mash.new
+      end
+
+      def build
+        payload.build ||= Hashie::Mash.new
+      end
+
       protected
 
-        def repository
-          @repository ||= Repository.new(payload.repository.url, build.config)
-        end
-
-        def config
-          repository.config ||= Hashie::Mash.new
-        end
-
-        def build
-          payload.build ||= Hashie::Mash.new
-        end
-
         def start
-          notify(:start, :started_at => Time.now)
         end
 
-        def finish(data = {})
-          notify(:finish, :finished_at => Time.now)
+        def update(data)
+        end
+
+        def finish(data)
         end
 
         def notify(event, *args)
@@ -63,7 +64,7 @@ module Travis
         end
 
         def build_dir
-          @build_dir ||= self.class.base_dir.join(repository.path[1..-1])
+          @build_dir ||= self.class.base_dir.join(repository.slug)
         end
     end
   end

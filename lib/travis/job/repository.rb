@@ -5,11 +5,10 @@ module Travis
 
       autoload :Config, 'travis/job/repository/config'
 
-      attr_reader :url, :path, :config
+      attr_reader :url, :slug, :config
 
-      def initialize(url, config)
-        @url    = url
-        @path   = URI.parse(url).path
+      def initialize(slug, config)
+        @slug   = slug
         @config = Config.new(config)
       end
 
@@ -42,7 +41,7 @@ module Travis
         end
 
         def source
-          "#{url.gsub(%r(http://|https://), 'git://')}.git"
+          "git://github.com/#{slug}.git"
         end
     end
   end

@@ -14,6 +14,7 @@ require 'mocha'
 # require 'resque'
 
 require 'travis_worker'
+require 'fixtures/payloads'
 
 class Test::Unit::TestCase
   attr_reader :shell

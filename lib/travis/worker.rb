@@ -14,7 +14,8 @@ module Travis
     extend Resque::Plugins::Meta
 
     class Config < Hashie::Dash
-      property :redis, :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
+      property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
+      property :reporter, :default => Hashie::Mash.new
     end
 
     class << self
@@ -40,7 +41,15 @@ module Travis
               # TODO this should be based on the queue, not some arbitrary payload data being present
               type = !payload.key?('config') ? Config : Build
               job = type.new(Hashie::Mash.new(payload))
-              job.work!
+
+              reporter = Reporter::Http.new(job.build)
+              job.observers << reporter
+
+              reporter.deliver_messages!
+              job.split_stdout!
+              job.perform!
+
+              sleep(0.1) until reporter.finished?
               EM.stop
             rescue Exception => e
               $_stdout.puts(e.message)

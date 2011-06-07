@@ -18,7 +18,19 @@ module Travis
         def perform
           status = build! ? 0 : 1
           puts "\nDone. Build script exited with: #{status}"
-          { :build => { :log => log, :status => status } }
+          { :log => log, :status => status }
+        end
+
+        def start
+          notify(:start, :started_at => Time.now)
+        end
+
+        def update(data)
+          notify(:log, :log => data)
+        end
+
+        def finish(data)
+          notify(:finish, data.merge(:finished_at => Time.now))
         end
 
         def build!
@@ -48,7 +60,7 @@ module Travis
           end
         end
 
-        def on_data(job, data)
+        def on_update(job, data)
           @log << data[:log] if data.key?(:log)
         end
       end

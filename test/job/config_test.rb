@@ -13,14 +13,7 @@ class JobConfigTest < Test::Unit::TestCase
     @shell = Travis::Worker.shell = Object.new
     shell.stubs(:execute)
 
-    @config = Config.new(
-      :repository => { :url => 'https://github.com/travis-ci/test-project-1' },
-      :build => { :commit => '123456' }
-    )
-  end
-
-  def teardown
-    super
+    @config = Config.new(INCOMING_PAYLOADS['config:gem-release'])
   end
 
   test 'perform: changes to the build directory' do

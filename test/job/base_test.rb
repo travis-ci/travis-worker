@@ -8,7 +8,7 @@ class JobBaseTest < Test::Unit::TestCase
   class TestObserver
     attr_reader :events
 
-    [:on_start, :on_data, :on_finish].each do |method|
+    [:on_start, :on_update, :on_finish].each do |method|
       define_method(method) { |*args| (@events ||= []) << args }
     end
   end
@@ -18,8 +18,8 @@ class JobBaseTest < Test::Unit::TestCase
     observer = TestObserver.new
     job.observers << observer
 
-    job.notify(:start, :started)
-    job.notify(:data, :data)
+    job.notify(:start,  :started)
+    job.notify(:update, :data)
     job.notify(:finish, :finished)
 
     assert_equal [[job, :started], [job, :data], [job, :finished]], observer.events
