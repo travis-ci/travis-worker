@@ -7,6 +7,11 @@ gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'
 
+group :development do
+  gem "yard", "~> 0.7.1"
+  gem "rdiscount"
+end
+
 group :test do
   gem 'mocha'
   gem 'test_declarative'
