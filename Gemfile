@@ -6,6 +6,7 @@ gem 'em-http-request',     '~> 0.3.0'
 gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'
+gem 'hashie'
 
 group :test do
   gem 'mocha'

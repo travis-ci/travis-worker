@@ -2,6 +2,7 @@ require 'net/ssh'
 require 'net/ssh/shell'
 require 'vagrant'
 require 'fileutils'
+require 'shellwords'
 require 'patches/net/ssh/shell/process'
 
 module Travis
@@ -18,7 +19,9 @@ module Travis
         sandbox_start
       end
 
-      def execute(command)
+      def execute(command, options = {})
+        command = echoize(command) unless options[:echoize] == false
+
         status = nil
         shell.execute(command) do |process|
           process.on_finish do |p|

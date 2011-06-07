@@ -34,7 +34,7 @@ module Travis
             c.callback { |data| buffer << data }
             c.on_close { flush }
           else
-            c.callback { |data| notify(:data, data) }
+            c.callback { |data| notify(:data, :log => data) }
           end
         end
         EventMachine.add_periodic_timer(BUFFER_TIME) { flush } if buffer?
@@ -42,7 +42,7 @@ module Travis
       end
 
       def flush
-        notify(:data, buffer.read) unless buffer.empty?
+        notify(:data, :log => buffer.read) unless buffer.empty?
       end
 
       def buffer?

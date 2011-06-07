@@ -1,5 +1,7 @@
+require 'pathname'
+
 module Travis
-  module Jobs
+  module Job
     # Clones/fetches the repository, installs the bundle and runs the build
     # scripts using the default or specified rvm ruby.
     class Build < Base
@@ -14,20 +16,29 @@ module Travis
       protected
 
         def perform
-          status = chdir { build! ? 0 : 1 }
+          status = build! ? 0 : 1
           puts "\nDone. Build script exited with: #{status}"
           { :build => { :log => log, :status => status } }
         end
 
         def build!
-          repository.checkout(payload['build']['commit'])
-          repository.install && run_scripts
+          chdir do
+            setup_env
+            repository.checkout(build.commit)
+            repository.install && run_scripts
+          end
+        end
+
+        def setup_env
+          exec "rvm use #{config.rvm || 'default'}"
+          exec "BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile
+          exec config.env if config.env
         end
 
         def run_scripts
           %w{before_script script after_script}.each do |type|
             script = config.send(type)
-            break false if script.nil? || !run_script(script)
+            break false if script && !run_script(script)
           end
         end
 
@@ -37,21 +48,8 @@ module Travis
           end
         end
 
-        def chdir(&block)
-          FileUtils.mkdir_p(build_dir)
-          Dir.chdir(build_dir, &block)
-        end
-
-        def on_data(data)
-          @log << data
-        end
-
-        def start
-          super(data[:build].merge(:finished_at => Time.now))
-        end
-
-        def finish(data)
-          super(data[:build].merge(:finished_at => Time.now))
+        def on_data(job, data)
+          @log << data[:log] if data.key?(:log)
         end
       end
   end

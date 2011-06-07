@@ -13,18 +13,20 @@ require 'mocha'
 # require 'fakeredis'
 # require 'resque'
 
-require 'travis/worker'
+require 'travis_worker'
 
-# Dir["#{File.expand_path('../test_helpers/**/*.rb', __FILE__)}"].each do |helper|
-#   require helper
-# end
-#
-# class Test::Unit::TestCase
-#   include Assertions, TestHelper::Buildable, TestHelper::Redis
-#
-#   def setup
-#     Mocha::Mockery.instance.verify
-#     Resque.redis = FakeRedis::Redis.new
-#   end
-# end
-#
+class Test::Unit::TestCase
+  attr_reader :shell
+
+  def setup
+    @shell = Travis::Worker.shell = Object.new
+    Mocha::Mockery.instance.verify
+  end
+
+  def expect_shell(commands)
+    commands.each do |command|
+      shell.expects(:execute).with(command).returns(true)
+    end
+  end
+end
+

@@ -1,0 +1,28 @@
+require 'test_helper'
+
+class JobBaseTest < Test::Unit::TestCase
+  include Travis
+
+  Job::Base.send :public, *Job::Base.protected_instance_methods(false)
+
+  class TestObserver
+    attr_reader :events
+
+    [:on_start, :on_data, :on_finish].each do |method|
+      define_method(method) { |*args| (@events ||= []) << args }
+    end
+  end
+
+  test 'implements a simple observer pattern' do
+    job = Job::Base.new({})
+    observer = TestObserver.new
+    job.observers << observer
+
+    job.notify(:start, :started)
+    job.notify(:data, :data)
+    job.notify(:finish, :finished)
+
+    assert_equal [[job, :started], [job, :data], [job, :finished]], observer.events
+  end
+end
+
