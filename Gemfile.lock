@@ -9,11 +9,13 @@ GEM
       addressable (>= 2.0.0)
       escape_utils
       eventmachine (>= 0.12.9)
+    em-stdout (0.0.1)
     erubis (2.6.6)
       abstract (>= 1.0.0)
     escape_utils (0.2.3)
     eventmachine (0.12.10)
     ffi (1.0.9)
+    hashie (1.0.0)
     i18n (0.5.0)
     json (1.5.1)
     linecache (0.43)
@@ -84,6 +86,9 @@ PLATFORMS
 
 DEPENDENCIES
   em-http-request (~> 0.3.0)
+  em-stdout
+  eventmachine
+  hashie
   minitest
   minitest_tu_shim
   mocha

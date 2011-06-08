@@ -1,7 +1,7 @@
 require 'em/stdout'
 
 module Travis
-  class Builder
+  module Job
     module Stdout
       class Buffer < String
         def read_pos
@@ -23,18 +23,14 @@ module Travis
 
       attr_reader :stdout, :buffer
 
-      def initialize(*)
-        super
+      def split_stdout!
         @buffer = Buffer.new
-      end
-
-      def work!
         $_stdout = @stdout = EM.split_stdout do |c|
           if buffer?
             c.callback { |data| buffer << data }
             c.on_close { flush }
           else
-            c.callback { |data| notify(:data, data) }
+            c.callback { |data| update(data) }
           end
         end
         EventMachine.add_periodic_timer(BUFFER_TIME) { flush } if buffer?
@@ -42,7 +38,7 @@ module Travis
       end
 
       def flush
-        notify(:data, buffer.read) unless buffer.empty?
+        update(buffer.read) unless buffer.empty?
       end
 
       def buffer?

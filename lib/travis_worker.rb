@@ -1,5 +1,6 @@
 module Travis
-  autoload :Jobs,   'travis/jobs'
-  autoload :Shell,  'travis/shell'
-  autoload :Worker, 'travis/worker'
+  autoload :Job,      'travis/job'
+  autoload :Reporter, 'travis/reporter'
+  autoload :Shell,    'travis/shell'
+  autoload :Worker,   'travis/worker'
 end
