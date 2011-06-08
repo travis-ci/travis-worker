@@ -5,17 +5,11 @@ module EventMachine
     attr_accessor :stdout
 
     def split_stdout
-      EM.defer do
-        self.stdout = STDOUT.clone
-        read, write = *IO.pipe
-        EM.attach(read, Stdout) do |connection|
-          connection.stdout = stdout
-          yield connection if block_given?
-        end
-        STDOUT.reopen(write)
+      self.stdout, read, write = STDOUT.clone, *IO.pipe
+      EM.attach(read, Stdout) do |connection|
+        yield connection if block_given?
       end
-      sleep(0.01) until stdout
-      stdout
+      STDOUT.reopen(write)
     end
 
     def reset_stdout
@@ -34,8 +28,6 @@ module EventMachine
       end
     end
 
-    attr_accessor :stdout
-
     def callback(&block)
       @callback = block
     end
@@ -50,7 +42,7 @@ module EventMachine
     end
 
     def unbind
-      STDOUT.reopen(stdout)
+      STDOUT.reopen(EM.stdout)
       @on_close.call if @on_close
     end
   end

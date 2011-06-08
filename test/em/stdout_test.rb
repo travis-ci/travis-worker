@@ -19,6 +19,7 @@ class EMStdoutTest < Test::Unit::TestCase
         c.callback { |data| result = data }
       end
       print 'foo'
+      # sleep(1)
       # assert_equal 'foo', result
     end
     assert_equal 'foo', result

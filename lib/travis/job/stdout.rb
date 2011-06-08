@@ -21,11 +21,11 @@ module Travis
 
       BUFFER_TIME = 0.25
 
-      attr_reader :stdout, :buffer
+      attr_reader :buffer
 
       def split_stdout!
         @buffer = Buffer.new
-        $_stdout = @stdout = EM.split_stdout do |c|
+        EM.split_stdout do |c|
           if buffer?
             c.callback { |data| buffer << data }
             c.on_close { flush }
