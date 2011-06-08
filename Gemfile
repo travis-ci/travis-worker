@@ -5,7 +5,7 @@ gem 'resque-heartbeat'
 
 gem 'eventmachine'
 gem 'em-http-request',     '~> 0.3.0'
-gem 'em-stdout'
+# gem 'em-stdout'
 
 gem 'vagrant'
 gem 'net-ssh'

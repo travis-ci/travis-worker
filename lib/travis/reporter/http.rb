@@ -13,7 +13,7 @@ module Travis
         end
 
         def deliver_message(message)
-          register_connection(http(message.target).post(:body => message.data, :head => { 'authorization' => auth }))
+          register_connection(http(message.target).post(:body => message.data, :head => header))
         end
 
         def http(path)
@@ -28,8 +28,8 @@ module Travis
           @uri ||= URI.parse(host)
         end
 
-        def auth
-          @auth ||= [uri.user, uri.password]
+        def header
+          @header ||= { 'authorization' => [uri.user, uri.password] }
         end
 
         def config

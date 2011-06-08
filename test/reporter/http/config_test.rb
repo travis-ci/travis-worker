@@ -27,16 +27,6 @@ class ReporterHttpConfigTest < Test::Unit::TestCase
       assert_equal({ :_method => :put, :msg_id => 1, :build => { :config => { :foo => :bar } } }, message.data)
     end
   end
-
-  protected
-
-    def within_em_loop
-      EM.run do
-        sleep(0.01) until EM.reactor_running?
-        yield
-        EM.stop
-      end
-    end
 end
 
 

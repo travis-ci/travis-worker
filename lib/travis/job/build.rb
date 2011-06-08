@@ -17,7 +17,7 @@ module Travis
 
         def perform
           status = build! ? 0 : 1
-          puts "\nDone. Build script exited with: #{status}"
+          puts "\nDone. Build script exited with: #{status}\n"
           { :log => log, :status => status }
         end
 
@@ -26,7 +26,7 @@ module Travis
         end
 
         def update(data)
-          notify(:log, :log => data)
+          notify(:update, data)
         end
 
         def finish(data)

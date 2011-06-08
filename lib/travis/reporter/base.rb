@@ -33,9 +33,15 @@ module Travis
       end
 
       def deliver_messages!
-        EM.add_timer(0.1) do
-          messages.shift { |message| deliver_message(message) }
-          deliver_messages! # i'm sure there's a more elegant way to do this in EM
+        # EM.add_periodic_timer(0.1) # why the fuck does this swallow exception output
+        EM.defer do
+          begin
+            messages.shift { |message| deliver_message(message) }
+            sleep(0.1)
+            deliver_messages!
+          rescue
+            puts "\n" + $!.inspect + "\n	from  " + $!.backtrace.join("\n	from ")
+          end
         end
       end
     end

@@ -34,7 +34,6 @@ module Travis
           end
         end
         EventMachine.add_periodic_timer(BUFFER_TIME) { flush } if buffer?
-        super
       end
 
       def flush
