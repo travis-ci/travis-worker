@@ -31,6 +31,7 @@ GEM
     net-ssh-shell (0.1.0)
       net-ssh (>= 2.0.9)
     rack (1.2.3)
+    rdiscount (1.6.8)
     redis (2.2.0)
     redis-namespace (1.0.3)
       redis (< 3.0.0)
@@ -77,6 +78,7 @@ GEM
       rack (>= 1.0.0)
     virtualbox (0.8.6)
       ffi (~> 1.0)
+    yard (0.7.1)
 
 PLATFORMS
   ruby
@@ -90,6 +92,7 @@ DEPENDENCIES
   mocha
   net-ssh
   net-ssh-shell
+  rdiscount
   resque (~> 1.17.0)
   resque-heartbeat
   resque-meta (~> 1.0.3)
@@ -97,3 +100,4 @@ DEPENDENCIES
   ruby-debug19
   test_declarative
   vagrant
+  yard (~> 0.7.1)
