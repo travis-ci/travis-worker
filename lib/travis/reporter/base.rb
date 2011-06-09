@@ -6,17 +6,13 @@ module Travis
       def initialize(build)
         @build = build
         @messages = Queue.new
-        @connections = []
-      end
-
-      def register_connection(connection)
-        connections << connection
-        connection.callback { connections.delete(connection) }
-        connection.errback  { connections.delete(connection) }
       end
 
       def finished?
-        messages.empty? && connections.empty?
+        messages.empty? && !active? # && connections.empty?
+      end
+
+      def active?
       end
 
       def on_start(job, data)

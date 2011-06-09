@@ -18,19 +18,9 @@ module Mock
       end
     end
 
-    attr_accessor :requests
-
     def post(*args)
       self.class.requests << [:post, *args]
       self
-    end
-
-    def callback(&block)
-      yield(self)
-    end
-
-    def errback(&block)
-      @errback = block
     end
   end
 end

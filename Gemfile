@@ -7,6 +7,7 @@ gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'
 gem 'hashie'
+gem 'faraday'
 
 group :development do
   gem "yard", "~> 0.7.1"

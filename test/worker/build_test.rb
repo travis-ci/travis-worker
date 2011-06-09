@@ -21,7 +21,7 @@ class WorkerBuildTest < Test::Unit::TestCase
     @reporter = worker.reporter
 
     class << reporter # stubbing doesn't seem to work in a separate thread?
-      def http(*)
+      def connection(*)
         Mock::HttpRequest.new
       end
     end
@@ -32,20 +32,19 @@ class WorkerBuildTest < Test::Unit::TestCase
     worker.work!
 
     assert_messages [
-      { :build => { :started_at => now } },
-      { :build => { :log => 'log' } },
-      { :build => { :log => "\nDone. Build script exited with: 0\n" } },
-      { :build => { :log => "log\nDone. Build script exited with: 0\n", :status => 0, :finished_at => now } },
+      [:post, '/builds/1',     { :build => { :started_at => now } }],
+      [:post, '/builds/1/log', { :build => { :log => 'log' } }],
+      [:post, '/builds/1/log', { :build => { :log => "\nDone. Build script exited with: 0\n" } }],
+      [:post, '/builds/1',     { :build => { :log => "log\nDone. Build script exited with: 0\n", :status => 0, :finished_at => now } }],
     ]
   end
 
   protected
 
     def assert_messages(messages)
-      messages.each_with_index do |data, i|
-        actual   = Mock::HttpRequest.requests[i]
-        expected = [:post, { :body => data.merge(:_method => :put, :msg_id => i + 1), :head => { 'authorization' => ['sven', '1234567890'] } }]
-        assert_equal expected, actual
+      messages.each_with_index do |message, i|
+        message[2].merge!(:_method=>:put, :msg_id => i + 1)
+        assert_equal message, Mock::HttpRequest.requests[i]
       end
     end
 end
