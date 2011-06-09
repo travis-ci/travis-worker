@@ -15,7 +15,7 @@ require 'mocha'
 
 require 'travis_worker'
 require 'fixtures/payloads'
-require 'test_helper/mocks'
+require 'test_helper/mock'
 
 class Test::Unit::TestCase
   attr_reader :shell
@@ -28,14 +28,6 @@ class Test::Unit::TestCase
   def expect_shell(commands)
     commands.each do |command|
       shell.expects(:execute).with(command).returns(true)
-    end
-  end
-
-  def within_em_loop
-    EM.run do
-      sleep(0.01) until EM.reactor_running?
-      yield
-      EM.stop
     end
   end
 end

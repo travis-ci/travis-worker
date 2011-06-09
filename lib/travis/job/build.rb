@@ -5,7 +5,7 @@ module Travis
     # Clones/fetches the repository, installs the bundle and runs the build
     # scripts using the default or specified rvm ruby.
     class Build < Base
-      attr_reader :log, :result
+      attr_reader :status, :log
 
       def initialize(payload)
         super
@@ -16,9 +16,8 @@ module Travis
       protected
 
         def perform
-          status = build! ? 0 : 1
-          puts "\nDone. Build script exited with: #{status}\n"
-          { :log => log, :status => status }
+          @status = build! ? 0 : 1
+          update(:log => "\nDone. Build script exited with: #{status}\n")
         end
 
         def start
@@ -29,8 +28,8 @@ module Travis
           notify(:update, data)
         end
 
-        def finish(data)
-          notify(:finish, data.merge(:finished_at => Time.now))
+        def finish
+          notify(:finish, :log => log, :status => status, :finished_at => Time.now)
         end
 
         def build!
@@ -61,7 +60,7 @@ module Travis
         end
 
         def on_update(job, data)
-          @log << data[:log] if data.key?(:log)
+          log << data[:log] if data.key?(:log)
         end
       end
   end

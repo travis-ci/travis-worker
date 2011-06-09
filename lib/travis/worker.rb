@@ -1,7 +1,6 @@
 require 'resque'
 require 'resque/plugins/meta'
 require 'resque/heartbeat'
-require 'eventmachine'
 require 'hashie'
 require 'core_ext/ruby/hash/deep_symboliz_keys'
 
@@ -12,13 +11,10 @@ module Travis
   # The Worker instantiates jobs (currently based on the payload, should be based on
   # the queue) and runs them.
   class Worker
+    autoload :Config, 'travis/worker/config'
+
     # TODO can we remove this?
     extend Resque::Plugins::Meta
-
-    class Config < Hashie::Dash
-      property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
-      property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
-    end
 
     class << self
       def config
@@ -35,20 +31,7 @@ module Travis
 
       def perform(meta_id, payload)
         Resque.redis ||= Travis::Worker.config.redis.url
-
-        EM.run do
-          sleep(0.01) until EM.reactor_running?
-          EM.defer do
-            begin
-              new(meta_id, payload).work!
-            rescue Exception => e
-              $_stdout.puts(e.message)
-              e.backtrace.each { |line| $_stdout.puts(line) }
-            ensure
-              EM.stop
-            end
-          end
-        end
+        new(meta_id, payload).work!
       end
     end
 
@@ -59,15 +42,17 @@ module Travis
       @payload  = payload.deep_symbolize_keys
       @job      = job_type.new(payload)
 
+      Travis::Worker.shell.on_output do |process, data|
+        job.update(data)
+      end
+
       @reporter = Reporter::Http.new(job.build)
       job.observers << reporter
     end
 
     def work!
       reporter.deliver_messages!
-      job.split_stdout!
       job.work!
-
       sleep(0.1) until reporter.finished?
     end
 

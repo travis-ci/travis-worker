@@ -2,14 +2,16 @@ module Travis
   module Job
     # Build configuration job: read .travis.yml and return it
     class Config < Base
+      attr_reader :config
+
       protected
 
         def perform
-          { :config => read }
+          @config = read
         end
 
-        def finish(data)
-          notify(:finish, data)
+        def finish
+          notify(:finish, :config => config)
         end
 
         # TODO instead we could just do an http request to the github raw file here

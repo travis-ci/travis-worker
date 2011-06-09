@@ -3,7 +3,7 @@ require 'net/ssh/shell'
 require 'vagrant'
 require 'fileutils'
 require 'shellwords'
-require 'patches/net/ssh/shell/process'
+require 'patches/net_ssh_shell_process'
 
 module Travis
   module Shell
@@ -14,6 +14,8 @@ module Travis
         @vm    = env.primary_vm.vm
         @shell = Net::SSH.start(env.config.ssh.host, env.config.ssh.username, :port => 2222, :keys => [env.config.ssh.private_key_path]).shell
         @log   = '/tmp/travis/log/vboxmanage'
+
+        yield(self) if block_given?
 
         FileUtils.mkdir_p(File.dirname(log))
         sandbox_start

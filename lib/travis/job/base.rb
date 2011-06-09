@@ -14,7 +14,7 @@ module Travis
         end
       end
 
-      include Travis::Shell, Travis::Job::Stdout
+      include Travis::Shell
 
       attr_reader :payload, :observers
 
@@ -25,8 +25,8 @@ module Travis
 
       def work!
         start
-        result = perform
-        finish(result)
+        perform
+        finish
       end
 
       def repository
@@ -49,7 +49,7 @@ module Travis
         def update(data)
         end
 
-        def finish(data)
+        def finish
         end
 
         def notify(event, *args)

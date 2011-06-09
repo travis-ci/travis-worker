@@ -2,19 +2,18 @@ require 'test_helper'
 require 'hashie'
 
 class JobBuildTest < Test::Unit::TestCase
-  include Travis::Job
+  include Travis
 
-  Build.send :public, *Build.protected_instance_methods
-  Build.base_dir = '/tmp/travis/test'
+  Job::Build.send :public, *Job::Build.protected_instance_methods
+  Job::Build.base_dir = '/tmp/travis/test'
 
   attr_reader :payload, :build
 
   def setup
     super
 
-    Build.any_instance.stubs(:puts) # silence output
     @payload = INCOMING_PAYLOADS['build:gem-release']
-    @build = Build.new(payload)
+    @build = Job::Build.new(payload)
     @build.repository.config.stubs(:gemfile?).returns(true)
 
     FileUtils.mkdir_p(build.build_dir)
@@ -22,7 +21,7 @@ class JobBuildTest < Test::Unit::TestCase
 
   def teardown
     super
-    FileUtils.rm_rf(Build.base_dir)
+    FileUtils.rm_rf(Job::Build.base_dir)
   end
 
   test 'perform: changes to the build directory' do
@@ -30,10 +29,13 @@ class JobBuildTest < Test::Unit::TestCase
     build.perform
   end
 
-  test 'perform: builds and returns the result' do
+  test 'perform: builds and sets status and log' do
     build.expects(:build!).returns(true)
     build.notify(:update, :log => 'log')
-    assert_equal({ :log => 'log', :status => 0 }, build.perform)
+    build.perform
+
+    assert_equal "log\nDone. Build script exited with: 0\n", build.log
+    assert_equal 0, build.status
   end
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do

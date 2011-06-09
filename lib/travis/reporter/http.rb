@@ -1,4 +1,3 @@
-require 'em-http-request'
 require 'uri'
 
 module Travis
@@ -8,8 +7,6 @@ module Travis
         def message(type, data)
           path = "/builds/#{build.id}#{'/log' if data.delete(:incremental)}"
           messages.add(type, path, :_method => :put, :build => data)
-        rescue Exception => e
-          # stdout.puts e.inspect
         end
 
         def deliver_message(message)
@@ -17,7 +14,7 @@ module Travis
         end
 
         def http(path)
-          EventMachine::HttpRequest.new([host, path].join('/'))
+          # EventMachine::HttpRequest.new([host, path].join('/'))
         end
 
         def host

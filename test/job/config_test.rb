@@ -1,24 +1,25 @@
 require 'test_helper'
 
 class JobConfigTest < Test::Unit::TestCase
-  include Travis::Job
+  include Travis
 
-  Config.send :public, *Config.protected_instance_methods
+  Job::Config.send :public, *Job::Config.protected_instance_methods
 
   attr_reader :config, :shell
 
   def setup
     super
 
-    @shell = Travis::Worker.shell = Object.new
+    @shell = Worker.shell = Object.new
     shell.stubs(:execute)
 
-    @config = Config.new(INCOMING_PAYLOADS['config:gem-release'])
+    @config = Job::Config.new(INCOMING_PAYLOADS['config:gem-release'])
   end
 
-  test 'perform: changes to the build directory' do
+  test 'perform: reads and sets config' do
     File.stubs(:read).returns("---\n  script: rake ci")
-    assert_equal({ :config => { 'script' => 'rake ci' } }, config.perform)
+    config.perform
+    assert_equal({ 'script' => 'rake ci' }, config.config)
   end
 end
 

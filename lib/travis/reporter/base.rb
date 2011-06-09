@@ -28,19 +28,16 @@ module Travis
       end
 
       def on_finish(job, data)
-        sleep(Job::Stdout::BUFFER_TIME) # ugh ... make sure this is the last message. do we still need this?
         message(:finish, data)
       end
 
       def deliver_messages!
-        # EM.add_periodic_timer(0.1) # why the fuck does this swallow exception output
-        EM.defer do
-          begin
-            messages.shift { |message| deliver_message(message) }
+        Thread.abort_on_exception = true
+
+        Thread.new do
+          while true do
+            messages.shift { |message| deliver_message(message) } unless messages.empty?
             sleep(0.1)
-            deliver_messages!
-          rescue
-            puts "\n" + $!.inspect + "\n	from  " + $!.backtrace.join("\n	from ")
           end
         end
       end
