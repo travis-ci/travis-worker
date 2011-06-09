@@ -40,6 +40,10 @@ module Travis
           config.gemfile?
         end
 
+        def raw_url
+          "https://raw.github.com/#{slug}"
+        end
+
         def source
           "git://github.com/#{slug}.git"
         end

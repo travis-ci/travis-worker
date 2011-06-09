@@ -9,15 +9,19 @@ class JobConfigTest < Test::Unit::TestCase
 
   def setup
     super
-
-    @shell = Worker.shell = Object.new
-    shell.stubs(:execute)
-
     @config = Job::Config.new(INCOMING_PAYLOADS['config:gem-release'])
   end
 
   test 'perform: reads and sets config' do
-    File.stubs(:read).returns("---\n  script: rake ci")
+    # this works ...
+    response = Faraday::Response.new.tap { |r| r.body = "---\\\\n  script: rake ci" }
+    Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/1234567/.travis.yml').returns(response)
+
+    # this doesn't ... hu?
+    # Faraday.adapter(:test) do |stub|
+    #   stub.get('/svenfuchs/gem-release/1234567/.travis.yml') {[ 200, {}, "---\\\\\\\\n  script: rake ci" ]}
+    # end
+
     config.perform
     assert_equal({ 'script' => 'rake ci' }, config.config)
   end

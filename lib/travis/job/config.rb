@@ -1,3 +1,5 @@
+require 'faraday'
+
 module Travis
   module Job
     # Build configuration job: read .travis.yml and return it
@@ -7,21 +9,23 @@ module Travis
       protected
 
         def perform
-          @config = read
+          @config = fetch
         end
 
         def finish
           notify(:finish, :config => config)
         end
 
-        # TODO instead we could just do an http request to the github raw file here
-        def read
-          chdir do
-            repository.checkout(build.commit)
-            YAML.load(File.read('.travis.yml')) || {}
-          end
-        rescue Errno::ENOENT => e
-          {}
+        def fetch
+          parse(Faraday.get(url).body)
+        end
+
+        def url
+          "#{repository.raw_url}/#{build.commit}/.travis.yml"
+        end
+
+        def parse(yaml)
+          YAML.load(yaml) || {} rescue {}
         end
     end
   end
