@@ -14,7 +14,7 @@ class JobConfigTest < Test::Unit::TestCase
 
   test 'perform: reads and sets config' do
     # this works ...
-    response = Faraday::Response.new.tap { |r| r.body = "---\\\\n  script: rake ci" }
+    response = Faraday::Response.new.tap { |r| r.body = "---\n  script: rake ci" }
     Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/1234567/.travis.yml').returns(response)
 
     # this doesn't ... hu?

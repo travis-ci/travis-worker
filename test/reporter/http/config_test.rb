@@ -8,7 +8,7 @@ class ReporterHttpConfigTest < Test::Unit::TestCase
   def setup
     super
     @job = Job::Config.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
-    job.stubs(:read).returns(:foo => :bar)
+    job.stubs(:fetch).returns(:foo => :bar)
 
     @reporter = Reporter::Http.new(job.build)
     job.observers << reporter
