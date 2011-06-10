@@ -8,7 +8,7 @@ module Travis
     class Base
       class << self
         def base_dir
-          @@base_dir ||= Pathname.new('/tmp/travis/builds')
+          @@base_dir ||= Pathname.new(ENV.fetch("TRAVIS_WORKER_BUILDS_PATH", '/tmp/travis/builds'))
         end
 
         def base_dir=(base_dir)
