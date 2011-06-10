@@ -22,12 +22,14 @@ module Travis
     extend Resque::Plugins::Meta
 
     class << self
+      attr_reader :vagrant_env
+
       def config
         @config ||= Config.new
       end
 
       def shell
-        @shell ||= Travis::Shell::Session.new(Vagrant::Environment.new.load!)
+        @shell ||= Travis::Shell::Session.new(vagrant_env)
       end
 
       def shell=(shell)
@@ -35,8 +37,17 @@ module Travis
       end
 
       def perform(meta_id, payload)
+        load_vagrant
         Resque.redis ||= Travis::Worker.config.redis.url
         new(meta_id, payload).work!
+      end
+
+      def load_vagrant
+        puts 'loading vagrant ...'
+        require 'vagrant'
+
+        puts 'loading vagrant env ...'
+        @vagrant_env = Vagrant::Environment.new.load!
       end
     end
 
@@ -47,7 +58,7 @@ module Travis
       @payload  = payload.deep_symbolize_keys
       @job      = job_type.new(payload)
 
-      Travis::Worker.shell.on_output do |process, data|
+      shell.on_output do |process, data|
         puts data
         job.update(data)
       end
@@ -56,10 +67,15 @@ module Travis
       job.observers << reporter
     end
 
+    def shell
+      self.class.shell
+    end
+
     def work!
       reporter.deliver_messages!
       job.work!
       sleep(0.1) until reporter.finished?
+      shell.close
     end
 
     def job_type
