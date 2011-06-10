@@ -4,7 +4,9 @@ module Travis
   class Worker
     # Environment-aware worker configuration.
     #
-    # Environment (`development`, `test`, `production` and so on) is set using TRAVIS_ENV env variable, default value is `test`.
+    # ### Environment variables
+    #
+    # Environment (development, test, production and so on) is set using TRAVIS_ENV env variable, default value is *test*.
     # Redis connection URI is set using REDIS_URL env variable.
     #
     # @see Travis::Job::Base

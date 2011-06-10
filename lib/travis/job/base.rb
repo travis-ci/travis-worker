@@ -1,4 +1,5 @@
 require "pathname"
+require "fileutils"
 
 module Travis
   module Job
@@ -82,29 +83,35 @@ module Travis
 
       protected
 
-        def start
-        end
+      # @api plugin
+      def start
+      end
 
-        def update(data)
-        end
+      # @api plugin
+      def update(data)
+      end
 
-        def finish
-        end
+      # @api plugin
+      def finish
+      end
 
-        def notify(event, *args)
-          observers.each do |observer|
-            observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
-          end
+      # @api plugin
+      def notify(event, *args)
+        observers.each do |observer|
+          observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
         end
+      end
 
-        def chdir(&block)
-          FileUtils.mkdir_p(build_dir)
-          Dir.chdir(build_dir, &block)
-        end
+      # @api private
+      def chdir(&block)
+        FileUtils.mkdir_p(build_dir)
+        Dir.chdir(build_dir, &block)
+      end
 
-        def build_dir
-          @build_dir ||= self.class.base_dir.join(repository.slug)
-        end
-    end
-  end
-end
+      # @api plugin
+      def build_dir
+        @build_dir ||= self.class.base_dir.join(repository.slug)
+      end
+    end # Base
+  end # Job
+end # Travis
