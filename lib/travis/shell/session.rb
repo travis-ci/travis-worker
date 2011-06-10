@@ -21,7 +21,7 @@ module Travis
       # @return [Net::SSH::Connection::Session]
       attr_reader :shell
 
-      # Vagrant log file path
+      # VBoxManage log file path
       # @return [String]
       attr_reader :log
 

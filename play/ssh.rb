@@ -90,7 +90,7 @@ commands = [
 ]
 
 env = Vagrant::Environment.new.load!
-ssh = Travis::Shell::SSH.new(env)
+ssh = Travis::Shell::Session.new(env)
 commands.each do |command|
   puts "\n$ #{command}"
   status = ssh.execute(command)

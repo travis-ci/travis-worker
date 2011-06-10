@@ -5,7 +5,7 @@ module Travis
     # Behaviors
     #
 
-    autoload :Session,     'travis/shell/session'
+    autoload :Session, 'travis/shell/session'
 
 
     #
@@ -14,7 +14,7 @@ module Travis
 
     NEWLINE = "\n"
 
-    # @see Travis::Worker::SSH#execute
+    # @see Travis::Shell::Session#execute
     def exec(*args)
       Travis::Worker.shell.execute(*args)
     end

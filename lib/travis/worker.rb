@@ -27,7 +27,7 @@ module Travis
       end
 
       def shell
-        @shell ||= Travis::Shell::SSH.new(Vagrant::Environment.new.load!)
+        @shell ||= Travis::Shell::Session.new(Vagrant::Environment.new.load!)
       end
 
       def shell=(shell)
