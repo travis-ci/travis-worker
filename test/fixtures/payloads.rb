@@ -7,7 +7,7 @@ INCOMING_PAYLOADS = {
     },
     'build' => {
       'id' => 1,
-      'commit' => '1234567'
+      'commit' => 'b0a1b69'
     }
   },
   'build:gem-release' => {
