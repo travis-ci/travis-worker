@@ -1,0 +1,8 @@
+*.class
+*.rbc
+*~
+*#
+#*
+.yardoc/*
+log/*
+tmp/*
