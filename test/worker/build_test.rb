@@ -9,7 +9,9 @@ class WorkerBuildTest < Test::Unit::TestCase
 
   def setup
     super
-    Worker.config.reporter.http.url = 'http://sven:1234567890@travis-ci.org'
+
+    config = { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
+    YAML.stubs(:load_file).with('config.yml').returns(config)
 
     @now = Time.now
     Time.stubs(:now).returns(now)
@@ -25,6 +27,7 @@ class WorkerBuildTest < Test::Unit::TestCase
         Mock::HttpRequest.new
       end
     end
+
   end
 
   test 'running a build' do

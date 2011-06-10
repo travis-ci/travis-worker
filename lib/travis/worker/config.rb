@@ -20,7 +20,9 @@ module Travis
       property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
 
       def initialize
-        super(Hashie::Mash.new(YAML.load_file('config/travis.yml')[environment]))
+        # TODO currently expects a file to be present in the current working directory. should probably check
+        # some other common places, too? like ~/.travis.config.yml or something
+        super(Hashie::Mash.new(YAML.load_file('config.yml')[environment]))
       end
 
       # @return [String] Environment Travis worker runs in. Typically one of: development, test, staging, production
