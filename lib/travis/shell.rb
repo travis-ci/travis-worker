@@ -5,8 +5,7 @@ module Travis
     # Behaviors
     #
 
-    autoload :Helpers, 'travis/shell/helpers'
-    autoload :SSH,     'travis/shell/ssh'
+    autoload :Session,     'travis/shell/session'
 
 
     #

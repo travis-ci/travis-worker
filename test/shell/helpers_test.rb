@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ShellTest < Test::Unit::TestCase
-  include Travis::Shell::Helpers
+  include Travis::Shell
 
   test 'echoize: echo the command before executing it (1)' do
     assert_equal "echo \\$\\ rake\nrake", echoize('rake')
