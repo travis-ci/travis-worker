@@ -1,0 +1,10 @@
+--no-private --protected
+--markup="markdown"
+--main README.md
+--asset docs:docs
+--hide-tag todo
+lib/travis/*.rb
+lib/travis/**/*.rb
+lib/travis_worker/*.rb
+-
+LICENSE
