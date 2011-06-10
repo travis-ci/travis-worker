@@ -1,0 +1,10 @@
+--no-private --no-protected
+--markup="markdown"
+--main README.md
+--asset docs:docs
+lib/travis/*.rb
+lib/travis/**/*.rb
+lib/travis_worker/*.rb
+-
+LICENSE
+docs/*.md

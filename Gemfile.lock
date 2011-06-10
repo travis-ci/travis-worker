@@ -30,6 +30,7 @@ GEM
     net-ssh-shell (0.1.0)
       net-ssh (>= 2.0.9)
     rack (1.2.3)
+    rake (0.9.2)
     rdiscount (1.6.8)
     redis (2.2.0)
     redis-namespace (1.0.3)
@@ -90,6 +91,7 @@ DEPENDENCIES
   mocha
   net-ssh
   net-ssh-shell
+  rake (~> 0.9.2)
   rdiscount
   resque (~> 1.17.0)
   resque-heartbeat

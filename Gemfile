@@ -9,6 +9,8 @@ gem 'net-ssh-shell'
 gem 'hashie'
 gem 'faraday'
 
+gem 'rake', "~> 0.9.2"
+
 group :development do
   gem "yard", "~> 0.7.1"
   gem "rdiscount"
