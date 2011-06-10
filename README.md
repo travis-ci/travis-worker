@@ -8,7 +8,7 @@ for broader community of contributors to jump in.
 
 On Ruby 1.9.2:
 
-    bundle exec ruby -I. -Ilib -Itest  -r'test/unit' test/all.rb
+    bundle exec ruby -Ilib:test test/all.rb
 
 
 # License & copyright information
