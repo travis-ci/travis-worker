@@ -1,3 +1,5 @@
+require "pathname"
+
 module Travis
   module Job
     # Job base class. Implements an observer pattern so Reporters can hook in
