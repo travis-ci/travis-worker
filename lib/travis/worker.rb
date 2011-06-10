@@ -48,6 +48,7 @@ module Travis
       @job      = job_type.new(payload)
 
       Travis::Worker.shell.on_output do |process, data|
+        puts data
         job.update(data)
       end
 
