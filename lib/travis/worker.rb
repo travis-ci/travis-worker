@@ -43,6 +43,8 @@ module Travis
       end
 
       def load_vagrant
+        config # TODO triggers loading the config early
+
         puts 'loading vagrant ...'
         require 'vagrant'
 
@@ -57,14 +59,13 @@ module Travis
       @meta_id  = meta_id
       @payload  = payload.deep_symbolize_keys
       @job      = job_type.new(payload)
-
-      shell.on_output do |process, data|
-        puts data
-        job.update(data)
-      end
-
       @reporter = Reporter::Http.new(job.build)
+
       job.observers << reporter
+      shell.on_output do |process, data|
+        print data
+        job.update(:log => data)
+      end
     end
 
     def shell

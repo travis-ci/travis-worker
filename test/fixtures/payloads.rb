@@ -7,7 +7,7 @@ INCOMING_PAYLOADS = {
     },
     'build' => {
       'id' => 1,
-      'commit' => 'b0a1b69'
+      'commit' => '313f61b'
     }
   },
   'config:test-project-1' => {
@@ -25,10 +25,10 @@ INCOMING_PAYLOADS = {
     },
     'build' => {
       'id' => 1,
-      'commit' => 'b0a1b69',
+      'commit' => '313f61b',
       'config' => {
-        'rvm'    => ["1.8.6", "1.8.7", "ree", "jruby"],
-        'script' => 'ruby test/all.rb'
+        'rvm'    => '1.9.2',
+        'script' => 'rake'
       }
     }
   },

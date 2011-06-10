@@ -11,7 +11,7 @@ class WorkerBuildTest < Test::Unit::TestCase
     super
 
     config = { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
-    YAML.stubs(:load_file).with('config.yml').returns(config)
+    Worker::Config.any_instance.stubs(:load).returns(config)
 
     @now = Time.now
     Time.stubs(:now).returns(now)

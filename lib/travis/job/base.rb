@@ -21,7 +21,7 @@ module Travis
       # Behaviors
       #
 
-      include Travis::Shell
+      include Shell
 
       #
       # API
@@ -30,7 +30,7 @@ module Travis
       class << self
         # @api public
         def base_dir
-          @@base_dir ||= Pathname.new(ENV.fetch("TRAVIS_WORKER_BUILDS_PATH", '/tmp/travis/builds'))
+          @@base_dir ||= Pathname.new(ENV.fetch('BUILD_DIR', '/tmp/travis/builds'))
         end
 
         # @api public
@@ -55,14 +55,14 @@ module Travis
       # Subclasses must implement {#start}, {#perform} and {#finish} methods.
       #
       # @api public
-      def work!
+      def work!(shell = nil)
         start
         perform
         finish
       end
 
       def repository
-        @repository ||= Repository.new(payload.repository.slug, build.config)
+        @repository ||= Repository.new(build_dir, payload.repository.slug, build.config)
       end
 
       def config
@@ -81,33 +81,14 @@ module Travis
       protected
 
         # @api plugin
-        def start
-        end
-
-        # @api plugin
-        def update(data)
-        end
-
-        # @api plugin
-        def finish
-        end
-
-        # @api plugin
         def notify(event, *args)
           observers.each do |observer|
             observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
           end
         end
 
-        # @api private
-        def chdir(&block)
-          FileUtils.mkdir_p(build_dir)
-          Dir.chdir(build_dir, &block)
-        end
-
-        # @api plugin
         def build_dir
-          @build_dir ||= self.class.base_dir.join(repository.slug)
+          @build_dir ||= self.class.base_dir.join(payload.repository.slug)
         end
     end # Base
   end # Job

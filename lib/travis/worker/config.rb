@@ -1,4 +1,5 @@
-require "hashie/dash"
+require 'yaml'
+require 'hashie/dash'
 
 module Travis
   class Worker
@@ -22,12 +23,16 @@ module Travis
       def initialize
         # TODO currently expects a file to be present in the current working directory. should probably check
         # some other common places, too? like ~/.travis.config.yml or something
-        super(Hashie::Mash.new(YAML.load_file('config.yml')[environment]))
+        super(Hashie::Mash.new(load[environment]))
       end
 
       # @return [String] Environment Travis worker runs in. Typically one of: development, test, staging, production
       def environment
         ENV['TRAVIS_ENV'] || 'test'
+      end
+
+      def load
+        YAML.load_file(File.expand_path('config.yml'))
       end
     end # Config
   end # Worker

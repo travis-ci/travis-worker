@@ -24,8 +24,6 @@ module Travis
       # @return [String]
       attr_reader :log
 
-      attr_reader :on_output
-
       def initialize(env)
         @vm    = env.primary_vm.vm
         @shell = start_shell(env)
@@ -42,19 +40,20 @@ module Travis
       end
 
       def execute(command, options = {})
-        command = echoize(command) unless options[:echoize] == false
-
+        command = echoize(command) unless options[:echo] == false
         status = nil
+
         shell.execute(command) do |process|
           process.on_output do |p, data|
-            on_output.call(p, data) if on_output
+            @on_output.call(p, data) if @on_output
           end
           process.on_finish do |p|
             status = p.exit_status
           end
         end
         shell.session.loop { status.nil? }
-        status
+
+        status == 0
       end
 
       def close
@@ -76,6 +75,10 @@ module Travis
           end
         end
 
+        def echoize(cmd)
+          [cmd].flatten.join("\n").split("\n").map { |cmd| "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}" }.join("\n")
+        end
+
         def start_standbox
           puts 'creating vbox snapshot ...'
           vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
@@ -86,6 +89,7 @@ module Travis
           puts 'rolling back to vbox snapshot ...'
           vbox_manage "controlvm '#{vm.name}' poweroff"
           vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
+          vbox_manage "snapshot '#{vm.name}' delete 'travis-sandbox'"
           vbox_manage "startvm --type headless '#{vm.name}'"
           puts 'done.'
         end

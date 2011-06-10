@@ -7,20 +7,10 @@ module Travis
   module Job
     class Repository
       class Config < Hashie::Mash
-        # ENV_KEYS = ['rvm', 'gemfile', 'env']
-
-        # class << self
-        #   def matrix?(config)
-        #     config.values_at(*ENV_KEYS).compact.any? { |value| value.is_a?(Array) && value.size > 1 }
-        #   end
-        # end
-
-        # def initialize(config = {})
-        #   replace(config.stringify_keys)
-        # end
+        include Shell
 
         def gemfile?
-          File.exists?(File.expand_path((self.gemfile || 'Gemfile').to_s))
+          exec "test -f #{self.gemfile || 'Gemfile'}", :echo => false
         end
 
         def script

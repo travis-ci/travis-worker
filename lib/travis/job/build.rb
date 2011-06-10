@@ -31,35 +31,38 @@ module Travis
         @log = ''
       end
 
+      def start
+        notify(:start, :started_at => Time.now)
+      end
+
+      def update(data)
+        notify(:update, data)
+      end
+
+      def finish
+        notify(:finish, :log => log, :status => status, :finished_at => Time.now)
+      end
+
       #
       # Implementation
       #
 
       protected
 
+        def on_update(job, data)
+          log << data[:log] if data.key?(:log)
+        end
+
         def perform
           @status = build! ? 0 : 1
           update(:log => "\nDone. Build script exited with: #{status}\n")
         end
 
-        def start
-          notify(:start, :started_at => Time.now)
-        end
-
-        def update(data)
-          notify(:update, data)
-        end
-
-        def finish
-          notify(:finish, :log => log, :status => status, :finished_at => Time.now)
-        end
-
         def build!
-          chdir do
-            setup_env
-            repository.checkout(build.commit)
-            repository.install && run_scripts
-          end
+          chdir
+          setup_env
+          repository.checkout(build.commit)
+          repository.install && run_scripts
         end
 
         def setup_env
@@ -77,12 +80,13 @@ module Travis
 
         def run_script(script)
           Array(script).each do |script|
+            script = "#{script} 2>&1" unless script.strip[-1..4] == '2>&1'
             break false unless exec(script)
           end
         end
 
-        def on_update(job, data)
-          log << data[:log] if data.key?(:log)
+        def chdir(&block)
+          exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
         end
     end # Build
   end # Job

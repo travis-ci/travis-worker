@@ -16,7 +16,7 @@ module Travis
       # Behaviors
       #
 
-      include Travis::Shell
+      include Shell
 
       autoload :Config, 'travis/job/repository/config'
 
@@ -24,12 +24,13 @@ module Travis
       # API
       #
 
-      attr_reader :url
+      attr_reader :dir
       attr_reader :slug
       attr_reader :config
 
       # @api public
-      def initialize(slug, config)
+      def initialize(dir, slug, config)
+        @dir    = dir
         @slug   = slug
         @config = Config.new(config)
       end
@@ -59,7 +60,7 @@ module Travis
 
         # @api plugin
         def clone
-          exec "git clone #{source} #{Dir.pwd}"
+          exec "git clone #{source} #{dir}"
         end
 
         # @api plugin
@@ -70,7 +71,7 @@ module Travis
 
         # @api plugin
         def exists?
-          File.directory?('.git')
+          exec("test -d .git", :echo => false)
         end
 
         # @api plugin
