@@ -23,7 +23,6 @@ module Travis
 
       include Travis::Shell
 
-
       #
       # API
       #
@@ -75,43 +74,41 @@ module Travis
         payload.build ||= Hashie::Mash.new
       end
 
-
-
       #
       # Implementation
       #
 
       protected
 
-      # @api plugin
-      def start
-      end
-
-      # @api plugin
-      def update(data)
-      end
-
-      # @api plugin
-      def finish
-      end
-
-      # @api plugin
-      def notify(event, *args)
-        observers.each do |observer|
-          observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
+        # @api plugin
+        def start
         end
-      end
 
-      # @api private
-      def chdir(&block)
-        FileUtils.mkdir_p(build_dir)
-        Dir.chdir(build_dir, &block)
-      end
+        # @api plugin
+        def update(data)
+        end
 
-      # @api plugin
-      def build_dir
-        @build_dir ||= self.class.base_dir.join(repository.slug)
-      end
+        # @api plugin
+        def finish
+        end
+
+        # @api plugin
+        def notify(event, *args)
+          observers.each do |observer|
+            observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
+          end
+        end
+
+        # @api private
+        def chdir(&block)
+          FileUtils.mkdir_p(build_dir)
+          Dir.chdir(build_dir, &block)
+        end
+
+        # @api plugin
+        def build_dir
+          @build_dir ||= self.class.base_dir.join(repository.slug)
+        end
     end # Base
   end # Job
 end # Travis

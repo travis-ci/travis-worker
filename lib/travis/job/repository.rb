@@ -20,8 +20,6 @@ module Travis
 
       autoload :Config, 'travis/job/repository/config'
 
-
-
       #
       # API
       #
@@ -48,42 +46,42 @@ module Travis
       end
 
 
+      # @api plugin
+      def raw_url
+        "https://raw.github.com/#{slug}"
+      end
+
       #
       # Implementation
       #
 
       protected
 
-      # @api plugin
-      def clone
-        exec "git clone #{source} #{Dir.pwd}"
-      end
+        # @api plugin
+        def clone
+          exec "git clone #{source} #{Dir.pwd}"
+        end
 
-      # @api plugin
-      def fetch
-        exec 'git clean -fdx'
-        exec 'git fetch'
-      end
+        # @api plugin
+        def fetch
+          exec 'git clean -fdx'
+          exec 'git fetch'
+        end
 
-      # @api plugin
-      def exists?
-        File.directory?('.git')
-      end
+        # @api plugin
+        def exists?
+          File.directory?('.git')
+        end
 
-      # @api plugin
-      def install?
-        config.gemfile?
-      end
+        # @api plugin
+        def install?
+          config.gemfile?
+        end
 
-      # @api plugin
-      def raw_url
-        "https://raw.github.com/#{slug}"
-      end
-
-      # @api plugin
-      def source
-        "git://github.com/#{slug}.git"
-      end
+        # @api plugin
+        def source
+          "git://github.com/#{slug}.git"
+        end
     end # Repository
   end # Job
 end # Travis
