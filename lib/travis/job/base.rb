@@ -2,29 +2,59 @@ require "pathname"
 
 module Travis
   module Job
-    # Job base class. Implements an observer pattern so Reporters can hook in
-    # unobstrusively, holds the payload data and provides the main public `work!`
-    # method.
+    # Base Job class. Implements the Observer pattern to let reporters register themselves.
+    #
+    # Every job holds payload data with all the information about build that needs to be executed.
+    #
+    # ### Key methods
+    #
+    # * {Base#work!}
+    # * {Base#config}
+    #
+    # @see Travis::Worker::Config
+    # @see Travis::Reporter::Base
+    # @abstract
     class Base
+
+      #
+      # Behaviors
+      #
+
+      include Travis::Shell
+
+
+      #
+      # API
+      #
+
       class << self
+        # @api public
         def base_dir
           @@base_dir ||= Pathname.new(ENV.fetch("TRAVIS_WORKER_BUILDS_PATH", '/tmp/travis/builds'))
         end
 
+        # @api public
         def base_dir=(base_dir)
           @@base_dir = Pathname.new(base_dir)
         end
       end
 
-      include Travis::Shell
+      # @api public
+      attr_reader :payload
+      # @api plugin
+      attr_reader :observers
 
-      attr_reader :payload, :observers
-
+      # @api public
       def initialize(payload)
         @payload   = Hashie::Mash.new(payload)
         @observers = []
       end
 
+      # Runs the build, including necessary setup and post-run routines.
+      #
+      # Subclasses must implement {#start}, {#perform} and {#finish} methods.
+      #
+      # @api public
       def work!
         start
         perform
@@ -39,9 +69,16 @@ module Travis
         repository.config ||= Hashie::Mash.new
       end
 
+      # @todo We need to pick a more specific name. MK.
       def build
         payload.build ||= Hashie::Mash.new
       end
+
+
+
+      #
+      # Implementation
+      #
 
       protected
 
