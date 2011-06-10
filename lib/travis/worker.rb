@@ -5,6 +5,11 @@ require 'hashie'
 require 'core_ext/ruby/hash/deep_symboliz_keys'
 
 module Travis
+  autoload :Job,      'travis/job'
+  autoload :Reporter, 'travis/reporter'
+  autoload :Shell,    'travis/shell'
+  autoload :Worker,   'travis/worker'
+
   # Main worker dispatcher class that get's instantiated by Resque. Once we get rid of
   # Resque this class can take over the responsibility of popping jobs from the queue.
   #
