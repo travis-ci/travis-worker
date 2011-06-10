@@ -10,9 +10,31 @@ INCOMING_PAYLOADS = {
       'commit' => 'b0a1b69'
     }
   },
+  'config:test-project-1' => {
+    'repository' => {
+      'slug' => 'travis-ci/test-project-1'
+    },
+    'build' => {
+      'id' => 1,
+      'commit' => '1234567'
+    }
+  },
   'build:gem-release' => {
     'repository' => {
       'slug' => 'svenfuchs/gem-release',
+    },
+    'build' => {
+      'id' => 1,
+      'commit' => 'b0a1b69',
+      'config' => {
+        'rvm'    => ["1.8.6", "1.8.7", "ree", "jruby"],
+        'script' => 'ruby test/all.rb'
+      }
+    }
+  },
+  'build:test-project-1' => {
+    'repository' => {
+      'slug' => 'travis-ci/test-project-1',
     },
     'build' => {
       'id' => 1,

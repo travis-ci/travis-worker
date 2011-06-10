@@ -12,7 +12,7 @@ class JobBuildTest < Test::Unit::TestCase
   def setup
     super
 
-    @payload = INCOMING_PAYLOADS['build:gem-release']
+    @payload = INCOMING_PAYLOADS['build:test-project-1']
     @build = Job::Build.new(payload)
     @build.repository.config.stubs(:gemfile?).returns(true)
 
@@ -45,7 +45,7 @@ class JobBuildTest < Test::Unit::TestCase
       'rvm use 1.9.2',
       'BUNDLE_GEMFILE=Gemfile.rails-3.1',
       'FOO=bar',
-      "git clone git://github.com/svenfuchs/gem-release.git #{build.build_dir.realpath}",
+      "git clone git://github.com/travis-ci/test-project-1.git #{build.build_dir.realpath}",
       'git checkout -qf 1234567',
       'bundle install bundler_arg=1',
       'bundle exec rake ci:before',
@@ -56,7 +56,7 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'build_dir: the path from the github url local to the base builds dir' do
-    assert_equal '/tmp/travis/test/svenfuchs/gem-release', build.build_dir.to_s
+    assert_equal '/tmp/travis/test/travis-ci/test-project-1', build.build_dir.to_s
   end
 
   test 'on_update: appends the log data' do

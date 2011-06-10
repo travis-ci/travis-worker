@@ -9,6 +9,9 @@ module Mock
     def on_output=(&block)
       @on_output = block
     end
+
+    def close
+    end
   end
 
   class HttpRequest
