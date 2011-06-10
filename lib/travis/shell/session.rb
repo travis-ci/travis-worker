@@ -7,8 +7,23 @@ require 'patches/net_ssh_shell_process'
 
 module Travis
   module Shell
-    class SSH
-      attr_reader :vm, :shell, :log
+    class Session
+
+      #
+      # API
+      #
+
+
+      # VirtualBox VM instance used by the session
+      attr_reader :vm
+
+      # Net::SSH session
+      # @return [Net::SSH::Connection::Session]
+      attr_reader :shell
+
+      # Vagrant log file path
+      # @return [String]
+      attr_reader :log
 
       def initialize(env)
         @vm    = env.primary_vm.vm
@@ -40,21 +55,27 @@ module Travis
         sandbox_rollback
       end
 
+
+
+      #
+      # Protected
+      #
+
       protected
 
-        def sandbox_start
-          vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
-        end
+      def sandbox_start
+        vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
+      end
 
-        def sandbox_rollback
-          vbox_manage "controlvm '#{vm.name}' poweroff"
-          vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
-          vbox_manage "startvm --type headless '#{vm.name}'"
-        end
+      def sandbox_rollback
+        vbox_manage "controlvm '#{vm.name}' poweroff"
+        vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
+        vbox_manage "startvm --type headless '#{vm.name}'"
+      end
 
-        def vbox_manage(cmd)
-          system "VBoxManage #{cmd}", :out => log, :err => log
-        end
-    end
-  end
-end
+      def vbox_manage(cmd)
+        system "VBoxManage #{cmd}", :out => log, :err => log
+      end
+    end # Session
+  end # Shell
+end # Travis
