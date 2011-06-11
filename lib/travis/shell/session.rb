@@ -13,6 +13,9 @@ module Travis
       # API
       #
 
+      # @private
+      NEWLINE = "\n"
+
       # VirtualBox VM instance used by the session
       attr_reader :vm
 
@@ -68,35 +71,35 @@ module Travis
 
       protected
 
-        def start_shell(env)
-          puts "starting ssh session to #{env.config.ssh.host} ..."
-          Net::SSH.start(env.config.ssh.host, env.config.ssh.username, :port => 2222, :keys => [env.config.ssh.private_key_path]).shell.tap do
-            puts 'done.'
-          end
-        end
-
-        def echoize(cmd)
-          [cmd].flatten.join("\n").split("\n").map { |cmd| "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}" }.join("\n")
-        end
-
-        def start_standbox
-          puts 'creating vbox snapshot ...'
-          vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
+      def start_shell(env)
+        puts "starting ssh session to #{env.config.ssh.host} ..."
+        Net::SSH.start(env.config.ssh.host, env.config.ssh.username, :port => 2222, :keys => [env.config.ssh.private_key_path]).shell.tap do
           puts 'done.'
         end
+      end
 
-        def rollback_sandbox
-          puts 'rolling back to vbox snapshot ...'
-          vbox_manage "controlvm '#{vm.name}' poweroff"
-          vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
-          vbox_manage "snapshot '#{vm.name}' delete 'travis-sandbox'"
-          vbox_manage "startvm --type headless '#{vm.name}'"
-          puts 'done.'
-        end
+      def echoize(cmd)
+        [cmd].flatten.join(NEWLINE).split(NEWLINE).map { |cmd| "echo #{Shellwords.escape("$ #{cmd}")}#{NEWLINE}#{cmd}" }.join(NEWLINE)
+      end
 
-        def vbox_manage(cmd)
-          system "VBoxManage #{cmd}", :out => log, :err => log
-        end
+      def start_standbox
+        puts 'creating vbox snapshot ...'
+        vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
+        puts 'done.'
+      end
+
+      def rollback_sandbox
+        puts 'rolling back to vbox snapshot ...'
+        vbox_manage "controlvm '#{vm.name}' poweroff"
+        vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
+        vbox_manage "snapshot '#{vm.name}' delete 'travis-sandbox'"
+        vbox_manage "startvm --type headless '#{vm.name}'"
+        puts 'done.'
+      end
+
+      def vbox_manage(cmd)
+        system "VBoxManage #{cmd}", :out => log, :err => log
+      end
     end # Session
   end # Shell
 end # Travis
