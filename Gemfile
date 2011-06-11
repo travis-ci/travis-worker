@@ -3,6 +3,10 @@ gem 'resque',              '~> 1.17.0'
 gem 'resque-meta',         '~> 1.0.3'
 gem 'resque-heartbeat'
 
+platforms :ruby_18 do
+  gem "SystemTimer"
+end
+
 gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'
@@ -36,4 +40,3 @@ group :test do
     gem 'ruby-debug19'
   end
 end
-

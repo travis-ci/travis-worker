@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    SystemTimer (1.2.3)
     abstract (1.0.0)
     addressable (2.2.6)
     archive-tar-minitar (0.5.2)
@@ -84,6 +85,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  SystemTimer
   faraday
   hashie
   minitest
