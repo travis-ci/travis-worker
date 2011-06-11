@@ -29,7 +29,7 @@ module Travis
       end
 
       def shell
-        @shell ||= Travis::Shell::Session.new(vagrant_env)
+        @shell ||= Travis::Shell::Session.new(vagrant_env.primary_vm.vm, vagrant_env.config.ssh)
       end
 
       def shell=(shell)

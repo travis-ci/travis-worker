@@ -10,8 +10,7 @@ class JobRepositoryTest < Test::Unit::TestCase
   def setup
     super
     Repository.any_instance.stubs(:exec)
-    Dir.stubs(:pwd).returns('/current/directory')
-    @repository = Repository.new('svenfuchs/gem-release', {})
+    @repository = Repository.new('/path/to/build/dir', 'svenfuchs/gem-release', {})
   end
 
   test 'checkout: clones a repository if the build dir is not a git repository' do
@@ -27,7 +26,7 @@ class JobRepositoryTest < Test::Unit::TestCase
   end
 
   test 'clone: clones the repository to the current directory' do
-    repository.expects(:exec).with('git clone git://github.com/svenfuchs/gem-release.git /current/directory')
+    repository.expects(:exec).with('git clone git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
     repository.clone
   end
 

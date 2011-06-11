@@ -6,14 +6,20 @@ module Travis
     class Config < Base
       attr_reader :config
 
+      def start
+      end
+
+      def update(data)
+      end
+
+      def finish
+        notify(:finish, :config => config)
+      end
+
       protected
 
         def perform
           @config = fetch
-        end
-
-        def finish
-          notify(:finish, :config => config)
         end
 
         def fetch

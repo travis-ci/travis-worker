@@ -27,7 +27,7 @@ class Test::Unit::TestCase
 
   def expect_shell(commands)
     commands.each do |command|
-      shell.expects(:execute).with(command).returns(true)
+      shell.expects(:execute).with(command, anything).returns(true)
     end
   end
 end

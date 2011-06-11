@@ -8,7 +8,7 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
 
   test 'gemfile? returns true if a Gemfile exists in the current working directory' do
     config = Config.new
-    File.stubs(:exists?).returns(true)
+    config.stubs(:exec).with('test -f Gemfile', anything).returns(true)
     assert config.gemfile?
   end
 
@@ -19,8 +19,15 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
     assert_equal 'after script', config.after_script
   end
 
-  test 'script defaults to "bundle exec rake"' do
+  test 'script defaults to "rake" when there is no Gemfile' do
     config = Config.new
+    config.stubs(:gemfile?).returns(false)
+    assert_equal 'rake', config.script
+  end
+
+  test 'script defaults to "bundle exec rake" when there is a Gemfile' do
+    config = Config.new
+    config.stubs(:gemfile?).returns(true)
     assert_equal 'bundle exec rake', config.script
   end
 end

@@ -16,6 +16,9 @@ module Travis
       # VirtualBox VM instance used by the session
       attr_reader :vm
 
+      # VirtualBox environment ssh configuration
+      attr_reader :config
+
       # Net::SSH session
       # @return [Net::SSH::Connection::Session]
       attr_reader :shell
@@ -24,19 +27,16 @@ module Travis
       # @return [String]
       attr_reader :log
 
-      def initialize(env)
-        @vm    = env.primary_vm.vm
-        @shell = start_shell(env)
-        @log   = '/tmp/travis/log/vboxmanage'
+      def initialize(vm, config)
+        @vm     = vm
+        @config = config
+        @shell  = start_shell
+        @log    = '/tmp/travis/log/vboxmanage'
 
         yield(self) if block_given?
 
         FileUtils.mkdir_p(File.dirname(log))
-        start_standbox
-      end
-
-      def on_output(&block)
-        @on_output = block
+        start_sandbox
       end
 
       def execute(command, options = {})
@@ -62,15 +62,19 @@ module Travis
         rollback_sandbox
       end
 
+      def on_output(&block)
+        @on_output = block
+      end
+
       #
       # Protected
       #
 
       protected
 
-        def start_shell(env)
-          puts "starting ssh session to #{env.config.ssh.host} ..."
-          Net::SSH.start(env.config.ssh.host, env.config.ssh.username, :port => 2222, :keys => [env.config.ssh.private_key_path]).shell.tap do
+        def start_shell
+          puts "starting ssh session to #{config.host} ..."
+          Net::SSH.start(config.host, config.username, :port => 2222, :keys => [config.private_key_path]).shell.tap do
             puts 'done.'
           end
         end
@@ -79,7 +83,7 @@ module Travis
           [cmd].flatten.join("\n").split("\n").map { |cmd| "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}" }.join("\n")
         end
 
-        def start_standbox
+        def start_sandbox
           puts 'creating vbox snapshot ...'
           vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
           puts 'done.'
