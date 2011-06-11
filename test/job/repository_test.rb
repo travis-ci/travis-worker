@@ -3,7 +3,7 @@ require 'test_helper'
 class JobRepositoryTest < Test::Unit::TestCase
   include Travis::Job
 
-  Repository.send :public, *Repository.protected_instance_methods(false)
+  Repository.__send__ :public, *Repository.protected_instance_methods(false)
 
   attr_reader :repository
 

@@ -11,8 +11,6 @@ module Travis
     # API
     #
 
-    NEWLINE = "\n"
-
     # @see Travis::Shell::Session#execute
     def exec(*args)
       Travis::Worker.shell.execute(*args)

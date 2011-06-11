@@ -1,4 +1,4 @@
---no-private --no-protected
+--no-private
 --markup="markdown"
 --main README.md
 --asset docs:docs
