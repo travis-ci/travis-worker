@@ -15,15 +15,15 @@ module Travis
       def active?
       end
 
-      def on_start(job, data)
+      def on_start(data)
         message(:start, data)
       end
 
-      def on_update(job, data)
+      def on_update(data)
         message(:update, data.merge(:incremental => true))
       end
 
-      def on_finish(job, data)
+      def on_finish(data)
         message(:finish, data)
       end
 
@@ -31,7 +31,7 @@ module Travis
         Thread.abort_on_exception = true
 
         Thread.new do
-          while true do
+          loop do
             messages.shift { |message| deliver_message(message) } unless messages.empty?
             sleep(0.1)
           end

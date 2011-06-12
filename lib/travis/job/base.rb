@@ -83,7 +83,7 @@ module Travis
         # @api plugin
         def notify(event, *args)
           observers.each do |observer|
-            observer.send(:"on_#{event}", self, *args) if observer.respond_to?(:"on_#{event}")
+            observer.send(:"on_#{event}", *args) if observer.respond_to?(:"on_#{event}")
           end
         end
 

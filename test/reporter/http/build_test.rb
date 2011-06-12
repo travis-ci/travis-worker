@@ -10,7 +10,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
     @job = Job::Build.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
     class << job
       def build!
-        notify(:update, :log => 'log')
+        update(:log => 'log')
         true
       end
     end

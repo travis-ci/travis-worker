@@ -49,7 +49,7 @@ module Travis
 
       protected
 
-        def on_update(job, data)
+        def on_update(data)
           log << data[:log] if data.key?(:log)
         end
 

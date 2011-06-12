@@ -22,7 +22,7 @@ class JobBaseTest < Test::Unit::TestCase
     job.notify(:update, :data)
     job.notify(:finish, :finished)
 
-    assert_equal [[job, :started], [job, :data], [job, :finished]], observer.events
+    assert_equal [[:started], [:data], [:finished]], observer.events
   end
 end
 

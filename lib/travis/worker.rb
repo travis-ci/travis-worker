@@ -62,7 +62,7 @@ module Travis
       @reporter = Reporter::Http.new(job.build)
 
       job.observers << reporter
-      shell.on_output do |process, data|
+      shell.on_output do |data|
         print data
         job.update(:log => data)
       end
