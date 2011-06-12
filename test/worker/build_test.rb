@@ -46,7 +46,7 @@ class WorkerBuildTest < Test::Unit::TestCase
 
     def assert_messages(messages)
       messages.each_with_index do |message, i|
-        message[2].merge!(:_method=>:put, :msg_id => i + 1)
+        message[2].merge!(:_method=>:put, :msg_id => i)
         assert_equal message, Mock::HttpRequest.requests[i]
       end
     end

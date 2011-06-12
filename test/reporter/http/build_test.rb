@@ -27,7 +27,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
     message = reporter.messages[0]
     assert_equal :start, message.type
     assert_equal '/builds/1', message.target
-    assert_equal({ :_method => :put, :msg_id => 1, :build => { :started_at => now } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 0, :build => { :started_at => now } }, message.data)
   end
 
   test 'queues a :log message' do
@@ -35,7 +35,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
     message = reporter.messages[1]
     assert_equal :update, message.type
     assert_equal '/builds/1/log', message.target
-    assert_equal({ :_method => :put, :msg_id => 2, :build => { :log => 'log' } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 1, :build => { :log => 'log' } }, message.data)
   end
 
   test 'queues a :finished message' do
@@ -43,7 +43,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
     message = reporter.messages[3]
     assert_equal :finish, message.type
     assert_equal '/builds/1', message.target
-    assert_equal({ :_method => :put, :msg_id => 4, :build => { :finished_at => now, :status => 0, :log => "log\nDone. Build script exited with: 0\n" } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 3, :build => { :finished_at => now, :status => 0, :log => "log\nDone. Build script exited with: 0\n" } }, message.data)
   end
 end
 

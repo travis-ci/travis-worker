@@ -22,7 +22,7 @@ class ReporterHttpConfigTest < Test::Unit::TestCase
     message = reporter.messages[0]
     assert_equal :finish, message.type
     assert_equal '/builds/1', message.target
-    assert_equal({ :_method => :put, :msg_id => 1, :build => { :config => { :foo => :bar } } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 0, :build => { :config => { :foo => :bar } } }, message.data)
   end
 end
 
