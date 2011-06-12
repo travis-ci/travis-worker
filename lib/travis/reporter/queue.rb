@@ -8,7 +8,7 @@ module Travis
         attr_reader :msg_id
 
         def initialize
-          @msg_id = 0
+          @msg_id = -1
         end
 
         def add(type, target, data)
