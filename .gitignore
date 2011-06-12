@@ -1,5 +1,7 @@
 config.yml
 resque.god
+Vagrantfile
+.vagrant
 *.class
 *.rbc
 *~
