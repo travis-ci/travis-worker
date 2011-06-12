@@ -16,8 +16,12 @@ module Travis
 
         def deliver_message(message)
           @active = true
-          Faraday.new(host).post(message.target, message.data)
+          connection.post(message.target, message.data)
           @active = false
+        end
+
+        def connection
+          @connection ||= Faraday.new(host)
         end
 
         def host
