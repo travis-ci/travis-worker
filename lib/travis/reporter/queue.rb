@@ -12,13 +12,13 @@ module Travis
         end
 
         def add(type, target, data)
-          # stdout.puts "\n----> #{type} ##{msg_id} to #{target}: #{data.inspect[0..80]}"
+          # puts "\n----> #{type} ##{msg_id} to #{target}: #{data.inspect[0..80]}"
           self << Message.new(type, target, data.merge(:msg_id => @msg_id += 1))
           sort! { |lft, rgt| lft.data[:msg_id] <=> rgt.data[:msg_id] }
         end
 
         def shift
-          # stdout.puts "\n<----    post #{first.type} ##{first.data[:msg_id]} to #{first.target}: #{first.data.inspect[0..80]}" unless empty?
+          # puts "\n<----    post #{first.type} ##{first.data[:msg_id]} to #{first.target}: #{first.data.inspect[0..80]}" unless empty?
           yield(first) unless empty?
           super
         end

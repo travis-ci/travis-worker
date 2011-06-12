@@ -45,7 +45,7 @@ module Travis
 
         shell.execute(command) do |process|
           process.on_output do |p, data|
-            @on_output.call(p, data) if @on_output
+            buffer << data
           end
           process.on_finish do |p|
             status = p.exit_status
@@ -59,6 +59,7 @@ module Travis
       def close
         shell.wait!
         shell.close!
+        buffer.flush
         rollback_sandbox
       end
 
@@ -76,6 +77,12 @@ module Travis
           puts "starting ssh session to #{config.host} ..."
           Net::SSH.start(config.host, config.username, :port => 2222, :keys => [config.private_key_path]).shell.tap do
             puts 'done.'
+          end
+        end
+
+        def buffer
+          @buffer ||= Buffer.new do |string|
+            @on_output.call(string) if @on_output
           end
         end
 

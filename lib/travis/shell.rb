@@ -5,6 +5,7 @@ module Travis
     # Behaviors
     #
 
+    autoload :Buffer,  'travis/shell/buffer'
     autoload :Session, 'travis/shell/session'
 
     #

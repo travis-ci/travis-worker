@@ -75,8 +75,8 @@ module Travis
     def work!
       reporter.deliver_messages!
       job.work!
-      sleep(0.1) until reporter.finished?
       shell.close
+      sleep(0.1) until reporter.finished?
     end
 
     def job_type

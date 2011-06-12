@@ -19,6 +19,7 @@ module Travis
 
       property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
       property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
+      property :shell,    :default => Hashie::Mash.new(:buffer => 0)
 
       def initialize
         # TODO currently expects a file to be present in the current working directory. should probably check
