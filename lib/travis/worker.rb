@@ -22,11 +22,7 @@ module Travis
     extend Resque::Plugins::Meta
 
     class << self
-      attr_reader :vagrant_env
-
-      def config
-        @config ||= Config.new
-      end
+      attr_reader :config
 
       def shell
         @shell ||= Travis::Shell::Session.new(vagrant_env.primary_vm.vm, vagrant_env.config.ssh)
@@ -37,19 +33,16 @@ module Travis
       end
 
       def perform(meta_id, payload)
-        load_vagrant
+        @config ||= Config.new
         Resque.redis ||= Travis::Worker.config.redis.url
         new(meta_id, payload).work!
       end
 
-      def load_vagrant
-        config # TODO triggers loading the config early
-
-        puts 'loading vagrant ...'
-        require 'vagrant'
-
-        puts 'loading vagrant env ...'
-        @vagrant_env = Vagrant::Environment.new.load!
+      def vagrant_env
+        @vagrant_env ||= begin
+          require 'vagrant'
+          Vagrant::Environment.new.load!
+        end
       end
     end
 
