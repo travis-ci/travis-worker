@@ -1,6 +1,6 @@
 require 'fileutils'
 
-env  = ENV['TRAVIS_ENV']  || "production"
+env  = ENV['TRAVIS_ENV']  || "staging"
 root = ENV['TRAVIS_ROOT'] || File.expand_path('.')
 logs = "#{root}/logs"
 
@@ -9,23 +9,13 @@ FileUtils.mkdir_p(logs)
 God.log_level = :info
 God.log_file  = "#{logs}/god.log"
 
+
 God.watch do |w|
-  w.name     = "resque"
+  w.name     = "travis"
   w.log      = "#{logs}/travis.log"
   w.env      = { 'QUEUE' => 'builds', 'TRAVIS_ENV' => env, 'VERBOSE' => 'true', 'PIDFILE' => "/home/travis/.god/pids/#{w.name}.pid" }
   w.start    = "cd #{root}; bundle exec rake resque:work --trace"
   w.interval = 30.seconds
-
-  # w.uid = 'travis'
-  # w.gid = 'travis'
-
-  # # retart if memory gets too high
-  # w.transition(:up, :restart) do |on|
-  #   on.condition(:memory_usage) do |c|
-  #     c.above = 350.megabytes
-  #     c.times = 2
-  #   end
-  # end
 
   # determine the state on startup
   w.transition(:init, { true => :up, false => :start }) do |on|
@@ -56,4 +46,3 @@ God.watch do |w|
     end
   end
 end
-
