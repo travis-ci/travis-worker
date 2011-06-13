@@ -1,6 +1,8 @@
 production:
   redis:
     url: redis://YOUR_REDIS_URL
+  shell:
+    buffer: 0.25
   reporter:
     http:
       # You get a Travis token on your application's profile page by signing in to your application via Github OAuth2.
@@ -9,6 +11,8 @@ production:
 development:
   redis:
     url: redis://localhost:6379
+  shell:
+    buffer: 0.25
   reporter:
     http:
       url: localhost:3000
@@ -16,6 +20,8 @@ development:
 test:
   redis:
     url: redis://localhost:6379
+  shell:
+    buffer: 0.25
   reporter:
     http:
       url: sven:123565790@localhost
