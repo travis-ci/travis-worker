@@ -7,6 +7,9 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
 
   def setup
     super
+
+    Worker::Config.any_instance.stubs(:load).returns({})
+
     @job = Job::Build.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
     class << job
       def build!
