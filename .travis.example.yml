@@ -15,7 +15,7 @@ development:
     buffer: 0.25
   reporter:
     http:
-      url: localhost:3000
+      url: http://localhost:3000
 
 test:
   redis:
