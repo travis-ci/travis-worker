@@ -29,15 +29,14 @@ module Travis
         super
         observers << self
         @log = ''
-
-        Travis::Worker.shell.on_output do |data|
-          print data
-          update(:log => data)
-        end
       end
 
       def start
         notify(:start, :started_at => Time.now)
+        Travis::Worker.shell.on_output do |data|
+          print data
+          update(:log => data)
+        end
       end
 
       def update(data)
