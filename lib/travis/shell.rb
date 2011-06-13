@@ -16,5 +16,9 @@ module Travis
     def exec(*args)
       Travis::Worker.shell.execute(*args)
     end
+
+    def sandboxed(&block)
+      Travis::Worker.shell.sandboxed(&block)
+    end
   end # Shell
 end # Travis

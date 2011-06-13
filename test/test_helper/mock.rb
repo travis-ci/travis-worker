@@ -2,6 +2,10 @@ module Mock
   class Shell
     attr_reader :on_output
 
+    def sandboxed
+      yield
+    end
+
     def output(data)
       on_output.call(self, data) if on_output
     end

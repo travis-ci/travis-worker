@@ -55,14 +55,17 @@ module Travis
 
         def perform
           @status = build! ? 0 : 1
+          sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           update(:log => "\nDone. Build script exited with: #{status}\n")
         end
 
         def build!
-          chdir
-          setup_env
-          repository.checkout(build.commit)
-          repository.install && run_scripts
+          sandboxed do
+            chdir
+            setup_env
+            repository.checkout(build.commit)
+            repository.install && run_scripts
+          end
         end
 
         def setup_env

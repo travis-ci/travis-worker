@@ -36,7 +36,12 @@ module Travis
         yield(self) if block_given?
 
         FileUtils.mkdir_p(File.dirname(log))
+      end
+
+      def sandboxed
         start_sandbox
+        yield
+        rollback_sandbox
       end
 
       def execute(command, options = {})
@@ -60,7 +65,6 @@ module Travis
         shell.wait!
         shell.close!
         buffer.flush
-        rollback_sandbox
       end
 
       def on_output(&block)
