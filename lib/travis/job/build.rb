@@ -29,6 +29,11 @@ module Travis
         super
         observers << self
         @log = ''
+
+        Travis::Worker.shell.on_output do |data|
+          print data
+          update(:log => data)
+        end
       end
 
       def start
@@ -41,6 +46,7 @@ module Travis
 
       def finish
         notify(:finish, :log => log, :status => status, :finished_at => Time.now)
+        Travis::Worker.shell.close
       end
 
       #
@@ -54,18 +60,18 @@ module Travis
         end
 
         def perform
-          @status = build! ? 0 : 1
-          sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
-          update(:log => "\nDone. Build script exited with: #{status}\n")
+          sandboxed do
+            @status = build! ? 0 : 1
+            sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
+            update(:log => "\nDone. Build script exited with: #{status}\n")
+          end
         end
 
         def build!
-          sandboxed do
-            chdir
-            setup_env
-            repository.checkout(build.commit)
-            repository.install && run_scripts
-          end
+          chdir
+          setup_env
+          repository.checkout(build.commit)
+          repository.install && run_scripts
         end
 
         def setup_env

@@ -62,10 +62,6 @@ module Travis
       @reporter = Reporter::Http.new(job.build)
 
       job.observers << reporter
-      shell.on_output do |data|
-        print data
-        job.update(:log => data)
-      end
     end
 
     def shell
@@ -75,7 +71,6 @@ module Travis
     def work!
       reporter.deliver_messages!
       job.work!
-      shell.close
       sleep(0.1) until reporter.finished?
     end
 
