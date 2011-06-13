@@ -1,4 +1,4 @@
-config.yml
+travis.yml
 resque.god
 Vagrantfile
 .vagrant

@@ -3,6 +3,8 @@ require 'hashie/dash'
 
 module Travis
   class Worker
+    DIRECTORIES = ['.', '~', '/etc']
+
     # Environment-aware worker configuration.
     #
     # ### Environment variables
@@ -22,8 +24,6 @@ module Travis
       property :shell,    :default => Hashie::Mash.new(:buffer => 0)
 
       def initialize
-        # TODO currently expects a file to be present in the current working directory. should probably check
-        # some other common places, too? like ~/.travis.config.yml or something
         super(Hashie::Mash.new(load[environment]))
       end
 
@@ -33,7 +33,15 @@ module Travis
       end
 
       def load
-        YAML.load_file(File.expand_path('config.yml'))
+        YAML.load_file(filename)
+      end
+
+      def filename
+        DIRECTORIES.each do |directory|
+          filename = File.expand_path('.travis.yml', directory)
+          return filename if File.exists?(filename)
+        end
+        raise "Could not find a .travis.yml configuration file. Valid locations are: #{DIRECTORIES.join(',')}"
       end
     end # Config
   end # Worker
