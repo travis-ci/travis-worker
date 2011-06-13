@@ -1,5 +1,5 @@
-travis.yml
-resque.god
+.travis.yml
+.travis.god
 Vagrantfile
 .vagrant
 *.class
