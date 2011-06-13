@@ -60,7 +60,7 @@ module Travis
 
         # @api plugin
         def clone
-          exec "git clone #{source} #{dir}"
+          exec "git clone --quiet #{source} #{dir}"
         end
 
         # @api plugin

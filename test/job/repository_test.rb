@@ -26,7 +26,7 @@ class JobRepositoryTest < Test::Unit::TestCase
   end
 
   test 'clone: clones the repository to the current directory' do
-    repository.expects(:exec).with('git clone git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
+    repository.expects(:exec).with('git clone --quiet git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
     repository.clone
   end
 
