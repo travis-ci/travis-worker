@@ -50,6 +50,7 @@ Vagrant::Config.run do |config|
   #
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = "vendor/cookbooks/vagrant_base"
+    chef.log_level      = :debug
 
     chef.add_recipe "apt"
     chef.add_recipe "build-essential"
@@ -59,9 +60,7 @@ Vagrant::Config.run do |config|
     chef.add_recipe "git"
 
     chef.add_recipe "rvm"
-    chef.add_recipe "rvm::ruby_187"
-    chef.add_recipe "rvm::ruby_192"
-    chef.add_recipe "rvm::ree"
+    chef.add_recipe "rvm::multi"
 
     chef.add_recipe "java::sun"
 
@@ -79,7 +78,9 @@ Vagrant::Config.run do |config|
     # chef.add_recipe "mongodb::server"
 
     # You may also specify custom JSON attributes:
-    # chef.json.merge!({ :mysql_password => "foo" })
+    chef.json.merge!(:rvm => {
+                       :rubies => %w(ruby-1.8.7 ruby-1.9.2 jruby rbx ree ruby-1.8.7-p174 ruby-1.8.7-p249 ruby-head)
+                     })
   end
 
   # Enable provisioning with chef server, specifying the chef server URL,
