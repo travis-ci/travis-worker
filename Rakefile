@@ -11,7 +11,7 @@ end
 task 'travis:worker:config' do
   $: << 'lib'
   require 'travis/worker'
-  Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
+  Travis::Worker.init
 end
 
 task 'resque:setup' => 'travis:worker:config'

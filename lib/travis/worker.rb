@@ -1,5 +1,4 @@
 require 'resque'
-require 'resque/plugins/meta'
 require 'resque/heartbeat'
 require 'hashie'
 require 'core_ext/ruby/hash/deep_symboliz_keys'
@@ -18,30 +17,33 @@ module Travis
   class Worker
     autoload :Config, 'travis/worker/config'
 
-    # TODO can we remove this?
-    extend Resque::Plugins::Meta
-
     class << self
+      attr_reader :vm
+
+      def init
+        Resque.redis ||= Travis::Worker.config.redis.url
+      end
+
+      def perform(payload)
+        @vm = vms.detect { |vm| vm.name == ENV['VM'] }
+        new(payload).work!
+      end
+
       def config
         @config ||= Config.new
       end
 
       def shell
-        @shell ||= Travis::Shell::Session.new(boxes.first, vagrant.config.ssh)
+        @shell ||= Travis::Shell::Session.new(vm, vagrant.config.ssh)
+      end
+      attr_writer :shell
+
+      def available_vms
+        @available_vms ||= vms.map { |vm| vm.name }
       end
 
-      def shell=(shell)
-        @shell = shell
-      end
-
-      def perform(meta_id, payload)
-        @config ||= Config.new # TODO loads config early
-        Resque.redis ||= Travis::Worker.config.redis.url
-        new(meta_id, payload).work!
-      end
-
-      def boxes
-        @boxes ||= vagrant.boxes.select { |box| box.name =~ /^worker/ }
+      def vms
+        @vms ||= vagrant.boxes.select { |vm| vm.name =~ /^worker/ }
       end
 
       def vagrant
@@ -54,12 +56,10 @@ module Travis
 
     attr_reader :payload, :job, :reporter
 
-    def initialize(meta_id, payload)
-      @meta_id  = meta_id
+    def initialize(payload)
       @payload  = payload.deep_symbolize_keys
       @job      = job_type.new(payload)
       @reporter = Reporter::Http.new(job.build)
-
       job.observers << reporter
     end
 
