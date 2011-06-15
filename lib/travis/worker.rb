@@ -27,7 +27,7 @@ module Travis
       end
 
       def shell
-        @shell ||= Travis::Shell::Session.new(vagrant_env.primary_vm.vm, vagrant_env.config.ssh)
+        @shell ||= Travis::Shell::Session.new(boxes.first, vagrant.config.ssh)
       end
 
       def shell=(shell)
@@ -40,8 +40,12 @@ module Travis
         new(meta_id, payload).work!
       end
 
-      def vagrant_env
-        @vagrant_env ||= begin
+      def boxes
+        @boxes ||= vagrant.boxes.select { |box| box.name =~ /^worker/ }
+      end
+
+      def vagrant
+        @vagrant ||= begin
           require 'vagrant'
           Vagrant::Environment.new.load!
         end
