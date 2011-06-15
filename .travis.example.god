@@ -1,16 +1,18 @@
+# TODO use rubygems once travis-worker is a gem
+$: << 'lib'
 require 'fileutils'
+require 'travis/worker'
 
 env   = ENV['TRAVIS_ENV']  || "test"
 root  = ENV['TRAVIS_ROOT'] || File.expand_path('.')
 logs  = "#{root}/log"
-count = 2
 
 FileUtils.mkdir_p(logs)
 
 God.log_level = :info
 God.log_file  = "#{logs}/god.log"
 
-1.upto(count) do |num|
+1.upto(Travis::Worker.config.count) do |num|
   God.watch do |w|
     w.name     = "travis-#{num}"
     w.log      = "#{logs}/#{w.name}.log"
@@ -48,4 +50,3 @@ God.log_file  = "#{logs}/god.log"
     end
   end
 end
-

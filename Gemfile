@@ -4,7 +4,7 @@ gem 'resque-meta',         '~> 1.0.3'
 gem 'resque-heartbeat',    '~> 0.0.2'
 
 platforms :ruby_18 do
-  gem "SystemTimer"
+  gem 'SystemTimer'
 end
 
 gem 'vagrant'
@@ -13,11 +13,12 @@ gem 'net-ssh-shell'
 gem 'hashie'
 gem 'faraday'
 
-gem 'rake', "~> 0.9.2"
+gem 'rake', '~> 0.9.2'
+gem 'thor'
 
 group :development do
-  gem "yard", "~> 0.7.1"
-  gem "rdiscount"
+  gem 'yard', '~> 0.7.1'
+  gem 'rdiscount'
 end
 
 group :test do

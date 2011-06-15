@@ -6,6 +6,7 @@ module Travis
     #
 
     autoload :Buffer,  'travis/shell/buffer'
+    autoload :Helpers, 'travis/shell/helpers'
     autoload :Session, 'travis/shell/session'
 
     #

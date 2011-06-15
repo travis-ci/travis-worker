@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+# TODO use rubygems once travis-worker is a gem
+$: << 'lib'
+require 'travis/worker/cli'
+require 'thor/runner'
+
+ARGV[0] = "travis:worker:#{ARGV[0]}"
+Thor::Runner.start
+

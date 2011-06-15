@@ -22,6 +22,7 @@ module Travis
       property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
       property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
       property :shell,    :default => Hashie::Mash.new(:buffer => 0)
+      property :workers,  :default => 3
 
       def initialize
         super(Hashie::Mash.new(load[environment]))

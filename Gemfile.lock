@@ -101,5 +101,6 @@ DEPENDENCIES
   ruby-debug
   ruby-debug19
   test_declarative
+  thor
   vagrant
   yard (~> 0.7.1)

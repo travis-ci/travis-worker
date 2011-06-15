@@ -2,13 +2,14 @@ require 'net/ssh'
 require 'net/ssh/shell'
 require 'patches/net_ssh_shell_process'
 require 'fileutils'
-require 'shellwords'
 require 'vagrant'
 
 module Travis
   module Shell
     class Session
+      autoload :Helpers, 'travis/shell/helpers'
 
+      include Helpers
       #
       # API
       #
@@ -88,10 +89,6 @@ module Travis
           @buffer ||= Buffer.new do |string|
             @on_output.call(string) if @on_output
           end
-        end
-
-        def echoize(cmd)
-          [cmd].flatten.join("\n").split("\n").map { |cmd| "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}" }.join("\n")
         end
 
         def start_sandbox
