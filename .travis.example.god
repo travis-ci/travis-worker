@@ -2,7 +2,7 @@ require 'fileutils'
 
 env  = ENV['TRAVIS_ENV']  || "staging"
 root = ENV['TRAVIS_ROOT'] || File.expand_path('.')
-logs = "#{root}/logs"
+logs = "#{root}/log"
 
 FileUtils.mkdir_p(logs)
 
