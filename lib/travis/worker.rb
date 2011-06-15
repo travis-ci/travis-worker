@@ -21,7 +21,7 @@ module Travis
       attr_reader :vm
 
       def init
-        Resque.redis ||= Travis::Worker.config.redis.url
+        Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
       end
 
       def perform(payload)
