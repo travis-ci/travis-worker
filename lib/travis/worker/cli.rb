@@ -34,7 +34,8 @@ module Travis
         up  'worker-1'
 
         if config.workers > 1
-          package('worker-1', config.boxes.base)
+          package 'worker-1', config.boxes.base
+          up 'worker-1'
 
           2.upto(config.workers) do |num|
             add "worker-#{num}", :source => config.boxes.base
