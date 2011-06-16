@@ -1,7 +1,7 @@
 .travis.yml
 .travis.god
 Vagrantfile
-!templates/*
+!templates/*g
 .vagrant
 *.class
 *.rbc
