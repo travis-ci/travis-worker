@@ -12,8 +12,9 @@ FileUtils.mkdir_p(logs)
 God.log_level = :info
 God.log_file  = "#{logs}/god.log"
 
-1.upto(Travis::Worker.config.count) do |num|
+1.upto(Travis::Worker.config.workers) do |num|
   God.watch do |w|
+    w.group    = 'travis'
     w.name     = "travis-#{num}"
     w.log      = "#{logs}/#{w.name}.log"
     w.env      = { 'QUEUE' => 'builds', 'TRAVIS_ENV' => env, 'VM' => "worker-#{num}", 'VERBOSE' => 'true', 'PIDFILE' => File.expand_path("~/.god/pids/#{w.name}.pid") }
