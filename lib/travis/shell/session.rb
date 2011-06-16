@@ -9,7 +9,7 @@ module Travis
     class Session
       autoload :Helpers, 'travis/shell/helpers'
 
-      include Helpers
+      include Shell::Helpers
       #
       # API
       #
