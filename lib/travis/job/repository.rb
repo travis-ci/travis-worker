@@ -60,6 +60,7 @@ module Travis
 
         # @api plugin
         def clone
+          exec "mkdir -p #{dir}", :echo => false
           exec "git clone --quiet #{source} #{dir}"
         end
 
@@ -71,7 +72,7 @@ module Travis
 
         # @api plugin
         def exists?
-          exec("test -d .git", :echo => false)
+          exec "test -d .git", :echo => false
         end
 
         # @api plugin
