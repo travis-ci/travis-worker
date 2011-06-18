@@ -10,6 +10,7 @@ module Travis
       end
 
       def update(data)
+        notify(:update, data)
       end
 
       def finish
@@ -23,7 +24,9 @@ module Travis
         end
 
         def fetch
-          parse(Faraday.get(url).body)
+          response = Faraday.get(url)
+          parse(response.body)
+          # response.success? ? parse(response.body) : {}
         end
 
         def url
@@ -31,7 +34,10 @@ module Travis
         end
 
         def parse(yaml)
-          YAML.load(yaml) || {} rescue {}
+          YAML.load(yaml) || {}
+        rescue Exception => e
+          # TODO should report this exception back as part of the log!
+          {}
         end
     end
   end
