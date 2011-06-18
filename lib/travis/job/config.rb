@@ -20,7 +20,7 @@ module Travis
       protected
 
         def perform
-          @config = fetch
+          @config = fetch.merge('.configured' => true)
         end
 
         def fetch

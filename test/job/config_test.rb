@@ -26,7 +26,7 @@ class JobConfigTest < Test::Unit::TestCase
     # end
 
     config.perform
-    assert_equal({ 'script' => 'rake ci' }, config.config)
+    assert_equal({ 'script' => 'rake ci', '.configured' => true }, config.config)
   end
 
   # test 'fetch: returns an empty hash for a missing .travis.yml file' do
@@ -48,7 +48,7 @@ class JobConfigTest < Test::Unit::TestCase
     Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
 
     config.perform
-    assert_equal({}, config.config)
+    assert_equal({'.configured' => true}, config.config)
   end
 end
 

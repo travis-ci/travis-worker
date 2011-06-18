@@ -9,7 +9,7 @@ class ReporterHttpConfigTest < Test::Unit::TestCase
     super
 
     @job = Job::Config.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
-    job.stubs(:fetch).returns(:foo => :bar)
+    job.stubs(:fetch).returns('foo' => 'bar')
 
     @reporter = Reporter::Http.new(job.build)
     job.observers << reporter
@@ -23,7 +23,7 @@ class ReporterHttpConfigTest < Test::Unit::TestCase
     message = reporter.messages[0]
     assert_equal :finish, message.type
     assert_equal '/builds/1', message.target
-    assert_equal({ :_method => :put, :msg_id => 0, :build => { :config => { :foo => :bar } } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 0, :build => { :config => { 'foo' => 'bar', '.configured' => true } } }, message.data)
   end
 end
 
