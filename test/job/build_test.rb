@@ -36,6 +36,7 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
+    build.repository.config.stubs(:gemfile?).returns(true)
     build.repository.config.stubs(:gemfile).returns('/path/to/Gemfile.rails-3.1')
 
     expect_shell [

@@ -9,12 +9,16 @@ module Travis
       class Config < Hashie::Mash
         include Shell
 
+        def pwd
+          @pwd ||= exec 'pwd', :echo => false
+        end
+
         def gemfile
-          File.expand_path(super) if super
+          "#{pwd}/#{super || 'Gemfile'}"
         end
 
         def gemfile?
-          exec "test -f #{self.gemfile || 'Gemfile'}", :echo => false
+          exec "test -f #{gemfile}", :echo => false
         end
 
         def script
