@@ -45,7 +45,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
   test 'queues a :finished message' do
     job.work!
     message = reporter.messages.last
-    log = "Running on worker the_worker.\nlog\nDone. Build script exited with: 0\n"
+    log = "Running on worker the_worker\n\nlog\nDone. Build script exited with: 0\n"
 
     assert_equal :finish, message.type
     assert_equal '/builds/1', message.target

@@ -37,10 +37,10 @@ class WorkerBuildTest < Test::Unit::TestCase
 
     assert_messages [
       [:post, '/builds/1',     { :build => { :started_at => now } }],
-      [:post, '/builds/1/log', { :build => { :log => "Running on worker the_worker.\n" } }],
+      [:post, '/builds/1/log', { :build => { :log => "Running on worker the_worker\n\n" } }],
       [:post, '/builds/1/log', { :build => { :log => 'log' } }],
       [:post, '/builds/1/log', { :build => { :log => "\nDone. Build script exited with: 0\n" } }],
-      [:post, '/builds/1',     { :build => { :log => "Running on worker the_worker.\nlog\nDone. Build script exited with: 0\n", :status => 0, :finished_at => now } }],
+      [:post, '/builds/1',     { :build => { :log => "Running on worker the_worker\n\nlog\nDone. Build script exited with: 0\n", :status => 0, :finished_at => now } }],
     ]
   end
 
