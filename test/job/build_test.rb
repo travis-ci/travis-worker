@@ -36,12 +36,12 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
-    build.repository.config.stubs(:gemfile?).returns(true)
+    build.repository.config.stubs(:gemfile).returns('/path/to/Gemfile.rails-3.1')
 
     expect_shell [
       'mkdir -p /tmp/travis/test/travis-ci/test-project-1; cd /tmp/travis/test/travis-ci/test-project-1',
       'rvm use 1.9.2',
-      'export BUNDLE_GEMFILE=Gemfile.rails-3.1',
+      'export BUNDLE_GEMFILE=/path/to/Gemfile.rails-3.1',
       'export FOO=bar',
       'export BAR=baz',
       'test -d .git',

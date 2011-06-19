@@ -9,6 +9,10 @@ module Travis
       class Config < Hashie::Mash
         include Shell
 
+        def gemfile
+          File.expand_path(super) if super
+        end
+
         def gemfile?
           exec "test -f #{self.gemfile || 'Gemfile'}", :echo => false
         end
