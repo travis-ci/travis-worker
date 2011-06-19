@@ -33,6 +33,7 @@ module Travis
 
       def start
         notify(:start, :started_at => Time.now)
+        update(:log => "Using worker: #{Travis::Worker.name}\n\n")
         Travis::Worker.shell.on_output do |data|
           print data
           update(:log => data)
@@ -75,8 +76,8 @@ module Travis
 
         def setup_env
           exec "rvm use #{config.rvm || 'default'}"
-          exec "BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile
-          exec config.env if config.env
+          exec "export BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile
+          Array(config.env).each { |env| exec "export #{env}" } if config.env
         end
 
         def run_scripts

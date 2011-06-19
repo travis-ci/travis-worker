@@ -25,8 +25,7 @@ module Travis
 
         def fetch
           response = Faraday.get(url)
-          parse(response.body)
-          # response.success? ? parse(response.body) : {}
+          response.success? ? parse(response.body) : {}
         end
 
         def url

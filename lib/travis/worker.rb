@@ -18,14 +18,13 @@ module Travis
     autoload :Config, 'travis/worker/config'
 
     class << self
-      attr_reader :vm
+      attr_writer :shell
 
       def init
         Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
       end
 
       def perform(payload)
-        @vm = vms.detect { |vm| vm.name == ENV['VM'] }
         new(payload).work!
       end
 
@@ -36,14 +35,17 @@ module Travis
       def shell
         @shell ||= Travis::Shell::Session.new(vm, vagrant.config.ssh)
       end
-      attr_writer :shell
 
-      def available_vms
-        @available_vms ||= vms.map { |vm| vm.name }
+      def name
+        @name ||= "#{hostname}:#{vm.name}"
       end
 
-      def vms
-        @vms ||= vagrant.boxes.select { |vm| vm.name =~ /^worker/ }
+      def hostname
+        @hostname ||= `hostname`.chomp
+      end
+
+      def vm
+        @vm ||= vagrant.vms[(ENV['VM'] || '').to_sym] || raise("could not find vm #{ENV['VM'].inspect}")
       end
 
       def vagrant

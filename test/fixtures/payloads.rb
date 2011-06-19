@@ -42,7 +42,7 @@ INCOMING_PAYLOADS = {
       'config' => {
         'rvm'           => '1.9.2',
         'gemfile'       => 'Gemfile.rails-3.1',
-        'env'           => 'FOO=bar',
+        'env'           => ['FOO=bar', 'BAR=baz'],
         'before_script' => ['bundle exec rake ci:before'],
         'after_script'  => ['bundle exec rake ci:after'],
         'bundler_args'  => 'bundler_arg=1'

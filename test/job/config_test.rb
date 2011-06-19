@@ -29,26 +29,28 @@ class JobConfigTest < Test::Unit::TestCase
     assert_equal({ 'script' => 'rake ci', '.configured' => true }, config.config)
   end
 
-  # test 'fetch: returns an empty hash for a missing .travis.yml file' do
-  #   response = Faraday::Response.new
-  #   response.body = 'Github 404 page'
-  #   response.status = 404
-
-  #   Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
-
-  #   config.perform
-  #   assert_equal({}, config.config)
-  # end
-
-  test 'fetch: returns an empty hash for a broken .travis.yml file' do
+  test 'fetch: returns an empty hash for a missing .travis.yml file' do
     response = Faraday::Response.new
-    response.body = 'order: [:year, :month, :day]'
-    response.status = 200
+    response.body = 'Github 404 page'
+    response.status = 404
 
     Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
 
     config.perform
-    assert_equal({'.configured' => true}, config.config)
+    assert_equal({ '.configured' => true }, config.config)
+  end
+
+  if RUBY_VERSION >= '1.9.2'
+    test 'fetch: returns an empty hash for a broken .travis.yml file' do
+      response = Faraday::Response.new
+      response.body = 'order: [:year, :month, :day]'
+      response.status = 200
+
+      Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+
+      config.perform
+      assert_equal({'.configured' => true}, config.config)
+    end
   end
 end
 

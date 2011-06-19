@@ -47,19 +47,14 @@ module Travis
 
       def execute(command, options = {})
         command = echoize(command) unless options[:echo] == false
-        status = nil
+        exec(command) { |p, data| buffer << data } == 0
+      end
 
-        shell.execute(command) do |process|
-          process.on_output do |p, data|
-            buffer << data
-          end
-          process.on_finish do |p|
-            status = p.exit_status
-          end
-        end
-        shell.session.loop { status.nil? }
-
-        status == 0
+      def evaluate(command)
+        result = ''
+        status = exec(command) { |p, data| result << data }
+        raise("command #{command} failed: #{result}") unless status == 0
+        result
       end
 
       def close
@@ -79,8 +74,8 @@ module Travis
       protected
 
         def start_shell
-          puts "starting ssh session to #{config.host} ..."
-          Net::SSH.start(config.host, config.username, :port => 2222, :keys => [config.private_key_path]).shell.tap do
+          puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
+          Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
             puts 'done.'
           end
         end
@@ -91,17 +86,27 @@ module Travis
           end
         end
 
+        def exec(command, &on_output)
+          status = nil
+          shell.execute(command) do |process|
+            process.on_output(&on_output)
+            process.on_finish { |p| status = p.exit_status }
+          end
+          shell.session.loop { status.nil? }
+          status
+        end
+
         def start_sandbox
           puts 'creating vbox snapshot ...'
-          vbox_manage "snapshot '#{vm.name}' take 'travis-sandbox'"
+          vbox_manage "snapshot '#{vm.name}' take '#{vm.name}-sandbox'"
           puts 'done.'
         end
 
         def rollback_sandbox
           puts 'rolling back to vbox snapshot ...'
           vbox_manage "controlvm '#{vm.name}' poweroff"
-          vbox_manage "snapshot '#{vm.name}' restore 'travis-sandbox'"
-          vbox_manage "snapshot '#{vm.name}' delete 'travis-sandbox'"
+          vbox_manage "snapshot '#{vm.name}' restore '#{vm.name}-sandbox'"
+          vbox_manage "snapshot '#{vm.name}' delete '#{vm.name}-sandbox'"
           vbox_manage "startvm --type headless '#{vm.name}'"
           puts 'done.'
         end
