@@ -47,19 +47,14 @@ module Travis
 
       def execute(command, options = {})
         command = echoize(command) unless options[:echo] == false
-        status = nil
+        exec(command) { |p, data| buffer << data } == 0
+      end
 
-        shell.execute(command) do |process|
-          process.on_output do |p, data|
-            buffer << data
-          end
-          process.on_finish do |p|
-            status = p.exit_status
-          end
-        end
-        shell.session.loop { status.nil? }
-
-        status == 0
+      def evaluate(command)
+        result = ''
+        status = exec(command) { |p, data| result << data }
+        raise("command #{command} failed: #{result}") unless status == 0
+        result
       end
 
       def close
@@ -89,6 +84,16 @@ module Travis
           @buffer ||= Buffer.new do |string|
             @on_output.call(string) if @on_output
           end
+        end
+
+        def exec(command, &on_output)
+          status = nil
+          shell.execute(command) do |process|
+            process.on_output(&on_output)
+            process.on_finish { |p| status = p.exit_status }
+          end
+          shell.session.loop { status.nil? }
+          status
         end
 
         def start_sandbox

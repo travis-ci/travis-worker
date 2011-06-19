@@ -10,15 +10,15 @@ module Travis
         include Shell
 
         def pwd
-          @pwd ||= exec 'pwd', :echo => false
-        end
-
-        def gemfile
-          "#{pwd}/#{super || 'Gemfile'}"
+          @pwd ||= evaluate('pwd').chomp
         end
 
         def gemfile?
           exec "test -f #{gemfile}", :echo => false
+        end
+
+        def gemfile
+          "#{pwd}/#{super || 'Gemfile'}"
         end
 
         def script

@@ -8,7 +8,7 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
 
   test 'gemfile prepends the current working directory to the given relative Gemfile path' do
     config = Config.new('gemfile' => 'gemfiles/rails-3.1.0')
-    config.stubs(:exec).with('pwd', anything).returns('/path/to/current/directory')
+    config.stubs(:evaluate).with('pwd', anything).returns('/path/to/current/directory')
     assert_equal '/path/to/current/directory/gemfiles/rails-3.1.0', config.gemfile
   end
 
