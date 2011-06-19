@@ -33,7 +33,7 @@ module Travis
 
       def start
         notify(:start, :started_at => Time.now)
-        update(:log => "Running on worker: #{Travis::Worker.name}\n\n")
+        update(:log => "Using worker: #{Travis::Worker.name}\n\n")
         Travis::Worker.shell.on_output do |data|
           print data
           update(:log => data)
