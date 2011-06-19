@@ -41,8 +41,9 @@ class JobBuildTest < Test::Unit::TestCase
     expect_shell [
       'mkdir -p /tmp/travis/test/travis-ci/test-project-1; cd /tmp/travis/test/travis-ci/test-project-1',
       'rvm use 1.9.2',
-      'BUNDLE_GEMFILE=Gemfile.rails-3.1',
-      'FOO=bar',
+      'export BUNDLE_GEMFILE=Gemfile.rails-3.1',
+      'export FOO=bar',
+      'export BAR=baz',
       'test -d .git',
       'git clean -fdx',
       'git fetch',
