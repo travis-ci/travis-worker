@@ -36,6 +36,14 @@ module Travis
         @shell ||= Travis::Shell::Session.new(vm, vagrant.config.ssh)
       end
 
+      def name
+        @name ||= "#{hostname}:#{vm.name}"
+      end
+
+      def hostname
+        @hostname ||= `hostname`.chomp
+      end
+
       def vm
         @vm ||= vagrant.vms[(ENV['VM'] || '').to_sym] || raise("could not find vm #{ENV['VM'].inspect}")
       end
