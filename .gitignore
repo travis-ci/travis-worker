@@ -1,6 +1,5 @@
 .travis.yml
 .travis.god
-Vagrantfile
 !templates/*g
 .vagrant
 *.class
