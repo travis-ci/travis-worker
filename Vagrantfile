@@ -42,7 +42,7 @@ Vagrant::Config.run do |config|
         # You may also specify custom JSON attributes:
         chef.json.merge!(
           :rvm => {
-            :rubies       => %w(ruby-1.8.6 ruby-1.8.7 ruby-1.9.2 jruby rbx ree ruby-1.8.7-p174 ruby-1.8.7-p249 ruby-head),
+            :rubies       => %w(ruby-1.8.6 ruby-1.8.7 ruby-1.8.7-p174 ruby-1.8.7-p249 ruby-1.9.1 ruby-1.9.2 jruby rbx rbx-2.0.0pre ree ruby-head),
             :default_ruby => "ruby-1.8.7",
             :default_gems => %w(bundler rake chef)
           }
