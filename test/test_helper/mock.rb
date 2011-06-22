@@ -29,5 +29,9 @@ module Mock
       self.class.requests << [:post, *args]
       self
     end
+
+    def success?
+      true
+    end
   end
 end
