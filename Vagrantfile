@@ -9,6 +9,10 @@ Vagrant::Config.run do |config|
         chef.cookbooks_path = "vendor/cookbooks/vagrant_base"
         chef.log_level      = :debug
 
+        config.vm.customize do |vm|
+          vm.memory_size = 1536
+        end
+
         # chef.add_recipe "apt"
         # chef.add_recipe "build-essential"
         # chef.add_recipe "networking_basic"
@@ -22,7 +26,7 @@ Vagrant::Config.run do |config|
         # chef.add_recipe "java::openjdk"
 
         chef.add_recipe "rvm"
-        chef.add_recipe "rvm::multi"
+        # chef.add_recipe "rvm::multi"
 
         # chef.add_recipe "travis_build_environment"
 
