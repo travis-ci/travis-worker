@@ -13,6 +13,10 @@ module Travis
           @pwd ||= evaluate('pwd').chomp
         end
 
+        def rvm
+          Array(super).join
+        end
+
         def gemfile?
           exec "test -f #{gemfile}", :echo => false
         end

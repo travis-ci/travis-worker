@@ -6,6 +6,11 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
   Config = Repository::Config
   Config.send :public, *Config.protected_instance_methods(false)
 
+  test 'rvm returns an rvm string when it holds an array with an rvm string' do
+    config = Config.new('rvm' => ['1.9.2'])
+    assert_equal '1.9.2', config.rvm
+  end
+
   test 'gemfile prepends the current working directory to the given relative Gemfile path' do
     config = Config.new('gemfile' => 'gemfiles/rails-3.1.0')
     config.stubs(:evaluate).with('pwd', anything).returns('/path/to/current/directory')
