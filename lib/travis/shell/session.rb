@@ -37,6 +37,7 @@ module Travis
         yield(self) if block_given?
 
         FileUtils.mkdir_p(File.dirname(log))
+        FileUtils.touch(log)
       end
 
       def sandboxed
