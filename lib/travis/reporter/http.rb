@@ -16,7 +16,8 @@ module Travis
 
         def deliver_message(message)
           @active = true
-          connection.post(message.target, message.data)
+          response = connection.post(message.target, message.data) # TODO 'Accept' => 'application/json'
+          p [message, response] unless response.success?
           @active = false
         end
 
