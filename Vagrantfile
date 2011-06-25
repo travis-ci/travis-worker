@@ -10,7 +10,7 @@ Vagrant::Config.run do |config|
         chef.log_level      = :debug
 
         config.vm.customize do |vm|
-          vm.memory_size = 1536
+          vm.memory_size = ENV.fetch("VAGRANT_VM_MEMORY_SIZE", 1536)
         end
 
         chef.add_recipe "apt"
