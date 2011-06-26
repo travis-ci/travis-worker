@@ -7,7 +7,7 @@ require 'vagrant'
 module Travis
   module Shell
     class Session
-      autoload :Helpers, 'travis/shell/helpers'
+      autoload :Helpers, 'travis/worker/shell/helpers'
 
       include Shell::Helpers
       #

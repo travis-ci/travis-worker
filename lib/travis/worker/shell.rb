@@ -5,9 +5,9 @@ module Travis
     # Behaviors
     #
 
-    autoload :Buffer,  'travis/shell/buffer'
-    autoload :Helpers, 'travis/shell/helpers'
-    autoload :Session, 'travis/shell/session'
+    autoload :Buffer,  'travis/worker/shell/buffer'
+    autoload :Helpers, 'travis/worker/shell/helpers'
+    autoload :Session, 'travis/worker/shell/session'
 
     #
     # API

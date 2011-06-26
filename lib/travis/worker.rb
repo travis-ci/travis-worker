@@ -8,7 +8,7 @@ require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
 module Travis
   autoload :Job,      'travis/worker/job'
   autoload :Reporter, 'travis/worker/reporter'
-  autoload :Shell,    'travis/shell'
+  autoload :Shell,    'travis/worker/shell'
   autoload :Worker,   'travis/worker'
 
   # Main worker dispatcher class that get's instantiated by Resque. Once we get rid of
