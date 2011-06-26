@@ -18,7 +18,7 @@ module Travis
 
       include Shell
 
-      autoload :Config, 'travis/job/repository/config'
+      autoload :Config, 'travis/worker/job/repository/config'
 
       #
       # API

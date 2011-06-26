@@ -6,7 +6,7 @@ require 'hashie'
 require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
 
 module Travis
-  autoload :Job,      'travis/job'
+  autoload :Job,      'travis/worker/job'
   autoload :Reporter, 'travis/reporter'
   autoload :Shell,    'travis/shell'
   autoload :Worker,   'travis/worker'

@@ -1,4 +1,4 @@
-require "travis/job/base"
+require "travis/worker/job/base"
 
 module Travis
   module Job
