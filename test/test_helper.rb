@@ -13,7 +13,7 @@ require 'mocha'
 # require 'fakeredis'
 # require 'resque'
 
-require 'travis_worker'
+require 'travis/worker'
 require 'fixtures/payloads'
 require 'test_helper/mock'
 
