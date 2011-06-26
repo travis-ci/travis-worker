@@ -1,3 +1,5 @@
+require "travis/worker/version"
+
 require 'resque'
 require 'resque/heartbeat'
 require 'hashie'
