@@ -11,7 +11,7 @@ module Travis
           include Shell
 
           def pwd
-            @pwd ||= evaluate('pwd').chomp
+            @pwd ||= evaluate('pwd').strip
           end
 
           def rvm
@@ -31,6 +31,6 @@ module Travis
           end
         end
       end # Repository
-    end # Job    
+    end # Job
   end # Worker
 end # Travis
