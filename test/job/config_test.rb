@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class JobConfigTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   Job::Config.send :public, *Job::Config.protected_instance_methods
 

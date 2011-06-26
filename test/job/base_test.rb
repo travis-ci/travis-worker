@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class JobBaseTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   Job::Base.send :public, *Job::Base.protected_instance_methods(false)
 

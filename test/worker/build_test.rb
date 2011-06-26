@@ -3,7 +3,7 @@ require 'test_helper'
 STDOUT.sync = true
 
 class WorkerBuildTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   attr_reader :now, :shell, :worker, :job, :reporter
 
@@ -17,7 +17,7 @@ class WorkerBuildTest < Test::Unit::TestCase
     @now = Time.now
     Time.stubs(:now).returns(now)
 
-    Travis::Worker.shell = Mock::Shell.new
+    Worker.shell = Mock::Shell.new
 
     @worker   = Worker.new(INCOMING_PAYLOADS['build:gem-release'])
     @job      = worker.job

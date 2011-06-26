@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ReporterHttpConfigTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   attr_reader :job, :reporter, :now
 

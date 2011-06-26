@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ShellSessionTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   Shell::Session.send :public, *Shell::Session.protected_instance_methods
 

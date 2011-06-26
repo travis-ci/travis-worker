@@ -2,7 +2,7 @@ require 'test_helper'
 require 'hashie'
 
 class JobBuildTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   Job::Build.send :public, *Job::Build.protected_instance_methods
   Job::Build.base_dir = '/tmp/travis/test'

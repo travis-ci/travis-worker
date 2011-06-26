@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class JobRepositoryTest < Test::Unit::TestCase
-  include Travis::Job
+  include Travis::Worker::Job
 
   Repository.__send__ :public, *Repository.protected_instance_methods(false)
 

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ShellBufferTest < Test::Unit::TestCase
-  include Travis
+  include Travis::Worker
 
   Shell::Buffer.send :public, *Shell::Buffer.protected_instance_methods
 

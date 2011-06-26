@@ -8,7 +8,7 @@ module Travis
       include Shell::Helpers
 
       CONFIG = {
-        :workers => Travis::Worker.config.workers,
+        :workers => Travis::Worker::Worker.config.workers,
         :sources => {
           :lucid =>'http://files.vagrantup.com/lucid32.box'
         },
