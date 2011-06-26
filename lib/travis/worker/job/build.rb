@@ -34,7 +34,7 @@ module Travis
 
         def start
           notify(:start, :started_at => Time.now)
-          update(:log => "Using worker: #{Travis::Worker.name}\n\n")
+          update(:log => "Using worker: #{Travis::Worker::Worker.name}\n\n")
           Travis::Worker::Worker.shell.on_output do |data|
             print data
             update(:log => data)
