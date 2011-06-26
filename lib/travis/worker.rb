@@ -3,7 +3,7 @@ require "travis/worker/version"
 require 'resque'
 require 'resque/heartbeat'
 require 'hashie'
-require 'core_ext/ruby/hash/deep_symboliz_keys'
+require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
 
 module Travis
   autoload :Job,      'travis/job'
