@@ -17,6 +17,7 @@ Vagrant::Config.run do |config|
         chef.add_recipe "build-essential"
         chef.add_recipe "networking_basic"
         chef.add_recipe "openssl"
+        # libyaml MUST be installed before rubies. MK.
         chef.add_recipe "libyaml"
 
         # for debugging. MK.
@@ -54,6 +55,9 @@ Vagrant::Config.run do |config|
               "rbx-2.0.0pre" => "rbx-2.0",
               "1.9.1-p378"   => "1.9.1"
             }
+          },
+          :mysql => {
+            :server_root_password => ""
           }
         )
       end # config.vm.provision
