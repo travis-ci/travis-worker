@@ -98,24 +98,25 @@ module Travis
         end
 
         def start_sandbox
-          puts 'creating vbox snapshot ...'
+          puts '[vbox] creating vbox snapshot ...'
           vbox_manage "snapshot '#{vm.vm.name}' take '#{vm.vm.name}-sandbox'"
-          puts 'done.'
+          puts '[vbox] done.'
         end
 
         def rollback_sandbox
-          puts 'rolling back to vbox snapshot ...'
+          puts '[vbox] rolling back to vbox snapshot ...'
           vbox_manage "controlvm '#{vm.vm.name}' poweroff"
-          vbox_manage "snapshot '#{vm.vm.name}' restore '#{vm.vm.name}-sandbox'"
+          vbox_manage "snapshot '#{vm.vm.name}' restorecurrent"
           vbox_manage "snapshot '#{vm.vm.name}' delete '#{vm.vm.name}-sandbox'"
           vbox_manage "startvm --type headless '#{vm.vm.name}'"
-          puts 'done.'
+          puts '[vbox] done.'
         end
 
         def vbox_manage(cmd)
           cmd = "VBoxManage #{cmd}"
+          puts "[vbox] #{cmd}"
           result = system(cmd, :out => log, :err => log)
-          raise "#{cmd} failed. See #{log} for more information." unless result
+          raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
         end
     end # Session
   end # Shell
