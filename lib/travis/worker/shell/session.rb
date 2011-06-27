@@ -124,13 +124,16 @@ module Travis
             delete_snapshots
             vbox_manage "startvm --type headless '#{vm_name}'"
             puts '[vbox] done.'
+          rescue
+            puts $!.inspect, $@
           end
 
           def delete_snapshots
-            snaphots.reverse.each do |snapshot|
+            snapshots.reverse.each do |snapshot|
               vbox_manage "snapshot '#{vm_name}' delete '#{snapshot}'"
             end
           end
+
           def vbox_manage(cmd)
             cmd = "VBoxManage #{cmd}"
             puts "[vbox] #{cmd}"
