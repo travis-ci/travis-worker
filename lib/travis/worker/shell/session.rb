@@ -42,14 +42,21 @@ module Travis
         end
 
         def sandboxed
-          start_sandbox
-          yield
-          rollback_sandbox
+          begin
+            start_sandbox
+            yield
+          rescue
+            puts $!.inspect, $@
+          ensure
+            rollback_sandbox
+          end
         end
 
         def execute(command, options = {})
           command = echoize(command) unless options[:echo] == false
           exec(command) { |p, data| buffer << data } == 0
+        rescue
+          puts $!.inspect, $@
         end
 
         def evaluate(command)
@@ -57,6 +64,8 @@ module Travis
           status = exec(command) { |p, data| result << data }
           raise("command #{command} failed: #{result}") unless status == 0
           result
+        rescue
+          puts $!.inspect, $@
         end
 
         def close
