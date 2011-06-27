@@ -15,6 +15,7 @@ require 'mocha'
 
 require 'travis/worker'
 require 'fixtures/payloads'
+require 'fixtures/vboxmanage'
 require 'test_helper/mock'
 
 class Test::Unit::TestCase

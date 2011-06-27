@@ -84,6 +84,10 @@ module Travis
 
         protected
 
+          def vm_name
+            vm.vm.name
+          end
+
           def start_shell
             puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
             Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
@@ -109,24 +113,34 @@ module Travis
 
           def start_sandbox
             puts '[vbox] creating vbox snapshot ...'
-            vbox_manage "snapshot '#{vm.vm.name}' take '#{vm.vm.name}-sandbox'"
+            vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'"
             puts '[vbox] done.'
           end
 
           def rollback_sandbox
             puts '[vbox] rolling back to vbox snapshot ...'
-            vbox_manage "controlvm '#{vm.vm.name}' poweroff"
-            vbox_manage "snapshot '#{vm.vm.name}' restorecurrent"
-            vbox_manage "snapshot '#{vm.vm.name}' delete '#{vm.vm.name}-sandbox'"
-            vbox_manage "startvm --type headless '#{vm.vm.name}'"
+            vbox_manage "controlvm '#{vm_name}' poweroff"
+            vbox_manage "snapshot '#{vm_name}' restorecurrent"
+            delete_snapshots
+            vbox_manage "startvm --type headless '#{vm_name}'"
             puts '[vbox] done.'
           end
 
+          def delete_snapshots
+            snaphots.reverse.each do |snapshot|
+              vbox_manage "snapshot '#{vm_name}' delete '#{snapshot}'"
+            end
+          end
           def vbox_manage(cmd)
             cmd = "VBoxManage #{cmd}"
             puts "[vbox] #{cmd}"
             result = system(cmd, :out => log, :err => log)
             raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
+          end
+
+          def snapshots
+            info = `vboxmanage showvminfo #{vm_name} --details`
+            info.split(/^Snapshots\s*/).last.split("\n").map { |line| line =~ /\(UUID: ([^\)]*)\)/ and $1 }.compact
           end
       end # Session
     end # Shell
