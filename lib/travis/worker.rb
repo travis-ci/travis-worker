@@ -12,6 +12,12 @@ module Travis
     autoload :Shell,    'travis/worker/shell'
     autoload :Worker,   'travis/worker'
 
+    class << self
+      def perform(payload)
+        Worker.perform(payload)
+      end
+    end
+
     # Main worker dispatcher class that get's instantiated by Resque. Once we get rid of
     # Resque this class can take over the responsibility of popping jobs from the queue.
     #
