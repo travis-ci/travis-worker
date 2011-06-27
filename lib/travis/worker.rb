@@ -42,7 +42,7 @@ module Travis
         end
 
         def shell
-          @shell ||= Travis::Shell::Session.new(vm, vagrant.config.ssh)
+          @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
         end
 
         def name
