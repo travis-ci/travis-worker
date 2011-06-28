@@ -13,6 +13,8 @@ Vagrant::Config.run do |config|
           vm.memory_size = ENV.fetch("VAGRANT_VM_MEMORY_SIZE", 1536)
         end
 
+        chef.add_recipe "travis_build_environment"
+
         chef.add_recipe "apt"
         chef.add_recipe "build-essential"
         chef.add_recipe "networking_basic"
@@ -21,16 +23,16 @@ Vagrant::Config.run do |config|
         chef.add_recipe "libyaml"
 
         # for debugging. MK.
-        chef.add_recipe "emacs"
+        chef.add_recipe "emacs::nox"
         chef.add_recipe "vim"
+
+        chef.add_recipe "timetrap"
 
         chef.add_recipe "git"
         chef.add_recipe "java::openjdk"
 
         chef.add_recipe "rvm"
         chef.add_recipe "rvm::multi"
-
-        chef.add_recipe "travis_build_environment"
 
         chef.add_recipe "memcached"
         chef.add_recipe "rabbitmq"
