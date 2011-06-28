@@ -14,9 +14,11 @@ require 'mocha'
 # require 'resque'
 
 require 'travis/worker'
+require 'test_helper/mock'
+
+FIXTURES = {}
 require 'fixtures/payloads'
 require 'fixtures/vboxmanage'
-require 'test_helper/mock'
 
 class Test::Unit::TestCase
   attr_reader :shell

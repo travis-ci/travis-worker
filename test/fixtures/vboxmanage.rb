@@ -1,4 +1,3 @@
-FIXTURES ||= {}
 FIXTURES.merge! :vboxmanage => <<-txt
 Name:            travis-worker_1308835149
 Guest OS:        Ubuntu
