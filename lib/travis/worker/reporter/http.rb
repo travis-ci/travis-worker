@@ -18,7 +18,10 @@ module Travis
           def deliver_message(message)
             @active = true
             response = connection.post(message.target, message.data) # TODO 'Accept' => 'application/json'
-            p [message, response] unless response.success?
+            puts "---> could not deliver message #{message.inspect}.\n  response: #{response.inspect}" unless response.success?
+          rescue
+            puts "---> exception sending message #{message.inspect}.\n  #{$!.inspect}\n#{$@}"
+          ensure
             @active = false
           end
 
