@@ -54,7 +54,7 @@ module Travis
 
         def execute(command, options = {})
           command = echoize(command) unless options[:echo] == false
-          exec(command) { |p, data| output(data) } == 0
+          exec(command) { |p, data| buffer << data } == 0
         rescue
           output "#{$!.inspect}\n#{$@}"
         end
