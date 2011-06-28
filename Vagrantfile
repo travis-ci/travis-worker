@@ -30,6 +30,7 @@ Vagrant::Config.run do |config|
 
         chef.add_recipe "git"
         chef.add_recipe "java::openjdk"
+        chef.add_recipe "libv8"
 
         chef.add_recipe "rvm"
         chef.add_recipe "rvm::multi"
