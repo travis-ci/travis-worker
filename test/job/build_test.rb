@@ -80,4 +80,14 @@ class JobBuildTest < Test::Unit::TestCase
     build.expects(:exec).with('bundle exec rake ci:after 2>&1').never
     assert_equal false , build.run_scripts
   end
+
+  test 'run_script when passed a String' do
+    build.expects(:exec).with('./before_script 2>&1').returns(true)
+    build.run_script('./before_script')
+  end
+
+  test 'run_script when passed an Array' do
+    build.expects(:exec).with('./before_script 2>&1').returns(true)
+    build.run_script(['./before_script'])
+  end
 end
