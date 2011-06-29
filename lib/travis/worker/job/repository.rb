@@ -63,7 +63,7 @@ module Travis
           def clone
             exec 'export GIT_ASKPASS=echo', :echo => false # this makes git interactive auth fail
             exec "mkdir -p #{dir}", :echo => false
-            exec "git clone --quiet #{source} #{dir}"
+            exec "git clone --depth=1000 --quiet #{source} #{dir}"
           end
 
           # @api plugin
