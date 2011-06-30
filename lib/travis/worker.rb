@@ -32,12 +32,6 @@ module Travis
 
       def shell
         instance_variable_defined?(:@shell) ? @shell : @shell = Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
-      rescue VmNotFound, Errno::ECONNREFUSED
-        @shell = nil
-        puts 'Can not connect to VM. Stopping job processing ...'
-        stop_processing
-        requeue
-        raise $!
       end
 
       def name
@@ -57,17 +51,6 @@ module Travis
           require 'vagrant'
           Vagrant::Environment.new.load!
         end
-      end
-
-      def stop_processing
-        Process.kill('USR2', Process.ppid)
-      end
-
-      def requeue
-        0.upto(Resque::Failure.count - 1) do |ix|
-          Resque::Failure.requeue(ix)
-        end
-        Resque::Failure.clear # there could be new failures by now, no?
       end
     end
   end # Worker

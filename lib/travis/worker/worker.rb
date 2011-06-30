@@ -22,6 +22,13 @@ module Travis
       def work!
         reporter.deliver_messages!
         job.work!
+      rescue VmNotFound, Errno::ECONNREFUSED
+        @shell = nil
+        puts "#{$!.class.name}: #{$!.message}", $@
+        puts 'Can not connect to VM. Stopping job processing ...'
+        stop_processing
+        requeue
+        raise $!
       rescue
         puts "#{$!.class.name}: #{$!.message}", $@
       ensure
@@ -30,6 +37,14 @@ module Travis
 
       def job_type
         payload.key?(:build) && payload[:build].key?(:config) ? Job::Build : Job::Config
+      end
+
+      def stop_processing
+        Process.kill('USR2', Process.ppid)
+      end
+
+      def requeue
+        Resque.enqueue(Travis::Worker, payload)
       end
     end
   end
