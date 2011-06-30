@@ -13,6 +13,10 @@ gem 'net-ssh-shell'
 gem 'hashie'
 gem 'faraday'
 
+gem "amqp",         :git => "git://github.com/ruby-amqp/amqp.git"
+gem "amq-client",   :git => "git://github.com/ruby-amqp/amq-client.git"
+gem "amq-protocol", :git => "git://github.com/ruby-amqp/amq-protocol.git"
+
 gem 'rake', '~> 0.9.2'
 gem 'thor'
 
@@ -40,4 +44,6 @@ group :test do
   platforms :mri_19 do
     gem 'ruby-debug19'
   end
+
+  gem "evented-spec", :git => "git://github.com/ruby-amqp/evented-spec.git"
 end
