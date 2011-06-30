@@ -22,6 +22,10 @@ class ShellSessionTest < Test::Unit::TestCase
     assert_equal "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=bar\\ rake\\ ci\nFOO=bar rake ci", session.echoize(['rvm use 1.9.2', 'FOO=bar rake ci'])
   end
 
+  test 'echoize: removes a timetrap prefix from the echo command' do
+    assert_equal "echo \\$\\ rake\ntimetrap -t 900 rake", session.echoize('timetrap -t 900 rake')
+  end
+
   test 'snapshots returns the UUIDs of all snapshots in this box' do
     session.stubs(:vm_name).returns('travis-worker_1308835149')
     session.stubs(:`).returns(FIXTURES[:vboxmanage])
