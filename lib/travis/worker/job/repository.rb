@@ -44,7 +44,7 @@ module Travis
 
         # @api public
         def install
-          install? ? exec("bundle install #{config['bundler_args']}".strip, :timeout => :bundler) : true
+          install? ? exec("bundle install #{config['bundler_args']}".strip, :timeout => :bundle) : true
         end
 
 

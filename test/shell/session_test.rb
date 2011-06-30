@@ -26,6 +26,14 @@ class ShellSessionTest < Test::Unit::TestCase
     assert_equal "echo \\$\\ rake\ntimetrap -t 900 rake", session.echoize('timetrap -t 900 rake')
   end
 
+  test 'timetrap wraps the command into a timetrap command without a timeout' do
+    assert_equal 'timetrap rake', session.timetrap('rake')
+  end
+
+  test 'timetrap wraps the command into a timetrap command with a timeout' do
+    assert_equal 'timetrap -t 900 rake', session.timetrap('rake', :timeout => 900)
+  end
+
   test 'snapshots returns the UUIDs of all snapshots in this box' do
     session.stubs(:vm_name).returns('travis-worker_1308835149')
     session.stubs(:`).returns(FIXTURES[:vboxmanage])
