@@ -22,6 +22,9 @@ module Travis
       def work!
         reporter.deliver_messages!
         job.work!
+      rescue
+        puts "#{$!.class.name}: #{$!.message}", $@
+      ensure
         sleep(0.1) until reporter.finished?
       end
 

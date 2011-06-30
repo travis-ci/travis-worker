@@ -43,7 +43,7 @@ module Travis
 
         def finish
           notify(:finish, :log => log, :status => status, :finished_at => Time.now)
-          Travis::Worker.shell.close
+          Travis::Worker.shell.close if Travis::Worker.shell
         end
 
         #
@@ -65,7 +65,7 @@ module Travis
             sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
-            update(:log => "#{$!.class.name}: #{$!.message}")
+            update(:log => "#{$!.class.name}: #{$!.message}\n#{$@}")
           ensure
             update(:log => "\nDone. Build script exited with: #{status}\n")
           end

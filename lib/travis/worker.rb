@@ -31,7 +31,7 @@ module Travis
       end
 
       def shell
-        @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
+        @shell = instance_variable_defined?(:@shell) ? @shell : Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
       rescue VmNotFound, Errno::ECONNREFUSED
         puts 'Can not connect to VM. Stopping job processing ...'
         Resque::Worker.working.first.pause_processing
