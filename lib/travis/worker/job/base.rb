@@ -59,6 +59,8 @@ module Travis
         def work!(shell = nil)
           start
           perform
+        rescue
+        ensure
           finish
         end
 
@@ -92,6 +94,6 @@ module Travis
             @build_dir ||= self.class.base_dir.join(payload.repository.slug)
           end
       end # Base
-    end # Job    
+    end # Job
   end # Worker
 end # Travis

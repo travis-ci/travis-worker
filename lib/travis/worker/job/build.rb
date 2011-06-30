@@ -65,7 +65,7 @@ module Travis
             sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
-            update(:log => "#{$!.inspect}\n#{$@}")
+            update(:log => "#{$!.class.name}: #{$!.message}")
           ensure
             update(:log => "\nDone. Build script exited with: #{status}\n")
           end

@@ -121,7 +121,7 @@ module Travis
             vbox_manage "startvm --type headless '#{vm_name}'"
             puts '[vbox] done.'
           rescue
-            puts $!.inspect, $@
+            puts "#{$!.class.name}: #{$!.message}", $@
           end
 
           def delete_snapshots
