@@ -45,18 +45,16 @@ module Travis
           begin
             start_sandbox
             yield
-          rescue
-            output "#{$!.inspect}\n#{$@}"
           ensure
             rollback_sandbox
           end
         end
 
         def execute(command, options = {})
+          timeout = options[:timeout].is_a?(Symbol) ? Travis::Worker.config.timeouts[options[:timeout]] : options[:timeout]
+          command = timetrap(command, :timeout => timeout) if options[:timeout]
           command = echoize(command) unless options[:echo] == false
           exec(command) { |p, data| buffer << data } == 0
-        rescue
-          output "#{$!.inspect}\n#{$@}"
         end
 
         def evaluate(command)
@@ -64,8 +62,6 @@ module Travis
           status = exec(command) { |p, data| result << data }
           raise("command #{command} failed: #{result}") unless status == 0
           result
-        rescue
-          output "#{$!.inspect}\n#{$@}"
         end
 
         def close
@@ -93,11 +89,6 @@ module Travis
             Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
               puts 'done.'
             end
-          end
-
-          def output(string)
-            puts string
-            buffer << string
           end
 
           def buffer

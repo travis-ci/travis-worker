@@ -62,18 +62,22 @@ module Travis
           end
 
           def perform
-            sandboxed do
-              @status = build! ? 0 : 1
-              sleep(Travis::Worker::Worker.config.shell.buffer * 2) # TODO hrmmm ...
-              update(:log => "\nDone. Build script exited with: #{status}\n")
-            end
+            @status = build! ? 0 : 1
+            sleep(Travis::Worker::Worker.config.shell.buffer * 2) # TODO hrmmm ...
+          rescue
+            @status = 1
+            update(:log => "#{$!.inspect}\n#{$@}")
+          ensure
+            update(:log => "\nDone. Build script exited with: #{status}\n")
           end
 
           def build!
-            chdir
-            setup_env
-            repository.checkout(build.commit)
-            repository.install && run_scripts
+            sandboxed do
+              chdir
+              setup_env
+              repository.checkout(build.commit)
+              repository.install && run_scripts
+            end
           end
 
           def setup_env
@@ -85,14 +89,14 @@ module Travis
           def run_scripts
             %w{before_script script after_script}.each do |type|
               script = config.send(type)
-              break false if script && !run_script(script)
+              break false if script && !run_script(script, :timeout => type)
             end
           end
 
-          def run_script(script)
+          def run_script(script, options = {})
             Array(script).each do |script|
               script = "#{script} 2>&1" unless script.strip[-1..4] == '2>&1'
-              break false unless exec(script)
+              break false unless exec(script, options)
             end
           end
 

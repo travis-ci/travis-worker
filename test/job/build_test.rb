@@ -68,26 +68,28 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'run_scripts: iterates over keys and executes appropriate script' do
-    build.expects(:exec).with('bundle exec rake ci:before 2>&1').returns(true)
-    build.expects(:exec).with('bundle exec rake 2>&1').returns(true)
-    build.expects(:exec).with('bundle exec rake ci:after 2>&1').returns(true)
+    build.expects(:exec).with('bundle exec rake ci:before 2>&1', :timeout => 'before_script').returns(true)
+    build.expects(:exec).with('bundle exec rake 2>&1', :timeout => 'script').returns(true)
+    build.expects(:exec).with('bundle exec rake ci:after 2>&1', :timeout => 'after_script').returns(true)
     build.run_scripts
   end
 
   test 'run_scripts: returns as soon as a script fails' do
-    build.expects(:exec).with('bundle exec rake ci:before 2>&1').returns(false)
-    build.expects(:exec).with('bundle exec rake 2>&1').never
-    build.expects(:exec).with('bundle exec rake ci:after 2>&1').never
+    build.expects(:exec).with('bundle exec rake ci:before 2>&1', :timeout => 'before_script').returns(false)
+    build.expects(:exec).with('bundle exec rake 2>&1', :timeout => 'script').never
+    build.expects(:exec).with('bundle exec rake ci:after 2>&1', :timeout => 'after_script').never
     assert_equal false , build.run_scripts
   end
 
   test 'run_script when passed a String' do
-    build.expects(:exec).with('./before_script 2>&1').returns(true)
-    build.run_script('./before_script')
+    options = { :timeout => 'before_script' }
+    build.expects(:exec).with('./before_script 2>&1', options).returns(true)
+    build.run_script('./before_script', options)
   end
 
   test 'run_script when passed an Array' do
-    build.expects(:exec).with('./before_script 2>&1').returns(true)
-    build.run_script(['./before_script'])
+    options = { :timeout => 'before_script' }
+    build.expects(:exec).with('./before_script 2>&1', options).returns(true)
+    build.run_script(['./before_script'], options)
   end
 end
