@@ -3,16 +3,16 @@ require 'test_helper'
 class WorkerConfigTest < Test::Unit::TestCase
   include Travis::Worker
 
-  Worker::Config.send :public, *Worker::Config.protected_instance_methods
+  Config.send :public, *Config.protected_instance_methods
 
   attr_reader :config
 
   def setup
     super
-    Worker::Config.any_instance.stubs(:load).returns({})
+    Config.any_instance.stubs(:load).returns({})
     File.stubs(:exists?).returns(false)
 
-    @config = Worker::Config.new
+    @config = Config.new
   end
 
   test 'looks for a file ./.travis.yml' do

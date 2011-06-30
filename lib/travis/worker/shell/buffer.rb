@@ -35,7 +35,7 @@ module Travis
             @thread = Thread.new do
               loop do
                 flush
-                sleep(Travis::Worker::Worker.config.shell.buffer)
+                sleep(Travis::Worker.config.shell.buffer)
               end
             end
           end

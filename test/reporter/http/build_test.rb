@@ -8,8 +8,8 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
   def setup
     super
 
-    Worker::Config.any_instance.stubs(:load).returns({})
-    Worker.stubs(:name).returns('the_worker')
+    Config.any_instance.stubs(:load).returns({})
+    Travis::Worker.stubs(:name).returns('the_worker')
 
     @job = Job::Build.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
     class << job

@@ -11,13 +11,13 @@ class WorkerBuildTest < Test::Unit::TestCase
     super
 
     config = { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
-    Worker::Config.any_instance.stubs(:load).returns(config)
-    Worker.stubs(:name).returns('the_worker')
+    Config.any_instance.stubs(:load).returns(config)
+    Travis::Worker.stubs(:name).returns('the_worker')
 
     @now = Time.now
     Time.stubs(:now).returns(now)
 
-    Worker.shell = Mock::Shell.new
+    Travis::Worker.shell = Mock::Shell.new
 
     @worker   = Worker.new(INCOMING_PAYLOADS['build:gem-release'])
     @job      = worker.job

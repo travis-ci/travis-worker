@@ -2,7 +2,7 @@ $: << 'lib'
 require 'travis/worker'
 
 Vagrant::Config.run do |config|
-  1.upto(ENV.fetch("TRAVIS_VAGRANT_WORKERS", Travis::Worker::Worker.config.workers).to_i) do |num|
+  1.upto(ENV.fetch("TRAVIS_VAGRANT_WORKERS", Travis::Worker.config.workers).to_i) do |num|
     config.vm.define :"worker-#{num}" do |config|
       config.vm.box = ENV.fetch("VAGRANT_BASE", "worker-#{num}")
       config.vm.provision :chef_solo do |chef|

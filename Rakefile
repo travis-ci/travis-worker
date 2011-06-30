@@ -11,7 +11,7 @@ end
 task 'travis:worker:config' do
   $: << 'lib'
   require 'travis/worker'
-  Travis::Worker::Worker.init
+  Travis::Worker.init
 end
 
 task 'resque:setup' => 'travis:worker:config'

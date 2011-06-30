@@ -31,7 +31,7 @@ module Travis
           observers << self
           @log = ''
 
-          Travis::Worker::Worker.shell.on_output do |data|
+          Travis::Worker.shell.on_output do |data|
             print data
             update(:log => data)
           end
@@ -39,7 +39,7 @@ module Travis
 
         def start
           notify(:start, :started_at => Time.now)
-          update(:log => "Using worker: #{Travis::Worker::Worker.name}\n\n")
+          update(:log => "Using worker: #{Travis::Worker.name}\n\n")
         end
 
         def update(data)
@@ -48,7 +48,7 @@ module Travis
 
         def finish
           notify(:finish, :log => log, :status => status, :finished_at => Time.now)
-          Travis::Worker::Worker.shell.close
+          Travis::Worker.shell.close
         end
 
         #
@@ -63,7 +63,7 @@ module Travis
 
           def perform
             @status = build! ? 0 : 1
-            sleep(Travis::Worker::Worker.config.shell.buffer * 2) # TODO hrmmm ...
+            sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
             update(:log => "#{$!.inspect}\n#{$@}")

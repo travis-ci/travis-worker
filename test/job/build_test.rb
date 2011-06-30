@@ -12,7 +12,7 @@ class JobBuildTest < Test::Unit::TestCase
   def setup
     super
 
-    Worker::Config.any_instance.stubs(:load).returns({})
+    Config.any_instance.stubs(:load).returns({})
 
     @payload = INCOMING_PAYLOADS['build:test-project-1']
     @build = Job::Build.new(payload)

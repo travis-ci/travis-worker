@@ -16,15 +16,15 @@ module Travis
 
       # @see Travis::Shell::Session#execute
       def exec(*args)
-        Travis::Worker::Worker.shell.execute(*args)
+        Travis::Worker.shell.execute(*args)
       end
 
       def evaluate(*args)
-        Travis::Worker::Worker.shell.evaluate(*args)
+        Travis::Worker.shell.evaluate(*args)
       end
 
       def sandboxed(&block)
-        Travis::Worker::Worker.shell.sandboxed(&block)
+        Travis::Worker.shell.sandboxed(&block)
       end
     end # Shell
   end # Worker
