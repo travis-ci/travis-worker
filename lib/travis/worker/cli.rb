@@ -3,7 +3,7 @@ require 'hashie'
 require 'travis/worker'
 
 module Travis
-  class Worker
+  module Worker
     class CLI < Thor
       include Shell::Helpers
 
