@@ -7,6 +7,8 @@ require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
 
 module Travis
   module Worker
+    class VmNotFound < RuntimeError; end
+
     autoload :Config,   'travis/worker/config'
     autoload :Job,      'travis/worker/job'
     autoload :Reporter, 'travis/worker/reporter'
@@ -29,11 +31,11 @@ module Travis
       end
 
       def shell
-        @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
+        instance_variable_defined?(:@shell) ? @shell : @shell = Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
       end
 
       def name
-        @name ||= "#{hostname}:#{vm.name}"
+        @name ||= "#{hostname}:#{ENV['VM']}"
       end
 
       def hostname
@@ -41,7 +43,7 @@ module Travis
       end
 
       def vm
-        @vm ||= vagrant.vms[(ENV['VM'] || '').to_sym] || raise("could not find vm #{ENV['VM'].inspect}")
+        @vm ||= vagrant.vms[(ENV['VM'] || '').to_sym] || raise(VmNotFound, "could not find vm #{ENV['VM'].inspect}")
       end
 
       def vagrant

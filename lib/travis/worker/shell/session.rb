@@ -51,7 +51,7 @@ module Travis
         end
 
         def execute(command, options = {})
-          timeout = options[:timeout].is_a?(Symbol) ? Travis::Worker.config.timeouts[options[:timeout]] : options[:timeout]
+          timeout = options[:timeout].is_a?(Numeric) ? options[:timeout] : Travis::Worker.config.timeouts[options[:timeout]]
           command = timetrap(command, :timeout => timeout) if options[:timeout]
           command = echoize(command) unless options[:echo] == false
           exec(command) { |p, data| buffer << data } == 0
@@ -121,7 +121,7 @@ module Travis
             vbox_manage "startvm --type headless '#{vm_name}'"
             puts '[vbox] done.'
           rescue
-            puts $!.inspect, $@
+            puts "#{$!.class.name}: #{$!.message}", $@
           end
 
           def delete_snapshots

@@ -23,7 +23,7 @@ module Travis
       property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
       property :shell,    :default => Hashie::Mash.new(:buffer => 0)
       property :workers,  :default => 3
-      property :timeouts, :default => Hashie::Mash.new(:before_script => 180, :after_script => 180, :script => 900, :bundle => 420)
+      property :timeouts, :default => Hashie::Mash.new(:before_script => 120, :after_script => 120, :script => 600, :bundle => 300)
 
       def initialize
         super(Hashie::Mash.new(load[environment]))

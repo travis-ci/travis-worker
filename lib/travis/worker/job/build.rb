@@ -30,7 +30,6 @@ module Travis
           super
           observers << self
           @log = ''
-
           Travis::Worker.shell.on_output do |data|
             print data
             update(:log => data)
@@ -48,7 +47,7 @@ module Travis
 
         def finish
           notify(:finish, :log => log, :status => status, :finished_at => Time.now)
-          Travis::Worker.shell.close
+          Travis::Worker.shell.close if Travis::Worker.shell
         end
 
         #
@@ -66,7 +65,7 @@ module Travis
             sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
-            update(:log => "#{$!.inspect}\n#{$@}")
+            update(:log => "#{$!.class.name}: #{$!.message}\n#{$@.join("\n")}")
           ensure
             update(:log => "\nDone. Build script exited with: #{status}\n")
           end

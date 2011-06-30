@@ -33,19 +33,19 @@ class WorkerConfigTest < Test::Unit::TestCase
     assert_equal filename, config.filename
   end
 
-  test 'before_script timeout defaults to 180' do
-    assert_equal 180, config.timeouts.before_script
+  test 'before_script timeout defaults to 120' do
+    assert_equal 120, config.timeouts.before_script
   end
 
-  test 'after_script timeout defaults to 180' do
-    assert_equal 180, config.timeouts.after_script
+  test 'after_script timeout defaults to 120' do
+    assert_equal 120, config.timeouts.after_script
   end
 
-  test 'script timeout defaults to 900' do
-    assert_equal 900, config.timeouts.script
+  test 'script timeout defaults to 600' do
+    assert_equal 600, config.timeouts.script
   end
 
-  test 'bundle timeout defaults to 420' do
-    assert_equal 420, config.timeouts.bundle
+  test 'bundle timeout defaults to 300' do
+    assert_equal 300, config.timeouts.bundle
   end
 end
