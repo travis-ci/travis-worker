@@ -30,11 +30,6 @@ module Travis
           super
           observers << self
           @log = ''
-
-          Travis::Worker.shell.on_output do |data|
-            print data
-            update(:log => data)
-          end
         end
 
         def start
@@ -62,6 +57,10 @@ module Travis
           end
 
           def perform
+            Travis::Worker.shell.on_output do |data|
+              print data
+              update(:log => data)
+            end
             @status = build! ? 0 : 1
             sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
