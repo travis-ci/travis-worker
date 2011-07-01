@@ -53,6 +53,17 @@ module Travis
           "https://raw.github.com/#{slug}"
         end
 
+        # @api public
+        def build?
+          if config.branches && config.branches[:only]
+            config.branches[:only].include?(config.branch)
+          elsif config.branches && config.branches[:except]
+            !config.branches[:except].include?(config.branch)
+          else
+            true
+          end
+        end
+
         #
         # Implementation
         #
