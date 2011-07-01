@@ -16,7 +16,7 @@ class JobConfigTest < Test::Unit::TestCase
 
     stubs_for_perform
 
-    config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("script: 'rake ci'")
+    config.stubs(:`).with(backtick_command).returns("script: 'rake ci'")
 
     config.perform
     assert_equal({ 'script' => 'rake ci', '.configured' => true }, config.config)
@@ -26,7 +26,7 @@ class JobConfigTest < Test::Unit::TestCase
 
     stubs_for_perform
 
-    config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("")
+    config.stubs(:`).with(backtick_command).returns("")
 
     config.perform
     assert_equal({ '.configured' => true }, config.config)
@@ -37,7 +37,7 @@ class JobConfigTest < Test::Unit::TestCase
 
       stubs_for_perform
 
-      config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("---\nscript: 'rak")
+      config.stubs(:`).with(backtick_command).returns("---\nscript: 'rak")
 
       config.perform
       assert_equal({'.configured' => true}, config.config)
@@ -47,6 +47,10 @@ class JobConfigTest < Test::Unit::TestCase
   def stubs_for_perform
     Random.stubs(:rand).with(2000).returns(1)
     config.repository.stubs(:clone_url).returns("git://github.com/svenfuchs/gem-release.git")
+  end
+
+  def backtick_command
+    "git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1"
   end
 end
 
