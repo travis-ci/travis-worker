@@ -13,6 +13,13 @@ module Travis
         @job      = job_type.new(payload)
         @reporter = Reporter::Http.new(job.build)
         job.observers << reporter
+      rescue VmNotFound, Errno::ECONNREFUSED
+        @shell = nil
+        puts "#{$!.class.name}: #{$!.message}", $@
+        puts 'Can not connect to VM. Stopping job processing ...'
+        stop_processing
+        requeue
+        raise $!
       end
 
       def shell
@@ -22,13 +29,6 @@ module Travis
       def work!
         reporter.deliver_messages!
         job.work!
-      rescue VmNotFound, Errno::ECONNREFUSED
-        @shell = nil
-        puts "#{$!.class.name}: #{$!.message}", $@
-        puts 'Can not connect to VM. Stopping job processing ...'
-        stop_processing
-        requeue
-        raise $!
       rescue
         puts "#{$!.class.name}: #{$!.message}", $@
       ensure
@@ -44,6 +44,7 @@ module Travis
       end
 
       def requeue
+        Travis::Worker.class_eval { @queue = 'builds' }
         Resque.enqueue(Travis::Worker, payload)
       end
     end

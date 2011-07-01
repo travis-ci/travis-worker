@@ -5,6 +5,8 @@ Vagrant::Config.run do |config|
   1.upto(ENV.fetch("TRAVIS_VAGRANT_WORKERS", Travis::Worker.config.workers).to_i) do |num|
     config.vm.define :"worker-#{num}" do |config|
       config.vm.box = ENV.fetch("VAGRANT_BASE", "worker-#{num}")
+      config.vm.forward_port("ssh", 22, 2220 + num)
+
       config.vm.provision :chef_solo do |chef|
         chef.cookbooks_path = "vendor/cookbooks/vagrant_base"
         chef.log_level      = ENV.fetch("CHEF_LOG_LEVEL", :info)
