@@ -34,6 +34,12 @@ class JobBuildTest < Test::Unit::TestCase
     assert_equal "log\nDone. Build script exited with: 0\n", build.log
     assert_equal 0, build.status
   end
+  
+  test 'does not perform build if the branch is ignored' do
+    build.repository.expects(:build?).returns(false)
+    build.expects(:build!).never
+    build.perform
+  end
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
     build.repository.config.stubs(:gemfile?).returns(true)
