@@ -7,7 +7,8 @@ INCOMING_PAYLOADS = {
     },
     'build' => {
       'id' => 1,
-      'commit' => '313f61b'
+      'commit' => '313f61b',
+      'branch' => 'master'
     }
   },
   'config:test-project-1' => {
@@ -16,7 +17,8 @@ INCOMING_PAYLOADS = {
     },
     'build' => {
       'id' => 1,
-      'commit' => '1234567'
+      'commit' => '1234567',
+      'branch' => 'master'
     }
   },
   'build:gem-release' => {
@@ -26,6 +28,7 @@ INCOMING_PAYLOADS = {
     'build' => {
       'id' => 1,
       'commit' => '313f61b',
+      'branch' => 'master',
       'config' => {
         'rvm'    => '1.9.2',
         'script' => 'rake'
