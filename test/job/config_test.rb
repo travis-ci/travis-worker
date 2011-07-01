@@ -13,28 +13,20 @@ class JobConfigTest < Test::Unit::TestCase
   end
 
   test 'perform: reads and sets config' do
-    # this works ...
-    response = Faraday::Response.new
-    response.body = "---\n  script: rake ci"
-    response.status = 200
 
-    Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+    stubs_for_perform
 
-    # this doesn't ... hu?
-    # Faraday.adapter(:test) do |stub|
-    #   stub.get('/svenfuchs/gem-release/1234567/.travis.yml') {[ 200, {}, "---\\\\\\\\n  script: rake ci" ]}
-    # end
+    config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("script: 'rake ci'")
 
     config.perform
     assert_equal({ 'script' => 'rake ci', '.configured' => true }, config.config)
   end
 
   test 'fetch: returns an empty hash for a missing .travis.yml file' do
-    response = Faraday::Response.new
-    response.body = 'Github 404 page'
-    response.status = 404
 
-    Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+    stubs_for_perform
+
+    config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("")
 
     config.perform
     assert_equal({ '.configured' => true }, config.config)
@@ -42,15 +34,19 @@ class JobConfigTest < Test::Unit::TestCase
 
   if RUBY_VERSION >= '1.9.2'
     test 'fetch: returns an empty hash for a broken .travis.yml file' do
-      response = Faraday::Response.new
-      response.body = 'order: [:year, :month, :day]'
-      response.status = 200
 
-      Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+      stubs_for_perform
+
+      config.stubs(:`).with("git clone --no-checkout --depth 1 --quiet git://github.com/svenfuchs/gem-release.git /tmp/travis-yml-1 && cd /tmp/travis-yml-1 && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-1").returns("---\nscript: 'rak")
 
       config.perform
       assert_equal({'.configured' => true}, config.config)
     end
+  end
+
+  def stubs_for_perform
+    Random.stubs(:rand).with(2000).returns(1)
+    config.repository.stubs(:clone_url).returns("git://github.com/svenfuchs/gem-release.git")
   end
 end
 

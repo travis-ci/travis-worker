@@ -10,7 +10,7 @@ class JobRepositoryTest < Test::Unit::TestCase
   def setup
     super
     Repository.any_instance.stubs(:exec)
-    @repository = Repository.new('/path/to/build/dir', 'svenfuchs/gem-release', {})
+    @repository = Repository.new('/path/to/build/dir', 'svenfuchs/gem-release', 'git://github.com/svenfuchs/gem-release.git', {})
   end
 
   test 'checkout: clones a repository if the build dir is not a git repository' do
@@ -38,7 +38,7 @@ class JobRepositoryTest < Test::Unit::TestCase
     repository.fetch
   end
 
-  test 'source: returns the read-only git url' do
-    assert_equal 'git://github.com/svenfuchs/gem-release.git', repository.source
+  test 'source: returns the repository\'s clone url' do
+    assert_equal 'git://github.com/svenfuchs/gem-release.git', repository.clone_url
   end
 end
