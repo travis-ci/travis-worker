@@ -9,11 +9,10 @@ end
 
 gem 'vagrant'
 gem 'net-ssh'
-gem 'net-ssh-shell'
+gem 'net-ssh-shell', '~> 0.2.0'
 gem 'hashie'
-gem 'faraday', '~> 0.7.3'
-
-gem 'rake', '~> 0.9.2'
+gem 'faraday',       '~> 0.7.3'
+gem 'rake',          '~> 0.9.2'
 gem 'thor'
 
 group :development do
