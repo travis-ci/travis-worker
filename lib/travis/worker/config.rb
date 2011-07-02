@@ -19,6 +19,8 @@ module Travis
       # API
       #
 
+      property :amqp,     :default => Hashie::Mash.new(:username => "guest", :password => "guest", :host => "localhost", :vhost => "travis")
+
       property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
       property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
       property :shell,    :default => Hashie::Mash.new(:buffer => 0)
