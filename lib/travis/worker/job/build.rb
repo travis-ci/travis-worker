@@ -97,8 +97,7 @@ module Travis
           end
 
           def run_script(script, options = {})
-            Array(script).each do |script|
-              script = "#{script} 2>&1" unless script.strip[-1..4] == '2>&1'
+            (script.is_a?(Array) ? script : script.split("\n")).each do |script|
               break false unless exec(script, options)
             end
           end
