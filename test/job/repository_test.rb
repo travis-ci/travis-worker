@@ -43,7 +43,13 @@ class JobRepositoryTest < Test::Unit::TestCase
   end
 
   test 'if there is no branches option, it should build' do
-    repository.config[:branches] = {}
+    repository.config[:branches] = ''
+    assert repository.build?
+  end
+
+  test 'if the branches is a string, should include them' do
+    repository.config[:branches] = 'master wip'
+    repository.config[:branch] = 'master'
     assert repository.build?
   end
 
