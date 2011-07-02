@@ -93,9 +93,17 @@ class JobBuildTest < Test::Unit::TestCase
     build.run_script('./before_script', options)
   end
 
+  test 'run_script when passed a multiline String' do
+    options = { :timeout => 'before_script' }
+    build.expects(:exec).with('./before_script_1 2>&1;', options).returns(true)
+    build.expects(:exec).with('./before_script_2 2>&1;', options).returns(true)
+    build.run_script("./before_script_1;\n./before_script_2;", options)
+  end
+
   test 'run_script when passed an Array' do
     options = { :timeout => 'before_script' }
-    build.expects(:exec).with('./before_script 2>&1', options).returns(true)
-    build.run_script(['./before_script'], options)
+    build.expects(:exec).with('./before_script_1 2>&1', options).returns(true)
+    build.expects(:exec).with('./before_script_2 2>&1', options).returns(true)
+    build.run_script(['./before_script_1', './before_script_2'], options)
   end
 end

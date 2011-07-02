@@ -97,9 +97,14 @@ module Travis
           end
 
           def run_script(script, options = {})
-            Array(script).each do |script|
-              script = "#{script} 2>&1" unless script.strip[-1..4] == '2>&1'
+            normalize_script(script).each do |script|
               break false unless exec(script, options)
+            end
+          end
+
+          def normalize_script(script)
+            (script.is_a?(Array) ? script : script.split("\n")).map do |script|
+              script.include?('2>&1') ? script : script.sub(/(;?)$/) { |token| " 2>&1#{token}" }
             end
           end
 
