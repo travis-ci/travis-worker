@@ -55,13 +55,7 @@ module Travis
 
         # @api public
         def build?
-          if config.branches && config.branches[:only]
-            config.branches[:only].include?(config.branch)
-          elsif config.branches && config.branches[:except]
-            !config.branches[:except].include?(config.branch)
-          else
-            true
-          end
+          build_branch?
         end
 
         #
@@ -96,6 +90,20 @@ module Travis
           # @api plugin
           def source
             "git://github.com/#{slug}.git"
+          end
+
+          def build_branch?
+            return true unless config.branches?
+            if config.branches.is_a?(String)
+              build_branches = config.branches.split(' ')
+              expected = true
+            else
+              build_branches = config.branches[:only] || config.branches[:except] || []
+              expected = config.branches.only?
+            end
+            return true if build_branches.empty?
+
+            build_branches.include?(config.branch) == expected
           end
       end # Repository
     end # Job
