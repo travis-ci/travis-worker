@@ -11,7 +11,7 @@ module Travis
       class Job < Thor
         desc "publish", "Publish a sample job payload"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
-        method_option :commit, :default => "455e5f51605"
+        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
         method_option :branch, :default => "master"
         def publish
           payload = {
