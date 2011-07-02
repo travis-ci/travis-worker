@@ -19,7 +19,7 @@ class WorkerBuildTest < Test::Unit::TestCase
 
     Travis::Worker.shell = Mock::Shell.new
 
-    @worker   = Worker.new(INCOMING_PAYLOADS['build:gem-release'])
+    @worker   = Workers::Resque.new(INCOMING_PAYLOADS['build:gem-release'])
     @job      = worker.job
     @reporter = worker.reporter
 
