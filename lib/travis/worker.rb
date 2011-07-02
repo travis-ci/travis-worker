@@ -13,7 +13,11 @@ module Travis
     autoload :Job,      'travis/worker/job'
     autoload :Reporter, 'travis/worker/reporter'
     autoload :Shell,    'travis/worker/shell'
-    autoload :Worker,   'travis/worker/worker'
+
+    module Workers
+      autoload :Resque,   'travis/worker/workers/resque'
+    end # Workers
+
 
     class << self
       attr_writer :shell
@@ -23,7 +27,7 @@ module Travis
       end
 
       def perform(payload)
-        Worker.new(payload).work!
+        Workers::Resque.new(payload).work!
       end
 
       def config
@@ -48,9 +52,9 @@ module Travis
 
       def vagrant
         @vagrant ||= begin
-          require 'vagrant'
-          Vagrant::Environment.new.load!
-        end
+                       require 'vagrant'
+                       Vagrant::Environment.new.load!
+                     end
       end
     end
   end # Worker
