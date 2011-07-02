@@ -15,7 +15,6 @@ module Travis
           @reporter = Reporter::Http.new(job.build)
           job.observers << reporter
         rescue VmNotFound, Errno::ECONNREFUSED
-          @shell = nil
           puts "#{$!.class.name}: #{$!.message}", $@
           puts 'Can not connect to VM. Stopping job processing ...'
           stop_processing
