@@ -13,6 +13,8 @@ gem 'net-ssh-shell'
 gem 'hashie'
 gem 'faraday', '~> 0.7.3'
 
+gem "multi_json"
+
 gem "amqp",         :git => "git://github.com/ruby-amqp/amqp.git"
 gem "amq-client",   :git => "git://github.com/ruby-amqp/amq-client.git"
 gem "amq-protocol", :git => "git://github.com/ruby-amqp/amq-protocol.git"
