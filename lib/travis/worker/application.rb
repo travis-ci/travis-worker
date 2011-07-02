@@ -1,5 +1,6 @@
 require "amqp"
 require "travis/worker/build_dispatcher"
+require "travis/worker/core_ext/ruby/hash/deep_symbolize_keys"
 
 module Travis
   module Worker
@@ -17,6 +18,7 @@ module Travis
         self.install_signal_traps
 
         announce "[boot] About to bind..."
+
         AMQP.start(connection_options, &method(:on_connection))
       end # bind
 

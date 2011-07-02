@@ -1,3 +1,5 @@
+require "multi_json"
+
 module Travis
   module Worker
     class BuildDispatcher
@@ -13,13 +15,20 @@ module Travis
 
 
       def run
-        announce "[builds.dispatcher] Using '#{@queue.name}' queue."
         @queue.subscribe(:ack => true, &method(:handle_message))
+        announce "[builds.dispatcher] Add consumer for the '#{@queue.name}' queue."
+
+        self
       end # run
 
 
       def handle_message(metadata, payload)
-        # TBD
+        deserialized = MultiJson.decode(payload)
+        announce "[builds.dispatcher] Handling #{deserialized.inspect}"
+
+        # Workers::Amqp.new(metadata, deserialized).work!
+
+        metadata.ack
       end # handle_message(metadata, payload)
 
 
