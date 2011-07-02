@@ -22,10 +22,6 @@ module Travis
           raise $!
         end
 
-        def shell
-          self.class.shell
-        end
-
         def work!
           reporter.deliver_messages!
           job.work!
