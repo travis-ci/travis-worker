@@ -1,7 +1,7 @@
 require "thor"
 
 require "travis/worker"
-require "travis/worker/dispatcher"
+require "travis/worker/application"
 
 module Travis
   module Worker
@@ -11,7 +11,7 @@ module Travis
       desc "start", "Start worker"
       def start
         config     = Travis::Worker.config
-        dispatcher = Dispatcher.new(config)
+        dispatcher = Application.new(config)
         dispatcher.bind(config.amqp)
       end
 
