@@ -97,14 +97,8 @@ module Travis
           end
 
           def run_script(script, options = {})
-            normalize_script(script).each do |script|
+            (script.is_a?(Array) ? script : script.split("\n")).each do |script|
               break false unless exec(script, options)
-            end
-          end
-
-          def normalize_script(script)
-            (script.is_a?(Array) ? script : script.split("\n")).map do |script|
-              script.include?('2>&1') ? script : script.sub(/(;?)$/) { |token| " 2>&1#{token}" }
             end
           end
 

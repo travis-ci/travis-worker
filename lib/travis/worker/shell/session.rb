@@ -101,6 +101,7 @@ module Travis
             status = nil
             shell.execute(command) do |process|
               process.on_output(&on_output)
+              process.on_error_output(&on_output)
               process.on_finish { |p| status = p.exit_status }
             end
             shell.session.loop { status.nil? }
