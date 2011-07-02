@@ -14,7 +14,16 @@ module Travis
         method_option :commit, :default => "455e5f51605"
         method_option :branch, :default => "master"
         def publish
-          payload = self.options
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id     => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            }
+          }
           puts payload.inspect
 
           AMQP.start(:vhost => "travis") do |connection|

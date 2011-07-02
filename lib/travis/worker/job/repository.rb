@@ -92,7 +92,7 @@ module Travis
             "git://github.com/#{slug}.git"
           end
 
-          def build_branch?
+        def build_branch?
             return true unless config.branches?
             if config.branches.is_a?(String)
               build_branches = config.branches.split(' ')

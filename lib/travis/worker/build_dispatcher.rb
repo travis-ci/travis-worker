@@ -26,9 +26,8 @@ module Travis
         deserialized = MultiJson.decode(payload)
         announce "[builds.dispatcher] Handling #{deserialized.inspect}"
 
-        # Workers::Amqp.new(metadata, deserialized).work!
-
         metadata.ack
+        Workers::Amqp.new(metadata, deserialized).work!
       end # handle_message(metadata, payload)
 
 
