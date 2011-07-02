@@ -15,7 +15,7 @@ module Travis
           end
 
           def rvm
-            Array(super).join
+            super ? Array(super).join : nil
           end
 
           def gemfile?
