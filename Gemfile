@@ -11,7 +11,7 @@ gem 'vagrant'
 gem 'net-ssh'
 gem 'net-ssh-shell'
 gem 'hashie'
-gem 'faraday'
+gem 'faraday', '~> 0.7.3'
 
 gem 'rake', '~> 0.9.2'
 gem 'thor'
