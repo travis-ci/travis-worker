@@ -42,6 +42,10 @@ class ShellSessionTest < Test::Unit::TestCase
     assert_equal 'FOO=bar timetrap -t 900 rake', session.timetrap('FOO=bar rake', :timeout => 900)
   end
 
+  test 'timetrap wraps multiple commands with env vars into a timetrap command with a timeout' do
+    assert_equal 'FOO=bar timetrap -t 900 rake ci:prepare; timetrap -t 900 rake', session.timetrap('FOO=bar rake ci:prepare; rake', :timeout => 900)
+  end
+
   test 'parse_cmd: given a command that contains env vars it returns an array containing env vars and the command' do
     assert_equal ['FOO=bar', 'rake'], session.parse_cmd('FOO=bar rake')
   end

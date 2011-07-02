@@ -11,9 +11,11 @@ module Travis
         end
 
         def timetrap(cmd, options = {})
-          vars, cmd = parse_cmd(cmd)
-          options = options[:timeout] ? "-t #{options[:timeout]}" : nil
-          [vars, 'timetrap', options, cmd].compact.join(' ')
+          cmd.split(';').map do |cmd|
+            vars, cmd = parse_cmd(cmd)
+            opts = options[:timeout] ? "-t #{options[:timeout]}" : nil
+            [vars, 'timetrap', opts, cmd].compact.join(' ')
+          end.join('; ')
         end
 
         def parse_cmd(cmd)
