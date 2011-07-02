@@ -21,7 +21,12 @@ module Travis
             :build => {
               :id     => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch]
+              :branch => self.options[:branch],
+              :config => {
+                :rvm          => "1.8.7",
+                :script       => "bundle exec rspec spec",
+                :bundler_args => "--without development"
+              }
             }
           }
           puts payload.inspect
