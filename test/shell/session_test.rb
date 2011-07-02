@@ -26,12 +26,28 @@ class ShellSessionTest < Test::Unit::TestCase
     assert_equal "echo \\$\\ rake\ntimetrap -t 900 rake", session.echoize('timetrap -t 900 rake')
   end
 
-  test 'timetrap wraps the command into a timetrap command without a timeout' do
+  test 'timetrap wraps a command without env vars into a timetrap command without a timeout' do
     assert_equal 'timetrap rake', session.timetrap('rake')
   end
 
-  test 'timetrap wraps the command into a timetrap command with a timeout' do
+  test 'timetrap wraps a command without env vars into a timetrap command with a timeout' do
     assert_equal 'timetrap -t 900 rake', session.timetrap('rake', :timeout => 900)
+  end
+
+  test 'timetrap wraps a command with env vars into a timetrap command without a timeout' do
+    assert_equal 'FOO=bar timetrap rake', session.timetrap('FOO=bar rake')
+  end
+
+  test 'timetrap wraps a command with env vars into a timetrap command with a timeout' do
+    assert_equal 'FOO=bar timetrap -t 900 rake', session.timetrap('FOO=bar rake', :timeout => 900)
+  end
+
+  test 'parse_cmd: given a command that contains env vars it returns an array containing env vars and the command' do
+    assert_equal ['FOO=bar', 'rake'], session.parse_cmd('FOO=bar rake')
+  end
+
+  test 'parse_cmd: given a command that contains not env vars it returns an array containing nil and the command' do
+    assert_equal [nil, 'rake'], session.parse_cmd('rake')
   end
 
   test 'snapshots returns the UUIDs of all snapshots in this box' do
