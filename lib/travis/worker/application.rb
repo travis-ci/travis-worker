@@ -47,9 +47,9 @@ module Travis
       protected
 
       def open_channels
-        @heartbeat_channel    = AMQP::Channel.new(@connection, :auto_recovery => true)
-        @commands_channel     = AMQP::Channel.new(@connection, :auto_recovery => true)
-        @reporting_channel    = AMQP::Channel.new(@connection, :auto_recovery => true)
+        @heartbeat_channel    = AMQP::Channel.new(@connection, :auto_recovery => true).prefetch(1)
+        @commands_channel     = AMQP::Channel.new(@connection, :auto_recovery => true).prefetch(1)
+        @reporting_channel    = AMQP::Channel.new(@connection, :auto_recovery => true).prefetch(1)
       end # open_channels
 
       def initialize_dispatcher
