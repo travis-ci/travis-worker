@@ -96,6 +96,8 @@ module Travis
             break false if script && !run_script(script, :timeout => type)
           end
           puts "[jobs.build] Done running scripts"
+
+          false
         end
 
         def run_script(script, options = {})
