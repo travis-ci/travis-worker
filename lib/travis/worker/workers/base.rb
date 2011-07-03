@@ -25,7 +25,7 @@ module Travis
         end
 
         def work!
-          # reporter.deliver_messages!
+          reporter.deliver_messages!
           job.work!
         rescue
           puts "#{$!.class.name}: #{$!.message}", $@
