@@ -28,8 +28,8 @@ GEM
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-ssh (2.1.4)
-    net-ssh-shell (0.1.0)
-      net-ssh (>= 2.0.9)
+    net-ssh-shell (0.2.0)
+      net-ssh (~> 2.1.0)
     rack (1.2.3)
     rake (0.9.2)
     rdiscount (1.6.8)
@@ -92,7 +92,7 @@ DEPENDENCIES
   minitest_tu_shim
   mocha
   net-ssh
-  net-ssh-shell
+  net-ssh-shell (~> 0.2.0)
   rake (~> 0.9.2)
   rdiscount
   resque (~> 1.17.0)
