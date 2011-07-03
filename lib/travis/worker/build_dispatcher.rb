@@ -28,7 +28,9 @@ module Travis
 
         # TODO: defer it
         Workers::Amqp.new(metadata, deserialized).work!
+        announce "[builds.dispatcher] Done"
         metadata.ack
+        announce "[builds.dispatcher] Acknowledged"
       end # handle_message(metadata, payload)
 
 
