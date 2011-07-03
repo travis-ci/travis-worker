@@ -9,11 +9,11 @@ module Travis
   module Worker
     module Development
       class Job < Thor
-        desc "publish", "Publish a sample job payload"
+        desc "build", "Publish a sample build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
         method_option :branch, :default => "master"
-        def publish
+        def build
           payload = {
             :repository => {
               :slug => self.options[:slug]
@@ -31,23 +31,46 @@ module Travis
           }
           puts payload.inspect
 
+          publish(payload, "builds")
+        end
+
+
+
+
+
+        desc "config", "Publish a sample config job"
+        method_option :slug,   :default => "ruby-amqp/amq-protocol"
+        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
+        method_option :branch, :default => "master"
+        def config
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id     => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            }
+          }
+          puts payload.inspect
+
+          publish(payload, "builds")
+        end
+
+
+
+        protected
+
+        def publish(payload, routing_key)
           AMQP.start(:vhost => "travis") do |connection|
-            AMQP.channel.default_exchange.publish(MultiJson.encode(payload), :routing_key => "builds") do
+            AMQP.channel.default_exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) do
               AMQP.connection.disconnect { puts("Disconnecting..."); EventMachine.stop }
             end
           end
         end
-      end
 
-
-
-      class Config < Thor
-        desc "publish", "Publish a sample configuration payload"
-        method_option :slug, :default => "ruby-amqp/amq-protocol"
-        def publish
-          puts "Publishing..."
-        end
-      end
+      end # Job
     end # Development
   end # Worker
 end # Travis
