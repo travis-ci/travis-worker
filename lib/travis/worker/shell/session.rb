@@ -80,68 +80,70 @@ module Travis
 
         protected
 
-          def vm_name
-            vm.vm.name
-          end
+        def vm_name
+          vm.vm.name
+        end
 
-          def start_shell
-            puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
-            Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
-              puts 'done.'
-            end
+        def start_shell
+          puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
+          Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
+            puts 'done.'
           end
+        end
 
-          def buffer
-            @buffer ||= Buffer.new do |string|
-              @on_output.call(string) if @on_output
-            end
+        def buffer
+          @buffer ||= Buffer.new do |string|
+            @on_output.call(string) if @on_output
           end
+        end
 
-          def exec(command, &on_output)
-            status = nil
-            shell.execute(command) do |process|
-              process.on_output(&on_output)
-              process.on_error_output(&on_output)
-              process.on_finish { |p| status = p.exit_status }
-            end
-            shell.session.loop { status.nil? }
-            status
+        def exec(command, &on_output)
+          status = nil
+          shell.execute(command) do |process|
+            process.on_output(&on_output)
+            process.on_error_output(&on_output)
+            process.on_finish { |p| status = p.exit_status }
           end
+          shell.session.loop { status.nil? }
+          status
+        end
 
-          def start_sandbox
-            puts '[vbox] creating vbox snapshot ...'
-            vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'"
-            puts '[vbox] done.'
-          end
+        def start_sandbox
+          puts '[vbox] Creating vbox snapshot ...'
+          vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'"
+          puts '[vbox] Created.'
+        end
 
-          def rollback_sandbox
-            puts '[vbox] rolling back to vbox snapshot ...'
-            vbox_manage "controlvm '#{vm_name}' poweroff"
-            vbox_manage "snapshot '#{vm_name}' restorecurrent"
-            delete_snapshots
-            vbox_manage "startvm --type headless '#{vm_name}'"
-            puts '[vbox] done.'
-          rescue
-            puts "#{$!.class.name}: #{$!.message}", $@
-          end
+        def rollback_sandbox
+          puts '[vbox] Rolling back to vbox snapshot ...'
+          vbox_manage "controlvm '#{vm_name}' poweroff"
+          vbox_manage "snapshot '#{vm_name}' restorecurrent"
+          delete_snapshots
+          vbox_manage "startvm --type headless '#{vm_name}'"
+          puts '[vbox] Rolled back.'
+        rescue
+          puts "#{$!.class.name}: #{$!.message}", $@
+        end
 
-          def delete_snapshots
-            snapshots.reverse.each do |snapshot|
-              vbox_manage "snapshot '#{vm_name}' delete '#{snapshot}'"
-            end
+        def delete_snapshots
+          snapshots.reverse.each do |snapshot|
+            puts "[vbox] Deleting snapshot #{snapshot}..."
+            vbox_manage "snapshot '#{vm_name}' delete '#{snapshot}'"
+            puts "[vbox] Deleted."
           end
+        end
 
-          def vbox_manage(cmd)
-            cmd = "VBoxManage #{cmd} 2>&1 > #{log}"
-            puts "[vbox] #{cmd}"
-            result = system(cmd)
-            raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
-          end
+        def vbox_manage(cmd)
+          cmd = "VBoxManage #{cmd} 2>&1 > #{log}"
+          puts "[vbox] #{cmd}"
+          result = system(cmd)
+          raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
+        end
 
-          def snapshots
-            info = `vboxmanage showvminfo #{vm_name} --details`
-            info.split(/^Snapshots\s*/).last.split("\n").map { |line| line =~ /\(UUID: ([^\)]*)\)/ and $1 }.compact
-          end
+        def snapshots
+          info = `vboxmanage showvminfo #{vm_name} --details`
+          info.split(/^Snapshots\s*/).last.split("\n").map { |line| line =~ /\(UUID: ([^\)]*)\)/ and $1 }.compact
+        end
       end # Session
     end # Shell
   end # Worker
