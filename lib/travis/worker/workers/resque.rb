@@ -1,5 +1,3 @@
-require "travis/worker/workers/base"
-
 module Travis
   module Worker
     module Workers
@@ -8,7 +6,7 @@ module Travis
       #
       # The Worker instantiates jobs (currently based on the payload, should be based on
       # the queue) and runs them.
-      class Resque < Workers::Base
+      class Resque < Base
 
         #
         # API

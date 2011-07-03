@@ -15,7 +15,8 @@ module Travis
     autoload :Shell,    'travis/worker/shell'
 
     module Workers
-      autoload :Resque,   'travis/worker/workers/resque'
+      autoload :Base,   'travis/worker/workers/base'
+      autoload :Resque, 'travis/worker/workers/resque'
     end # Workers
 
 
