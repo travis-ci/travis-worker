@@ -35,8 +35,7 @@ module Travis
         end
 
         def job_type
-          # payload.key?(:build) && payload[:build].key?(:config) ? Job::Build : Job::Config
-          Job::Build
+          payload.key?(:build) && payload[:build].key?(:config) ? Job::Build : Job::Config
         end
 
         def stop_processing
