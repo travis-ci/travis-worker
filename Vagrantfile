@@ -49,6 +49,7 @@ Vagrant::Config.run do |config|
         chef.add_recipe "mongodb"
 
         chef.add_recipe "imagemagick"
+        chef.add_recipe "scons"
 
         # You may also specify custom JSON attributes:
         chef.json.merge!(
