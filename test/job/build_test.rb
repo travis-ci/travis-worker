@@ -34,7 +34,7 @@ class JobBuildTest < Test::Unit::TestCase
     assert_equal "log\nDone. Build script exited with: 0\n", build.log
     assert_equal 0, build.status
   end
-  
+
   test 'does not perform build if the branch is ignored' do
     build.repository.expects(:build?).returns(false)
     build.expects(:build!).never
@@ -84,7 +84,7 @@ class JobBuildTest < Test::Unit::TestCase
     build.expects(:exec).with('bundle exec rake ci:before', :timeout => 'before_script').returns(false)
     build.expects(:exec).with('bundle exec rake', :timeout => 'script').never
     build.expects(:exec).with('bundle exec rake ci:after', :timeout => 'after_script').never
-    assert_equal false , build.run_scripts
+    assert_equal false, build.run_scripts
   end
 
   test 'run_script when passed a String' do
