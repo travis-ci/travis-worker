@@ -96,14 +96,13 @@ module Travis
             break false if script && !run_script(script, :timeout => type)
           end
           puts "[jobs.build] Done running scripts"
-
-          false
+          true
         end
 
         def run_script(script, options = {})
           (script.is_a?(Array) ? script : script.split("\n")).each do |script|
             break false unless exec(script, options)
-          end
+          end && true
         end
 
         def chdir(&block)
