@@ -4,6 +4,7 @@ require 'resque'
 require 'resque/heartbeat'
 require 'hashie'
 require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
+require 'socket'
 
 module Travis
   module Worker
@@ -43,7 +44,7 @@ module Travis
       end
 
       def hostname
-        @hostname ||= `hostname`.chomp
+        @hostname ||= Socket.gethostname
       end
 
       def vm
