@@ -21,6 +21,7 @@ Vagrant::Config.run do |config|
         chef.add_recipe "build-essential"
         chef.add_recipe "networking_basic"
         chef.add_recipe "openssl"
+        chef.add_recipe "sysctl"
         # libyaml MUST be installed before rubies. MK.
         chef.add_recipe "libyaml"
 
