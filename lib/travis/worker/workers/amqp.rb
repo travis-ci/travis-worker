@@ -15,7 +15,7 @@ module Travis
           @metadata = metadata
           @job      = job_type.new(payload)
           # TODO
-          @reporter = Reporter::Http.new(job.build)
+          @reporter = Reporter::Amqp.new(job.build)
           job.observers << reporter
         rescue VmNotFound, Errno::ECONNREFUSED
           puts "#{$!.class.name}: #{$!.message}", $@
