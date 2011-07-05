@@ -92,18 +92,14 @@ module Travis
         def run_scripts
           %w{before_script script after_script}.each do |type|
             script = config.send(type)
-            puts "[jobs.build] Running #{type}"
-            break false if script && !run_script(script, :timeout => type)
-          end
-          puts "[jobs.build] Done running scripts"
-
-          false
+            return false if script && !run_script(script, :timeout => type)
+          end && true
         end
 
         def run_script(script, options = {})
           (script.is_a?(Array) ? script : script.split("\n")).each do |script|
-            break false unless exec(script, options)
-          end
+            return false unless exec(script, options)
+          end && true
         end
 
         def chdir(&block)
