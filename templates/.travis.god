@@ -1,10 +1,11 @@
 # TODO use rubygems once travis-worker is a gem
-$: << 'lib'
 require 'fileutils'
-require 'travis/worker'
 
-env   = ENV['TRAVIS_ENV']  ||= 'staging'
-root  = ENV['TRAVIS_ROOT'] || File.expand_path('.')
+count = 4
+env   = 'staging'
+queue = 'builds'
+
+root  = File.expand_path('.')
 logs  = "#{root}/log"
 
 FileUtils.mkdir_p(logs)
@@ -12,12 +13,12 @@ FileUtils.mkdir_p(logs)
 God.log_level = :info
 God.log_file  = "#{logs}/god.log"
 
-1.upto(Travis::Worker.config.workers) do |num|
+1.upto(count) do |num|
   God.watch do |w|
     w.group    = 'travis'
     w.name     = "travis-#{num}"
     w.log      = "#{logs}/worker-#{num}.log"
-    w.env      = { 'QUEUE' => 'builds', 'TRAVIS_ENV' => env, 'VM' => "worker-#{num}", 'VERBOSE' => 'true', 'PIDFILE' => File.expand_path("~/.god/pids/#{w.name}.pid") }
+    w.env      = { 'QUEUE' => queue, 'TRAVIS_ENV' => env, 'VM' => "worker-#{num}", 'VERBOSE' => 'true', 'PIDFILE' => File.expand_path("~/.god/pids/#{w.name}.pid") }
     w.start    = "cd #{root}; bundle exec rake resque:work --trace"
     w.interval = 30.seconds
 
