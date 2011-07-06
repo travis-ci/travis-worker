@@ -11,13 +11,19 @@ def run(cmd)
   system cmd
 end
 
+def wait(seconds)
+  puts "waiting for #{seconds} seconds"
+  sleep(seconds)
+end
+
 config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 
 run 'bin/reset_vbox'
 
 run 'wget http://files.vagrantup.com/lucid32.box' unless File.exists?('lucid32.box')
 run 'vagrant box add lucid32 lucid32.box'
-run 'vagrant up base'
+wait 5
+exit unless run 'vagrant up base'
 
 vms = JSON.parse(File.read('.vagrant'))
 uuid = vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
@@ -26,7 +32,8 @@ run 'rm -rf base.box'
 run "vagrant package --base #{uuid}"
 run 'mv package.box base.box'
 
-system 'vagrant box add base base.box'
+run 'vagrant box add base base.box'
+wait 5
 1.upto(config.count) do |num|
   run "vagrant up worker-#{num}"
 end
