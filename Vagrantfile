@@ -4,7 +4,7 @@ require 'travis/worker'
 Vagrant::Config.run do |config|
   1.upto(ENV.fetch("TRAVIS_VAGRANT_WORKERS", Travis::Worker.config.workers).to_i) do |num|
     config.vm.define :"worker-#{num}" do |config|
-      config.vm.box = ENV.fetch("VAGRANT_BASE", "worker-#{num}")
+      config.vm.box = ENV.fetch("VAGRANT_BASE", "base")
       config.vm.forward_port("ssh", 22, 2220 + num)
 
       config.vm.provision :chef_solo do |chef|
@@ -21,6 +21,7 @@ Vagrant::Config.run do |config|
         chef.add_recipe "build-essential"
         chef.add_recipe "networking_basic"
         chef.add_recipe "openssl"
+        chef.add_recipe "sysctl"
         # libyaml MUST be installed before rubies. MK.
         chef.add_recipe "libyaml"
 

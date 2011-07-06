@@ -3,7 +3,7 @@ require "travis/worker/version"
 require 'resque'
 require 'resque/heartbeat'
 require 'hashie'
-require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
+require 'travis/worker/core_ext/ruby/hash/deep_symbolize_keys'
 require 'socket'
 
 module Travis
