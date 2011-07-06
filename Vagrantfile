@@ -1,42 +1,59 @@
 require 'yaml'
 
-defaults = {
+DEFAULTS = {
   'count' => 1,
   'base' => 'lucid32',
   'memory' => 1536,
   'cookbooks' => 'vendor/cookbooks',
   'log_level' => 'info'
 }
-env = defaults.keys.inject({}) { |env, key| env[key] = ENV["WORKER_#{key.upcase}"] if ENV.key?("WORKER_#{key.upcase}"); env }
-config = defaults.merge(YAML.load_file('.vms.yml')).merge(env)
 
-# extract to local vars
-keys = %w(count base memory cookbooks log_level)
-count, base, memory, cookbooks, log_level, recipes, json = config.values_at(*keys)
+module Travis
+  class Config < Hash
+    DEFAULTS.keys.each do |key|
+      define_method(key) do
+        ENV.fetch("WORKER_#{key.upcase}", DEFAULTS[key] || self[key])
+      end
+    end
 
-vms = ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+    def initialize(config)
+      self.replace(config)
+    end
+
+    def vms
+      ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+    end
+
+    def recipes?
+      recipes && !recipes.empty?
+    end
+  end
+end
+
+config = Travis::Config.new(YAML.load_file('.vms.yml'))
+
 
 Vagrant::Config.run do |c|
-  vms.each_with_index do |name, num|
+  config.vms.each_with_index do |name, num|
 
     c.vm.define(name) do |c|
-      c.vm.box = name == 'base' ? base : 'base'
+      c.vm.box = name == 'base' ? config.base : 'base'
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|
         vm.memory_size = memory.to_i
       end
 
-      if recipes && !recipes.empty?
+      if config.recipes?
         c.vm.provision :chef_solo do |chef|
-          chef.cookbooks_path = cookbooks
-          chef.log_level = log_level.to_sym
+          chef.cookbooks_path = config.cookbooks
+          chef.log_level = config.log_level
 
-          recipes.each do |recipe|
+          config.recipes.each do |recipe|
             chef.add_recipe(recipe)
           end
 
-          chef.json.merge!(json || {})
+          chef.json.merge!(config.json || {})
         end
       end
     end
