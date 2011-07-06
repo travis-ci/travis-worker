@@ -8,7 +8,12 @@ $stdout.sync = true
 
 config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 
-system 'bin/reset_vbox'
+def run(cmd)
+  puts "$ #{cmd}"
+  system cmd
+end
+
+run 'bin/reset_vbox'
 
 system 'vagrant box add lucid32 lucid32.box'
 system 'vagrant up base'
