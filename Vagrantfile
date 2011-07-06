@@ -1,37 +1,8 @@
+$: << 'lib'
 require 'yaml'
+require 'travis/worker'
 
-DEFAULTS = {
-  'count' => 1,
-  'base' => 'lucid32',
-  'memory' => 1536,
-  'cookbooks' => 'vendor/cookbooks',
-  'log_level' => 'info'
-}
-
-module Travis
-  class Config < Hash
-    DEFAULTS.keys.each do |key|
-      define_method(key) do
-        ENV.fetch("WORKER_#{key.upcase}", DEFAULTS[key] || self[key])
-      end
-    end
-
-    def initialize(config)
-      self.replace(config)
-    end
-
-    def vms
-      ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
-    end
-
-    def recipes?
-      recipes && !recipes.empty?
-    end
-  end
-end
-
-config = Travis::Config.new(YAML.load_file('.vms.yml'))
-
+config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 
 Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|
@@ -41,7 +12,7 @@ Vagrant::Config.run do |c|
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|
-        vm.memory_size = memory.to_i
+        vm.memory_size = config.memory.to_i
       end
 
       if config.recipes?
@@ -53,7 +24,7 @@ Vagrant::Config.run do |c|
             chef.add_recipe(recipe)
           end
 
-          chef.json.merge!(config.json || {})
+          chef.json.merge!(config.json)
         end
       end
     end

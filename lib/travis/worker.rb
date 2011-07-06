@@ -18,8 +18,11 @@ module Travis
     module Workers
       autoload :Base,   'travis/worker/workers/base'
       autoload :Resque, 'travis/worker/workers/resque'
-    end # Workers
+    end
 
+    module Vagrant
+      autoload :Config, 'travis/worker/vagrant/config'
+    end
 
     class << self
       attr_writer :shell
