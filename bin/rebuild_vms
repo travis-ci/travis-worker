@@ -15,6 +15,7 @@ config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 
 run 'bin/reset_vbox'
 
+run 'wget http://files.vagrantup.com/lucid32.box' unless File.exists?('lucid32.box')
 run 'vagrant box add lucid32 lucid32.box'
 run 'vagrant up base'
 
