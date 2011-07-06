@@ -1,23 +1,24 @@
 #!/usr/bin/env ruby
-
 $: << 'lib'
 require 'yaml'
 require 'travis/worker'
 require 'json'
 
+$stdout.sync = true
+
 config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 
-`bin/reset_vbox.sh`
+system 'bin/reset_vbox'
 
-`vagrant box add lucid32 lucid32.box`
-`vagrant up base`
+system 'vagrant box add lucid32 lucid32.box'
+system 'vagrant up base'
 
 uuid = JSON.parse(File.read('.vagrant'))
 
-`vagrant package --base #{uuid}`
-`mv package.box base.box`
+system 'vagrant package --base #{uuid}'
+system 'mv package.box base.box'
 
-`vagrant box add base base.box`
+system 'vagrant box add base base.box'
 1.upto(config.count) do |num|
-  `vagrant up worker-#{num}`
+  system 'vagrant up worker-#{num}'
 end
