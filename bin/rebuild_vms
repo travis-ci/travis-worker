@@ -6,24 +6,27 @@ require 'json'
 
 $stdout.sync = true
 
-config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
-
 def run(cmd)
   puts "$ #{cmd}"
   system cmd
 end
 
+config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
+
 run 'bin/reset_vbox'
 
-system 'vagrant box add lucid32 lucid32.box'
-system 'vagrant up base'
+run 'vagrant box add lucid32 lucid32.box'
+run 'vagrant up base'
 
-uuid = JSON.parse(File.read('.vagrant'))
+vms = JSON.parse(File.read('.vagrant'))
+uuid = vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
 
-system 'vagrant package --base #{uuid}'
-system 'mv package.box base.box'
+run 'rm -rf base.box'
+run "vagrant package --base #{uuid}"
+run 'mv package.box base.box'
 
 system 'vagrant box add base base.box'
 1.upto(config.count) do |num|
-  system 'vagrant up worker-#{num}'
+  run "vagrant up worker-#{num}"
 end
+
