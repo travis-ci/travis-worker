@@ -20,6 +20,10 @@ module Travis
           self.replace(config)
         end
 
+        def count
+         self['count']
+        end
+
         def vms
           ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
         end
