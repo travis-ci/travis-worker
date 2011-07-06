@@ -7,13 +7,13 @@ Vagrant::Config.run do |config|
       config.vm.box = ENV.fetch("VAGRANT_BASE", "base")
       config.vm.forward_port("ssh", 22, 2220 + num)
 
+      config.vm.customize do |vm|
+        vm.memory_size = ENV.fetch("VAGRANT_VM_MEMORY_SIZE", 1536)
+      end
+
       config.vm.provision :chef_solo do |chef|
         chef.cookbooks_path = "vendor/cookbooks/vagrant_base"
         chef.log_level      = ENV.fetch("CHEF_LOG_LEVEL", :info)
-
-        config.vm.customize do |vm|
-          vm.memory_size = ENV.fetch("VAGRANT_VM_MEMORY_SIZE", 1536)
-        end
 
         chef.add_recipe "travis_build_environment"
 
