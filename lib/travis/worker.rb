@@ -58,7 +58,7 @@ module Travis
       def vagrant
         @vagrant ||= begin
           require 'vagrant'
-          Vagrant::Environment.new.load!
+          ::Vagrant::Environment.new.load!
         end
       end
     end
