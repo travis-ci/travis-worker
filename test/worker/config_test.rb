@@ -15,20 +15,20 @@ class WorkerConfigTest < Test::Unit::TestCase
     @config = Config.new
   end
 
-  test 'looks for a file ./.travis.yml' do
-    filename = File.expand_path('.travis.yml', '.')
+  test 'looks for a file ./.worker.yml' do
+    filename = File.expand_path('.worker.yml', '.')
     File.stubs(:exists?).with(filename).returns(true)
     assert_equal filename, config.filename
   end
 
-  test 'looks for a file ~/.travis.yml' do
-    filename = File.expand_path('.travis.yml', '~')
+  test 'looks for a file ~/.worker.yml' do
+    filename = File.expand_path('.worker.yml', '~')
     File.stubs(:exists?).with(filename).returns(true)
     assert_equal filename, config.filename
   end
 
-  test 'looks for a file ./travis.yml' do
-    filename = File.expand_path('.travis.yml', '/etc')
+  test 'looks for a file ./worker.yml' do
+    filename = File.expand_path('.worker.yml', '/etc')
     File.stubs(:exists?).with(filename).returns(true)
     assert_equal filename, config.filename
   end
