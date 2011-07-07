@@ -17,7 +17,7 @@ json:
       - ree
       - ruby-head
     default:
-      - ruby-1.8.7
+      - 1.8.7
     gems:
       - bundler
       - rake
