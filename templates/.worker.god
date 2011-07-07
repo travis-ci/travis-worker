@@ -15,8 +15,8 @@ God.log_file  = "#{logs}/god.log"
 
 1.upto(count) do |num|
   God.watch do |w|
-    w.group    = 'travis'
-    w.name     = "travis-#{num}"
+    w.group    = 'workers'
+    w.name     = "worker-#{num}"
     w.log      = "#{logs}/worker-#{num}.log"
     w.env      = { 'QUEUE' => queue, 'TRAVIS_ENV' => env, 'VM' => "worker-#{num}", 'VERBOSE' => 'true', 'PIDFILE' => File.expand_path("~/.god/pids/#{w.name}.pid") }
     w.start    = "cd #{root}; bundle exec rake resque:work --trace"
