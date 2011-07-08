@@ -1,6 +1,7 @@
-.travis.yml
-.travis.god
-!templates/*g
+.worker.yml
+.worker.god
+.vms.yml
+!templates/*
 .vagrant
 *.class
 *.rbc

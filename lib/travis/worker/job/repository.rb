@@ -55,6 +55,11 @@ module Travis
           "https://raw.github.com/#{slug}"
         end
 
+        # @api public
+        def build?
+          build_branch?
+        end
+
         #
         # Implementation
         #
@@ -84,6 +89,24 @@ module Travis
             config.gemfile?
           end
 
+          # @api plugin
+          def source
+            "git://github.com/#{slug}.git"
+          end
+
+        def build_branch?
+            return true unless config.branches?
+            if config.branches.is_a?(String)
+              build_branches = config.branches.split(' ')
+              expected = true
+            else
+              build_branches = config.branches[:only] || config.branches[:except] || []
+              expected = config.branches.only?
+            end
+            return true if build_branches.empty?
+
+            build_branches.include?(config.branch) == expected
+          end
       end # Repository
     end # Job
   end # Worker

@@ -35,6 +35,12 @@ class JobBuildTest < Test::Unit::TestCase
     assert_equal 0, build.status
   end
 
+  test 'does not perform build if the branch is ignored' do
+    build.repository.expects(:build?).returns(false)
+    build.expects(:build!).never
+    build.perform
+  end
+
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
     build.repository.config.stubs(:gemfile?).returns(true)
     build.repository.config.stubs(:gemfile).returns('/path/to/Gemfile.rails-3.1')
@@ -50,9 +56,9 @@ class JobBuildTest < Test::Unit::TestCase
       'git fetch',
       'git checkout -qf 1234567',
       'bundle install bundler_arg=1',
-      'bundle exec rake ci:before 2>&1',
-      'bundle exec rake 2>&1',
-      'bundle exec rake ci:after 2>&1'
+      'bundle exec rake ci:before',
+      'bundle exec rake',
+      'bundle exec rake ci:after'
     ]
     build.build!
   end
@@ -68,28 +74,36 @@ class JobBuildTest < Test::Unit::TestCase
   end
 
   test 'run_scripts: iterates over keys and executes appropriate script' do
-    build.expects(:exec).with('bundle exec rake ci:before 2>&1', :timeout => 'before_script').returns(true)
-    build.expects(:exec).with('bundle exec rake 2>&1', :timeout => 'script').returns(true)
-    build.expects(:exec).with('bundle exec rake ci:after 2>&1', :timeout => 'after_script').returns(true)
+    build.expects(:exec).with('bundle exec rake ci:before', :timeout => 'before_script').returns(true)
+    build.expects(:exec).with('bundle exec rake', :timeout => 'script').returns(true)
+    build.expects(:exec).with('bundle exec rake ci:after', :timeout => 'after_script').returns(true)
     build.run_scripts
   end
 
   test 'run_scripts: returns as soon as a script fails' do
-    build.expects(:exec).with('bundle exec rake ci:before 2>&1', :timeout => 'before_script').returns(false)
-    build.expects(:exec).with('bundle exec rake 2>&1', :timeout => 'script').never
-    build.expects(:exec).with('bundle exec rake ci:after 2>&1', :timeout => 'after_script').never
-    assert_equal false , build.run_scripts
+    build.expects(:exec).with('bundle exec rake ci:before', :timeout => 'before_script').returns(false)
+    build.expects(:exec).with('bundle exec rake', :timeout => 'script').never
+    build.expects(:exec).with('bundle exec rake ci:after', :timeout => 'after_script').never
+    assert_equal false, build.run_scripts
   end
 
   test 'run_script when passed a String' do
     options = { :timeout => 'before_script' }
-    build.expects(:exec).with('./before_script 2>&1', options).returns(true)
+    build.expects(:exec).with('./before_script', options).returns(true)
     build.run_script('./before_script', options)
+  end
+
+  test 'run_script when passed a multiline String' do
+    options = { :timeout => 'before_script' }
+    build.expects(:exec).with('./before_script_1', options).returns(true)
+    build.expects(:exec).with('./before_script_2', options).returns(true)
+    build.run_script("./before_script_1\n./before_script_2", options)
   end
 
   test 'run_script when passed an Array' do
     options = { :timeout => 'before_script' }
-    build.expects(:exec).with('./before_script 2>&1', options).returns(true)
-    build.run_script(['./before_script'], options)
+    build.expects(:exec).with('./before_script_1', options).returns(true)
+    build.expects(:exec).with('./before_script_2', options).returns(true)
+    build.run_script(['./before_script_1', './before_script_2'], options)
   end
 end

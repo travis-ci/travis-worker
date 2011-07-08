@@ -3,7 +3,8 @@ require "travis/worker/version"
 require 'resque'
 require 'resque/heartbeat'
 require 'hashie'
-require 'travis/worker/core_ext/ruby/hash/deep_symboliz_keys'
+require 'travis/worker/core_ext/ruby/hash/deep_symbolize_keys'
+require 'socket'
 
 module Travis
   module Worker
@@ -13,7 +14,16 @@ module Travis
     autoload :Job,      'travis/worker/job'
     autoload :Reporter, 'travis/worker/reporter'
     autoload :Shell,    'travis/worker/shell'
-    autoload :Worker,   'travis/worker/worker'
+
+    module Workers
+      autoload :Base,   'travis/worker/workers/base'
+      autoload :Amqp,   'travis/worker/workers/amqp'
+      autoload :Resque, 'travis/worker/workers/resque'
+    end
+
+    module Vagrant
+      autoload :Config, 'travis/worker/vagrant/config'
+    end
 
     class << self
       attr_writer :shell
@@ -23,7 +33,7 @@ module Travis
       end
 
       def perform(payload)
-        Worker.new(payload).work!
+        Workers::Resque.new(payload).work!
       end
 
       def config
@@ -39,7 +49,7 @@ module Travis
       end
 
       def hostname
-        @hostname ||= `hostname`.chomp
+        @hostname ||= Socket.gethostname
       end
 
       def vm
@@ -49,7 +59,7 @@ module Travis
       def vagrant
         @vagrant ||= begin
           require 'vagrant'
-          Vagrant::Environment.new.load!
+          ::Vagrant::Environment.new.load!
         end
       end
     end

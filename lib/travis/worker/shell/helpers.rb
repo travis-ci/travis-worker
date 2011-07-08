@@ -11,7 +11,13 @@ module Travis
         end
 
         def timetrap(cmd, options = {})
-          options[:timeout] ? "timetrap -t #{options[:timeout]} #{cmd}" : "timetrap #{cmd}"
+          vars, cmd = parse_cmd(cmd)
+          opts = options[:timeout] ? "-t #{options[:timeout]}" : nil
+          [vars, 'timetrap', opts, cmd].compact.join(' ')
+        end
+
+        def parse_cmd(cmd)
+          cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
       end # Helpers
     end # Shell

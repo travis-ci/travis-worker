@@ -56,52 +56,55 @@ module Travis
 
         protected
 
-          def on_update(data)
-            log << data[:log] if data.key?(:log)
-          end
+        def on_update(data)
+          log << data[:log] if data.key?(:log)
+        end
 
-          def perform
+        def perform
+          if repository.build?
             @status = build! ? 0 : 1
             sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
-          rescue
+          else
             @status = 1
-            update(:log => "#{$!.class.name}: #{$!.message}\n#{$@.join("\n")}")
-          ensure
-            update(:log => "\nDone. Build script exited with: #{status}\n")
           end
+        rescue
+          @status = 1
+          update(:log => "#{$!.class.name}: #{$!.message}\n#{$@.join("\n")}")
+        ensure
+          update(:log => "\nDone. Build script exited with: #{status}\n")
+        end
 
-          def build!
-            sandboxed do
-              chdir
-              setup_env
-              repository.checkout(build.commit)
-              repository.install && run_scripts
-            end
+        def build!
+          sandboxed do
+            chdir
+            setup_env
+            repository.checkout(build.commit)
+            repository.install && run_scripts
           end
+        end
 
-          def setup_env
-            exec "rvm use #{config.rvm || 'default'}"
-            exec "export BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile
-            Array(config.env).each { |env| exec "export #{env}" } if config.env
-          end
+        def setup_env
+          exec "rvm use #{config.rvm || 'default'}"
+          exec "export BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile
+          Array(config.env).each { |env| exec "export #{env}" } if config.env
+        end
 
-          def run_scripts
-            %w{before_script script after_script}.each do |type|
-              script = config.send(type)
-              break false if script && !run_script(script, :timeout => type)
-            end
-          end
+        def run_scripts
+          %w{before_script script after_script}.each do |type|
+            script = config.send(type)
+            return false if script && !run_script(script, :timeout => type)
+          end && true
+        end
 
-          def run_script(script, options = {})
-            Array(script).each do |script|
-              script = "#{script} 2>&1" unless script.strip[-1..4] == '2>&1'
-              break false unless exec(script, options)
-            end
-          end
+        def run_script(script, options = {})
+          (script.is_a?(Array) ? script : script.split("\n")).each do |script|
+            return false unless exec(script, options)
+          end && true
+        end
 
-          def chdir(&block)
-            exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
-          end
+        def chdir(&block)
+          exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
+        end
       end # Build
     end # Job
   end # Worker

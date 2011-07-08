@@ -1,0 +1,62 @@
+count: 3
+base: lucid32
+memory: 1536
+cookbooks: 'vendor/cookbooks/vagrant_base'
+json:
+  rvm:
+    rubies:
+      - 1.8.6
+      - 1.8.7
+      - 1.8.7-p174
+      - 1.8.7-p249
+      - 1.9.2
+      - 1.9.1-p378
+      - jruby
+      - rbx
+      - rbx-2.0.0pre
+      - ree
+      - ruby-head
+    default:
+      - 1.8.7
+    gems:
+      - bundler
+      - rake
+      - chef
+    aliases:
+      rbx-2.0.0pre: rbx-2.0
+      1.9.1-p378:   1.9.1
+  mysql:
+    server_root_password: ""
+recipes:
+  - travis_build_environment
+  - apt
+  - build-essential
+  - scons
+  - networking_basic
+  - openssl
+  - sysctl
+  - libyaml # libyaml MUST be installed before rubies. MK.
+  - emacs::nox
+  - vim
+  - timetrap
+  - git
+  - java::openjdk
+  - libqt4
+  - libv8
+  - nodejs
+  - rvm
+  - rvm::multi
+  - sqlite
+  - postgresql::client
+  - postgresql::server
+  - redis
+  - mysql::client
+  - mysql::server
+  - mongodb
+  - memcached
+  - rabbitmq
+  - imagemagick
+
+
+
+
