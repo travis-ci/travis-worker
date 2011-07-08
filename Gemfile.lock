@@ -48,6 +48,7 @@ GEM
       multipart-post (~> 1.1.0)
       rack (< 2, >= 1.1.0)
     ffi (1.0.9)
+    god (0.11.0)
     hashie (1.0.0)
     i18n (0.5.0)
     json (1.5.3)
@@ -130,6 +131,7 @@ DEPENDENCIES
   evented-spec!
   eventmachine!
   faraday (~> 0.7.3)
+  god
   hashie
   minitest
   minitest_tu_shim
