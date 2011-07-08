@@ -17,6 +17,7 @@ module Travis
 
     module Workers
       autoload :Base,   'travis/worker/workers/base'
+      autoload :Amqp,   'travis/worker/workers/amqp'
       autoload :Resque, 'travis/worker/workers/resque'
     end
 
