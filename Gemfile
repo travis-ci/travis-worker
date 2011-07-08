@@ -13,6 +13,7 @@ gem 'net-ssh-shell', '~> 0.2.0'
 gem 'hashie'
 gem "multi_json"
 
+# amqp migration is a work in progress but it does not affect resque-based worker in any way
 gem "amqp",         :git => "git://github.com/ruby-amqp/amqp.git"
 gem "amq-client",   :git => "git://github.com/ruby-amqp/amq-client.git"
 gem "amq-protocol", :git => "git://github.com/ruby-amqp/amq-protocol.git"
