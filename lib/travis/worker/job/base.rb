@@ -65,7 +65,7 @@ module Travis
         end
 
         def repository
-          @repository ||= Repository.new(build_dir, payload.repository.slug, build.config)
+          @repository ||= Repository.new(build_dir, payload.repository.slug, payload.repository.clone_url, build.config)
         end
 
         def config

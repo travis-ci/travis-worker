@@ -11,3 +11,5 @@
 .yardoc/*
 log/*
 tmp/*
+.rvmrc
+*.swp

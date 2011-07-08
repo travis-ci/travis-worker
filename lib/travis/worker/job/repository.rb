@@ -27,13 +27,15 @@ module Travis
 
         attr_reader :dir
         attr_reader :slug
+        attr_reader :clone_url
         attr_reader :config
 
         # @api public
-        def initialize(dir, slug, config)
-          @dir    = dir
-          @slug   = slug
-          @config = Config.new(config)
+        def initialize(dir, slug, clone_url, config)
+          @dir       = dir
+          @slug      = slug
+          @clone_url = clone_url
+          @config    = Config.new(config)
         end
 
         # @api public
@@ -68,7 +70,7 @@ module Travis
           def clone
             exec 'export GIT_ASKPASS=echo', :echo => false # this makes git interactive auth fail
             exec "mkdir -p #{dir}", :echo => false
-            exec "git clone --depth=1000 --quiet #{source} #{dir}"
+            exec "git clone --depth=1000 --quiet #{clone_url} #{dir}"
           end
 
           # @api plugin
