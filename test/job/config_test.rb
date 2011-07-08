@@ -42,7 +42,7 @@ class JobConfigTest < Test::Unit::TestCase
   end
 
   def stubs_for_perform
-    Random.stubs(:rand).with(2000).returns(1)
+    ::Random.stubs(:rand).with(2000).returns(1)
     config.repository.stubs(:clone_url).returns("git://github.com/svenfuchs/gem-release.git")
   end
 
