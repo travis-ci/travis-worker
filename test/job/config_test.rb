@@ -13,7 +13,6 @@ class JobConfigTest < Test::Unit::TestCase
   end
 
   test 'perform: reads and sets config' do
-
     stubs_for_perform
 
     config.stubs(:`).with(backtick_command).returns("script: 'rake ci'")
@@ -23,8 +22,7 @@ class JobConfigTest < Test::Unit::TestCase
   end
 
   test 'fetch: returns an empty hash for a missing .travis.yml file' do
-    response = Faraday::Response.new(:body => 'Github 404 page', :status => 404)
-    Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+    stubs_for_perform
 
     config.stubs(:`).with(backtick_command).returns("")
 
@@ -34,8 +32,7 @@ class JobConfigTest < Test::Unit::TestCase
 
   if RUBY_VERSION >= '1.9.2'
     test 'fetch: returns an empty hash for a broken .travis.yml file' do
-      response = Faraday::Response.new(:body => 'order: [:year, :month, :day]', :status => 200)
-      Faraday.stubs(:get).with('https://raw.github.com/svenfuchs/gem-release/313f61b/.travis.yml').returns(response)
+      stubs_for_perform
 
       config.stubs(:`).with(backtick_command).returns("---\nscript: 'rak")
 

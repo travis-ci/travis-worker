@@ -28,8 +28,6 @@ module Travis
             rdm = Random.rand(2000)
             file = `git clone --no-checkout --depth 1 --quiet #{repository.clone_url} /tmp/travis-yml-#{rdm} && cd /tmp/travis-yml-#{rdm} && git show HEAD:.travis.yml && rm -rf /tmp/travis-yml-#{rdm}`
             file == "" ? {} : parse(file)
-            #response = Faraday.get(url)
-            #response.success? ? parse(response.body) : {}
           end
 
           def url

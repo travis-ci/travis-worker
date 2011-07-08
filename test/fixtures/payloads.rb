@@ -3,7 +3,8 @@
 INCOMING_PAYLOADS = {
   'config:gem-release' => {
     'repository' => {
-      'slug' => 'svenfuchs/gem-release'
+      'slug' => 'svenfuchs/gem-release',
+      'clone_url' => 'git://github.com/svenfuchs/gem-release.git'
     },
     'build' => {
       'id' => 1,
