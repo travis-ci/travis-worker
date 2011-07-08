@@ -1,5 +1,4 @@
 require "amqp"
-require "travis/worker/build_dispatcher"
 require "travis/worker/core_ext/ruby/hash/deep_symbolize_keys"
 
 module Travis

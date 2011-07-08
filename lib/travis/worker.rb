@@ -10,10 +10,12 @@ module Travis
   module Worker
     class VmNotFound < RuntimeError; end
 
-    autoload :Config,   'travis/worker/config'
-    autoload :Job,      'travis/worker/job'
-    autoload :Reporter, 'travis/worker/reporter'
-    autoload :Shell,    'travis/worker/shell'
+    autoload :Application,     'travis/worker/application'
+    autoload :BuildDispatcher, 'travis/worker/build_dispatcher'
+    autoload :Config,          'travis/worker/config'
+    autoload :Job,             'travis/worker/job'
+    autoload :Reporter,        'travis/worker/reporter'
+    autoload :Shell,           'travis/worker/shell'
 
     module Workers
       autoload :Base,   'travis/worker/workers/base'

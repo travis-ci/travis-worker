@@ -1,35 +1,32 @@
-require "thor"
+require 'bundler/setup'
+require 'travis/worker/cli/app'
+require 'travis/worker/cli/development'
+require 'travis/worker/cli/vm'
+require 'travis/worker/cli/vbox'
 
-require "travis/worker"
-require "travis/worker/dispatcher"
+$stdout.sync = true
 
 module Travis
   module Worker
-
-
-    class App < Thor
-      desc "start", "Start worker"
-      def start
-        config     = Travis::Worker.config
-        dispatcher = Dispatcher.new(config)
-        dispatcher.bind(config.amqp)
+    module Cli
+      def run(commands)
+        normalize_commands(commands).each do |command|
+          puts "$ #{command}"
+          system command
+        end
       end
 
-
-
-      desc "stop", "Stop worker if running"
-      def stop
-        # TBD
+      def wait(seconds)
+        puts "waiting for #{seconds} seconds "
+        1.upto(seconds) { putc '.' }
+        puts
       end
 
-
-
-      desc "status", "Display status information"
-      def status
-        # TBT
+      def normalize_commands(commands)
+        commands = commands.split("\n")
+        commands.map! { |command| command.strip }
+        commands.reject { |command| command.empty? }
       end
     end
-
-
-  end # Worker
-end # Travis
+  end
+end

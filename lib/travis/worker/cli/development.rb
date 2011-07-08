@@ -1,14 +1,13 @@
 require "thor"
 
 require "amqp"
-require "travis/worker"
-
 require "multi_json"
+require 'travis/worker'
 
 module Travis
   module Worker
-    module Development
-      class Job < Thor
+    module Cli
+      class Development < Thor
         desc "build", "Publish a sample build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
@@ -70,7 +69,7 @@ module Travis
           end
         end
 
-      end # Job
-    end # Development
+      end # Development
+    end
   end # Worker
 end # Travis
