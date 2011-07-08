@@ -1,8 +1,7 @@
 require "thor"
 
 require "travis/worker"
-require "travis/worker/application"
-
+require "travis/worker/dispatcher"
 
 module Travis
   module Worker
@@ -12,8 +11,8 @@ module Travis
       desc "start", "Start worker"
       def start
         config     = Travis::Worker.config
-        dispatcher = Application.new(config)
-        dispatcher.bind(config.amqp.to_hash.deep_symbolize_keys)
+        dispatcher = Dispatcher.new(config)
+        dispatcher.bind(config.amqp)
       end
 
 

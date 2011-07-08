@@ -42,10 +42,10 @@ module Travis
 
       def filename
         DIRECTORIES.each do |directory|
-          filename = File.expand_path('.travis.yml', directory)
+          filename = File.expand_path('.worker.yml', directory)
           return filename if File.exists?(filename)
         end
-        raise "Could not find a .travis.yml configuration file. Valid locations are: #{DIRECTORIES.join(', ')}"
+        raise "Could not find a .worker.yml configuration file. Valid locations are: #{DIRECTORIES.join(', ')}"
       end
     end # Config
   end # Worker

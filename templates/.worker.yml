@@ -1,5 +1,4 @@
 production:
-  workers: 3
   redis:
     url: redis://YOUR_REDIS_URL
   shell:
@@ -10,7 +9,6 @@ production:
       url: "YOUR_GITHUB_USERNAME:YOUR_TRAVIS_TOKEN@YOUR_APP.heroku.com"
 
 development:
-  workers: 3
   redis:
     url: redis://localhost:6379
   shell:
@@ -20,7 +18,6 @@ development:
       url: http://localhost:3000
 
 test:
-  workers: 3
   redis:
     url: redis://localhost:6379
   shell:
@@ -28,3 +25,4 @@ test:
   reporter:
     http:
       url: sven:123565790@localhost
+

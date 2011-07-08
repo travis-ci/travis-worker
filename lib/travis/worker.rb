@@ -19,8 +19,11 @@ module Travis
       autoload :Base,   'travis/worker/workers/base'
       autoload :Amqp,   'travis/worker/workers/amqp'
       autoload :Resque, 'travis/worker/workers/resque'
-    end # Workers
+    end
 
+    module Vagrant
+      autoload :Config, 'travis/worker/vagrant/config'
+    end
 
     class << self
       attr_writer :shell
@@ -56,7 +59,7 @@ module Travis
       def vagrant
         @vagrant ||= begin
           require 'vagrant'
-          Vagrant::Environment.new.load!
+          ::Vagrant::Environment.new.load!
         end
       end
     end
