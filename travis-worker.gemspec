@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 $:.unshift File.expand_path('../lib', __FILE__)
-require 'travis_worker/version'
+require 'travis/worker/version'
 
 Gem::Specification.new do |s|
   s.name         = "travis-worker"
