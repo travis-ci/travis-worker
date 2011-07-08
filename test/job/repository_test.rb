@@ -28,13 +28,13 @@ class JobRepositoryTest < Test::Unit::TestCase
   test 'clone: clones the repository to the current directory' do
     repository.expects(:exec).with('export GIT_ASKPASS=echo', :echo => false)
     repository.expects(:exec).with('mkdir -p /path/to/build/dir', :echo => false)
-    repository.expects(:exec).with('git clone --depth=1000 --quiet git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
+    repository.expects(:exec).with('git clone --depth=1000 --quiet --recurse-submodules git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
     repository.clone
   end
 
   test 'fetch: clones the repository to the current directory' do
     repository.expects(:exec).with('git clean -fdx')
-    repository.expects(:exec).with('git fetch')
+    repository.expects(:exec).with('git fetch --recurse-submodules')
     repository.fetch
   end
 
