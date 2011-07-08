@@ -41,6 +41,7 @@ recipes:
   - timetrap
   - git
   - java::openjdk
+  - libqt4
   - libv8
   - nodejs
   - rvm
