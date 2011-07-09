@@ -4,6 +4,8 @@ module Travis
   module Worker
     module Cli
       class Vbox < Thor
+        namespace "travis:worker:virtualbox"
+
         include Cli
 
         desc 'reset', 'Completely reset Virtualbox'

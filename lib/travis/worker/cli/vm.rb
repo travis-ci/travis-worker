@@ -8,6 +8,8 @@ module Travis
   module Worker
     module Cli
       class Vms < Thor
+        namespace "travis:worker:vagrant"
+
         include Cli
 
         desc 'rebuild', 'Rebuild all worker vms'

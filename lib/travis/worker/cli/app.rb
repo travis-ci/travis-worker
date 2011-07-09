@@ -5,10 +5,13 @@ module Travis
   module Worker
     module Cli
       class App < Thor
+        namespace 'travis:worker'
+
+
         desc "start", "Start worker"
         def start
           config     = Travis::Worker.config
-          dispatcher = Dispatcher.new(config)
+          dispatcher = Travis::Worker::Application.new(config)
           dispatcher.bind(config.amqp)
         end
 
