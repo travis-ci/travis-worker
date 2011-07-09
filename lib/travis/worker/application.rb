@@ -16,9 +16,13 @@ module Travis
       def bind(connection_options)
         self.install_signal_traps
 
-        announce "[boot] About to bind..."
+        announce "[boot] About to connect..."
 
-        AMQP.start(connection_options, &method(:on_connection))
+        handlers = {
+          :on_tcp_connection_failure          => self.method(:on_tcp_connection_failure).to_proc,
+          :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
+        }
+        AMQP.start(connection_options.merge(handlers).to_hash.deep_symbolize_keys, &method(:on_connection))
       end # bind
 
 
@@ -36,12 +40,22 @@ module Travis
       # @group Connection Lifecycle
 
       def on_connection(connection)
-        announce "[boot] Connected to AMQP broker."
+        announce "[boot] Connected to an AMQP broker at #{connection.broker_endpoint} using username #{connection.username}"
         @connection = connection
 
         self.open_channels
         self.initialize_dispatcher
       end # on_connection(connection)
+
+      def on_tcp_connection_failure(settings)
+        announce "[boot] Failued to connect to #{settings[:host]}:#{settings[:port]}"
+        EventMachine.stop { exit }
+      end # on_tcp_connection_failure(settings)
+
+      def on_possible_authentication_failure(settings)
+        announce "[boot] Failued to authenticate at #{settings[:host]}:#{settings[:port]}/#{settings[:vhost]}, username used: #{settings[:user]}"
+        EventMachine.stop { exit }
+      end # on_possible_authentication_failure(settings)
 
       protected
 

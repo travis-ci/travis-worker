@@ -12,7 +12,7 @@ module Travis
         def start
           config     = Travis::Worker.config
           dispatcher = Travis::Worker::Application.new(config)
-          dispatcher.bind(config.amqp)
+          dispatcher.bind(config.amqp.to_hash.deep_symbolize_keys)
         end
 
         desc "stop", "Stop worker if running"

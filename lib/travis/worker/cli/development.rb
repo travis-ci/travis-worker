@@ -15,6 +15,7 @@ module Travis
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
         method_option :branch, :default => "master"
+        method_option :n,      :default => 1
         def build
           payload = {
             :repository => {
@@ -33,7 +34,7 @@ module Travis
           }
           puts payload.inspect
 
-          publish(payload, "builds")
+          publish(payload, "builds", self.options[:n].to_i)
         end
 
 
@@ -44,6 +45,7 @@ module Travis
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
         method_option :branch, :default => "master"
+        method_option :n,      :default => 1
         def config
           payload = {
             :repository => {
@@ -57,18 +59,19 @@ module Travis
           }
           puts payload.inspect
 
-          publish(payload, "builds")
+          publish(payload, "config", self.options[:n].to_i)
         end
 
 
 
         protected
 
-        def publish(payload, routing_key)
+        def publish(payload, routing_key, n = 1)
           AMQP.start(:vhost => "travis") do |connection|
-            AMQP.channel.default_exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) do
-              AMQP.connection.disconnect { puts("Disconnecting..."); EventMachine.stop }
-            end
+            exchange = AMQP.channel.default_exchange
+            n.times { exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) }
+
+            EventMachine.add_timer(1) { AMQP.connection.disconnect { puts("Disconnecting..."); EventMachine.stop } }
           end
         end
 
