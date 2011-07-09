@@ -8,6 +8,9 @@ module Travis
   module Worker
     module Cli
       class Development < Thor
+        namespace "travis:worker:dev"
+
+
         desc "build", "Publish a sample build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
