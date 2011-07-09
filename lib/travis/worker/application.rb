@@ -17,7 +17,12 @@ module Travis
         self.install_signal_traps
 
         announce "[boot] About to connect..."
-        AMQP.start(connection_options, &method(:on_connection))
+
+        handlers = {
+          :on_tcp_connection_failure          => self.method(:on_tcp_connection_failure).to_proc,
+          :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
+        }
+        AMQP.start(connection_options.merge(handlers), &method(:on_connection))
       end # bind
 
 
@@ -41,6 +46,16 @@ module Travis
         self.open_channels
         self.initialize_dispatcher
       end # on_connection(connection)
+
+      def on_tcp_connection_failure(settings)
+        announce "[boot] Failued to connect to #{settings[:host]}:#{settings[:port]}"
+        EventMachine.stop { exit }
+      end # on_tcp_connection_failure(settings)
+
+      def on_possible_authentication_failure(settings)
+        announce "[boot] Failued to authenticate at #{settings[:host]}:#{settings[:port]}/#{settings[:vhost]}, username used: #{settings[:user]}"
+        EventMachine.stop { exit }
+      end # on_possible_authentication_failure(settings)
 
       protected
 
