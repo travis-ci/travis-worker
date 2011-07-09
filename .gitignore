@@ -11,3 +11,4 @@
 .yardoc/*
 log/*
 tmp/*
+*.box
