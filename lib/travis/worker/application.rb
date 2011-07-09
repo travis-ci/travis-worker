@@ -16,8 +16,7 @@ module Travis
       def bind(connection_options)
         self.install_signal_traps
 
-        announce "[boot] About to bind..."
-
+        announce "[boot] About to connect..."
         AMQP.start(connection_options, &method(:on_connection))
       end # bind
 
@@ -36,7 +35,7 @@ module Travis
       # @group Connection Lifecycle
 
       def on_connection(connection)
-        announce "[boot] Connected to AMQP broker."
+        announce "[boot] Connected to an AMQP broker at #{connection.broker_endpoint} using username #{connection.username}"
         @connection = connection
 
         self.open_channels
