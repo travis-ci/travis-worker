@@ -22,7 +22,7 @@ module Travis
           :on_tcp_connection_failure          => self.method(:on_tcp_connection_failure).to_proc,
           :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
         }
-        AMQP.start(connection_options.merge(handlers), &method(:on_connection))
+        AMQP.start(connection_options.merge(handlers).to_hash.deep_symbolize_keys, &method(:on_connection))
       end # bind
 
 
