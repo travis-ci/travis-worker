@@ -8,7 +8,7 @@ module Travis
         desc "start", "Start worker"
         def start
           config     = Travis::Worker.config
-          dispatcher = Dispatcher.new(config)
+          dispatcher = Travis::Worker::Application.new(config)
           dispatcher.bind(config.amqp)
         end
 
