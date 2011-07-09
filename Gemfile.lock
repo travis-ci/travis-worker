@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: git://github.com/ruby-amqp/amqp.git
-  revision: 1f496d0b8d7799acee97b1690348656d1f02ff23
+  revision: dad370558b1cc3340ee532d6b0c7993a920c8f9e
   specs:
     amqp (0.8.0.rc14.pre)
       amq-client (>= 0.7.0.beta9)
