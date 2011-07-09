@@ -8,7 +8,7 @@ Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|
 
     c.vm.define(name) do |c|
-      c.vm.box = name
+      c.vm.box = name == 'base' ? 'lucid32' : 'base'
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|

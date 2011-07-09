@@ -21,7 +21,7 @@ config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
 run 'bin/reset_vbox'
 
 run 'wget http://files.vagrantup.com/lucid32.box' unless File.exists?('lucid32.box')
-run 'vagrant box add base lucid32.box'
+run 'vagrant box add lucid32 lucid32.box'
 exit unless run 'vagrant up base'
 
 vms = JSON.parse(File.read('.vagrant'))
@@ -31,8 +31,5 @@ run 'rm -rf base.box'
 run "vagrant package --base #{uuid}"
 run 'mv package.box base.box'
 
-1.upto(config.count) do |num|
-  run "vagrant box add worker-#{num} base.box"
-end
-
+run "vagrant box add base base.box"
 vagrant up
