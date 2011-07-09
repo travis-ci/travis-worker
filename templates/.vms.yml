@@ -27,6 +27,8 @@ json:
       1.9.1-p378:   1.9.1
   mysql:
     server_root_password: ""
+  postgresql:
+    max_connections: 256
 recipes:
   - travis_build_environment
   - apt
