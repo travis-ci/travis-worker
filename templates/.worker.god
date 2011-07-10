@@ -14,7 +14,7 @@ FileUtils.mkdir_p(logs)
 God.log_level = :info
 God.log_file  = "#{logs}/god.log"
 
-1.upto(Travis::Worker::Vagrant.config.count) do |num|
+1.upto(Travis::Worker.config.vms.count) do |num|
   God.watch do |w|
     w.group    = 'workers'
     w.name     = "worker-#{num}"
