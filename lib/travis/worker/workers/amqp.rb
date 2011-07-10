@@ -28,6 +28,7 @@ module Travis
         def work!
           # reporter.deliver_messages!
           job.work!
+          Travis::Worker.discard_shell!
         rescue
           puts "#{$!.class.name}: #{$!.message}", $@
         ensure

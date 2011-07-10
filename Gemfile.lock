@@ -6,9 +6,9 @@ GIT
 
 GIT
   remote: git://github.com/ruby-amqp/amq-client.git
-  revision: e531e2d805e3f3cd6fb855c4121ba835825d5f36
+  revision: 5819c7b79be5ba94b62a7e28f4b7fd7b11ec6e51
   specs:
-    amq-client (0.7.0.beta10.pre)
+    amq-client (0.7.0.beta11.pre)
       amq-protocol (>= 0.7.0.alpha7)
       eventmachine
 
@@ -20,10 +20,10 @@ GIT
 
 GIT
   remote: git://github.com/ruby-amqp/amqp.git
-  revision: dad370558b1cc3340ee532d6b0c7993a920c8f9e
+  revision: ab021a1304268fde88b2330f5e39f6a12af8fdd2
   specs:
     amqp (0.8.0.rc14.pre)
-      amq-client (>= 0.7.0.beta9)
+      amq-client (>= 0.7.0.beta10)
       amq-protocol (>= 0.7.0.alpha7)
       eventmachine
 
@@ -44,7 +44,7 @@ GEM
     faraday (0.7.4)
       addressable (~> 2.2.6)
       multipart-post (~> 1.1.0)
-      rack (>= 1.1.0, < 2)
+      rack (< 2, >= 1.1.0)
     ffi (1.0.9)
     god (0.11.0)
     hashie (1.0.0)

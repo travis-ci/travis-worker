@@ -38,8 +38,12 @@ module Travis
         @config ||= Config.new
       end
 
+      def discard_shell!
+        @shell = nil
+      end # discard_shell!
+
       def shell
-        instance_variable_defined?(:@shell) ? @shell : @shell = Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
+        @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
       end
 
       def name

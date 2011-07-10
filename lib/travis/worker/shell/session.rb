@@ -111,12 +111,14 @@ module Travis
         def start_sandbox
           puts '[vbox] Creating vbox snapshot ...'
           vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'"
+          sleep(1.0)
           puts '[vbox] Created.'
         end
 
         def rollback_sandbox
           puts '[vbox] Rolling back to vbox snapshot ...'
           vbox_manage "controlvm '#{vm_name}' poweroff"
+          sleep(1.0)
           vbox_manage "snapshot '#{vm_name}' restorecurrent"
           delete_snapshots
           vbox_manage "startvm --type headless '#{vm_name}'"
