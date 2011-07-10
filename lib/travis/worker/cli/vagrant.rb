@@ -27,7 +27,7 @@ module Travis
           exit unless up 'base'
           package 'base'
 
-          1.upto(config.workers) do |num|
+          1.upto(config.count) do |num|
             add_box 'base', :to => "worker-#{num}"
           end
           up
