@@ -22,7 +22,7 @@ module Travis
 
       def initialize
         config = load
-        @vms = Vagrant.new(config.delete('vms'))
+        @vms = Vagrant.new(config.delete('vms') || {})
         super(Hashie::Mash.new(config))
       end
 
