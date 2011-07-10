@@ -32,4 +32,4 @@ run "vagrant package --base #{uuid}"
 run 'mv package.box base.box'
 
 run "vagrant box add base base.box"
-vagrant up
+run "vagrant up"
