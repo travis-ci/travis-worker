@@ -2,13 +2,13 @@ $: << 'lib'
 require 'yaml'
 require 'travis/worker'
 
-config = Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
+config = Travis::Worker::Vagrant.config
 
 Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|
 
     c.vm.define(name) do |c|
-      c.vm.box = name == 'base' ? 'lucid32' : 'base'
+      c.vm.box = name == 'base' ? config.base : 'base'
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|

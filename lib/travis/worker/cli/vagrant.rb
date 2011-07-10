@@ -3,7 +3,6 @@ require 'yaml'
 require 'json'
 require 'travis/worker'
 
-
 module Travis
   module Worker
     module Cli
@@ -13,12 +12,12 @@ module Travis
         include Cli
 
         desc 'rebuild', 'Rebuild all worker vms'
-        method_option :from, :default => 'lucid32'
+        method_option :from, :default => Travis::Worker::Vagrant.config.base
         def rebuild
           vbox.reset
 
-          download unless File.exists?(BASE_BOX)
-          add_box options['from']
+          download
+          add_box from
           exit unless up 'base'
           package 'base'
 
@@ -32,19 +31,19 @@ module Travis
             @vbox ||= Vbox.new
           end
 
-          def config
-            @config ||= Travis::Worker::Vagrant::Config.new(YAML.load_file('.vms.yml'))
+          def from
+            options['from']
           end
 
           def download
-            run 'wget http://files.vagrantup.com/lucid32.box' unless File.exists?('lucid32.box')
+            run "get http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
           end
 
           def add_box(name)
             run "vagrant box add #{name} #{name}.box"
           end
 
-          def up(name)
+          def up(name = nil)
             run "vagrant up #{name}"
           end
 

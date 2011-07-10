@@ -16,15 +16,12 @@ module Travis
     autoload :Job,             'travis/worker/job'
     autoload :Reporter,        'travis/worker/reporter'
     autoload :Shell,           'travis/worker/shell'
+    autoload :Vagrant,         'travis/worker/vagrant'
 
     module Workers
       autoload :Base,   'travis/worker/workers/base'
       autoload :Amqp,   'travis/worker/workers/amqp'
       autoload :Resque, 'travis/worker/workers/resque'
-    end
-
-    module Vagrant
-      autoload :Config, 'travis/worker/vagrant/config'
     end
 
     class << self
