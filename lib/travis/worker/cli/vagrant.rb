@@ -48,7 +48,7 @@ module Travis
           end
 
           def download
-            run "get http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
+            run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
           end
 
           def add_box(name, options = {})
