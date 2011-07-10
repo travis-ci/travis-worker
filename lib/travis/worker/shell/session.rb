@@ -33,7 +33,7 @@ module Travis
           @vm     = vm
           @config = config
           @shell  = start_shell
-          @log    = "log/vboxmanage.#{Travis::Worker.name}.log"
+          @log    = "log/vboxmanage.#{vm.name}.log"
 
           yield(self) if block_given?
 
