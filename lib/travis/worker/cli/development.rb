@@ -7,8 +7,25 @@ require 'travis/worker'
 module Travis
   module Worker
     module Cli
+      # These tasks are used for development and only for development.
+      # They have many limitations and SHOULD NOT be considered good
+      # programming style or examples for adding new commands to Travis Worker CLI.
       class Development < Thor
         namespace "travis:worker:dev"
+
+
+
+        desc "receiver", "Start progress reports receiver tool"
+        def receiver
+          AMQP.start(:vhost => "travis") do |connection|
+            ch       = AMQP::Channel.new(connection)
+            ch.queue("reporting.progress", :auto_delete => true).subscribe do |metadata, payload|
+              puts "[#{metadata.type}] #{payload}"
+            end
+          end
+        end
+
+
 
 
         desc "build", "Publish a sample build job"

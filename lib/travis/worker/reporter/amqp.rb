@@ -3,11 +3,15 @@ module Travis
     module Reporter
       class Amqp < Base
 
-        def initialize(build)
+        def initialize(build, channel)
           @build    = build
-          @messages = Queue.new
+          @channel  = channel
+          @exchange = channel.default_exchange
         end
 
+        def finished?
+          !active?
+        end # finished?
 
         #
         # Implementation
@@ -16,28 +20,14 @@ module Travis
         protected
 
         def active?
-          !!@active
+          # TODO: we actually can check EventMachine's outgoing buffer size
+          false
         end
 
         def message(type, data)
+          @exchange.publish(data[:log], :type => type.to_s, :routing_key => "reporting.progress", :arguments => { 'x-incremental' => !!data[:incremental] })
         end
-
-        def deliver_message(message)
-          @active = true
-
-          puts(message)
-
-          # TODO
-        rescue
-          puts "---> exception sending message #{message.inspect}.\n  #{$!.inspect}\n#{$@}"
-        ensure
-          @active = false
-        end
-
-        def config
-          @config ||= Hash.new
-        end
-      end # Http
+      end # Amqp
     end # Reporter
   end # Worker
 end # Travis
