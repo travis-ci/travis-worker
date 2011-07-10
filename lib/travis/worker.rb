@@ -24,7 +24,8 @@ module Travis
     end
 
     class << self
-      attr_writer :shell
+
+      # @group Resque API
 
       def init
         Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
@@ -34,9 +35,18 @@ module Travis
         Workers::Resque.new(payload).work!
       end
 
+      # @endgroup
+
+
+
       def config
         @config ||= Config.new
       end
+
+
+      # @group SSH shell access
+
+      attr_writer :shell
 
       def discard_shell!
         @shell = nil
@@ -45,6 +55,17 @@ module Travis
       def shell
         @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
       end
+
+      # @endgroup
+
+
+      # @group AMQP connection
+
+      attr_accessor :amqp_connection
+
+      # @endgroup
+
+
 
       def name
         @name ||= "#{hostname}:#{ENV['VM']}"

@@ -14,6 +14,8 @@ module Travis
       end # initialize
 
       def bind(connection_options)
+        @eventloop_thread = Thread.new { EventMachine.run }
+
         self.install_signal_traps
 
         announce "[boot] About to connect..."
@@ -23,6 +25,7 @@ module Travis
           :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
         }
         AMQP.start(connection_options.merge(handlers).to_hash.deep_symbolize_keys, &method(:on_connection))
+        @eventloop_thread.join
       end # bind
 
 
@@ -41,7 +44,8 @@ module Travis
 
       def on_connection(connection)
         announce "[boot] Connected to an AMQP broker at #{connection.broker_endpoint} using username #{connection.username}"
-        @connection = connection
+        @connection                    = connection
+        Travis::Worker.amqp_connection = connection
 
         self.open_channels
         self.initialize_dispatcher
