@@ -134,7 +134,7 @@ module Travis
         end
 
         def vbox_manage(cmd)
-          cmd = "VBoxManage #{cmd} 2>&1 >> #{log}"
+          cmd = "VBoxManage #{cmd} >> #{log} 2>&1"
           puts "[vbox] #{cmd}"
           result = system(cmd)
           raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
