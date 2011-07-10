@@ -33,7 +33,7 @@ module Travis
           @vm     = vm
           @config = config
           @shell  = start_shell
-          @log    = '/tmp/travis/log/vboxmanage'
+          @log    = "log/vboxmanage.#{Travis::Worker.name}.log"
 
           yield(self) if block_given?
 
@@ -134,7 +134,7 @@ module Travis
         end
 
         def vbox_manage(cmd)
-          cmd = "VBoxManage #{cmd} 2>&1 > #{log}"
+          cmd = "VBoxManage #{cmd} 2>&1 >> #{log}"
           puts "[vbox] #{cmd}"
           result = system(cmd)
           raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
