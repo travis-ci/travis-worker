@@ -7,21 +7,29 @@ module Travis
   module Worker
     module Cli
       class Vagrant < Thor
+        class << self
+          def config
+            Travis::Worker::Vagrant.config
+          end
+        end
+
         namespace "travis:worker:vagrant"
 
         include Cli
 
         desc 'rebuild', 'Rebuild all worker vms'
-        method_option :from, :default => Travis::Worker::Vagrant.config.base
+        method_option :from, :default => config.base
         def rebuild
           vbox.reset
 
           download
-          add_box from
+          add_box from, :to => 'base'
           exit unless up 'base'
           package 'base'
 
-          add_box 'base'
+          1.upto(config.workers) do |num|
+            add_box 'base', :to => "worker-#{num}"
+          end
           up
         end
 
@@ -29,6 +37,10 @@ module Travis
 
           def vbox
             @vbox ||= Vbox.new
+          end
+
+          def config
+            self.class.config
           end
 
           def from
@@ -39,8 +51,8 @@ module Travis
             run "get http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
           end
 
-          def add_box(name)
-            run "vagrant box add #{name} #{name}.box"
+          def add_box(name, options = {})
+            run "vagrant box add #{options[:to] || name} #{name}.box"
           end
 
           def up(name = nil)

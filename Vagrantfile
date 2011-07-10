@@ -8,7 +8,7 @@ Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|
 
     c.vm.define(name) do |c|
-      c.vm.box = name == 'base' ? config.base : 'base'
+      c.vm.box = name == 'base' ? 'base' : "worker-#{num}"
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|
