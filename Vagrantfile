@@ -2,7 +2,7 @@ $: << 'lib'
 require 'yaml'
 require 'travis/worker'
 
-config = Travis::Worker::Vagrant.config
+config = Travis::Worker.config.vms
 
 Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|

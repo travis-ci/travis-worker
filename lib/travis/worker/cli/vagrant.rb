@@ -9,7 +9,7 @@ module Travis
       class Vagrant < Thor
         class << self
           def config
-            Travis::Worker::Vagrant.config
+            Travis::Worker.config.vms
           end
         end
 

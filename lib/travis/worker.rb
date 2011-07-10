@@ -16,7 +16,6 @@ module Travis
     autoload :Job,             'travis/worker/job'
     autoload :Reporter,        'travis/worker/reporter'
     autoload :Shell,           'travis/worker/shell'
-    autoload :Vagrant,         'travis/worker/vagrant'
 
     module Workers
       autoload :Base,   'travis/worker/workers/base'

@@ -14,6 +14,7 @@ module Travis
     #
     # @see Travis::Job::Base
     class Config < Hashie::Dash
+      autoload :Vagrant, 'travis/worker/config/vagrant'
 
       #
       # API
@@ -29,6 +30,10 @@ module Travis
 
       def initialize
         super(Hashie::Mash.new(load[environment]))
+      end
+
+      def vms
+        @vms ||= Vagrant::Config.new
       end
 
       # @return [String] Environment Travis worker runs in. Typically one of: development, test, staging, production
@@ -48,5 +53,6 @@ module Travis
         raise "Could not find a .worker.yml configuration file. Valid locations are: #{DIRECTORIES.join(', ')}"
       end
     end # Config
+
   end # Worker
 end # Travis
