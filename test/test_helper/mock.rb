@@ -1,4 +1,8 @@
 module Mock
+  class VM
+    attr_reader :name
+  end
+
   class Shell
     attr_reader :on_output
 

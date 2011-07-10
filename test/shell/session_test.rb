@@ -11,7 +11,7 @@ class ShellSessionTest < Test::Unit::TestCase
     super
     Shell::Session.any_instance.stubs(:start_shell)
     Shell::Session.any_instance.stubs(:start_sandbox)
-    @session = Shell::Session.new(nil, nil)
+    @session = Shell::Session.new(Mock::VM.new, nil)
   end
 
   test 'echoize: echo the command before executing it (1)' do
