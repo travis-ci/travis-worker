@@ -53,7 +53,7 @@ class JobBuildTest < Test::Unit::TestCase
       'export BAR=baz',
       'test -d .git',
       'git clean -fdx',
-      'git fetch --recurse-submodules',
+      'git fetch',
       'git checkout -qf 1234567',
       'bundle install bundler_arg=1',
       'bundle exec rake ci:before',

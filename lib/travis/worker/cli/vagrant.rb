@@ -57,7 +57,6 @@ module Travis
             vms = JSON.parse(File.read('.vagrant'))
             vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
           end
-
       end
     end
   end
