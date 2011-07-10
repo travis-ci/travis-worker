@@ -21,7 +21,9 @@ module Travis
       property :timeouts, :default => Hashie::Mash.new(:before_script => 120, :after_script => 120, :script => 600, :bundle => 300)
 
       def initialize
-        super(Hashie::Mash.new(load))
+        config = load
+        @vms = Vagrant.new(config.delete('vms'))
+        super(Hashie::Mash.new(config))
       end
 
       def vms
@@ -40,6 +42,5 @@ module Travis
         raise "Could not find a .worker.yml configuration file. Valid locations are: #{DIRECTORIES.join(', ')}"
       end
     end # Config
-
   end # Worker
 end # Travis
