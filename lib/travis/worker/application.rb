@@ -1,3 +1,4 @@
+require "thread"
 require "amqp"
 require "travis/worker/core_ext/ruby/hash/deep_symbolize_keys"
 
@@ -14,16 +15,17 @@ module Travis
       end # initialize
 
       def bind(connection_options)
-        @eventloop_thread = Thread.new { EventMachine.run }
-
+        announce "[boot] About to install signal traps..."
         self.install_signal_traps
-
         announce "[boot] About to connect..."
 
         handlers = {
           :on_tcp_connection_failure          => self.method(:on_tcp_connection_failure).to_proc,
           :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
         }
+
+        @eventloop_thread = Thread.new { puts "[boot] About to start the event loop..."; EventMachine.run }
+
         AMQP.start(connection_options.merge(handlers).to_hash.deep_symbolize_keys, &method(:on_connection))
         @eventloop_thread.join
       end # bind
