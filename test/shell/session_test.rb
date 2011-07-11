@@ -57,7 +57,7 @@ class ShellSessionTest < Test::Unit::TestCase
     assert_equal [nil, 'rake'], session.parse_cmd('rake')
   end
 
-  test 'snapshots returns the UUIDs of all snapshots in this box' do
+  test 'vbox_snapshots returns the UUIDs of all snapshots in this box' do
     session.stubs(:vm_name).returns('travis-worker_1308835149')
     session.stubs(:`).returns(FIXTURES[:vboxmanage])
 
@@ -69,7 +69,7 @@ class ShellSessionTest < Test::Unit::TestCase
       df764451-0b17-4492-974a-9f20077fc70d
       edbd462c-9fb9-40c7-aef9-8bf4978adf60
     )
-    assert_equal expected, session.snapshots
+    assert_equal expected, session.vbox_snapshots
   end
 end
 

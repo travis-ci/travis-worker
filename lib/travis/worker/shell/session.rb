@@ -110,39 +110,59 @@ module Travis
 
         def start_sandbox
           puts '[vbox] Creating vbox snapshot ...'
-          vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'"
-          sleep(1.0)
+          vbox_take_snapshot
           puts '[vbox] Created.'
         end
 
         def rollback_sandbox
           puts '[vbox] Rolling back to vbox snapshot ...'
-          vbox_manage "controlvm '#{vm_name}' poweroff"
-          sleep(1.0)
-          vbox_manage "snapshot '#{vm_name}' restorecurrent"
-          delete_snapshots
-          vbox_manage "startvm --type headless '#{vm_name}'"
+          vbox_power_off
+          vbox_restore_snapshot
+          vbox_delete_snapshots
+          vbox_start_vm
           puts '[vbox] Rolled back.'
         rescue
           puts "#{$!.class.name}: #{$!.message}", $@
         end
 
-        def delete_snapshots
-          snapshots.reverse.each do |snapshot|
+        def vbox_take_snapshot
+          vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'", :wait => "vboxmanage showvminfo '#{vm_name}' | grep #{vm_name}-sandbox"
+        end
+
+        def vbox_power_off
+          vbox_manage "controlvm '#{vm_name}' poweroff", :wait => "vboxmanage showvminfo '#{vm_name}' | grep State | grep 'powered off'"
+        end
+
+        def vbox_restore_snapshot
+          vbox_manage "snapshot '#{vm_name}' restorecurrent"
+        end
+
+        def vbox_delete_snapshots
+          vbox_snapshots.reverse.each do |snapshot|
             puts "[vbox] Deleting snapshot #{snapshot}..."
             vbox_manage "snapshot '#{vm_name}' delete '#{snapshot}'"
             puts "[vbox] Deleted."
           end
         end
 
-        def vbox_manage(cmd)
-          cmd = "VBoxManage #{cmd} >> #{log} 2>&1"
-          puts "[vbox] #{cmd}"
-          result = system(cmd)
-          raise "[vbox] #{cmd} failed. See #{log} for more information." unless result
+        def vbox_start_vm
+          vbox_manage "startvm --type headless '#{vm_name}'", :wait => "vboxmanage showvminfo '#{vm_name}' | grep State | grep 'running'"
         end
 
-        def snapshots
+        def vbox_manage(cmd, options = { :raise => true, :wait => nil })
+          cmd = "VBoxManage #{cmd} >> #{log} 2>&1"
+          puts "[vbox] #{cmd}"
+          system(cmd).tap do |result|
+            raise "[vbox] #{cmd} failed. See #{log} for more information." unless result && options[:raise]
+            vbox_wait(options[:wait]) if options[:wait]
+          end
+        end
+
+        def vbox_wait(cmd)
+          sleep(0.5) until vbox_manage(cmd, :raise => false)
+        end
+
+        def vbox_snapshots
           info = `vboxmanage showvminfo #{vm_name} --details`
           info.split(/^Snapshots\s*/).last.split("\n").map { |line| line =~ /\(UUID: ([^\)]*)\)/ and $1 }.compact
         end
