@@ -1,3 +1,4 @@
+.bundle
 .worker.yml
 .worker.god
 .vms.yml
@@ -12,3 +13,6 @@
 log/*
 tmp/*
 *.box
+vendor/amq-protocol
+vendor/amq-client
+vendor/amqp
