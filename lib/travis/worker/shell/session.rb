@@ -126,11 +126,11 @@ module Travis
         end
 
         def vbox_take_snapshot
-          vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'", :wait => "vboxmanage showvminfo '#{vm_name}' | grep #{vm_name}-sandbox"
+          vbox_manage "snapshot '#{vm_name}' take '#{vm_name}-sandbox'", :wait => "showvminfo '#{vm_name}' | grep #{vm_name}-sandbox"
         end
 
         def vbox_power_off
-          vbox_manage "controlvm '#{vm_name}' poweroff", :wait => "vboxmanage showvminfo '#{vm_name}' | grep State | grep 'powered off'"
+          vbox_manage "controlvm '#{vm_name}' poweroff", :wait => "showvminfo '#{vm_name}' | grep State | grep 'powered off'"
         end
 
         def vbox_restore_snapshot
@@ -146,20 +146,20 @@ module Travis
         end
 
         def vbox_start_vm
-          vbox_manage "startvm --type headless '#{vm_name}'", :wait => "vboxmanage showvminfo '#{vm_name}' | grep State | grep 'running'"
+          vbox_manage "startvm --type headless '#{vm_name}'", :wait => "showvminfo '#{vm_name}' | grep State | grep 'running'"
         end
 
-        def vbox_manage(cmd, options = { :raise => true, :wait => nil })
+        def vbox_manage(cmd, options = {})
           cmd = "VBoxManage #{cmd} >> #{log} 2>&1"
           puts "[vbox] #{cmd}"
           system(cmd).tap do |result|
-            raise "[vbox] #{cmd} failed. See #{log} for more information." unless result && options[:raise]
+            raise "[vbox] #{cmd} failed. See #{log} for more information." unless result || options[:eval]
             vbox_wait(options[:wait]) if options[:wait]
           end
         end
 
         def vbox_wait(cmd)
-          sleep(0.5) until vbox_manage(cmd, :raise => false)
+          sleep(0.5) until vbox_manage(cmd, :eval => true)
         end
 
         def vbox_snapshots
