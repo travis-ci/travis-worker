@@ -106,4 +106,30 @@ class JobBuildTest < Test::Unit::TestCase
     build.expects(:exec).with('./before_script_2', options).returns(true)
     build.run_script(['./before_script_1', './before_script_2'], options)
   end
+
+  test 'setup_env sets up the environment with the default rvm and multiple env vars' do
+    build.config.stubs(:gemfile?)
+    build.config.stubs(:rvm).returns(nil)
+    build.config.stubs(:env).returns(['FOO=true', 'BAR=true'])
+
+    expect_shell [
+      'rvm use default',
+      'export FOO=true',
+      'export BAR=true'
+    ]
+    build.setup_env
+  end
+
+  test 'setup_env sets up the environment with 1.9.2, a Gemfile and an empty env var (which is skipped)' do
+    build.config.stubs(:gemfile?).returns(true)
+    build.config.stubs(:gemfile).returns('path/to/Gemfile')
+    build.config.stubs(:rvm).returns('1.9.2')
+    build.config.stubs(:env).returns('')
+
+    expect_shell [
+      'rvm use 1.9.2',
+      'export BUNDLE_GEMFILE=path/to/Gemfile'
+    ]
+    build.setup_env
+  end
 end

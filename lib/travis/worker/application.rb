@@ -1,5 +1,5 @@
+require "thread"
 require "amqp"
-require "travis/worker/build_dispatcher"
 require "travis/worker/core_ext/ruby/hash/deep_symbolize_keys"
 
 module Travis
@@ -15,11 +15,19 @@ module Travis
       end # initialize
 
       def bind(connection_options)
+        announce "[boot] About to install signal traps..."
         self.install_signal_traps
+        announce "[boot] About to connect..."
 
-        announce "[boot] About to bind..."
+        handlers = {
+          :on_tcp_connection_failure          => self.method(:on_tcp_connection_failure).to_proc,
+          :on_possible_authentication_failure => self.method(:on_possible_authentication_failure).to_proc
+        }
 
-        AMQP.start(connection_options, &method(:on_connection))
+        @eventloop_thread = Thread.new { puts "[boot] About to start the event loop..."; EventMachine.run }
+
+        AMQP.start(connection_options.merge(handlers).to_hash.deep_symbolize_keys, &method(:on_connection))
+        @eventloop_thread.join
       end # bind
 
 
@@ -37,12 +45,23 @@ module Travis
       # @group Connection Lifecycle
 
       def on_connection(connection)
-        announce "[boot] Connected to AMQP broker."
-        @connection = connection
+        announce "[boot] Connected to an AMQP broker at #{connection.broker_endpoint} using username #{connection.username}"
+        @connection                    = connection
+        Travis::Worker.amqp_connection = connection
 
         self.open_channels
         self.initialize_dispatcher
       end # on_connection(connection)
+
+      def on_tcp_connection_failure(settings)
+        announce "[boot] Failued to connect to #{settings[:host]}:#{settings[:port]}"
+        EventMachine.stop { exit }
+      end # on_tcp_connection_failure(settings)
+
+      def on_possible_authentication_failure(settings)
+        announce "[boot] Failued to authenticate at #{settings[:host]}:#{settings[:port]}/#{settings[:vhost]}, username used: #{settings[:user]}"
+        EventMachine.stop { exit }
+      end # on_possible_authentication_failure(settings)
 
       protected
 

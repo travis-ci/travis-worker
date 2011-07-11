@@ -23,14 +23,20 @@ module Travis
 
 
       def handle_message(metadata, payload)
-        deserialized = MultiJson.decode(payload)
-        announce "[builds.dispatcher] Handling #{deserialized.inspect}"
+        begin
+          deserialized = MultiJson.decode(payload)
+          announce "[builds.dispatcher] Handling #{deserialized.inspect}"
 
-        # TODO: defer it
-        Workers::Amqp.new(metadata, deserialized).work!
-        announce "[builds.dispatcher] Done"
-        metadata.ack
-        announce "[builds.dispatcher] Acknowledged"
+          # TODO: defer it
+          Workers::Amqp.new(metadata, deserialized).work!
+          announce "[builds.dispatcher] Done"
+          metadata.ack
+          announce "[builds.dispatcher] Acknowledged"
+        rescue Exception => e
+          announce "[builds.dispatcher] Caught an exception while dispatching a message: \n\n#{e.message}\n\n"
+          metadata.reject
+          announce "[builds.dispatcher] Rejected"
+        end
       end # handle_message(metadata, payload)
 
 

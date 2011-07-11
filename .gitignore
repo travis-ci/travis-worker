@@ -1,3 +1,4 @@
+.bundle
 .worker.yml
 .worker.god
 .vms.yml
@@ -11,5 +12,7 @@
 .yardoc/*
 log/*
 tmp/*
-.rvmrc
-*.swp
+*.box
+vendor/amq-protocol
+vendor/amq-client
+vendor/amqp

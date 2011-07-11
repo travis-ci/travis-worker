@@ -1,7 +1,7 @@
 module Travis
   module Worker
-    module Vagrant
-      class Config < Hash
+    class Config
+      class Vagrant < Hash
         DEFAULTS = {
           'count' => 1,
           'base' => 'lucid32',
@@ -43,5 +43,4 @@ module Travis
     end
   end
 end
-
 

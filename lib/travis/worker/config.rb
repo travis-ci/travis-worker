@@ -5,15 +5,8 @@ module Travis
   module Worker
     DIRECTORIES = ['.', '~', '/etc']
 
-    # Environment-aware worker configuration.
-    #
-    # ### Environment variables
-    #
-    # Environment (development, test, production and so on) is set using TRAVIS_ENV env variable, default value is *test*.
-    # Redis connection URI is set using REDIS_URL env variable.
-    #
-    # @see Travis::Job::Base
     class Config < Hashie::Dash
+      autoload :Vagrant, 'travis/worker/config/vagrant'
 
       #
       # API
@@ -28,12 +21,13 @@ module Travis
       property :timeouts, :default => Hashie::Mash.new(:before_script => 120, :after_script => 120, :script => 600, :bundle => 300)
 
       def initialize
-        super(Hashie::Mash.new(load[environment]))
+        config = load
+        @vms = Vagrant.new(config.delete('vms') || {})
+        super(Hashie::Mash.new(config))
       end
 
-      # @return [String] Environment Travis worker runs in. Typically one of: development, test, staging, production
-      def environment
-        ENV['TRAVIS_ENV'] || 'test'
+      def vms
+        @vms ||= Vagrant::Config.new
       end
 
       def load

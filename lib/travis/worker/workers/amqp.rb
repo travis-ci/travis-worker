@@ -15,7 +15,7 @@ module Travis
           @metadata = metadata
           @job      = job_type.new(payload)
           # TODO
-          @reporter = Reporter::Amqp.new(job.build)
+          @reporter = Reporter::Amqp.new(job.build, AMQP::Channel.new(Travis::Worker.amqp_connection))
           job.observers << reporter
         rescue VmNotFound, Errno::ECONNREFUSED
           puts "#{$!.class.name}: #{$!.message}", $@
@@ -26,8 +26,8 @@ module Travis
         end
 
         def work!
-          # reporter.deliver_messages!
           job.work!
+          Travis::Worker.discard_shell!
         rescue
           puts "#{$!.class.name}: #{$!.message}", $@
         ensure

@@ -22,6 +22,7 @@ gem "eventmachine", :git => "git://github.com/eventmachine/eventmachine.git"
 gem 'faraday', '~> 0.7.3'
 gem 'rake', '~> 0.9.2'
 gem 'thor'
+gem 'god'
 
 group :development do
   gem 'yard', '~> 0.7.1'

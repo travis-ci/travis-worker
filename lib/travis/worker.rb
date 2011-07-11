@@ -10,10 +10,12 @@ module Travis
   module Worker
     class VmNotFound < RuntimeError; end
 
-    autoload :Config,   'travis/worker/config'
-    autoload :Job,      'travis/worker/job'
-    autoload :Reporter, 'travis/worker/reporter'
-    autoload :Shell,    'travis/worker/shell'
+    autoload :Application,     'travis/worker/application'
+    autoload :BuildDispatcher, 'travis/worker/build_dispatcher'
+    autoload :Config,          'travis/worker/config'
+    autoload :Job,             'travis/worker/job'
+    autoload :Reporter,        'travis/worker/reporter'
+    autoload :Shell,           'travis/worker/shell'
 
     module Workers
       autoload :Base,   'travis/worker/workers/base'
@@ -21,12 +23,9 @@ module Travis
       autoload :Resque, 'travis/worker/workers/resque'
     end
 
-    module Vagrant
-      autoload :Config, 'travis/worker/vagrant/config'
-    end
-
     class << self
-      attr_writer :shell
+
+      # @group Resque API
 
       def init
         Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
@@ -36,13 +35,37 @@ module Travis
         Workers::Resque.new(payload).work!
       end
 
+      # @endgroup
+
+
+
       def config
         @config ||= Config.new
       end
 
+
+      # @group SSH shell access
+
+      attr_writer :shell
+
+      def discard_shell!
+        @shell = nil
+      end # discard_shell!
+
       def shell
-        instance_variable_defined?(:@shell) ? @shell : @shell = Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
+        @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
       end
+
+      # @endgroup
+
+
+      # @group AMQP connection
+
+      attr_accessor :amqp_connection
+
+      # @endgroup
+
+
 
       def name
         @name ||= "#{hostname}:#{ENV['VM']}"
