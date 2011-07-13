@@ -50,6 +50,7 @@ module Travis
         def remove
           1.upto(config.count) do |num|
             remove_box "worker-#{num}"
+            destroy "worker-#{num}"
           end
         end
 
@@ -82,6 +83,10 @@ module Travis
           def up(name = nil, options = { :provision => false })
             ENV['with_base'] = name == 'base'
             run "vagrant up #{name} --provision=#{options[:provision].inspect}"
+          end
+
+          def destroy(name)
+            run "vagrant destroy #{name}"
           end
 
           def package_box(name)
