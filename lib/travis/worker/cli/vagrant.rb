@@ -25,12 +25,27 @@ module Travis
           download
           add_box from, :to => 'base'
           exit unless up 'base'
-          package 'base'
+          package_box 'base'
 
           1.upto(config.count) do |num|
             add_box 'base', :to => "worker-#{num}"
           end
           up
+        end
+
+        desc 'package', 'Package the base.box'
+        method_option :from, :default => config.base
+        def package
+          exit unless up 'base'
+          package_box 'base'
+        end
+
+        desc 'import', 'Import the base.box to worker boxes'
+        method_option :from, :default => config.base
+        def import
+          1.upto(config.count) do |num|
+            add_box 'base', :to => "worker-#{num}"
+          end
         end
 
         protected
@@ -55,11 +70,11 @@ module Travis
             run "vagrant box add #{options[:to] || name} #{name}.box"
           end
 
-          def up(name = nil)
-            run "vagrant up #{name}"
+          def up(name = nil, options = { :provision => false })
+            run "vagrant up #{name} --provision=#{options[:provision].inspect}"
           end
 
-          def package(name)
+          def package_box(name)
             run "rm -rf #{name}.box"
             run "vagrant package --base #{uuid}"
             run "mv package.box #{name}.box"
