@@ -7,7 +7,7 @@ platforms :ruby_18 do
   gem 'SystemTimer'
 end
 
-gem 'vagrant'
+gem 'vagrant',       ">= 0.7.7"
 gem 'net-ssh'
 gem 'net-ssh-shell', '~> 0.2.0'
 gem 'hashie'
