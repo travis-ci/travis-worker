@@ -49,8 +49,8 @@ module Travis
         desc 'remove', 'Remove the worker boxes'
         def remove
           1.upto(config.count) do |num|
-            remove_box "worker-#{num}"
             destroy "worker-#{num}"
+            remove_box "worker-#{num}"
           end
         end
 
