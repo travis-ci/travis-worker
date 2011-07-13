@@ -31,7 +31,7 @@ module Travis
         class << self
           # @api public
           def base_dir
-            @@base_dir ||= Pathname.new(ENV.fetch('BUILD_DIR', '/tmp/travis/builds'))
+            @@base_dir ||= Pathname.new(ENV.fetch('BUILD_DIR', '~/builds'))
           end
 
           # @api public
