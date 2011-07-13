@@ -55,7 +55,7 @@ class JobBuildTest < Test::Unit::TestCase
       'git clean -fdx',
       'git fetch',
       'git checkout -qf 1234567',
-      'bundle install bundler_arg=1',
+      'bundle install --path vendor/bundle bundler_arg=1',
       'bundle exec rake ci:before',
       'bundle exec rake',
       'bundle exec rake ci:after'
