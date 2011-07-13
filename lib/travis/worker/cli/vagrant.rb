@@ -34,17 +34,22 @@ module Travis
         end
 
         desc 'package', 'Package the base.box'
-        method_option :from, :default => config.base
         def package
           exit unless up 'base'
           package_box 'base'
         end
 
         desc 'import', 'Import the base.box to worker boxes'
-        method_option :from, :default => config.base
         def import
           1.upto(config.count) do |num|
             add_box 'base', :to => "worker-#{num}"
+          end
+        end
+
+        desc 'remove', 'Remove the worker boxes'
+        def remove
+          1.upto(config.count) do |num|
+            remove_box "worker-#{num}"
           end
         end
 
@@ -70,7 +75,12 @@ module Travis
             run "vagrant box add #{options[:to] || name} #{name}.box"
           end
 
+          def remove_box(name)
+            run "vagrant box remove #{name}"
+          end
+
           def up(name = nil, options = { :provision => false })
+            ENV['with_base'] = name == 'base'
             run "vagrant up #{name} --provision=#{options[:provision].inspect}"
           end
 

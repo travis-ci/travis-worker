@@ -3,9 +3,11 @@ require 'yaml'
 require 'travis/worker'
 
 config = Travis::Worker.config.vms
+with_base = ENV['WITH_BASE'] == 'true'
 
 Vagrant::Config.run do |c|
   config.vms.each_with_index do |name, num|
+    next if name == 'base' && !with_base
 
     c.vm.define(name) do |c|
       c.vm.box = name == 'base' ? 'base' : "worker-#{num}"
