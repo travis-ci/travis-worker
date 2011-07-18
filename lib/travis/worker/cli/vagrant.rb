@@ -35,7 +35,7 @@ module Travis
 
         desc 'package', 'Package the base.box'
         def package
-          exit unless up 'base'
+          exit unless up 'base', :provision => true
           package_box 'base'
         end
 
