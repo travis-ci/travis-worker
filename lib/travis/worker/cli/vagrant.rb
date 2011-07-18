@@ -81,7 +81,7 @@ module Travis
           end
 
           def up(name = nil, options = { :provision => false })
-            ENV['WITH_BASE'] = name == 'base'
+            ENV['WITH_BASE'] = (name == 'base').inspect
             run "vagrant up #{name} --provision=#{options[:provision].inspect}"
           end
 
