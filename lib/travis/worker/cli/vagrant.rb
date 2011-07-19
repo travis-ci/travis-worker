@@ -24,7 +24,7 @@ module Travis
 
           download
           add_box from, :to => 'base'
-          exit unless up 'base'
+          exit unless up 'base', :provision => true
           package_box 'base'
 
           1.upto(config.count) do |num|
