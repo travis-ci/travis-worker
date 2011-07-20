@@ -53,7 +53,23 @@ sometimes useful for inspecting VM details. Find documentation about `vboxmanage
 
 ### Sandboxing builds
 
-TBD explain how we use snapshots for sandboxing builds.
+In order to sandbox executing code from userland we use VirtualBox VM snapshots.
+
+Doing so we will roll back everything to the virgin booted state that is the
+result of the provisioning. That means that even git clone'd code and downloaded
+rubygems will be gone after the rollback.
+
+To be more precise here's what happens:
+
+* The worker gets a build job from the queue.
+* It takes a snapshot from the virgin VM.
+* It git-clones the repository, bundle-installs dependencies and runs the build.
+* It then powers the VM off (equivalent of pulling the power plug).
+* For each existing snapshot it first restores and then deletes it one by one.
+  (This is to make sure that in case an uncaught exception has happened all
+  snapshots are still restored and deleted).
+* It restarts the VM.
+* The worker is now ready to wait for the next build job.
 
 ## Maintenance
 
@@ -83,6 +99,9 @@ Currently needs to be done manually. <span style="background-color: yellow;">(Au
 That should be all. You can now build the VMs and then start the workers.
 
 ### (Re-) Building the worker VMs
+
+Before you start working on VMs you want to stop the workers in production and
+maybe staging! See below for instructions.
 
 You might want to (re-) build all VMs in the following cases:
 
@@ -143,7 +162,8 @@ processes:
 
 ### Reprovisioning the worker VMs
 
-Before you work on VMs you want to stop the workers in production. See below.
+Before you start working on VMs you want to stop the workers in production and
+maybe staging! See below for instructions.
 
 With our stategy used for building VMs like described above there are two ways
 to provision cookbook changes to the worker VMs:
@@ -168,11 +188,12 @@ with the first approach, whereas the second approach would only take 20 mins.
 
 ### Stop workers before working on VMs
 
-TBD expand this
+Before you start working on VMs you want to stop the workers in production and
+maybe staging. Here's how you can do that:
 
-* signal workers with USR2
-* wait for current builds to finish
-* take down the workers
-* rebuild or provision VMs
-* restart the workers
-
+    $ god signal workers USR2 # tells workers to pause after the current build has finished
+    $ tail -f log/worker*     # watch the logs and wait for running builds to finish
+    $ god stop workers        # stops the workers
+    $ ps aux | grep resque    # check that all worker processes actually have quit (might take a little while)
+    ...                       # work on the VMs
+    $ god start workers       # start the workers
