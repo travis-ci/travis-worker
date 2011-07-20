@@ -77,24 +77,30 @@ To be more precise here's what happens:
 
 Currently needs to be done manually. <span style="background-color: yellow;">(Automate this if you'd like to help!)</span>
 
-* The box should have a user `travis` and the following things installed:
-  * Ubuntu Lucid32 2.6.32 (the exact kernel version matters!)
-  * VirtualBox 4.0.10r72479
-  * Git
-  * Ruby 1.9.2 (preferably using Rvm)
-  * Rake, Bundler, God, Vagrant
-* `$ git clone the travis-worker repository to ~/travis-worker`
+The box should have a user `travis` and the following things installed.
+
+* Ubuntu Lucid32 2.6.32 (the exact kernel version matters!)
+* VirtualBox 4.0.10r72479
+* Git
+* Ruby 1.9.2 (preferably using Rvm)
+* Rake, Bundler, God, Vagrant
+
+Install `travis-worker`:
+
+* `$ git clone` the travis-worker repository to `~/travis-worker`
 * `$ cd ~/travis-worker`
 * `$ cp templates/.worker.yml templates/.worker.god .`
 * `$ bundle install`
-* Edit `.worker.yml` and `.worker.god` according to your requirements. You might
-  not need to touch `.worker.god` at all but pay attention to:
-  * the Redis URL (this is the Redis instance used by the Travis application)
-  * the Travis application URL (you need to add your Travis username and token
-    here)
-  * the number of workers (`vms`) that will be used (e.g. you might want 1 for
-    VM/cookbook development and 5 for staging/production use).
-  * the Chef cookbook recipies that will be provisioned to each VM.
+
+Now edit `.worker.yml` and `.worker.god` according to your requirements. You might
+not need to touch `.worker.god` at all but pay attention to:
+
+* the Redis URL (this is the Redis instance used by the Travis application)
+* the Travis application URL (you need to add your Travis username and token
+  here)
+* the number of workers (`vms`) that will be used (e.g. you might want 1 for
+  VM/cookbook development and 5 for staging/production use).
+* the Chef cookbook recipies that will be provisioned to each VM.
 
 That should be all. You can now build the VMs and then start the workers.
 
@@ -127,8 +133,8 @@ answer `yes`) with this Thor task.
 For production/staging use God should be used to manage workers:
 
     $ god -c .worker.god                 # start up god with the worker configuration file
-    $ god [start|stop|restart] workers   # stop all workers
-    $ god [start|stop|restart] worker-1  # stop a single worker
+    $ god [start|stop|restart] workers   # start/stop/restart all workers
+    $ god [start|stop|restart] worker-1  # start/stop/restart a single worker
     $ god terminate                      # terminate god and stop all workers
     $ god load .worker.god               # reload the configuration
 
