@@ -40,7 +40,7 @@ The respective Thor tasks will always ask you though.
 
 ### Cookbooks
 
-The Chef cookbooks are used to provision the VirtualBox VMs. These are managed
+The Chef cookbooks are used to provision the VirtualBox VMs. They are managed
 in a [separate repository](http://github.com/travis-ci/travis-cookbooks) and
 cloned to `vendor/cookbooks`.
 
@@ -48,9 +48,12 @@ cloned to `vendor/cookbooks`.
 
 You can use the VirtualBox `vboxmanage` command line interface to manage
 VirtualBox VMs directly (i.e. without using the Vagrant interface). This is
-sometimes useful for inspecting VM details.
+sometimes useful for inspecting VM details. Find documentation about `vboxmanage`
+[here](http://www.virtualbox.org/manual/ch08.html).
 
-You can find documentation about `vboxmanage` [here](http://www.virtualbox.org/manual/ch08.html).
+### Sandboxing builds
+
+TBD explain how we use snapshots for sandboxing builds.
 
 ## Maintenance
 
@@ -100,7 +103,7 @@ than Travis worker development! If you are using Vagrant/VirtualBox *exclusively
 for Travis worker development then you can just always reset VirtualBox (i.e.
 answer `yes`) with this Thor task.
 
-## Starting and stopping workers with God
+### Starting and stopping workers with God
 
 For production/staging use God should be used to manage workers:
 
@@ -110,13 +113,13 @@ For production/staging use God should be used to manage workers:
     $ god terminate                      # terminate god and stop all workers
     $ god load .worker.god               # reload the configuration
 
-## Starting a worker manually
+### Starting a worker manually
 
 For development you might want to run the worker process manually:
 
     $ QUEUE=builds TRAVIS_ENV=development VM=worker-1 VERBOSE=true bundle exec rake resque:work --trace
 
-Change the `QUEUE`, `TRAVIS\_ENV` and `VM` vars according to your setup.
+Change the `QUEUE`, `TRAVIS_ENV` and `VM` vars according to your setup.
 
 ### Adding more workers
 
@@ -127,11 +130,11 @@ that as follows:
 * Edit `.worker.yml` and set the number of VMs to the target number.
 * Add the additional Vagrant boxes by running `$ thor travis:worker:vagrant:import`.
   This will show you an error message for each of the existing boxes that can
-  not be overwritten. You can simply ignore this message.
-* Boot the additional VMs by running $ vagrant up.
+  not be overwritten. You can simply ignore these messages.
+* Boot the additional VMs by running `$ vagrant up`.
 
 Now `$ vagrant status` should show you the same number of VMs as you've specified
-in your `.worker.yml` and they all should be running.
+in your `.worker.yml` and they should be all running.
 
 You also need to update God with the new configuration and restart the worker
 processes:
@@ -140,19 +143,21 @@ processes:
 
 ### Reprovisioning the worker VMs
 
+Before you work on VMs you want to stop the workers in production. See below.
+
 With our stategy used for building VMs like described above there are two ways
 to provision cookbook changes to the worker VMs:
 
 * Simply provision the worker VMs
 * Provision the base VM, re-export it to base.box, remove all worker base boxes,
   re-add base.box as new worker base boxes, destroy all VMs, start new worker
-  VMs.<span style="background-color: yellow;">(Automate this if you'd like to help!)</span>
+  VMs. <span style="background-color: yellow;">(Automate this if you'd like to help!)</span>
 
 The first approach provisions on each of your VMs, so if you have 5 VMs it will
 provision 5 times. The second approach only provisions on the base VM and then
 use this state as the base for the worker VMs.
 
-Reprovision a VM even without any changes to the cookbooks will take some time
+Reprovisioning a VM even without any changes to the cookbooks will take some time
 because various things need to be checked inside of the VM to ensure the
 installation is in sync with the cookbooks.
 
@@ -160,3 +165,14 @@ With 5 VMs and no changes to the cookbooks provisioning might take something
 like 5-10 mins depending on the recipes used. If you are adding 2 more Rubies to
 5 VMs though then this will run for about 100 mins (~10 mins per Ruby * 2 * 5)
 with the first approach, whereas the second approach would only take 20 mins.
+
+### Stop workers before working on VMs
+
+TBD expand this
+
+* signal workers with USR2
+* wait for current builds to finish
+* take down the workers
+* rebuild or provision VMs
+* restart the workers
+
