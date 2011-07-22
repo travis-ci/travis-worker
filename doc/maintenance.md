@@ -89,11 +89,16 @@ Install `travis-worker`:
 
 * `$ git clone` the travis-worker repository to `~/travis-worker`
 * `$ cd ~/travis-worker`
-* `$ cp templates/.worker.yml templates/.worker.god .`
+* `$ cp config/worker.example.yml config/worker.yml`
 * `$ bundle install`
 
-Now edit `.worker.yml` and `.worker.god` according to your requirements. You might
-not need to touch `.worker.god` at all but pay attention to:
+Now edit `config/worker.yml` according to your requirements. You might also need
+to create a file `config/worker.[environment].yml` unless it is already there
+for your environment. This (version controlled) file is merged with your (local)
+`config/worker.yml` file. The latter takes precedence so you can overwrite any
+of the settings in your `config/worker.yml` file.
+
+You might want to pay special attention to:
 
 * the Redis URL (this is the Redis instance used by the Travis application)
 * the Travis application URL (you need to add your Travis username and token
@@ -152,14 +157,14 @@ If you have started out experimenting with just one worker and VM, are happy
 with things and want to increase the number of workers/VMs now then you can do
 that as follows:
 
-* Edit `.worker.yml` and set the number of VMs to the target number.
+* Edit `config/worker.yml` and set the number of VMs to the target number.
 * Add the additional Vagrant boxes by running `$ thor travis:worker:vagrant:import`.
   This will show you an error message for each of the existing boxes that can
   not be overwritten. You can simply ignore these messages.
 * Boot the additional VMs by running `$ vagrant up`.
 
 Now `$ vagrant status` should show you the same number of VMs as you've specified
-in your `.worker.yml` and they should be all running.
+in your `config/worker.yml` and they should be all running.
 
 You also need to update God with the new configuration and restart the worker
 processes:
@@ -197,9 +202,7 @@ with the first approach, whereas the second approach would only take 20 mins.
 Before you start working on VMs you want to stop the workers in production and
 maybe staging. Here's how you can do that:
 
-    $ god signal workers USR2 # tells workers to pause after the current build has finished
-    $ tail -f log/worker*     # watch the logs and wait for running builds to finish
-    $ god stop workers        # stops the workers
-    $ ps aux | grep resque    # check that all worker processes actually have quit (might take a little while)
-    ...                       # work on the VMs
-    $ god start workers       # start the workers
+    $ thor travis:worker:resque:stop  # this will stop the workers but wait for current jobs to be finished (might take a little while)
+    $ ps aux | grep resque            # check that all worker processes actually have quit (they should!)
+    ...                               # work on the VMs
+    $ thor travis:worker:resque:start # start the workers
