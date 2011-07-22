@@ -17,6 +17,12 @@ module Travis
 
         include Cli
 
+        desc 'start', 'Start god and workers'
+        def start
+          run 'god -c config/.workers.god'
+          wait_for :workers_waiting
+        end
+
         desc 'terminate', 'Terminate god and workers'
         method_option :graceful, :type => :boolean, :default => true, :desc => 'Wait for current jobs to be finished'
         method_option :timeout,  :type => :numeric, :default => 30,   :desc => 'Time out after n seconds'
