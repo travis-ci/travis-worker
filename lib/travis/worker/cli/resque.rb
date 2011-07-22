@@ -18,8 +18,12 @@ module Travis
 
         desc 'start', 'Start god and workers'
         def start
-          run 'god -c config/worker.god'
-          wait_for :pid_files
+          if running?
+            puts "God seems to be running."
+          else
+            run 'god -c config/worker.god'
+            wait_for :pid_files
+          end
         end
 
         desc 'terminate', 'Terminate god and workers'
@@ -29,9 +33,12 @@ module Travis
         method_option :pids,     :type => :boolean, :default => true, :desc => 'Remove pid files'
 
         def terminate
-          if options['graceful']
+          if !running?
+            puts "God does not seem to be running."
+            return
+          elsif options['graceful']
             run 'god signal workers USR2'
-            wait_for :workers_paused
+            wait_for :workers_paused, :timeout => false
           end
           run 'god terminate'
           kill unless wait_for :workers_gone
@@ -53,15 +60,19 @@ module Travis
 
         protected
 
-          def wait_for(condition)
+          def running?
+            `ps ax` =~ /bin\/god /
+          end
+
+          def wait_for(condition, options = {})
             started = Time.now
             print "\nWaiting for: #{condition.inspect} "
             loop do
               if is?(condition)
                 puts "\nOk.\n\n"
                 break true
-              elsif timeout?(started)
-                puts "\nTimed out after #{options['timeout']} seconds waiting for #{condition.inspect}.\n\n"
+              elsif timeout?(started, options)
+                puts "\nTimed out after #{timeout(options)} seconds waiting for #{condition.inspect}.\n\n"
                 break false
               end
               wait
@@ -85,8 +96,12 @@ module Travis
             pids.all? { |pid| `ps #{pid}` !~ /resque(:work|-[\d\.])/ }
           end
 
-          def timeout?(started)
-            Time.now - started > (options['timeout'] || 20)
+          def timeout(options)
+            options.key?(:timeout) ? options[:timeout] : self.options['timeout'] || 20
+          end
+
+          def timeout?(started, options = {})
+            timeout(options) == false ? false : Time.now - started > timeout(options)
           end
 
           def pid_files?
