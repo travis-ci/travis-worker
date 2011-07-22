@@ -37,7 +37,7 @@ module Travis
 
         def read
           base = read_yml(path)
-          base.key?('env') ? base.merge(read_yml(path(base['env']))) : base
+          base.key?('env') ? read_yml(path(base['env'])).merge(base) : base
         end
 
         def read_yml(path)

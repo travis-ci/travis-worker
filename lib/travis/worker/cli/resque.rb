@@ -26,13 +26,13 @@ module Travis
           end
         end
 
-        desc 'terminate', 'Terminate god and workers'
+        desc 'stop', 'Stop god and workers'
         method_option :graceful, :type => :boolean, :default => true, :desc => 'Wait for current jobs to be finished'
         method_option :timeout,  :type => :numeric, :default => 30,   :desc => 'Time out after n seconds'
         method_option :force,    :type => :boolean, :default => true, :desc => 'Whether or not to force termination after timeout'
         method_option :pids,     :type => :boolean, :default => true, :desc => 'Remove pid files'
 
-        def terminate
+        def stop
           if !running?
             puts "God does not seem to be running."
             return
