@@ -17,7 +17,8 @@ module Travis
         end
       end
 
-      default :amqp     => { :username => 'guest', :password => 'guest', :host => 'localhost', :vhost => 'travis' },
+      default :queue    => 'builds',
+              :amqp     => { :username => 'guest', :password => 'guest', :host => 'localhost', :vhost => 'travis' },
               :redis    => { :url => nil },
               :reporter => { :http => { :url => nil } },
               :shell    => { :buffer => 0 },

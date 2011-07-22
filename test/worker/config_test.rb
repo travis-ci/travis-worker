@@ -52,6 +52,10 @@ class WorkerConfigTest < Test::Unit::TestCase
     assert_equal 300, config.timeouts.bundle
   end
 
+  test 'queue defaults to builds' do
+    assert_equal 'builds', config.queue
+  end
+
   test 'vms.count defaults to 1' do
     assert_equal 1, config.vms.count
   end
