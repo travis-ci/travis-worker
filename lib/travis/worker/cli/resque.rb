@@ -31,7 +31,7 @@ module Travis
         def terminate
           if options['graceful']
             run 'god signal workers USR2'
-            wait_for :workers_waiting
+            wait_for :workers_paused
           end
           run 'god terminate'
           kill unless wait_for :workers_gone
@@ -77,8 +77,8 @@ module Travis
             send(:"#{condition}?")
           end
 
-          def workers_waiting?
-            pids.all? { |pid| `ps #{pid}` =~ /Waiting/ }
+          def workers_paused?
+            pids.all? { |pid| `ps #{pid}` =~ /Paused/ }
           end
 
           def workers_gone?
