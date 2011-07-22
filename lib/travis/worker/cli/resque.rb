@@ -1,6 +1,5 @@
 require 'thor'
-require 'yaml'
-require 'json'
+require 'fileutils'
 require 'travis/worker'
 
 module Travis
@@ -19,14 +18,15 @@ module Travis
 
         desc 'start', 'Start god and workers'
         def start
-          run 'god -c config/.workers.god'
-          wait_for :workers_waiting
+          run 'god -c config/worker.god'
+          wait_for :pid_files
         end
 
         desc 'terminate', 'Terminate god and workers'
         method_option :graceful, :type => :boolean, :default => true, :desc => 'Wait for current jobs to be finished'
         method_option :timeout,  :type => :numeric, :default => 30,   :desc => 'Time out after n seconds'
         method_option :force,    :type => :boolean, :default => true, :desc => 'Whether or not to force termination after timeout'
+        method_option :pids,     :type => :boolean, :default => true, :desc => 'Remove pid files'
 
         def terminate
           if options['graceful']
@@ -35,40 +35,33 @@ module Travis
           end
           run 'god terminate'
           kill unless wait_for :workers_gone
+          remove_pids if remove_pids?
         end
 
         desc 'kill', 'Forcefully kill all workers'
         method_option :pids, :type => :boolean, :default => true, :desc => 'Remove pid files'
 
         def kill
-          pids = Dir[File.expand_path('~/.god/pids/*')]
-          if pids.empty?
-            puts "No pids found, nothing to kill."
-          else
+          if pid_files?
             puts "Forcefully killing workers ..."
-            pids.each do |pid|
-              run "kill -9 #{File.read(pid)}"
-              run "rm #{pid}" if remove_pids?
-             end
+            pids.each { |pid| run "kill -9 #{pid}" }
+            remove_pids if remove_pids?
+          else
+            puts "No pids found, nothing to kill."
           end
         end
 
         protected
-
-          CONDITIONS = {
-            :workers_waiting => lambda { `ps x` !~ /Waiting for builds/ },
-            :workers_gone    => lambda { `ps x` !~ /resque(:work|-[\d\.])/ }
-          }
 
           def wait_for(condition)
             started = Time.now
             print "\nWaiting for: #{condition.inspect} "
             loop do
               if is?(condition)
-                puts "\nOk, all #{condition.to_s.gsub('_', ' ')}.\n\n"
+                puts "\nOk.\n\n"
                 break true
               elsif timeout?(started)
-                puts "\nTimed out after #{options['timeout']}.\n\n"
+                puts "\nTimed out after #{options['timeout']} seconds waiting for #{condition.inspect}.\n\n"
                 break false
               end
               wait
@@ -81,11 +74,36 @@ module Travis
           end
 
           def is?(condition)
-            CONDITIONS[condition].call
+            send(:"#{condition}?")
+          end
+
+          def workers_waiting?
+            pids.all? { |pid| `ps #{pid}` =~ /Waiting/ }
+          end
+
+          def workers_gone?
+            pids.all? { |pid| `ps #{pid}` !~ /resque(:work|-[\d\.])/ }
           end
 
           def timeout?(started)
-            Time.now - started > options['timeout']
+            Time.now - started > (options['timeout'] || 20)
+          end
+
+          def pid_files?
+            !pid_files.empty?
+          end
+
+          def pid_files
+            Dir[File.expand_path('~/.god/pids/*')]
+          end
+
+          def pids
+            pid_files.map { |pid_file| File.read(pid_file) }
+          end
+
+          def remove_pids
+            puts "Removing pid files."
+            pid_files.each { |pid_file| FileUtils.rm(pid_file) }
           end
 
           def remove_pids?
