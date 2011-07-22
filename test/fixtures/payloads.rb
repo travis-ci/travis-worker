@@ -30,7 +30,7 @@ INCOMING_PAYLOADS = {
       'commit' => '313f61b',
       'branch' => 'master',
       'config' => {
-        'rvm'    => '1.9.2',
+        'rvm'    => '1.8.7',
         'script' => 'rake'
       }
     }

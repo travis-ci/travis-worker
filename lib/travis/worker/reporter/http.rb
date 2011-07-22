@@ -38,7 +38,7 @@ module Travis
           end
 
           def config
-            @config ||= Travis::Worker.config.reporter.http || Hashie::Mash.new
+            @config ||= Travis::Worker.config.reporter.http || Hashr.new
           end
       end # Http
     end # Reporter

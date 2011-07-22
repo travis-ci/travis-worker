@@ -47,7 +47,7 @@ module Travis
 
         # @api public
         def initialize(payload)
-          @payload   = Hashie::Mash.new(payload)
+          @payload   = Hashr.new(payload)
           @observers = []
         end
 
@@ -69,12 +69,12 @@ module Travis
         end
 
         def config
-          repository.config ||= Hashie::Mash.new
+          repository.config ||= Hashr.new
         end
 
         # @todo We need to pick a more specific name. MK.
         def build
-          payload.build ||= Hashie::Mash.new
+          payload.build ||= Hashr.new
         end
 
         #

@@ -44,7 +44,7 @@ module Travis
 
         # @api public
         def install
-          install? ? exec("bundle install --path vendor/bundle #{config['bundler_args']}".strip, :timeout => :bundle) : true
+          install? ? exec("bundle install --path vendor/bundle #{config.bundler_args}".strip, :timeout => :bundle) : true
         end
 
 
@@ -92,8 +92,8 @@ module Travis
             "git://github.com/#{slug}.git"
           end
 
-        def build_branch?
-            return true unless config.branches?
+          def build_branch?
+            return true unless config.branches
             if config.branches.is_a?(String)
               build_branches = config.branches.split(' ')
               expected = true

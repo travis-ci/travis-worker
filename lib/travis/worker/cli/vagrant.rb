@@ -18,7 +18,8 @@ module Travis
         include Cli
 
         desc 'rebuild', 'Rebuild all worker vms'
-        method_option :from, :default => config.base
+        method_option :from,  :default => config.base
+        method_option :force, :aliases => '-f', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         def rebuild
           vbox.reset
 
@@ -57,7 +58,7 @@ module Travis
         protected
 
           def vbox
-            @vbox ||= Vbox.new
+            @vbox ||= Vbox.new('', options)
           end
 
           def config

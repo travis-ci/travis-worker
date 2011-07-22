@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'travis/worker/cli/app'
 require 'travis/worker/cli/development'
+require 'travis/worker/cli/resque'
 require 'travis/worker/cli/vagrant'
 require 'travis/worker/cli/virtualbox'
 
@@ -9,7 +10,7 @@ $stdout.sync = true
 module Travis
   module Worker
     module Cli
-      def run(commands)
+      def run(*commands)
         normalize_commands(commands).each do |command|
           puts "$ #{command}"
           system command
@@ -23,7 +24,7 @@ module Travis
       end
 
       def normalize_commands(commands)
-        commands = commands.split("\n")
+        commands = commands.join("\n").split("\n")
         commands.map! { |command| command.strip }
         commands.reject { |command| command.empty? }
       end

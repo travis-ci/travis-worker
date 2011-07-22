@@ -1,16 +1,11 @@
-redis:
-  url: redis://YOUR_REDIS_URL
 shell:
   buffer: 0.25
-reporter:
-  http:
-    # You get a Travis token on your application's profile page by signing in to your application via Github OAuth2.
-    url: "YOUR_GITHUB_USERNAME:YOUR_TRAVIS_TOKEN@YOUR_APP.heroku.com"
 vms:
   count: 3
   base: lucid32
   memory: 1536
   cookbooks: 'vendor/cookbooks/vagrant_base'
+  log_level: 'info'
   json:
     rvm:
       rubies:
@@ -58,9 +53,10 @@ vms:
     - sqlite
     - postgresql::client
     - postgresql::server
-    - redis
     - mysql::client
     - mysql::server
+    - redis
+    - riak
     - mongodb
     - memcached
     - rabbitmq

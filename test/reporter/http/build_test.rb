@@ -8,10 +8,10 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
   def setup
     super
 
-    Config.any_instance.stubs(:load).returns({})
+    Config.any_instance.stubs(:read).returns({})
     Travis::Worker.stubs(:name).returns('the_worker')
 
-    @job = Job::Build.new(Hashie::Mash.new(INCOMING_PAYLOADS['build:gem-release']))
+    @job = Job::Build.new(Hashr.new(INCOMING_PAYLOADS['build:gem-release']))
     class << job
       def build!
         update(:log => 'log')

@@ -6,7 +6,7 @@ payload = INCOMING_PAYLOADS['build:gem-release']
 
 Travis::Worker.class_eval { @queue = 'builds' }
 
-2.times do
+1.times do
   Resque.enqueue(Travis::Worker, payload)
 end
 

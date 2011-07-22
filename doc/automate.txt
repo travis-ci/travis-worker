@@ -1,0 +1,23 @@
+h1. Things to automate
+
+h2. Update an entire worker box
+
+# assuming we're in ~/travis-worker
+git checkout .
+git pull
+
+cd vendor/cookbooks # how to safely use submodules instead?
+git checkout .
+git pull
+cd ..
+
+thor travis:worker:resque:terminate --graceful --force
+
+# somehow make sure we have the correct number of vms and recipes in .worker.yml
+# somehow make sure .worker.god has the correct environment set in .worker.god
+
+thor travis:worker:vagrant:rebuild --force
+
+# somehow check that all vms are running
+
+god -c .worker.god

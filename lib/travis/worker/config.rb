@@ -1,46 +1,55 @@
 require 'yaml'
-require 'hashie/dash'
 
 module Travis
   module Worker
-    DIRECTORIES = ['.', '~', '/etc']
+    class Config < Hashr
+      module Vms
+        def count
+         self[:count]
+        end
 
-    class Config < Hashie::Dash
-      autoload :Vagrant, 'travis/worker/config/vagrant'
+        def names
+          ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+        end
 
-      #
-      # API
-      #
+        def recipes?
+          !!recipes && !recipes.empty?
+        end
+      end
 
-      property :amqp,     :default => Hashie::Mash.new(:username => "guest", :password => "guest", :host => "localhost", :vhost => "travis")
-
-      property :redis,    :default => Hashie::Mash.new(:url => ENV['REDIS_URL'])
-      property :reporter, :default => Hashie::Mash.new(:http => Hashie::Mash.new)
-      property :shell,    :default => Hashie::Mash.new(:buffer => 0)
-      property :workers,  :default => 3
-      property :timeouts, :default => Hashie::Mash.new(:before_script => 120, :after_script => 120, :script => 600, :bundle => 300)
+      default :amqp     => { :username => 'guest', :password => 'guest', :host => 'localhost', :vhost => 'travis' },
+              :redis    => { :url => nil },
+              :reporter => { :http => { :url => nil } },
+              :shell    => { :buffer => 0 },
+              :timeouts => { :before_script => 120, :after_script => 120, :script => 600, :bundle => 300 },
+              :vms      => { :count => 1, :base => 'lucid32', :memory => 1536, :cookbooks => 'vendor/cookbooks', :log_level => 'info', :json => {} }
 
       def initialize
-        config = load
-        @vms = Vagrant.new(config.delete('vms') || {})
-        super(Hashie::Mash.new(config))
-      end
-
-      def vms
-        @vms ||= Vagrant::Config.new
-      end
-
-      def load
-        YAML.load_file(filename)
-      end
-
-      def filename
-        DIRECTORIES.each do |directory|
-          filename = File.expand_path('.worker.yml', directory)
-          return filename if File.exists?(filename)
+        super(read)
+        class << self.vms
+          include Vms
         end
-        raise "Could not find a .worker.yml configuration file. Valid locations are: #{DIRECTORIES.join(', ')}"
       end
-    end # Config
-  end # Worker
-end # Travis
+
+      protected
+
+        LOCATIONS = ['./config/', '~/.']
+
+        def read
+          base = read_yml(path)
+          base.key?('env') ? base.merge(read_yml(path(base['env']))) : base
+        end
+
+        def read_yml(path)
+          YAML.load_file(File.expand_path(path))
+        end
+
+        def path(environment = nil)
+          filename = ['worker', environment, 'yml'].compact.join('.')
+          paths = LOCATIONS.map { |path| "#{path}#{filename}" }
+          paths.each { |path| return path if File.exists?(path) }
+          raise "Could not find a configuration file. Valid paths are: #{paths.join(', ')}"
+        end
+    end
+  end
+end

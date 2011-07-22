@@ -11,7 +11,7 @@ class WorkerBuildTest < Test::Unit::TestCase
     super
 
     config = { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
-    Config.any_instance.stubs(:load).returns(config)
+    Config.any_instance.stubs(:read).returns(config)
     Travis::Worker.stubs(:name).returns('the_worker')
 
     @now = Time.now
