@@ -1,0 +1,53 @@
+shell:
+  buffer: 1
+timeouts:
+  bundle: 600
+  before_script: 600
+  script: 7200
+vms:
+  count: 5
+  base: lucid32
+  memory: 1024
+  cookbooks: 'vendor/cookbooks/vagrant_base'
+  json:
+    rvm:
+      rubies:
+        - 1.8.7
+        - 1.9.2
+        - ruby-head
+      default:
+        - ruby-1.8.7
+      gems:
+        - bundler
+        - rake
+        - chef
+      aliases:
+        rbx-2.0.0pre: rbx-2.0
+        1.9.1-p378:   1.9.1
+    mysql:
+      server_root_password: ""
+    postgresql:
+      max_connections: 256
+  recipes:
+    - travis_build_environment
+    - apt
+    - build-essential
+    - networking_basic
+    - openssl
+    - scons
+    - sysctl
+    - libyaml # libyaml MUST be installed before rubies. MK.
+    - emacs::nox
+    - vim
+    - timetrap
+    - git
+    - libv8
+    - nodejs
+    - rvm
+    - rvm::multi
+    - sqlite
+    # - postgresql::client
+    # - postgresql::server
+    - mysql::client
+    - mysql::server_on_ramfs
+    - memcached
