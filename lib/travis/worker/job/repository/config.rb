@@ -1,6 +1,6 @@
 require 'uri'
 require 'yaml'
-# require 'active_support/core_ext/hash/keys'
+require 'hashr'
 
 module Travis
   module Worker

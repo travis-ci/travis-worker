@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'hashr'
 
 class ReporterHttpConfigTest < Test::Unit::TestCase
   include Travis::Worker

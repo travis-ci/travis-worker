@@ -1,5 +1,6 @@
 require 'faraday'
 require 'uri'
+require 'hashr'
 
 module Travis
   module Worker

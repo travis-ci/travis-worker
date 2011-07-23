@@ -1,5 +1,6 @@
 require "pathname"
 require "fileutils"
+require 'hashr'
 
 module Travis
   module Worker
