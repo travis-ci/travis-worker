@@ -93,7 +93,7 @@ module Travis
           end
 
           def build_branch?
-            return true unless config.branches
+            return true unless config.branches?
             if config.branches.is_a?(String)
               build_branches = config.branches.split(' ')
               expected = true

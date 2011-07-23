@@ -31,6 +31,12 @@ class HashrTest < Test::Unit::TestCase
     assert_equal false, Hashr.new({ :foo => { :bar => 'bar' } }).foo.baz?
   end
 
+  test 'method assignment works' do
+    hashr = Hashr.new
+    hashr.foo = 'foo'
+    assert_equal 'foo', hashr.foo
+  end
+
   test 'defining defaults' do
     klass = Class.new(Hashr)
     klass.default(:foo => 'foo', :bar => { :baz => 'baz' })
