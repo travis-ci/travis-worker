@@ -55,4 +55,10 @@ class HashrTest < Test::Unit::TestCase
     assert_equal 'env foo', klass.new.foo
     assert_equal 'env bar baz', klass.new.bar.baz
   end
+
+  test 'a key :_include includes the given modules' do
+    klass = Class.new(Hashr)
+    klass.default(:foo => { :_include => Module.new { def helper; 'helper'; end } })
+    assert_equal 'helper', klass.new.foo.helper
+  end
 end

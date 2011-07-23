@@ -34,7 +34,7 @@ module Travis
       end
 
       def initialize(data = {})
-        replace(deep_hasherize(deep_merge(self.class.defaults, data)))
+        replace(deep_includize(deep_hasherize(deep_merge(self.class.defaults, data))))
       end
 
       def []=(key, value)
@@ -66,6 +66,16 @@ module Travis
         def deep_hasherize(hash)
           hash.inject(TEMPLATE.dup) do |result, (key, value)|
             result.merge(key.to_sym => value.is_a?(Hash) ? deep_hasherize(value) : value)
+          end
+        end
+
+        def deep_includize(hash)
+          if modules = hash.delete(:_include)
+            meta_class = (class << hash; self end)
+            Array(modules).each { |mod| meta_class.send(:include, mod) }
+          end
+          hash.inject(hash) do |hash, (key, value)|
+            hash.merge(key => value.is_a?(Hash) ? deep_includize(value) : value)
           end
         end
     end
