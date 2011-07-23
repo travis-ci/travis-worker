@@ -11,12 +11,12 @@ git checkout .
 git pull
 cd ..
 
-thor travis:worker:resque:terminate --graceful --force
+thor travis:worker:resque:terminate
 
 # somehow make sure we have the correct number of vms and recipes in .worker.yml
 # somehow make sure .worker.god has the correct environment set in .worker.god
 
-thor travis:worker:vagrant:rebuild --force
+thor travis:worker:vagrant:rebuild
 
 # somehow check that all vms are running
 

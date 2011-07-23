@@ -98,7 +98,7 @@ module Travis
               build_branches = config.branches.split(' ')
               expected = true
             else
-              build_branches = config.branches[:only] || config.branches[:except] || []
+              build_branches = config.branches.only || config.branches.except || []
               expected = config.branches.only?
             end
             return true if build_branches.empty?
