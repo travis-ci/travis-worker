@@ -10,7 +10,6 @@ end
 gem 'vagrant',       ">= 0.7.7"
 gem 'net-ssh'
 gem 'net-ssh-shell', '~> 0.2.0'
-gem 'hashie'
 gem "multi_json"
 
 # amqp migration is a work in progress but it does not affect resque-based worker in any way

@@ -1,6 +1,5 @@
 require 'uri'
 require 'yaml'
-require 'hashie'
 # require 'active_support/core_ext/hash/keys'
 
 module Travis

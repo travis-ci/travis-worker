@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'hashie'
 
 class JobBuildTest < Test::Unit::TestCase
   include Travis::Worker
