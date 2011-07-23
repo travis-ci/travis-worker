@@ -29,11 +29,12 @@ class WorkerConfigTest < Test::Unit::TestCase
     File.stubs(:exists?).returns(true)
     File.stubs(:exists?).with('./config/worker.yml').returns(true)
 
-    Config.any_instance.stubs(:read_yml).with('./config/worker.yml').returns('env' => 'staging')
-    Config.any_instance.stubs(:read_yml).with('./config/worker.staging.yml').returns('foo' => 'foo')
+    Config.any_instance.stubs(:read_yml).with('./config/worker.yml').returns('env' => 'staging', 'staging' => { 'foo' => 'foo' })
+    Config.any_instance.stubs(:read_yml).with('./config/worker.staging.yml').returns('bar' => 'bar')
 
     assert_equal 'staging', Config.new.read['env']
     assert_equal 'foo', Config.new.read['foo']
+    assert_equal 'bar', Config.new.read['bar']
   end
 
   test 'before_script timeout defaults to 120' do

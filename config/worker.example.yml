@@ -1,7 +1,8 @@
 env: staging
-redis:
-  url: "redis://YOUR_REDIS_URL"
-reporter:
-  http:
-    url: "YOUR_GITHUB_USERNAME:YOUR_TRAVIS_TOKEN@YOUR_APP.heroku.com"
+staging:
+  redis:
+    url: "redis://YOUR_REDIS_URL"
+  reporter:
+    http:
+      url: "YOUR_GITHUB_USERNAME:YOUR_TRAVIS_TOKEN@YOUR_APP.heroku.com"
 

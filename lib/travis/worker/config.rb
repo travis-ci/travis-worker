@@ -37,8 +37,10 @@ module Travis
         LOCATIONS = ['./config/', '~/.']
 
         def read
-          base = read_yml(path)
-          base.key?('env') ? read_yml(path(base['env'])).merge(base) : base
+          local = read_yml(path)
+          env   = local['env']
+          local = local[env] || {}
+          read_yml(path(env)).merge(local.merge('env' => env))
         end
 
         def read_yml(path)
