@@ -69,4 +69,10 @@ class WorkerConfigTest < Test::Unit::TestCase
     assert_equal false, config.vms.recipes?
   end
 
+  test 'vms includes the Vms module' do
+    Config.any_instance.stubs(:read_yml).returns({ 'vms' => { 'count' => 5 } })
+    config = Config.new
+    assert config.vms.meta_class.included_modules.include?(Config::Vms)
+    assert_equal 5, config.vms.count
+  end
 end

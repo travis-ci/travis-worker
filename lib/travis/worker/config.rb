@@ -28,9 +28,6 @@ module Travis
 
       def initialize
         super(read)
-        # class << self.vms
-        #   include Vms
-        # end
       end
 
       protected
