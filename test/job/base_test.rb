@@ -24,5 +24,15 @@ class JobBaseTest < Test::Unit::TestCase
 
     assert_equal [[:started], [:data], [:finished]], observer.events
   end
+
+  # TODO which is wrong, but quickest way to fix this right now, Job::Repository.build_branch? assumes this
+  # this stuff will probably be moved to the server/app
+  test 'repository.config contains both the branch and branches configuration' do
+    payload = { 'build' => { 'branch' => 'master', 'config' => { 'branches' => { 'only' => ['master'] } } }, 'repository' => { 'slug' => 'slug' } }
+    config = Job::Base.new(payload).repository.config
+    assert config.is_a?(Hashr)
+    assert_equal 'master', config.branch
+    assert_equal ['master'], config.branches.only
+  end
 end
 
