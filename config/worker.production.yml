@@ -1,6 +1,6 @@
 queue: builds
 shell:
-  buffer: 1.0
+  buffer: 1.5
 vms:
   count: 5
   base: lucid32
