@@ -14,6 +14,7 @@ module Travis
           return unless reset?
           run <<-sh
             rm -rf ~/.VirtualBox/
+            rm -rf ~/Library/VirtualBox/*
             rm -rf ~/VirtualBox\\ VMs/
             rm -rf ~/.vagrant
             rm -f  .vagrant
