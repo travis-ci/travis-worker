@@ -8,6 +8,7 @@ vms:
   cookbooks: 'vendor/cookbooks/vagrant_base'
   log_level: 'info'
   json:
+    use_tmpfs: false
     rvm:
       rubies:
         - 1.8.6

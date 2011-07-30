@@ -11,6 +11,7 @@ vms:
   memory: 1024
   cookbooks: 'vendor/cookbooks/vagrant_base'
   json:
+    use_tmpfs: true
     rvm:
       rubies:
         - 1.8.7
