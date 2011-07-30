@@ -6,6 +6,10 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
   Config = Repository::Config
   Config.send :public, *Config.protected_instance_methods(false)
 
+  def setup
+    Config.any_instance.stubs(:evaluate).with('pwd', anything).returns('/path/to/current/directory')
+  end
+
   test 'rvm returns an rvm string when it holds an array with an rvm string' do
     config = Config.new('rvm' => ['1.9.2'])
     assert_equal '1.9.2', config.rvm
@@ -13,14 +17,12 @@ class JobRepositoryConfigTest < Test::Unit::TestCase
 
   test 'gemfile prepends the current working directory to the given relative Gemfile path' do
     config = Config.new('gemfile' => 'gemfiles/rails-3.1.0')
-    config.stubs(:evaluate).with('pwd', anything).returns('/path/to/current/directory')
     assert_equal '/path/to/current/directory/gemfiles/rails-3.1.0', config.gemfile
   end
 
   test 'gemfile? returns true if a Gemfile exists in the current working directory' do
     config = Config.new
-    config.stubs(:gemfile).returns('/path/to/gemfile')
-    config.stubs(:exec).with('test -f /path/to/gemfile', anything).returns(true)
+    config.stubs(:exec).with('test -f /path/to/current/directory/Gemfile', anything).returns(true)
     assert config.gemfile?
   end
 
