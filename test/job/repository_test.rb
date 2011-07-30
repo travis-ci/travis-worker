@@ -41,39 +41,4 @@ class JobRepositoryTest < Test::Unit::TestCase
   test 'source: returns the read-only git url' do
     assert_equal 'git://github.com/svenfuchs/gem-release.git', repository.source
   end
-
-  test 'if there is no branches option, it should build' do
-    repository.config.branches = ''
-    assert repository.build?
-  end
-
-  test 'if the branches is a string, should include them' do
-    repository.config.branches = 'master wip'
-    repository.config.branch = 'master'
-    assert repository.build?
-  end
-
-  test 'if the branch is included, it should build' do
-    repository.config.branches = { :only => ['master'] }
-    repository.config.branch = 'master'
-    assert repository.build?
-  end
-
-  test 'if the branch is not included, it should not build' do
-    repository.config.branches = { :only => ['master'] }
-    repository.config.branch = 'my_feature'
-    assert !repository.build?
-  end
-
-  test 'it the branch is excluded, it should not build' do
-    repository.config.branches = { :except => ['master'] }
-    repository.config.branch = 'master'
-    assert !repository.build?
-  end
-
-  test 'if the branch is not excluded, it should not build' do
-    repository.config.branches = { :except => ['master'] }
-    repository.config.branch = 'my_feature'
-    assert repository.build?
-  end
 end

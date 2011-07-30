@@ -61,12 +61,8 @@ module Travis
           end
 
           def perform
-            if repository.build?
-              @status = build! ? 0 : 1
-              sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
-            else
-              @status = 1
-            end
+            @status = build! ? 0 : 1
+            sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
             update(:log => "#{$!.class.name}: #{$!.message}\n#{$@.join("\n")}")

@@ -66,7 +66,7 @@ module Travis
         end
 
         def repository
-          @repository ||= Repository.new(build_dir, payload.repository.slug, build.config ? build.config.merge(:branch => build.branch) : {})
+          @repository ||= Repository.new(build_dir, payload.repository.slug, build.config ? build.config : {})
         end
 
         def config
