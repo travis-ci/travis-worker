@@ -73,8 +73,8 @@ module Travis
           def build!
             sandboxed do
               chdir
-              setup_env
               repository.checkout(build.commit)
+              setup_env
               repository.install && run_scripts
             end
           end
