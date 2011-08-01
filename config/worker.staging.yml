@@ -3,7 +3,7 @@ shell:
   buffer: 0.25
 vms:
   count: 5
-  base: lucid32
+  base: lucid32_old
   memory: 1536
   cookbooks: 'vendor/cookbooks/vagrant_base'
   log_level: 'info'

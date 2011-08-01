@@ -7,7 +7,7 @@ timeouts:
   script: 7200
 vms:
   count: 5
-  base: lucid32
+  base: lucid32_old
   memory: 1024
   cookbooks: 'vendor/cookbooks/vagrant_base'
   json:
