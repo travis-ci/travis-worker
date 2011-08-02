@@ -14,4 +14,4 @@ vendor/amqp
 *#
 #*
 .yardoc/*
-
+coverage/*
