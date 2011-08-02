@@ -37,7 +37,7 @@ module Travis
         end
 
         def start
-          notify(:start, :started_at => Time.now)
+          notify(:start, :started_at => Time.now, :queue => Travis::Worker.config.queue)
           update(:log => "Using worker: #{Travis::Worker.name}\n\n")
         end
 

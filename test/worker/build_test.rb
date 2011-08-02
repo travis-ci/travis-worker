@@ -36,7 +36,7 @@ class WorkerBuildTest < Test::Unit::TestCase
     worker.work!
 
     assert_messages [
-      [:post, '/builds/1',     { :build => { :started_at => now } }],
+      [:post, '/builds/1',     { :build => { :started_at => now, :queue => "builds" } }],
       [:post, '/builds/1/log', { :build => { :log => "Using worker: the_worker\n\n" } }],
       [:post, '/builds/1/log', { :build => { :log => 'log' } }],
       [:post, '/builds/1/log', { :build => { :log => "\nDone. Build script exited with: 0\n" } }],

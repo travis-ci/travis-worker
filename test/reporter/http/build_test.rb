@@ -32,7 +32,7 @@ class ReporterHttpBuildTest < Test::Unit::TestCase
     message = reporter.messages.first
     assert_equal :start, message.type
     assert_equal '/builds/1', message.target
-    assert_equal({ :_method => :put, :msg_id => 0, :build => { :started_at => now } }, message.data)
+    assert_equal({ :_method => :put, :msg_id => 0, :build => { :started_at => now, :queue => "builds" } }, message.data)
   end
 
   test 'queues a :log message' do
