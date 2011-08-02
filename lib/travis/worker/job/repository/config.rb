@@ -9,10 +9,6 @@ module Travis
         class Config < Hashr
           include Shell
 
-          def pwd
-            @pwd ||= evaluate('pwd').strip
-          end
-
           def rvm
             super ? Array(super).join : nil
           end
@@ -22,12 +18,22 @@ module Travis
           end
 
           def gemfile
-            "#{pwd}/#{super || 'Gemfile'}"
+            expand_gemfile(Array(super).join)
           end
 
           def script
             self[:script] ||= gemfile? ? 'bundle exec rake' : 'rake'
           end
+
+          protected
+
+            def pwd
+              @pwd ||= evaluate('pwd').strip
+            end
+
+            def expand_gemfile(gemfile)
+              "#{pwd}/#{gemfile.empty? ? 'Gemfile' : gemfile}"
+            end
         end
       end # Repository
     end # Job

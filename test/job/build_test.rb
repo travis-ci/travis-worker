@@ -34,27 +34,22 @@ class JobBuildTest < Test::Unit::TestCase
     assert_equal 0, build.status
   end
 
-  test 'does not perform build if the branch is ignored' do
-    build.repository.expects(:build?).returns(false)
-    build.expects(:build!).never
-    build.perform
-  end
-
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
     build.repository.config.stubs(:gemfile?).returns(true)
     build.repository.config.stubs(:gemfile).returns('/path/to/Gemfile.rails-3.1')
 
+    # TODO this does not expect things in any particular order, but should
     expect_shell [
       'mkdir -p /tmp/travis/test/travis-ci/test-project-1; cd /tmp/travis/test/travis-ci/test-project-1',
       'rvm use 1.9.2',
-      'export BUNDLE_GEMFILE=/path/to/Gemfile.rails-3.1',
-      'export FOO=bar',
-      'export BAR=baz',
       'test -d .git',
       'git clean -fdx',
       'git fetch',
       'git checkout -qf 1234567',
-      'bundle install --path vendor/bundle bundler_arg=1',
+      'export BUNDLE_GEMFILE=/path/to/Gemfile.rails-3.1',
+      'export FOO=bar',
+      'export BAR=baz',
+      'bundle install bundler_arg=1',
       'bundle exec rake ci:before',
       'bundle exec rake',
       'bundle exec rake ci:after'

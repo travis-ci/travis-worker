@@ -44,18 +44,13 @@ module Travis
 
         # @api public
         def install
-          install? ? exec("bundle install --path vendor/bundle #{config.bundler_args}".strip, :timeout => :bundle) : true
+          install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :bundle) : true
         end
 
 
         # @api plugin
         def raw_url
           "https://raw.github.com/#{slug}"
-        end
-
-        # @api public
-        def build?
-          build_branch?
         end
 
         #
@@ -90,20 +85,6 @@ module Travis
           # @api plugin
           def source
             "git://github.com/#{slug}.git"
-          end
-
-          def build_branch?
-            return true unless config.branches?
-            if config.branches.is_a?(String)
-              build_branches = config.branches.split(' ')
-              expected = true
-            else
-              build_branches = config.branches[:only] || config.branches[:except] || []
-              expected = config.branches.only?
-            end
-            return true if build_branches.empty?
-
-            build_branches.include?(config.branch) == expected
           end
       end # Repository
     end # Job

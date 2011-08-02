@@ -61,12 +61,8 @@ module Travis
           end
 
           def perform
-            if repository.build?
-              @status = build! ? 0 : 1
-              sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
-            else
-              @status = 1
-            end
+            @status = build! ? 0 : 1
+            sleep(Travis::Worker.config.shell.buffer * 2) # TODO hrmmm ...
           rescue
             @status = 1
             update(:log => "#{$!.class.name}: #{$!.message}\n#{$@.join("\n")}")
@@ -77,8 +73,8 @@ module Travis
           def build!
             sandboxed do
               chdir
-              setup_env
               repository.checkout(build.commit)
+              setup_env
               repository.install && run_scripts
             end
           end
