@@ -28,7 +28,6 @@ class WorkerBuildTest < Test::Unit::TestCase
         Mock::HttpRequest.new
       end
     end
-
   end
 
   test 'running a build' do
@@ -42,6 +41,7 @@ class WorkerBuildTest < Test::Unit::TestCase
       [:post, '/builds/1/log', { :build => { :log => "\nDone. Build script exited with: 0\n" } }],
       [:post, '/builds/1',     { :build => { :log => "Using worker: the_worker\n\nlog\nDone. Build script exited with: 0\n", :status => 0, :finished_at => now } }],
     ]
+
   end
 
   protected
