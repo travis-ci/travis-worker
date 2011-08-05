@@ -15,6 +15,12 @@ describe Travis::Worker do
     { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
   end
 
+  let(:worker) do
+    Travis::Worker::Workers::Resque.new(INCOMING_PAYLOADS['build:gem-release'])
+  end
+  let(:job) { worker.job }
+  let(:reporter) { worker.reporter }
+
   before :each do
     @now = Time.now
     Time.stubs(:now).returns(@now)
@@ -24,11 +30,7 @@ describe Travis::Worker do
 
     Travis::Worker.shell = Mock::Shell.new
 
-    @worker   = Travis::Worker::Workers::Resque.new(INCOMING_PAYLOADS['build:gem-release'])
-    @job      = @worker.job
-    @reporter = @worker.reporter
-
-    class << @reporter # stubbing doesn't seem to work in a separate thread?
+    class << reporter # stubbing doesn't seem to work in a separate thread?
       def connection(*)
         Mock::HttpRequest.new
       end
@@ -37,8 +39,8 @@ describe Travis::Worker do
 
 
   it "should run a build" do
-    @job.expects(:build!).with { @job.send(:update, :log => 'log'); true }.returns(true)
-    @worker.work!
+    job.expects(:build!).with { job.send(:update, :log => 'log'); true }.returns(true)
+    worker.work!
 
     requests.each_with_index do |message, index|
       message[2].merge!(:_method=>:put, :msg_id => index)
