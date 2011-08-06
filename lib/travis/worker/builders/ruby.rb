@@ -2,7 +2,7 @@ module Travis
   module Worker
     module Builders
 
-      class Ruby
+      module Ruby
         class Config < Hashr
           def rvm
             super ? Array(super).join : 'default'
@@ -27,41 +27,21 @@ module Travis
             end
         end
 
-        class Commands
-          include Shell
-
-          attr_reader :config
-
-          def initialize(config)
-            @config = Config.new(config)
-          end
-
-          # @api public
-          def install
-            install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) : true
-          end
-
+        class Commands < Base
           def setup_env
             exec "rvm use #{config.rvm}"
             exec "export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}" if config.gemfile?
-            Array(config.env).each { |env| exec "export #{env}" unless env.empty? } if config.env
+            super
           end
 
-          def run_scripts
-            %w{before_script script after_script}.each do |type|
-              script = config.send(type)
-              return false if script && !run_script(script, :timeout => type)
-            end && true
+          def install
+            install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) : super
           end
 
           protected
             # @api plugin
             def install?
               config.gemfile?
-            end
-
-            def pwd
-              @pwd ||= evaluate('pwd').strip
             end
         end
       end
