@@ -36,6 +36,12 @@ module Travis
           end && true
         end
 
+        def run_script(script, options = {})
+          (script.is_a?(Array) ? script : script.split("\n")).each do |script|
+            return false unless exec(script, options)
+          end && true
+        end
+
         protected
           def pwd
             @pwd ||= evaluate('pwd').strip
