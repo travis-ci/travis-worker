@@ -2,7 +2,7 @@ queue: rails
 shell:
   buffer: 1
 timeouts:
-  bundle: 600
+  install_deps: 600
   before_script: 600
   script: 7200
 vms:

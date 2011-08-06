@@ -23,7 +23,7 @@ module Travis
              :redis    => { :url => nil },
              :reporter => { :http => { :url => nil } },
              :shell    => { :buffer => 0 },
-             :timeouts => { :before_script => 120, :after_script => 120, :script => 600, :bundle => 300 },
+             :timeouts => { :before_script => 120, :after_script => 120, :script => 600, :install_deps => 300 },
              :vms      => { :count => 1, :base => 'lucid32', :memory => 1536, :cookbooks => 'vendor/cookbooks', :log_level => 'info', :json => {}, :_include => Vms }
 
       def initialize
