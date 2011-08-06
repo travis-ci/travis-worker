@@ -19,8 +19,6 @@ module Travis
 
         include Shell
 
-        autoload :Config, 'travis/worker/job/repository/config'
-
         #
         # API
         #
@@ -33,7 +31,6 @@ module Travis
         def initialize(dir, slug, config)
           @dir    = dir
           @slug   = slug
-          @config = Config.new(config)
         end
 
         # @api public
@@ -41,12 +38,6 @@ module Travis
           exists? ? fetch : clone
           exec "git checkout -qf #{commit}" if commit
         end
-
-        # @api public
-        def install
-          install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :bundle) : true
-        end
-
 
         # @api plugin
         def raw_url
@@ -75,11 +66,6 @@ module Travis
           # @api plugin
           def exists?
             exec "test -d .git", :echo => false
-          end
-
-          # @api plugin
-          def install?
-            config.gemfile?
           end
 
           # @api plugin

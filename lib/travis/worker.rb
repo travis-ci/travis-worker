@@ -17,9 +17,14 @@ module Travis
     autoload :Shell,           'travis/worker/shell'
 
     module Workers
-      autoload :Base,   'travis/worker/workers/base'
-      autoload :Amqp,   'travis/worker/workers/amqp'
-      autoload :Resque, 'travis/worker/workers/resque'
+      autoload :Base,     'travis/worker/workers/base'
+      autoload :Amqp,     'travis/worker/workers/amqp'
+      autoload :Resque,   'travis/worker/workers/resque'
+    end
+
+    module Builders
+      autoload :Erlang,   'travis/worker/builders/erlang'
+      autoload :Ruby,     'travis/worker/builders/ruby'
     end
 
     class << self

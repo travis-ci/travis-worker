@@ -79,25 +79,6 @@ module Travis
             end
           end
 
-          def setup_env
-            exec "rvm use #{config.rvm || 'default'}"
-            exec "export BUNDLE_GEMFILE=#{config.gemfile}" if config.gemfile?
-            Array(config.env).each { |env| exec "export #{env}" unless env.empty? } if config.env
-          end
-
-          def run_scripts
-            %w{before_script script after_script}.each do |type|
-              script = config.send(type)
-              return false if script && !run_script(script, :timeout => type)
-            end && true
-          end
-
-          def run_script(script, options = {})
-            (script.is_a?(Array) ? script : script.split("\n")).each do |script|
-              return false unless exec(script, options)
-            end && true
-          end
-
           def chdir(&block)
             exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
           end
