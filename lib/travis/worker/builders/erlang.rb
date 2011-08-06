@@ -5,7 +5,7 @@ module Travis
       class Erlang
         class Config < Hashr
           def erlang_otp
-            super ? Array(super).join : R14B02
+            super ? Array(super).join : 'R14B02'
           end
 
           def script
