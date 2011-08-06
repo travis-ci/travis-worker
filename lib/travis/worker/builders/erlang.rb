@@ -9,7 +9,7 @@ module Travis
           end
 
           def script
-            self[:script] ||= rebar? ? 'rebar eunit' : 'make test'
+            self[:script] ||= (rebar? ? 'rebar eunit' : 'make test')
           end
 
           def rebar?
