@@ -76,8 +76,7 @@ module Travis
 
               repository.checkout(build.commit)
 
-              builder = Travis::Worker::Builder::Base.builder_for(build.config)
-              builder.run
+              Travis::Worker::Builder::Base.builder_for(build.config).run
             end
           end
 
