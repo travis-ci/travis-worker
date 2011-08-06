@@ -34,7 +34,7 @@ module Travis
             super
           end
 
-          def install
+          def install_dependencies
             install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) : super
           end
 

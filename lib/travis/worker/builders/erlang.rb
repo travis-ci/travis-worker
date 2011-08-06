@@ -23,7 +23,7 @@ module Travis
             super
           end
 
-          def install
+          def install_dependencies
             rebar? ? exec('rebar get-deps', :timeout => :install_deps) : super
           end
 

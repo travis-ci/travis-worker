@@ -17,11 +17,10 @@ module Travis
 
         def run
           setup_env
-          install && run_scripts
+          install_dependencies && run_scripts
         end
 
-        # @api public
-        def install
+        def install_dependencies
           true
         end
 
