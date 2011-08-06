@@ -4,7 +4,7 @@ module Travis
 
       class Erlang
         class Config < Hashr
-          def erlang_otp
+          def otp_release
             super ? Array(super).join : 'R14B02'
           end
 
@@ -32,7 +32,7 @@ module Travis
           end
 
           def setup_env
-            exec "source /home/vagrant/otp/#{config.erlang_otp}/activate"
+            exec "source /home/vagrant/otp/#{config.otp_release}/activate"
             Array(config.env).each { |env| exec "export #{env}" unless env.empty? } if config.env
           end
 
