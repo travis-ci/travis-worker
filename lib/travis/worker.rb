@@ -11,6 +11,7 @@ module Travis
 
     autoload :Application,     'travis/worker/application'
     autoload :BuildDispatcher, 'travis/worker/build_dispatcher'
+    autoload :Builders,   'travis/worker/builders'
     autoload :Config,          'travis/worker/config'
     autoload :Job,             'travis/worker/job'
     autoload :Reporter,        'travis/worker/reporter'
@@ -20,11 +21,6 @@ module Travis
       autoload :Base,     'travis/worker/workers/base'
       autoload :Amqp,     'travis/worker/workers/amqp'
       autoload :Resque,   'travis/worker/workers/resque'
-    end
-
-    module Builders
-      autoload :Erlang,   'travis/worker/builders/erlang'
-      autoload :Ruby,     'travis/worker/builders/ruby'
     end
 
     class << self

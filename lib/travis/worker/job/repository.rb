@@ -8,7 +8,6 @@ module Travis
       # ### Key methods
       #
       # * #checkout
-      # * #install
       #
       # @see Travis::Job::Base
       class Repository

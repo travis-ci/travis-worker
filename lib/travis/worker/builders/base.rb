@@ -1,6 +1,10 @@
+require 'hashr'
+
 module Travis
   module Worker
     module Builders
+
+      class Config < Hashr; end
 
       class Base
         include Shell
@@ -9,6 +13,11 @@ module Travis
 
         def initialize(config)
           @config = Config.new(config)
+        end
+
+        def run
+          setup_env
+          install && run_scripts
         end
 
         # @api public

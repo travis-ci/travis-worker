@@ -73,9 +73,11 @@ module Travis
           def build!
             sandboxed do
               chdir
+
               repository.checkout(build.commit)
-              setup_env
-              repository.install && run_scripts
+
+              builder = Travis::Worker::Builder::Base.builder_for(build.config)
+              builder.run
             end
           end
 
