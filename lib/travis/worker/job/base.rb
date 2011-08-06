@@ -1,6 +1,7 @@
-require "pathname"
-require "fileutils"
+require 'pathname'
+require 'fileutils'
 require 'hashr'
+require 'travis/worker/job/helpers/repository'
 
 module Travis
   module Worker
