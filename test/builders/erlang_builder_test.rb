@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class BuilderErlangTest < Test::Unit::TestCase
-
+class BuilderErlangTestCase < Test::Unit::TestCase
   def new_config(config={})
     Travis::Worker::Builders::Erlang::Config.new(config)
   end
@@ -17,9 +16,9 @@ class BuilderErlangTest < Test::Unit::TestCase
   def commands_any_instance
     Travis::Worker::Builders::Erlang::Commands.any_instance
   end
+end
 
-  # tests for Travis::Worker::Builders::Erlang::Config
-
+class BuilderErlangConfigTests < BuilderErlangTestCase
   def test_config_default_otp_release
     assert_equal('R14B02', new_config.otp_release)
   end
@@ -63,49 +62,88 @@ class BuilderErlangTest < Test::Unit::TestCase
     config = new_config(:rebar => false)
     assert_equal(false, config.rebar?)
   end
+end
 
-  # tests for Travis::Worker::Builders::Erlang::Commands
 
+class BuilderErlangCommandsTests < BuilderErlangTestCase
   def test_setup_env
-    commands_any_instance.expects(:exec).once.returns(true)
+    commands_any_instance.expects(:exec).
+      with("source /home/vagrant/otp/R14B02/activate").
+      once.returns(true)
 
-    new_commands.setup_env
+    new_commands(:rebar => false).setup_env
+  end
+
+  def test_setup_env_with_other_env_vars
+    commands_any_instance.expects(:exec).
+      with("source /home/vagrant/otp/R14B02/activate").
+      once.returns(true)
+
+    commands_any_instance.expects(:exec).
+      with("export FOO=bar").
+      once.returns(true)
+
+    new_commands(:env => "FOO=bar", :rebar => false).setup_env
   end
 
   def test_commands_install_dependencies_without_rebar
-    commands_any_instance.expects(:pwd).returns('/foo')
+    commands_any_instance.expects(:pwd).twice.returns('/foo')
     commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(false)
     commands_any_instance.expects(:execute).with("[ -f /foo/Rebar.config ]").once.returns(false)
+
+    assert new_commands.install_dependencies
+  end
+
+  def test_commands_install_dependencies_without_rebar_set_by_config_var
+    commands_any_instance.expects(:execute).never
 
     assert new_commands(:rebar => false).install_dependencies
   end
 
-  def test_commands_install_dependencies_with_rebar
-    commands_any_instance.expects(:pwd).returns('/foo')
-    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(true)
+  def test_commands_install_dependencies_with_rebar_set_by_config_var
+    commands_any_instance.expects(:execute).never
     commands_any_instance.expects(:exec).once.returns(true)
 
     assert new_commands(:rebar => true).install_dependencies
   end
 
-  def test_commands_install_property_without_rebar_and_without_rebar_config
-    commands_any_instance.expects(:pwd).twice.returns('foobar')
-    commands_any_instance.expects(:execute).twice.returns(false)
+  def test_commands_install_dependencies_with_rebar_file_check_true
+    commands_any_instance.expects(:pwd).returns('/foo')
+    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(true)
+    commands_any_instance.expects(:exec).once.returns(true)
 
-    assert !new_commands(:rebar => false).install?
+    assert new_commands.install_dependencies
+  end
+end
+
+
+class BuilderErlangIntegrationTests < BuilderErlangTestCase
+  def test_run_scripts_with_rebar_config_false
+    commands_any_instance.expects(:exec).with('make test', :timeout => 'script').once.returns(true)
+
+    assert new_commands('rebar' => false).run_scripts
   end
 
-  def test_commands_install_property_with_rebar
-    commands_any_instance.expects(:pwd).never
-    commands_any_instance.expects(:execute).never
+  def test_run_scripts_with_rebar_config_true
+    commands_any_instance.expects(:exec).with('rebar eunit', :timeout => 'script').once.returns(true)
 
-    assert new_commands(:rebar => true).install?
+    assert new_commands('rebar' => true).run_scripts
   end
 
-  def test_commands_install_property_without_rebar_and_with_rebar_config
-    commands_any_instance.expects(:pwd).once.returns('foobar')
-    commands_any_instance.expects(:execute).once.returns(true)
+  def test_run_scripts_with_rebar_file_check_false
+    commands_any_instance.expects(:pwd).twice.returns('/foo')
+    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(false)
+    commands_any_instance.expects(:execute).with("[ -f /foo/Rebar.config ]").once.returns(false)
+    commands_any_instance.expects(:exec).with('make test', :timeout => 'script').once.returns(true)
 
-    assert new_commands(:rebar => false).install?
+    assert new_commands.run_scripts
+  end
+
+  def test_run_scripts_with_rebar_file_check_true
+    commands_any_instance.expects(:pwd).returns('/foo')
+    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(true)
+    commands_any_instance.expects(:exec).with('rebar eunit', :timeout => 'script').once.returns(true)
+
+    assert new_commands.run_scripts
   end
 end

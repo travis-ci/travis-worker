@@ -18,6 +18,10 @@ module Travis
         end
 
         class Commands < Base
+          def initialize(config)
+            @config = Config.new(config)
+          end
+
           def setup_env
             exec "rvm use #{config.rvm}"
             exec "export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}" if config.gemfile?

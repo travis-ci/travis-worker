@@ -24,18 +24,26 @@ module Travis
         end
 
         class Commands < Base
+          def initialize(config)
+            @config = Config.new(config)
+
+            check_for_rebar
+          end
+
           def setup_env
             exec "source /home/vagrant/otp/#{config.otp_release}/activate"
             super
           end
 
           def install_dependencies
-            install? ? exec('rebar get-deps', :timeout => :install_deps) : true
+            config.rebar? ? exec('rebar get-deps', :timeout => :install_deps) : true
           end
 
           protected
-            def install?
-              config.rebar = execute("[ -f #{pwd}/rebar.config ]") || execute("[ -f #{pwd}/Rebar.config ]")
+            def check_for_rebar
+              if config.rebar.nil?
+                config.rebar = execute("[ -f #{pwd}/rebar.config ]") || execute("[ -f #{pwd}/Rebar.config ]")
+              end
             end
         end
       end
