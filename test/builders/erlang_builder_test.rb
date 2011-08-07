@@ -30,16 +30,33 @@ class BuilderErlangTest < Test::Unit::TestCase
   end
 
   def test_config_default_script
+    assert_equal('make test', new_config.script)
+  end
+
+  def test_config_default_script_with_rebar
+    config_any_instance.expects(:rebar?).once.returns(true)
     assert_equal('rebar eunit', new_config.script)
   end
 
   def test_config_default_script_without_rebar
     config_any_instance.expects(:rebar?).once.returns(false)
-    assert_equal('make test', new_config().script)
+    assert_equal('make test', new_config.script)
+  end
+
+  def test_config_custom_script
+    config = new_config(:script => 'make foo bar baz')
+    assert_equal('make foo bar baz', config.script)
   end
 
   def test_config_default_rebar?
-    assert_equal(true, new_config.rebar?)
+    assert_equal(false, new_config.rebar?)
+  end
+
+  def test_config_rebar_is_settable_and_changes_rebar?
+    config = new_config
+    assert_equal(false, config.rebar?)
+    config.rebar = true
+    assert_equal(true, config.rebar?)
   end
 
   def test_config_custom_rebar?
@@ -51,16 +68,24 @@ class BuilderErlangTest < Test::Unit::TestCase
 
   def test_setup_env
     commands_any_instance.expects(:exec).once.returns(true)
+
     new_commands.setup_env
   end
 
   def test_commands_install_dependencies_without_rebar
-    new_commands(:rebar=>false).install_dependencies
+    commands_any_instance.expects(:pwd).returns('/foo')
+    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(false)
+    commands_any_instance.expects(:execute).with("[ -f /foo/Rebar.config ]").once.returns(false)
+
+    assert new_commands(:rebar => false).install_dependencies
   end
 
   def test_commands_install_dependencies_with_rebar
+    commands_any_instance.expects(:pwd).returns('/foo')
+    commands_any_instance.expects(:execute).with("[ -f /foo/rebar.config ]").once.returns(true)
     commands_any_instance.expects(:exec).once.returns(true)
-    new_commands(:rebar=>true).install_dependencies
+
+    assert new_commands(:rebar => true).install_dependencies
   end
 
   def test_commands_install_property_without_rebar_and_without_rebar_config

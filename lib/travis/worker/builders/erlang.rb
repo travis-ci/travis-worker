@@ -5,15 +5,21 @@ module Travis
       module Erlang
         class Config < Hashr
           def otp_release
-            super ? Array(super).join : 'R14B02'
+            super || 'R14B02'
           end
 
           def script
-            self[:script] ||= (rebar? ? 'rebar eunit' : 'make test')
+            if !self[:script].nil?
+              self[:script]
+            elsif rebar?
+              'rebar eunit'
+            else
+              'make test'
+            end
           end
 
           def rebar?
-            self[:rebar].nil? ? true : self[:rebar]
+            self[:rebar].nil? ? false : self[:rebar]
           end
         end
 
@@ -24,12 +30,12 @@ module Travis
           end
 
           def install_dependencies
-            config.rebar? ? exec('rebar get-deps', :timeout => :install_deps) : super
+            install? ? exec('rebar get-deps', :timeout => :install_deps) : true
           end
 
           protected
             def install?
-              config.rebar? || execute("[ -f #{pwd}/rebar.config ]") || execute("[ -f #{pwd}/Rebar.config ]")
+              config.rebar = execute("[ -f #{pwd}/rebar.config ]") || execute("[ -f #{pwd}/Rebar.config ]")
             end
         end
       end

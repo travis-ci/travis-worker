@@ -5,26 +5,16 @@ module Travis
       module Ruby
         class Config < Hashr
           def rvm
-            super ? Array(super).join : 'default'
-          end
-
-          def gemfile?
-            exec "test -f #{gemfile}", :echo => false
+            super || 'default'
           end
 
           def gemfile
-            expand_gemfile(Array(super).join)
+            super || 'Gemfile'
           end
 
           def script
             self[:script] ||= gemfile? ? 'bundle exec rake' : 'rake'
           end
-
-          protected
-
-            def expand_gemfile(gemfile)
-              gemfile.empty? ? 'Gemfile' : gemfile
-            end
         end
 
         class Commands < Base
@@ -39,9 +29,8 @@ module Travis
           end
 
           protected
-            # @api plugin
             def install?
-              config.gemfile?
+              exec "test -f #{gemfile}", :echo => false
             end
         end
       end
