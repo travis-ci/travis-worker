@@ -45,6 +45,10 @@ module Travis
           def pwd
             @pwd ||= evaluate('pwd').strip
           end
+
+          def file_exists?(file_name)
+            exec("test -f #{file_name}", :echo => false)
+          end
       end
 
     end

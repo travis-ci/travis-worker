@@ -8,18 +8,18 @@ module Travis
             super || 'R14B02'
           end
 
+          def rebar_config_exists?
+            !!self[:rebar_config_exists]
+          end
+
           def script
             if !self[:script].nil?
               self[:script]
-            elsif rebar?
+            elsif rebar_config_exists?
               'rebar eunit'
             else
               'make test'
             end
-          end
-
-          def rebar?
-            self[:rebar].nil? ? false : self[:rebar]
           end
         end
 
@@ -27,7 +27,7 @@ module Travis
           def initialize(config)
             @config = Config.new(config)
 
-            check_for_rebar
+            check_for_rebar_config
           end
 
           def setup_env
@@ -36,14 +36,17 @@ module Travis
           end
 
           def install_dependencies
-            config.rebar? ? exec('rebar get-deps', :timeout => :install_deps) : true
+            if config.rebar_config_exists?
+              exec('rebar get-deps', :timeout => :install_deps)
+            else
+              true
+            end
           end
 
-          protected
-            def check_for_rebar
-              if config.rebar.nil?
-                config.rebar = execute("[ -f #{pwd}/rebar.config ]") || execute("[ -f #{pwd}/Rebar.config ]")
-              end
+          private
+            def check_for_rebar_config
+              rebar = file_exists?('rebar.config') || file_exists?('Rebar.config')
+              @config.rebar_config_exists = rebar
             end
         end
       end

@@ -12,30 +12,38 @@ module Travis
             super || 'Gemfile'
           end
 
+          def gemfile_exists?
+            !!self[:gemfile_exists]
+          end
+
           def script
-            self[:script] ||= gemfile? ? 'bundle exec rake' : 'rake'
+            if !self[:script].nil?
+              self[:script]
+            elsif gemfile_exists?
+              'bundle exec rake'
+            else
+              'rake'
+            end
           end
         end
 
         class Commands < Base
           def initialize(config)
             @config = Config.new(config)
+
+            @config.gemfile_exists = file_exists?(@config.gemfile)
           end
 
           def setup_env
-            exec "rvm use #{config.rvm}"
-            exec "export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}" if config.gemfile?
+            exec("rvm use #{config.rvm}")
+            exec("export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}") if config.gemfile_exists?
             super
           end
 
           def install_dependencies
-            install? ? exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) : super
+            exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) if config.gemfile_exists?
+            super
           end
-
-          protected
-            def install?
-              exec "test -f #{gemfile}", :echo => false
-            end
         end
       end
 
