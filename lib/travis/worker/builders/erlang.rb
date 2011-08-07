@@ -13,7 +13,7 @@ module Travis
           end
 
           def rebar?
-            self[:rebar] || true
+            self[:rebar].nil? ? true : self[:rebar]
           end
         end
 
@@ -24,7 +24,7 @@ module Travis
           end
 
           def install_dependencies
-            rebar? ? exec('rebar get-deps', :timeout => :install_deps) : super
+            config.rebar? ? exec('rebar get-deps', :timeout => :install_deps) : super
           end
 
           protected
