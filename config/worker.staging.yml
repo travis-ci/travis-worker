@@ -46,7 +46,7 @@ vms:
     - vim
     - timetrap
     - git
-    - java::openjdk
+    - java
     - libqt4
     - libv8
     - nodejs
