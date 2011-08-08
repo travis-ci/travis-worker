@@ -1,16 +1,16 @@
 require 'test_helper'
 
-class JobRepositoryTest < Test::Unit::TestCase
+class JobHelpersRepositoryTest < Test::Unit::TestCase
   include Travis::Worker::Job
 
-  Repository.__send__ :public, *Repository.protected_instance_methods(false)
+  Helpers::Repository.__send__ :public, *Helpers::Repository.protected_instance_methods(false)
 
   attr_reader :repository
 
   def setup
     super
-    Repository.any_instance.stubs(:exec)
-    @repository = Repository.new('/path/to/build/dir', 'svenfuchs/gem-release', {})
+    Helpers::Repository.any_instance.stubs(:exec)
+    @repository = Helpers::Repository.new('/path/to/build/dir', 'svenfuchs/gem-release')
   end
 
   test 'checkout: clones a repository if the build dir is not a git repository' do
