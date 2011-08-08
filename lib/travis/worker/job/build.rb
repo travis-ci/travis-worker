@@ -76,8 +76,13 @@ module Travis
 
               repository.checkout(build.commit)
 
-              Travis::Worker::Builder::Base.builder_for(build.config).run
+              builder.run
             end
+          end
+
+          def builder
+            builder = Travis::Worker::Builders.builder_for(build.config)
+            builder::Commands.new(build.config)
           end
 
           def chdir(&block)
