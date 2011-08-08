@@ -25,10 +25,9 @@ module Travis
 
           attr_reader :dir
           attr_reader :slug
-          attr_reader :config
 
           # @api public
-          def initialize(dir, slug, config)
+          def initialize(dir, slug)
             @dir    = dir
             @slug   = slug
           end
