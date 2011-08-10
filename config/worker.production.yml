@@ -67,3 +67,4 @@ vms:
     - rabbitmq
     - imagemagick
     - sphinx
+    - xvfb

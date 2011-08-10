@@ -8,12 +8,12 @@ vms:
   cookbooks: 'vendor/cookbooks/vagrant_base'
   log_level: 'info'
   json:
-    use_tmpfs: false
+    travis_build_environment:
+      use_tmpfs: false
     rvm:
       rubies:
         - 1.8.6
         - 1.8.7
-        - 1.8.7-p174
         - 1.8.7-p249
         - 1.9.2
         - 1.9.1-p378
@@ -63,3 +63,5 @@ vms:
     - memcached
     - rabbitmq
     - imagemagick
+    - sphinx
+    - xvfb
