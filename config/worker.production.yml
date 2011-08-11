@@ -46,7 +46,10 @@ vms:
     - vim
     - timetrap
     - git
-    - java::openjdk
+    - java
+    - ant
+    - maven
+    - leiningen
     - libqt4
     - libv8
     - nodejs
@@ -63,3 +66,5 @@ vms:
     - memcached
     - rabbitmq
     - imagemagick
+    - sphinx
+    - xvfb

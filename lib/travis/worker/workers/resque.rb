@@ -18,7 +18,7 @@ module Travis
 
         def requeue
           Travis::Worker.class_eval { @queue = 'builds' }
-          Resque.enqueue(Travis::Worker, payload)
+          ::Resque.enqueue(Travis::Worker, payload)
         end # requeue
       end # Resque
     end # Workers

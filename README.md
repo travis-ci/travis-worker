@@ -16,7 +16,7 @@ Pull down dependencies:
 
 Fetch base Vagrant box (Ubuntu 10.04, 32-bit):
 
-    vagrant box add base http://files.vagrantup.com/lucid32.box
+    vagrant box add base http://files.vagrantup.com/lucid32_old.box
 
 Pull down submodules (Travis cookbooks, et cetera):
 
