@@ -30,6 +30,9 @@ gem 'god'
 group :development do
   gem 'yard', '~> 0.7.1'
   gem 'rdiscount'
+
+  gem 'ruby-debug',   :platforms => :mri_18
+  gem 'ruby-debug19', :platforms => :mri_19
 end
 
 group :test do
@@ -42,14 +45,6 @@ group :test do
   platforms :ruby_18 do
     gem 'minitest'
     gem 'minitest_tu_shim'
-  end
-
-  platforms :mri_18 do
-    gem 'ruby-debug'
-  end
-
-  platforms :mri_19 do
-    gem 'ruby-debug19'
   end
 
   gem "evented-spec", :git => "git://github.com/ruby-amqp/evented-spec.git"
