@@ -71,7 +71,7 @@ module Travis
         end
 
         def config
-          repository.config ||= Hashr.new
+          @config ||= build.config = Hashr.new
         end
 
         # @todo We need to pick a more specific name. MK.
