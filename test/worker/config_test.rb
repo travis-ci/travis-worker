@@ -50,7 +50,7 @@ class WorkerConfigTest < Test::Unit::TestCase
   end
 
   test 'bundle timeout defaults to 300' do
-    assert_equal 300, config.timeouts.bundle
+    assert_equal 300, config.timeouts.install_deps
   end
 
   test 'queue defaults to builds' do
