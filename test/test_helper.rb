@@ -29,8 +29,18 @@ class Test::Unit::TestCase
   end
 
   def expect_shell(commands)
+    shell_commands = sequence('shell_commands')
     commands.each do |command|
-      shell.expects(:execute).with(command, anything).returns(true)
+      method  = :execute
+      returns = true
+
+      if command.is_a?(Hash)
+        method  = command[:method]
+        returns = command[:returns]
+        command = command[:command]
+      end
+
+      shell.expects(method).in_sequence(shell_commands).with(command, anything).returns(returns).once
     end
   end
 end
