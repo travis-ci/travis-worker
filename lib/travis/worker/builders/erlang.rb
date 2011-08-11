@@ -49,8 +49,8 @@ module Travis
               @config.rebar_config_exists = rebar
             end
         end
-      end
+      end # Erlang
 
-    end
-  end
-end
+    end # Builders
+  end # Worker
+end # Travis

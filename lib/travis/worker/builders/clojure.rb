@@ -21,9 +21,9 @@ module Travis
           def install_dependencies
             exec("lein deps", :timeout => :install_deps)
             super
-          end
-        end
-      end
-    end
-  end
-end
+          end # def
+        end # Commands
+      end # Clojure
+    end # Builders
+  end # Worker
+end # Travis
