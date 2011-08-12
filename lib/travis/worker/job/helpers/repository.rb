@@ -34,13 +34,23 @@ module Travis
 
           # @api public
           def checkout(commit = nil)
-            exists? ? fetch : clone
-            exec "git checkout -qf #{commit}" if commit
+            if exists?
+              fetch
+            else
+              clone
+              return false unless exists?
+            end
+            commit ? exec("git checkout -qf #{commit}") : true
           end
 
           # @api plugin
           def raw_url
             "https://raw.github.com/#{slug}"
+          end
+
+          # @api plugin
+          def exists?
+            exec "test -d .git", :echo => false
           end
 
           #
@@ -52,7 +62,6 @@ module Travis
             # @api plugin
             def clone
               exec 'export GIT_ASKPASS=echo', :echo => false # this makes git interactive auth fail
-              exec "mkdir -p #{dir}", :echo => false
               exec "git clone --depth=1000 --quiet #{source} #{dir}"
             end
 
@@ -60,11 +69,6 @@ module Travis
             def fetch
               exec 'git clean -fdx'
               exec 'git fetch'
-            end
-
-            # @api plugin
-            def exists?
-              exec "test -d .git", :echo => false
             end
 
             # @api plugin

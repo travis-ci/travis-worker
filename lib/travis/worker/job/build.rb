@@ -72,21 +72,22 @@ module Travis
 
           def build!
             sandboxed do
-              chdir
-
-              repository.checkout(build.commit)
-
-              builder.run
+              create_directory && checkout_repository && run_build
             end
           end
 
-          def builder
-            builder = Travis::Worker::Builders.builder_for(build.config)
-            builder::Commands.new(build.config)
+          def create_directory
+            exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
           end
 
-          def chdir(&block)
-            exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
+          def run_build
+            builder = Travis::Worker::Builders.builder_for(build.config)
+            commands = builder::Commands.new(build.config)
+            commands.run
+          end
+
+          def checkout_repository
+            repository.checkout(build.commit)
           end
       end # Build
     end # Job

@@ -27,7 +27,6 @@ class JobHelpersRepositoryTest < Test::Unit::TestCase
 
   test 'clone: clones the repository to the current directory' do
     repository.expects(:exec).with('export GIT_ASKPASS=echo', :echo => false)
-    repository.expects(:exec).with('mkdir -p /path/to/build/dir', :echo => false)
     repository.expects(:exec).with('git clone --depth=1000 --quiet git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
     repository.clone
   end
