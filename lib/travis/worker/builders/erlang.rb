@@ -16,7 +16,7 @@ module Travis
             if !self[:script].nil?
               self[:script]
             elsif rebar_config_exists?
-              'rebar eunit'
+              './rebar eunit'
             else
               'make test'
             end
@@ -37,7 +37,7 @@ module Travis
 
           def install_dependencies
             if config.rebar_config_exists?
-              exec('rebar get-deps', :timeout => :install_deps)
+              exec('./rebar get-deps', :timeout => :install_deps)
             else
               true
             end

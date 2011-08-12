@@ -33,7 +33,7 @@ class BuilderErlangConfigTests < BuilderErlangTestCase
   end
 
   def test_config_default_script_with_rebar
-    assert_equal('rebar eunit', new_config(:rebar_config_exists => true).script)
+    assert_equal('./rebar eunit', new_config(:rebar_config_exists => true).script)
   end
 
   def test_config_custom_script
@@ -109,7 +109,7 @@ class BuilderErlangCommandsTests < BuilderErlangTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with('rebar get-deps', :timeout => :install_deps).
+      with('./rebar get-deps', :timeout => :install_deps).
       once.returns(true)
 
     assert new_commands.install_dependencies
