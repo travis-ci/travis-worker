@@ -61,7 +61,9 @@ module Travis
         def work!(shell = nil)
           start
           perform
-        rescue
+        rescue => e
+          puts "Error : #{e.inspect}"
+          e.backtrace.each { |b| puts "  #{b}" }
         ensure
           finish
         end
