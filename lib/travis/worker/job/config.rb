@@ -25,7 +25,7 @@ module Travis
           end
 
           def fetch
-            response = Faraday.get(url)
+            response = Faraday.new(nil, connection_options).get(url)
             response.success? ? parse(response.body) : {}
           end
 
@@ -38,6 +38,16 @@ module Travis
           rescue Exception => e
             # TODO should report this exception back as part of the log!
             {}
+          end
+
+        private
+
+          def connection_options
+            options = {}
+            if Travis::Worker.config.ssl_ca_path
+              options[:ssl] = { :ca_path => Travis::Worker.config.ssl_ca_path }
+            end
+            options
           end
       end
     end # Job
