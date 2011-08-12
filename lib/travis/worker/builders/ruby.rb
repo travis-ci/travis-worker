@@ -3,13 +3,13 @@ module Travis
     module Builders
 
       module Ruby
-        class Config < Hashr
+        class Config < Base::Config
           def rvm
-            super || 'default'
+            normalize(super, 'default')
           end
 
           def gemfile
-            super || 'Gemfile'
+            normalize(super, 'Gemfile')
           end
 
           def gemfile_exists?
@@ -27,7 +27,7 @@ module Travis
           end
         end
 
-        class Commands < Base
+        class Commands < Base::Commands
           def initialize(config)
             @config = Config.new(config)
 

@@ -28,6 +28,11 @@ class BuilderErlangConfigTests < BuilderErlangTestCase
     assert_equal('foobar', config.otp_release)
   end
 
+  def test_config_custom_otp_release_as_an_array
+    config = new_config('otp_release' => ['foobar'])
+    assert_equal('foobar', config.otp_release)
+  end
+
   def test_config_default_script
     assert_equal('make test', new_config.script)
   end

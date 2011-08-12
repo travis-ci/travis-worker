@@ -28,12 +28,22 @@ class BuilderRubyConfigTests < BuilderRubyTestCase
     assert_equal('foobar', config.rvm)
   end
 
+  def test_config_custom_rvm_as_an_array
+    config = new_config('rvm' => ['foobar'])
+    assert_equal('foobar', config.rvm)
+  end
+
   def test_config_default_gemfile
     assert_equal('Gemfile', new_config.gemfile)
   end
 
   def test_config_custom_gemfile
     config = new_config('gemfile' => 'FooGemfile')
+    assert_equal('FooGemfile', config.gemfile)
+  end
+
+  def test_config_custom_gemfile_as_an_array
+    config = new_config('gemfile' => ['FooGemfile'])
     assert_equal('FooGemfile', config.gemfile)
   end
 

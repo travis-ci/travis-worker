@@ -4,11 +4,11 @@ require 'hashr'
 class BuilderBaseTest < Test::Unit::TestCase
 
   def new_builder(config = {})
-    Travis::Worker::Builders::Base.new(config)
+    Travis::Worker::Builders::Base::Commands.new(config)
   end
 
   def builder_any_instance
-    Travis::Worker::Builders::Base.any_instance
+    Travis::Worker::Builders::Base::Commands.any_instance
   end
 
   ## instantiation

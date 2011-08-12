@@ -3,7 +3,7 @@ module Travis
     module Builders
 
       module Clojure
-        class Config < Hashr
+        class Config < Base::Config
           def script
             if !self[:script].nil?
               self[:script]
@@ -13,7 +13,7 @@ module Travis
           end
         end
 
-        class Commands < Base
+        class Commands < Base::Commands
           def initialize(config)
             @config = Config.new(config)
           end

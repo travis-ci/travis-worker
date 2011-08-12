@@ -3,9 +3,9 @@ module Travis
     module Builders
 
       module Erlang
-        class Config < Hashr
+        class Config < Base::Config
           def otp_release
-            super || 'R14B02'
+            normalize(super, 'R14B02')
           end
 
           def rebar_config_exists?
@@ -23,7 +23,7 @@ module Travis
           end
         end
 
-        class Commands < Base
+        class Commands < Base::Commands
           def initialize(config)
             @config = Config.new(config)
 
