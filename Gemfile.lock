@@ -1,26 +1,25 @@
 GIT
   remote: git://github.com/eventmachine/eventmachine.git
-  revision: 1107730c338892c8281a14b6b2e0802f8d715fb4
+  revision: 3c8ea2ed3d81190eb204fecdf8e9421c7d3f19c9
   specs:
     eventmachine (1.0.0.beta.4)
 
 GIT
   remote: git://github.com/ruby-amqp/amq-client.git
-  revision: 0611244d9a900c761922a709978d5faf698c11d2
+  revision: c40b725c19454cfc7fdbe3999b1f953746f7ec40
   specs:
     amq-client (0.9.0.pre1)
       amq-protocol (>= 0.8.0)
-      eventmachine
 
 GIT
   remote: git://github.com/ruby-amqp/amq-protocol.git
-  revision: 12153e701569ea333e6e40e6d44164edbe7e6064
+  revision: 8f4db23de011e1f46b5f384fb8089650c4782b87
   specs:
     amq-protocol (0.9.0.pre)
 
 GIT
   remote: git://github.com/ruby-amqp/amqp.git
-  revision: 201c5ab4ee16cad01d712d213acc9a35019640c4
+  revision: 38368df5a20da6038495a0e7dba81ed5ac3acbca
   specs:
     amqp (0.8.0.rc15.pre)
       amq-client (>= 0.8.0)
@@ -47,7 +46,7 @@ GEM
       rack (< 2, >= 1.1.0)
     ffi (1.0.9)
     god (0.11.0)
-    hashr (0.0.9)
+    hashr (0.0.11)
     i18n (0.5.0)
     json (1.5.3)
     linecache (0.46)
@@ -55,7 +54,7 @@ GEM
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
     mario (0.0.6)
-    minitest (2.3.1)
+    minitest (2.4.0)
     minitest_tu_shim (1.3.2)
       minitest (>= 1.6.0)
     mocha (0.9.12)
@@ -66,11 +65,11 @@ GEM
     net-ssh (2.1.4)
     net-ssh-shell (0.2.0)
       net-ssh (~> 2.1.0)
-    rack (1.3.1)
+    rack (1.3.2)
     rake (0.9.2)
     rbx-require-relative (0.0.5)
     rdiscount (1.6.8)
-    redis (2.2.1)
+    redis (2.2.2)
     redis-namespace (1.0.3)
       redis (< 3.0.0)
     resque (1.17.1)
