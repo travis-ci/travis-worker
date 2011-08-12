@@ -19,6 +19,7 @@ module Travis
       end
 
       autoload :Base,     'travis/worker/builders/base'
+      autoload :Clojure,  'travis/worker/builders/clojure'
       autoload :Erlang,   'travis/worker/builders/erlang'
       autoload :Ruby,     'travis/worker/builders/ruby'
     end

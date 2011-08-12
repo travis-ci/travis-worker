@@ -28,12 +28,12 @@ module Travis
 
 
 
-        desc "build", "Publish a sample build job"
+        desc "build_ruby", "Publish a sample Ruby build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
         method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
-        def build
+        def build_ruby
           payload = {
             :repository => {
               :slug => self.options[:slug]
@@ -46,6 +46,34 @@ module Travis
                 :rvm          => "1.8.7",
                 :script       => "bundle exec rspec spec",
                 :bundler_args => "--without development"
+              }
+            }
+          }
+          puts payload.inspect
+
+          publish(payload, "builds", self.options[:n].to_i)
+        end
+
+
+
+
+        desc "build_clojure", "Publish a sample Clojure build job"
+        method_option :slug,   :default => "michaelklishin/langohr"
+        method_option :commit, :default => "e32b1daf33b691625129"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_clojure
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :language => "Clojure",
+              :commit => self.options[:commit],
+              :branch => self.options[:branch],
+              :config => {
+                :script       => "lein test"
               }
             }
           }
