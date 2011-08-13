@@ -15,13 +15,10 @@ class JobBuildTest < Test::Unit::TestCase
 
     @payload = INCOMING_PAYLOADS['build:test-project-1']
     @build = Job::Build.new(payload)
-
-    FileUtils.mkdir_p(build.build_dir)
   end
 
   def teardown
     super
-    FileUtils.rm_rf(Job::Build.base_dir)
   end
 
   test 'perform: builds and sets status and log' do
@@ -37,10 +34,34 @@ class JobBuildTest < Test::Unit::TestCase
 
   test 'build!: sets rvm, env vars, checks the repository out, installs the bundle and runs the scripts' do
     expect_shell [
-      'mkdir -p /tmp/travis/test/travis-ci/test-project-1; cd /tmp/travis/test/travis-ci/test-project-1',
-      'test -d .git',
+      'mkdir -p /tmp/travis/test; cd /tmp/travis/test',
+      'test -d travis-ci/test-project-1',
+      'cd travis-ci/test-project-1',
       'git clean -fdx',
       'git fetch',
+      'git checkout -qf 1234567',
+      'test -f Gemfile.rails-3.1',
+      'rvm use 1.9.2',
+      { :command => 'pwd', :method => :evaluate, :returns => '/path/to' },
+      'export BUNDLE_GEMFILE=/path/to/Gemfile.rails-3.1',
+      'export FOO=bar',
+      'export BAR=baz',
+      'bundle install bundler_arg=1',
+      'bundle exec rake ci:before',
+      'bundle exec rake',
+      'bundle exec rake ci:after'
+    ]
+
+    build.build!
+  end
+
+  test 'build!: sets rvm, env vars, clones the repository, installs the bundle and runs the scripts' do
+    expect_shell [
+      'mkdir -p /tmp/travis/test; cd /tmp/travis/test',
+      { :command => 'test -d travis-ci/test-project-1', :method => :execute, :returns => false },
+      'export GIT_ASKPASS=echo',
+      'git clone --depth=1000 --quiet git://github.com/travis-ci/test-project-1.git travis-ci/test-project-1',
+      'cd travis-ci/test-project-1',
       'git checkout -qf 1234567',
       'test -f Gemfile.rails-3.1',
       'rvm use 1.9.2',

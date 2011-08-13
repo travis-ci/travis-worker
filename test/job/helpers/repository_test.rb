@@ -10,7 +10,7 @@ class JobHelpersRepositoryTest < Test::Unit::TestCase
   def setup
     super
     Helpers::Repository.any_instance.stubs(:exec)
-    @repository = Helpers::Repository.new('/path/to/build/dir', 'svenfuchs/gem-release')
+    @repository = Helpers::Repository.new('svenfuchs/gem-release')
   end
 
   test 'checkout: clones a repository if the build dir is not a git repository' do
@@ -27,13 +27,14 @@ class JobHelpersRepositoryTest < Test::Unit::TestCase
 
   test 'clone: clones the repository to the current directory' do
     repository.expects(:exec).with('export GIT_ASKPASS=echo', :echo => false)
-    repository.expects(:exec).with('git clone --depth=1000 --quiet git://github.com/svenfuchs/gem-release.git /path/to/build/dir')
+    repository.expects(:exec).with('git clone --depth=1000 --quiet git://github.com/svenfuchs/gem-release.git svenfuchs/gem-release')
     repository.clone
   end
 
   test 'fetch: clones the repository to the current directory' do
-    repository.expects(:exec).with('git clean -fdx')
-    repository.expects(:exec).with('git fetch')
+    repository.expects(:exec).with('cd svenfuchs/gem-release', :echo => false).returns(true)
+    repository.expects(:exec).with('git clean -fdx').returns(true)
+    repository.expects(:exec).with('git fetch').returns(true)
     repository.fetch
   end
 

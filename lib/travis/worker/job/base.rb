@@ -69,7 +69,7 @@ module Travis
         end
 
         def repository
-          @repository ||= Helpers::Repository.new(build_dir, payload.repository.slug)
+          @repository ||= Helpers::Repository.new(payload.repository.slug)
         end
 
         def config

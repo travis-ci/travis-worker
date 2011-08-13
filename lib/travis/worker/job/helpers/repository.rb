@@ -23,24 +23,21 @@ module Travis
           # API
           #
 
-          attr_reader :dir
           attr_reader :slug
 
           # @api public
-          def initialize(dir, slug)
-            @dir    = dir
+          def initialize(slug)
             @slug   = slug
           end
 
           # @api public
           def checkout(commit = nil)
-            if exists?
+            status = if exists?
               fetch
             else
               clone
-              return false unless exists?
             end
-            commit ? exec("git checkout -qf #{commit}") : true
+            status && checkout_commit(commit)
           end
 
           # @api plugin
@@ -50,7 +47,7 @@ module Travis
 
           # @api plugin
           def exists?
-            exec "test -d .git", :echo => false
+            exec "test -d #{slug}", :echo => false
           end
 
           #
@@ -61,19 +58,29 @@ module Travis
 
             # @api plugin
             def clone
-              exec 'export GIT_ASKPASS=echo', :echo => false # this makes git interactive auth fail
-              exec "git clone --depth=1000 --quiet #{source} #{dir}"
+              exec('export GIT_ASKPASS=echo', :echo => false) # this makes git interactive auth fail
+              exec("git clone --depth=1000 --quiet #{source} #{slug}") &&
+                change_directory
             end
 
             # @api plugin
             def fetch
-              exec 'git clean -fdx'
-              exec 'git fetch'
+              change_directory
+              exec('git clean -fdx') &&
+                exec('git fetch')
             end
 
             # @api plugin
             def source
               "git://github.com/#{slug}.git"
+            end
+
+            def change_directory
+              exec "cd #{slug}", :echo => false
+            end
+
+            def checkout_commit(commit)
+              commit ? exec("git checkout -qf #{commit}") : true
             end
         end # Repository
       end

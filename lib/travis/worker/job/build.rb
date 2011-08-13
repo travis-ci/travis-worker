@@ -72,12 +72,12 @@ module Travis
 
           def build!
             sandboxed do
-              create_directory && checkout_repository && run_build
+              create_builds_directory && checkout_repository && run_build
             end
           end
 
-          def create_directory
-            exec "mkdir -p #{build_dir}; cd #{build_dir}", :echo => false
+          def create_builds_directory
+            exec "mkdir -p #{self.class.base_dir}; cd #{self.class.base_dir}", :echo => false
           end
 
           def run_build
