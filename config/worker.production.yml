@@ -28,7 +28,7 @@ vms:
       aliases:
         rbx-2.0.0pre: rbx-2.0
         1.9.1-p378:   1.9.1
-        1.9.3-head:   1.9.3
+        1.9.2-head:   1.9.2
     mysql:
       server_root_password: ""
     postgresql:
