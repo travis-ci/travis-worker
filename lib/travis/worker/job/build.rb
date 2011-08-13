@@ -82,6 +82,7 @@ module Travis
 
           def run_build
             builder = Travis::Worker::Builders.builder_for(build.config)
+            puts "Using #{builder.inspect}"
             commands = builder::Commands.new(build.config)
             commands.run
           end
