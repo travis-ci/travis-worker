@@ -69,11 +69,10 @@ module Travis
             },
             :build => {
               :id       => 1,
-              :language => "Clojure",
               :commit => self.options[:commit],
               :branch => self.options[:branch],
               :config => {
-                :script       => "lein test"
+                :language => "Clojure"
               }
             }
           }
