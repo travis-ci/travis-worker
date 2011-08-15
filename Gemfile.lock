@@ -1,10 +1,4 @@
 GIT
-  remote: git://github.com/eventmachine/eventmachine.git
-  revision: 3c8ea2ed3d81190eb204fecdf8e9421c7d3f19c9
-  specs:
-    eventmachine (1.0.0.beta.4)
-
-GIT
   remote: git://github.com/ruby-amqp/amq-client.git
   revision: c40b725c19454cfc7fdbe3999b1f953746f7ec40
   specs:
@@ -40,15 +34,19 @@ GEM
     archive-tar-minitar (0.5.2)
     columnize (0.3.4)
     erubis (2.7.0)
+    eventmachine (1.0.0.beta.3)
+    eventmachine (1.0.0.beta.3-java)
     faraday (0.7.4)
       addressable (~> 2.2.6)
       multipart-post (~> 1.1.0)
       rack (< 2, >= 1.1.0)
     ffi (1.0.9)
+    ffi (1.0.9-java)
     god (0.11.0)
     hashr (0.0.11)
     i18n (0.5.0)
     json (1.5.3)
+    json (1.5.3-java)
     linecache (0.46)
       rbx-require-relative (> 0.0.4)
     linecache19 (0.5.12)
@@ -118,6 +116,7 @@ GEM
     yard (0.7.2)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
@@ -126,7 +125,7 @@ DEPENDENCIES
   amq-protocol!
   amqp!
   evented-spec!
-  eventmachine!
+  eventmachine (>= 1.0.beta3)
   faraday (~> 0.7.3)
   god
   hashr (~> 0.0.9)
