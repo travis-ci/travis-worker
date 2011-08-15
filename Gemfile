@@ -3,7 +3,7 @@ gem 'resque',              '~> 1.17.0'
 gem 'resque-meta',         '~> 1.0.3'
 gem 'resque-heartbeat',    '~> 0.0.2'
 
-platforms :ruby_18 do
+platforms :mri_18 do
   gem 'SystemTimer'
 end
 
