@@ -11,7 +11,6 @@ vms:
   memory: 1024
   cookbooks: 'vendor/cookbooks/vagrant_base'
   json:
-    use_tmpfs: true
     rvm:
       rubies:
         - 1.8.7
@@ -32,6 +31,8 @@ vms:
       server_root_password: ""
     postgresql:
       max_connections: 256
+    travis_build_environment:
+      use_tmpfs_for_builds: true
   recipes:
     - travis_build_environment
     - apt
