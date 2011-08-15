@@ -1,6 +1,6 @@
 queue: rails
 shell:
-  buffer: 1
+  buffer: 2.0
 timeouts:
   install_deps: 600
   before_script: 600
