@@ -30,7 +30,9 @@ gem 'god'
 group :development do
   gem 'yard', '~> 0.7.1'
   gem 'rdiscount'
+end
 
+group :debug do
   gem 'ruby-debug',   :platforms => :mri_18
   gem 'ruby-debug19', :platforms => :mri_19
 end
