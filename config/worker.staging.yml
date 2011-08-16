@@ -33,35 +33,38 @@ vms:
       server_root_password: ""
     postgresql:
       max_connections: 256
-  recipes:
-    - travis_build_environment
-    - apt
-    - build-essential
-    - scons
-    - networking_basic
-    - openssl
-    - sysctl
-    - libyaml # libyaml MUST be installed before rubies. MK.
-    - emacs::nox
-    - vim
-    - timetrap
-    - git
-    - java
-    - libqt4
-    - libv8
-    - nodejs
-    - rvm
-    - rvm::multi
-    - sqlite
-    - postgresql::client
-    - postgresql::server
-    - mysql::client
-    - mysql::server
-    - redis
-    - riak
-    - mongodb
-    - memcached
-    - rabbitmq
-    - imagemagick
-    - sphinx
-    - xvfb
+recipes:
+  - travis_build_environment
+  - apt
+  - build-essential
+  - scons
+  - networking_basic
+  - openssl
+  - sysctl
+  - libyaml # libyaml MUST be installed before rubies. MK.
+  - emacs::nox
+  - vim
+  - timetrap
+  - git
+  - java
+  - ant
+  - maven
+  - leiningen
+  - libqt4
+  - libv8
+  - nodejs
+  - rvm
+  - rvm::multi
+  - sqlite
+  - postgresql::client
+  - postgresql::server
+  - mysql::client
+  - mysql::server
+  - redis
+  - riak
+  - mongodb
+  - memcached
+  - rabbitmq
+  - imagemagick
+  - sphinx
+  - xserver
