@@ -38,7 +38,7 @@ class BuilderErlangConfigTests < BuilderErlangTestCase
   end
 
   def test_config_default_script_with_rebar
-    assert_equal('./rebar eunit', new_config(:rebar_config_exists => true).script)
+    assert_equal('./rebar skip_deps=true eunit', new_config(:rebar_config_exists => true).script)
   end
 
   def test_config_custom_script
