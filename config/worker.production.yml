@@ -68,5 +68,5 @@ vms:
     - memcached
     - rabbitmq
     - imagemagick
-    - sphinx
+    - sphinx::all
     - xserver
