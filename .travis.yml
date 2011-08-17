@@ -1,2 +1,2 @@
-bundler_args: --without development
+bundler_args: --without development debug
 rvm: 1.9.2
