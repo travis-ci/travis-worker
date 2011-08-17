@@ -33,6 +33,8 @@ vms:
       server_root_password: ""
     postgresql:
       max_connections: 256
+    travis_build_environment:
+      use_tmpfs_for_builds: false
   recipes:
     - travis_build_environment
     - apt
