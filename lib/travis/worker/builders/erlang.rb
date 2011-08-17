@@ -16,7 +16,7 @@ module Travis
             if !self[:script].nil?
               self[:script]
             elsif rebar_config_exists?
-              './rebar skip_deps=true eunit'
+              './rebar compile && ./rebar skip_deps=true eunit'
             else
               'make test'
             end
