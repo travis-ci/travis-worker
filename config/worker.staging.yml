@@ -1,6 +1,6 @@
 queue: builds
 shell:
-  buffer: 0.25
+  buffer: 1.5
 vms:
   count: 5
   base: lucid32_old
@@ -8,20 +8,19 @@ vms:
   cookbooks: 'vendor/cookbooks/vagrant_base'
   log_level: 'info'
   json:
-    travis_build_environment:
-      use_tmpfs: false
     rvm:
       rubies:
-        - 1.8.6
         - 1.8.7
-        - 1.8.7-p249
-        - 1.9.2
-        - 1.9.1-p378
+        - 1.9.2-head
+        - 1.9.3
         - jruby
         - rbx
         - rbx-2.0.0pre
         - ree
         - ruby-head
+        - 1.9.1-p378
+        - 1.8.7-p249
+        - 1.8.6
       gems:
         - bundler
         - rake
@@ -29,42 +28,47 @@ vms:
       aliases:
         rbx-2.0.0pre: rbx-2.0
         1.9.1-p378:   1.9.1
+        1.9.2-head:   1.9.2
     mysql:
       server_root_password: ""
     postgresql:
       max_connections: 256
-recipes:
-  - travis_build_environment
-  - apt
-  - build-essential
-  - scons
-  - networking_basic
-  - openssl
-  - sysctl
-  - libyaml # libyaml MUST be installed before rubies. MK.
-  - emacs::nox
-  - vim
-  - timetrap
-  - git
-  - java
-  - ant
-  - maven
-  - leiningen
-  - libqt4
-  - libv8
-  - nodejs
-  - rvm
-  - rvm::multi
-  - sqlite
-  - postgresql::client
-  - postgresql::server
-  - mysql::client
-  - mysql::server
-  - redis
-  - riak
-  - mongodb
-  - memcached
-  - rabbitmq
-  - imagemagick
-  - sphinx
-  - xserver
+    travis_build_environment:
+      use_tmpfs_for_builds: false
+  recipes:
+    - travis_build_environment
+    - apt
+    - build-essential
+    - scons
+    - networking_basic
+    - openssl
+    - sysctl
+    - libyaml # libyaml MUST be installed before rubies. MK.
+    - emacs::nox
+    - vim
+    - timetrap
+    - git
+    - java
+    - ant
+    - maven
+    - leiningen
+    - libqt4
+    - libv8
+    - nodejs
+    - rvm
+    - rvm::multi
+    - sqlite
+    - postgresql::client
+    - postgresql::server
+    - mysql::client
+    - mysql::server
+    - redis
+    - riak
+    - mongodb
+    - memcached
+    - rabbitmq::with_management_plugin
+    - imagemagick
+    - sphinx::all
+    - xserver
+    - python
+    - python::pip

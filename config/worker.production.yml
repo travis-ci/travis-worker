@@ -66,7 +66,9 @@ vms:
     - riak
     - mongodb
     - memcached
-    - rabbitmq
+    - rabbitmq::with_management_plugin
     - imagemagick
     - sphinx::all
     - xserver
+    - python
+    - python::pip
