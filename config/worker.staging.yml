@@ -69,5 +69,7 @@ vms:
     - imagemagick
     - sphinx::all
     - xserver
+    - kerl
     - python
     - python::pip
+    - python::virtualenv
