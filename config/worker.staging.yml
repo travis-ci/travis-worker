@@ -71,5 +71,4 @@ vms:
     - xserver
     - kerl
     - python
-    - python::pip
-    - python::virtualenv
+    - python::multi
