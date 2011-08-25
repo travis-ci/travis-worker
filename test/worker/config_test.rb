@@ -37,8 +37,8 @@ class WorkerConfigTest < Test::Unit::TestCase
     assert_equal 'bar', Config.new.read['bar']
   end
 
-  test 'before_script timeout defaults to 120' do
-    assert_equal 120, config.timeouts.before_script
+  test 'before_script timeout defaults to 300' do
+    assert_equal 300, config.timeouts.before_script
   end
 
   test 'after_script timeout defaults to 120' do
