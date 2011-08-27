@@ -1,17 +1,4 @@
 GIT
-  remote: git://github.com/ruby-amqp/amq-client.git
-  revision: c40b725c19454cfc7fdbe3999b1f953746f7ec40
-  specs:
-    amq-client (0.9.0.pre1)
-      amq-protocol (>= 0.8.0)
-
-GIT
-  remote: git://github.com/ruby-amqp/amq-protocol.git
-  revision: 8f4db23de011e1f46b5f384fb8089650c4782b87
-  specs:
-    amq-protocol (0.9.0.pre)
-
-GIT
   remote: git://github.com/ruby-amqp/amqp.git
   revision: 38368df5a20da6038495a0e7dba81ed5ac3acbca
   specs:
@@ -31,6 +18,10 @@ GEM
   specs:
     SystemTimer (1.2.3)
     addressable (2.2.6)
+    amq-client (0.8.1)
+      amq-protocol (>= 0.8.0)
+      eventmachine
+    amq-protocol (0.8.0)
     archive-tar-minitar (0.5.2)
     columnize (0.3.4)
     erubis (2.7.0)
@@ -121,8 +112,8 @@ PLATFORMS
 
 DEPENDENCIES
   SystemTimer
-  amq-client!
-  amq-protocol!
+  amq-client (~> 0.8.1)
+  amq-protocol (~> 0.8.0)
   amqp!
   evented-spec!
   eventmachine (>= 1.0.beta3)

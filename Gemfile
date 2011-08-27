@@ -18,8 +18,8 @@ gem "multi_json"
 
 # amqp migration is a work in progress but it does not affect resque-based worker in any way
 gem "amqp",         :git => "git://github.com/ruby-amqp/amqp.git"
-gem "amq-client",   :git => "git://github.com/ruby-amqp/amq-client.git"
-gem "amq-protocol", :git => "git://github.com/ruby-amqp/amq-protocol.git"
+gem "amq-client",   "~> 0.8.1"
+gem "amq-protocol", "~> 0.8.0"
 gem "eventmachine", ">= 1.0.beta3"
 
 gem 'faraday', '~> 0.7.3'
