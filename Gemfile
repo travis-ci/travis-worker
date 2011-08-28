@@ -40,7 +40,7 @@ end
 
 group :debug do
   gem 'ruby-debug',   :platforms => :mri_18
-  gem 'ruby-debug19', :platforms => :mri_19
+  gem 'ruby-debug19', :platforms => :mri_19 unless RUBY_VERSION >= "1.9.3"
 end
 
 group :test do
