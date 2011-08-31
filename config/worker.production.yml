@@ -19,7 +19,6 @@ vms:
         - ree
         - ruby-head
         - 1.9.1-p378
-        - 1.8.7-p249
         - 1.8.6
       gems:
         - bundler
