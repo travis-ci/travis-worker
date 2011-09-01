@@ -98,7 +98,7 @@ module Travis
               :commit => self.options[:commit],
               :branch => self.options[:branch],
               :config => {
-                :language => "node_js",
+                :language => "javascript_with_nodejs",
                 :node_js => "0.5.5",
                 :script => "cake test"
               }
