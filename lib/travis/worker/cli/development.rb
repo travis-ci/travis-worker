@@ -83,6 +83,32 @@ module Travis
 
 
 
+        desc "build_node", "Publish a sample Node build job"
+        method_option :slug,   :default => "Shopify/batman"
+        method_option :commit, :default => "06b3b093a7137311"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_node
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch],
+              :config => {
+                :language => "node_js",
+                :node_js => "0.5.5",
+                :script => "cake test"
+              }
+            }
+          }
+          puts payload.inspect
+
+          publish(payload, "builds", self.options[:n].to_i)
+        end
+
 
 
         desc "config", "Publish a sample config job"

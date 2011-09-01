@@ -22,6 +22,7 @@ module Travis
       autoload :Clojure,  'travis/worker/builders/clojure'
       autoload :Erlang,   'travis/worker/builders/erlang'
       autoload :Ruby,     'travis/worker/builders/ruby'
+      autoload :NodeJs,   'travis/worker/builders/node_js'
     end
   end
 end
