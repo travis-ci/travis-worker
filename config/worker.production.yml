@@ -68,5 +68,6 @@ vms:
     - imagemagick
     - sphinx::all
     - xserver
+    - firefox
     - python
     - python::pip
