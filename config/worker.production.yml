@@ -4,7 +4,7 @@ shell:
 timeouts:
   install_deps: 300
   before_script: 300
-  script: 1200
+  script: 1500
 vms:
   count: 5
   base: lucid32_old
