@@ -1,6 +1,10 @@
 queue: builds
 shell:
   buffer: 1.5
+timeouts:
+  install_deps: 300
+  before_script: 300
+  script: 1200
 vms:
   count: 5
   base: lucid32_old
