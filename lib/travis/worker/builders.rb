@@ -7,9 +7,14 @@ module Travis
       class << self
         def builder_for(config)
           lang = camelize(config.language || Travis::Worker.config.default_language || 'ruby')
-          args = [lang]
-          args << false if Kernel.method(:const_get).arity == -1
-          Travis::Worker::Builders.const_get(*args)
+          case lang
+          when "JavascriptWithNodejs"
+            Travis::Worker::Builders::NodeJs
+          else
+            args = [lang]
+            args << false if Kernel.method(:const_get).arity == -1
+            Travis::Worker::Builders.const_get(*args)
+          end
         end
 
         private
@@ -22,6 +27,7 @@ module Travis
       autoload :Clojure,  'travis/worker/builders/clojure'
       autoload :Erlang,   'travis/worker/builders/erlang'
       autoload :Ruby,     'travis/worker/builders/ruby'
+      autoload :NodeJs,   'travis/worker/builders/node_js'
     end
   end
 end
