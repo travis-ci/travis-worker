@@ -8,7 +8,7 @@ module Travis
         def builder_for(config)
           lang = camelize(config.language || Travis::Worker.config.default_language || 'ruby')
           case lang
-          when "JavascriptWithNodejs"
+          when "Node.js", "Nodejs"
             Travis::Worker::Builders::NodeJs
           else
             args = [lang]

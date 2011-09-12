@@ -13,7 +13,9 @@ class BuildersTest < Test::Unit::TestCase
   end
 
   def test_builder_for_returns_the_nodejs_builder_if_language_equals_javascript_with_nodejs
-    builder = Travis::Worker::Builders.builder_for(Hashr.new({ :language => :javascript_with_nodejs }))
+    builder = Travis::Worker::Builders.builder_for(Hashr.new({ :language => :nodejs }))
+    assert_equal(Travis::Worker::Builders::NodeJs, builder)
+    builder = Travis::Worker::Builders.builder_for(Hashr.new({ :language => "node.js".to_sym }))
     assert_equal(Travis::Worker::Builders::NodeJs, builder)
   end
 
