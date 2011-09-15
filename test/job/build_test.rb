@@ -52,7 +52,9 @@ class JobBuildTest < Test::Unit::TestCase
       'bundle exec rake ci:after'
     ]
 
-    build.build!
+    assert_stdout_equals "Using Travis::Worker::Builders::Ruby\n" do
+      build.build!
+    end
   end
 
   test 'build!: sets rvm, env vars, clones the repository, installs the bundle and runs the scripts' do
@@ -75,7 +77,9 @@ class JobBuildTest < Test::Unit::TestCase
       'bundle exec rake ci:after'
     ]
 
-    build.build!
+    assert_stdout_equals "Using Travis::Worker::Builders::Ruby\n" do
+      build.build!
+    end
   end
 
   test 'build_dir: the path from the github url local to the base builds dir' do
