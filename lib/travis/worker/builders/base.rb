@@ -6,6 +6,9 @@ module Travis
 
       module Base
         class Config < Hashr
+          # this is needed because of rake and fileutils :()
+          def install; self[:install]; end
+
           protected
             def normalize(values, default)
               values ? Array(values).join : default
@@ -23,27 +26,31 @@ module Travis
 
           def run
             setup_env
-            install_dependencies && run_scripts
-          end
-
-          def install_dependencies
-            true
+            run_install_dependencies && run_scripts
           end
 
           def setup_env
             Array(config.env).each { |env| exec "export #{env}" unless env.empty? } if config.env
           end
 
+          def run_install_dependencies
+            run_command_set(:before_install, :install, :after_install)
+          end
+
           def run_scripts
-            %w{before_script script after_script}.each do |type|
-              script = config.send(type)
-              return false if script && !run_script(script, :timeout => type)
+            run_command_set(:before_script, :script, :after_script)
+          end
+
+          def run_command_set(*command_set)
+            command_set.each do |type|
+              command = config.send(type)
+              return false if command && !run_command(command, :timeout => type)
             end && true
           end
 
-          def run_script(script, options = {})
-            (script.is_a?(Array) ? script : script.split("\n")).each do |script|
-              return false unless exec(script, options)
+          def run_command(command, options = {})
+            (command.is_a?(Array) ? command : command.split("\n")).each do |command|
+              return false unless exec(command, options)
             end && true
           end
 

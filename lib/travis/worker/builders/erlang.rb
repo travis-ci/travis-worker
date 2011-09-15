@@ -21,13 +21,23 @@ module Travis
               'make test'
             end
           end
+
+          def install
+            if !self[:install].nil?
+              self[:install]
+            elsif rebar_config_exists?
+              './rebar get-deps'
+            else
+              nil
+            end
+          end
         end
 
         class Commands < Base::Commands
           def initialize(config)
             @config = Config.new(config)
 
-            check_for_rebar_config
+            @config.rebar_config_exists = rebar_config?
           end
 
           def setup_env
@@ -35,18 +45,9 @@ module Travis
             super
           end
 
-          def install_dependencies
-            if config.rebar_config_exists?
-              exec('./rebar get-deps', :timeout => :install_deps)
-            else
-              true
-            end
-          end
-
           private
-            def check_for_rebar_config
-              rebar = file_exists?('rebar.config') || file_exists?('Rebar.config')
-              @config.rebar_config_exists = rebar
+            def rebar_config?
+              file_exists?('rebar.config') || file_exists?('Rebar.config')
             end
         end
       end # Erlang

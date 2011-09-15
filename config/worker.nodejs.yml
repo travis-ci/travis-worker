@@ -2,7 +2,7 @@ queue: nodejs
 shell:
   buffer: 2.0
 timeouts:
-  install_deps: 600
+  install: 600
   before_script: 600
   script: 7200
 vms:

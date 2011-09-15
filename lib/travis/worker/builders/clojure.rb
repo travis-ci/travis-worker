@@ -11,17 +11,22 @@ module Travis
               'lein test'
             end
           end
+
+          def install
+            if !self[:install].nil?
+              self[:install]
+            elsif rebar_config_exists?
+              "lein deps"
+            else
+              nil
+            end
+          end
         end
 
         class Commands < Base::Commands
           def initialize(config)
             @config = Config.new(config)
           end
-
-          def install_dependencies
-            exec("lein deps", :timeout => :install_deps)
-            super
-          end # def
         end # Commands
       end # Clojure
     end # Builders

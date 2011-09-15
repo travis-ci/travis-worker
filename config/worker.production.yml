@@ -2,7 +2,7 @@ queue: builds
 shell:
   buffer: 1.5
 timeouts:
-  install_deps: 300
+  install: 300
   before_script: 300
   script: 1500
 vms:

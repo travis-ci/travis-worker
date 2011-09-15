@@ -118,7 +118,7 @@ class BuilderRubyCommandsTests < BuilderRubyTestCase
       with("test -f Gemfile", :echo => false).
       once.returns(false)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 
   def test_commands_install_dependencies_with_gemfile_without_bundler_args
@@ -127,10 +127,10 @@ class BuilderRubyCommandsTests < BuilderRubyTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("bundle install", :timeout => :install_deps).
-      once
+      with("bundle install", :timeout => :install).
+      once.returns(true)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 
   def test_commands_install_dependencies_with_gemfile_with_bundler_args
@@ -139,9 +139,9 @@ class BuilderRubyCommandsTests < BuilderRubyTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("bundle install --foobar", :timeout => :install_deps).
-      once
+      with("bundle install --foobar", :timeout => :install).
+      once.returns(true)
 
-    assert new_commands(:bundler_args => '--foobar').install_dependencies
+    assert new_commands(:bundler_args => '--foobar').run_install_dependencies
   end
 end
