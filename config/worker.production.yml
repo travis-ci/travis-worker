@@ -28,10 +28,6 @@ vms:
         - chef
       aliases:
         rbx-2.0.0pre: rbx-2.0
-    nodejs:
-      versions:
-        - 0.4.11
-        - 0.5.5
     mysql:
       server_root_password: ""
     postgresql:
