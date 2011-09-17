@@ -28,7 +28,6 @@ vms:
         - chef
       aliases:
         rbx-2.0.0pre: rbx-2.0
-        1.9.1-p378:   1.9.1
     nodejs:
       versions:
         - 0.4.11
