@@ -26,8 +26,9 @@ vms:
         - rake
         - chef
       aliases:
-        rbx-2.0: rbx
-        rbx-2.0.0pre: rbx
+        rbx: rbx-head
+        rbx-2.0: rbx-head
+        rbx-2.0.0pre: rbx-head
     mysql:
       server_root_password: ""
     postgresql:
