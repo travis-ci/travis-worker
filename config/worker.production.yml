@@ -19,7 +19,6 @@ vms:
         - 1.9.3
         - jruby
         - rbx
-        - rbx-2.0.0pre
         - ree
         - ruby-head
       gems:
@@ -27,7 +26,8 @@ vms:
         - rake
         - chef
       aliases:
-        rbx-2.0.0pre: rbx-2.0
+        rbx-2.0: rbx
+        rbx-2.0.0pre: rbx
     mysql:
       server_root_password: ""
     postgresql:
