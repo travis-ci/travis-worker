@@ -22,8 +22,8 @@ vms:
         - rake
         - chef
       aliases:
-        rbx-2.0: rbx
-        rbx-2.0.0pre: rbx
+        rbx-2.0: rbx-head
+        rbx-2.0.0pre: rbx-head
     nodejs:
       versions:
         - 0.4.11
