@@ -1,6 +1,5 @@
 require "thor"
 
-require "amqp"
 require "multi_json"
 require 'travis/worker'
 
