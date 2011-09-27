@@ -44,32 +44,32 @@ module Travis
 
       protected
 
-      def connect_to_broker
-        announce "[boot] About to connect..."
+        def connect_to_broker
+          announce "[boot] About to connect..."
 
-        @connection = HotBunnies.connect(connection_options)
+          @connection = HotBunnies.connect(connection_options)
 
-        @default_exchange = @connection.default_exchange
+          @default_exchange = @connection.default_exchange
 
-        @default_channel = @connection.create_channel
-        @default_channel.prefetch = configuration.vms.count
+          @default_channel = @connection.create_channel
+          @default_channel.prefetch = configuration.vms.count
 
-        announce "[boot] Connected to an AMQP broker at #{@connection.broker_endpoint} using username #{@connection.username}"
-      end
+          announce "[boot] Connected to an AMQP broker at #{@connection.broker_endpoint} using username #{@connection.username}"
+        end
 
-      def declare_queues
-        raise "Default channel is not initialized" unless @default_channel
+        def declare_queues
+          raise "Default channel is not initialized" unless @default_channel
 
-        @build_requests_queue = @default_channel.queue('builds', :durable => true, :exculsive => false)
-      end
+          @build_requests_queue = @default_channel.queue('builds', :durable => true, :exculsive => false)
+        end
 
-      def connection_options
-        configuration.slice(HotBunnies::CONNECTION_PROPERTIES)
-      end
+        def connection_options
+          configuration.slice(HotBunnies::CONNECTION_PROPERTIES)
+        end
 
-      def announce(what)
-        puts what
-      end
+        def announce(what)
+          puts what
+        end
 
     end
   end
