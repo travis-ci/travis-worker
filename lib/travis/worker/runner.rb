@@ -3,13 +3,13 @@ module Travis
 
     class Runner
 
-      attr_reader :payload, :job, :reporter
+      attr_reader :payload, :job
 
-      def initialize(metadata, payload)
+      def initialize(metadata, payload, reporter)
         @payload  = payload.deep_symbolize_keys
         @metadata = metadata
         @job      = job_type.new(payload)
-        @reporter = Reporter.new
+
         job.observers << reporter
       rescue VmNotFound, Errno::ECONNREFUSED
         requeue
@@ -35,7 +35,7 @@ module Travis
 
       def announce(*what)
         puts what
-      end # announce(what)
+      end
 
     end
   end

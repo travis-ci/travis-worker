@@ -6,11 +6,11 @@ module Travis
 
       def self.start_in_background(worker_name, builds_queue, reporting_channel)
         Thread.new do
-          self.new(worker_name, builds_queue, reporting_channel)
+          self.new(worker_name, builds_queue, reporting_channel).run
         end
       end
 
-      attr_reader :worker_name
+      attr_reader :worker_name, :builds_queue, :reporting_channel
 
       def initialize(worker_name, builds_queue, reporting_channel)
         @worker_name  = worker_name
@@ -19,7 +19,7 @@ module Travis
       end
 
       def run
-        @builds_queue.subscribe(:ack => true, :blocking => false, &method(:handle_message))
+        builds_queue.subscribe(:ack => true, :blocking => false, &method(:handle_message))
 
         announce("[#{worker_name}] Subscribed to the '#{@builds_queue.name}' queue.")
 
@@ -31,7 +31,9 @@ module Travis
           deserialized = MultiJson.decode(payload)
           announce("[#{worker_name}] Handling #{deserialized.inspect}")
 
-          Workers::Amqp.new(metadata, deserialized).work!
+          reporter = Reporter.new(reporting_channel)
+
+          Runner.new(metadata, deserialized, reporter).work!
 
           announce("[#{worker_name}] Done")
           metadata.ack

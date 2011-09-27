@@ -1,11 +1,11 @@
 module Travis
   module Worker
     class Reporter
-      attr_reader :build, :messages, :connections
+
+      attr_reader :exchange
 
       def initialize(channel)
-        @channel  = Travis::Worker.amqp_connection.create_channel
-        @exchange = Travis::Worker.amqp_connection.default_exchange
+        @exchange = channel.exchange('', :type => :direct, :durable => true)
       end
 
       def on_start(data)
@@ -21,8 +21,9 @@ module Travis
       end
 
       def message(type, data)
-        @exchange.publish(data[:log], :type => type.to_s, :routing_key => "reporting.progress", :arguments => { 'x-incremental' => !!data[:incremental] })
+        exchange.publish(data[:log], :type => type.to_s, :routing_key => "reporting.progress", :arguments => { 'x-incremental' => !!data[:incremental] })
       end
-    end # Reporter
-  end # Worker
-end # Travis
+
+    end
+  end
+end
