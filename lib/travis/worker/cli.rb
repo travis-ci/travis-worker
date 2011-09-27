@@ -1,7 +1,6 @@
 require 'bundler/setup'
 require 'travis/worker/cli/app'
 require 'travis/worker/cli/development'
-require 'travis/worker/cli/resque'
 require 'travis/worker/cli/vagrant'
 require 'travis/worker/cli/virtualbox'
 

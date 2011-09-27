@@ -15,19 +15,6 @@ module Travis
 
     class << self
 
-      # @group Resque API
-
-      def init
-        Resque.redis = ENV['REDIS_URL'] = Travis::Worker.config.redis.url
-      end
-
-      def perform(payload)
-        Workers::Resque.new(payload).work!
-      end
-
-      # @endgroup
-
-
 
       def config
         @config ||= Config.new
