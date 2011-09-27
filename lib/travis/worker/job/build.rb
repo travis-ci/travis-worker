@@ -6,8 +6,8 @@ module Travis
       # Build job implementation that uses the following workflow:
       #
       # * Clones/fetches the repository from {https://github.com GitHub}
-      # * Installs dependencies using {http://gembundler.com Bundler}
-      # * Switches to the default or specified Ruby implementation with {https://rvm.beginrescueend.com RVM}
+      # * Installs dependencies
+      # * Switches to the default or specified language implementation
       # * Runs one or more build scripts
       #
       # @see Base
@@ -81,7 +81,7 @@ module Travis
           end
 
           def run_build
-            builder = Travis::Worker::Builders.builder_for(build.config)
+            builder = Travis::Worker::Builder.create(build.config)
             puts "Using #{builder.inspect}"
             commands = builder::Commands.new(build.config)
             commands.run
