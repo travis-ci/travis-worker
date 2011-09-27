@@ -11,7 +11,7 @@ module Travis
 
     autoload :Application,     'travis/worker/application'
     autoload :BuildDispatcher, 'travis/worker/build_dispatcher'
-    autoload :Builders,        'travis/worker/builders'
+    autoload :Builder,         'travis/worker/builder'
     autoload :Config,          'travis/worker/config'
     autoload :Job,             'travis/worker/job'
     autoload :Reporter,        'travis/worker/reporter'

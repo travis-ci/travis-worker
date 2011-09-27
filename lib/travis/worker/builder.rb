@@ -2,18 +2,18 @@ require 'hashr'
 
 module Travis
   module Worker
-    module Builders
+    module Builder
 
       class << self
-        def builder_for(config)
+        def create(config)
           lang = camelize(config.language || Travis::Worker.config.default_language || 'ruby')
           case lang
           when "Node.js", "Nodejs"
-            Travis::Worker::Builders::NodeJs
+            Travis::Worker::Builder::NodeJs
           else
             args = [lang]
             args << false if Kernel.method(:const_get).arity == -1
-            Travis::Worker::Builders.const_get(*args)
+            Travis::Worker::Builder.const_get(*args)
           end
         end
 
@@ -23,11 +23,11 @@ module Travis
           end
       end
 
-      autoload :Base,     'travis/worker/builders/base'
-      autoload :Clojure,  'travis/worker/builders/clojure'
-      autoload :Erlang,   'travis/worker/builders/erlang'
-      autoload :Ruby,     'travis/worker/builders/ruby'
-      autoload :NodeJs,   'travis/worker/builders/node_js'
+      autoload :Base,     'travis/worker/builder/base'
+      autoload :Clojure,  'travis/worker/builder/clojure'
+      autoload :Erlang,   'travis/worker/builder/erlang'
+      autoload :Ruby,     'travis/worker/builder/ruby'
+      autoload :NodeJs,   'travis/worker/builder/node_js'
     end
   end
 end

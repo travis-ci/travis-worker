@@ -1,6 +1,6 @@
 module Travis
   module Worker
-    module Builders
+    module Builder
 
       module Ruby
         class Config < Base::Config

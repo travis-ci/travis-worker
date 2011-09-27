@@ -2,7 +2,7 @@ require 'hashr'
 
 module Travis
   module Worker
-    module Builders
+    module Builder
 
       module Base
         class Config < Hashr
@@ -52,8 +52,10 @@ module Travis
               @pwd ||= evaluate('pwd').strip
             end
 
-            def file_exists?(file_name)
-              exec("test -f #{file_name}", :echo => false)
+            def file_exists?(*file_names)
+              file_names.any? do |file_name|
+                exec("test -f #{file_name}", :echo => false)
+              end
             end
         end
       end
