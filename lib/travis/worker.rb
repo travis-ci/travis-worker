@@ -1,8 +1,4 @@
-require "travis/worker/version"
-
-require 'resque'
-require 'resque/heartbeat'
-require 'travis/worker/core_ext/ruby/hash/deep_symbolize_keys'
+require 'travis/worker/version'
 require 'socket'
 
 module Travis
