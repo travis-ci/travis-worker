@@ -12,8 +12,8 @@ module Travis
     autoload :Manager,              'travis/worker/manager'
     autoload :MessagingConnection,  'travis/worker/messaging_connection'
     autoload :Reporter,             'travis/worker/reporter'
-    autoload :Runner,               'travis/worker/runner'
     autoload :Shell,                'travis/worker/shell'
+    autoload :Worker,               'travis/worker/worker'
 
     class << self
       def config
@@ -41,5 +41,6 @@ module Travis
         end
       end
     end
-  end # Worker
-end # Travis
+
+  end
+end
