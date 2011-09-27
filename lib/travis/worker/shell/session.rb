@@ -1,6 +1,5 @@
 require 'net/ssh'
 require 'net/ssh/shell'
-require 'travis/worker/patches/net_ssh_shell_process'
 require 'fileutils'
 require 'vagrant'
 
