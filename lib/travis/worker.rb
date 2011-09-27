@@ -5,19 +5,17 @@ module Travis
   module Worker
     class VmNotFound < RuntimeError; end
 
-    autoload :Application,     'travis/worker/application'
-    autoload :BuildDispatcher, 'travis/worker/build_dispatcher'
-    autoload :Builder,         'travis/worker/builder'
-    autoload :Config,          'travis/worker/config'
-    autoload :Job,             'travis/worker/job'
-    autoload :JobExecutor,     'travis/worker/job_executor'
-    autoload :Reporter,        'travis/worker/reporter'
-    autoload :Shell,           'travis/worker/shell'
+    autoload :Application,          'travis/worker/application'
+    autoload :Builder,              'travis/worker/builder'
+    autoload :Config,               'travis/worker/config'
+    autoload :Job,                  'travis/worker/job'
+    autoload :Manager,              'travis/worker/manager'
+    autoload :MessagingConnection,  'travis/worker/messaging_connection'
+    autoload :Reporter,             'travis/worker/reporter'
+    autoload :Runner,               'travis/worker/runner'
+    autoload :Shell,                'travis/worker/shell'
 
     class << self
-
-      attr_accessor :messaging_connection
-
       def config
         @config ||= Config.new
       end
