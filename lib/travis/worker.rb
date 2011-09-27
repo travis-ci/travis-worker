@@ -17,12 +17,6 @@ module Travis
     autoload :Reporter,        'travis/worker/reporter'
     autoload :Shell,           'travis/worker/shell'
 
-    module Workers
-      autoload :Base,     'travis/worker/workers/base'
-      autoload :Amqp,     'travis/worker/workers/amqp'
-      autoload :Resque,   'travis/worker/workers/resque'
-    end
-
     class << self
 
       # @group Resque API
