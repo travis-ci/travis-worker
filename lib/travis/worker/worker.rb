@@ -4,7 +4,9 @@ require 'hot_bunnies'
 module Travis
   module Worker
 
+    # Public: Represents a single Worker which is bound to a single VM instance.
     class Worker
+
       # Public: Returns the string name of the worker.
       attr_reader :name
 
