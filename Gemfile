@@ -13,6 +13,8 @@ end
 
 gem 'faraday',  '~> 0.7.3'
 
+gem 'net-ssh-shell'
+
 gem 'rake',     '~> 0.9.2'
 gem 'thor'
 
