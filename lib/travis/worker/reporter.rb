@@ -21,7 +21,7 @@ module Travis
       end
 
       def message(type, data)
-        exchange.publish(data[:log], :type => type.to_s, :routing_key => "reporting.progress", :arguments => { 'x-incremental' => !!data[:incremental] })
+        exchange.publish(data, :type => type.to_s, :routing_key => "reporting", :arguments => { 'x-incremental' => !!data[:incremental] })
       end
 
     end

@@ -1,4 +1,5 @@
 require 'faraday'
+require 'multi_json'
 
 module Travis
   module Worker
@@ -11,11 +12,16 @@ module Travis
         end
 
         def update(data)
-          notify(:update, data)
         end
 
         def finish
-          notify(:finish, :config => config)
+          payload = {
+            :config => config,
+            :task_id => build[:id],
+            :slug => repository.slug
+          }
+          serialized = MultiJson.encode(payload)
+          notify(:finish, serialized)
         end
 
         protected
