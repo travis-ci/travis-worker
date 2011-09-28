@@ -46,6 +46,8 @@ module Travis
             options = {}
             if Travis::Worker.config.ssl_ca_path
               options[:ssl] = { :ca_path => Travis::Worker.config.ssl_ca_path }
+            else
+              options[:ssl] = { :ca_file => File.expand_path('certs/cacert.pem') }
             end
             options
           end
