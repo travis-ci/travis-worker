@@ -1,5 +1,6 @@
 require 'multi_json'
 require 'hot_bunnies'
+require 'thread'
 
 module Travis
   module Worker
