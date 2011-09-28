@@ -13,12 +13,11 @@ module Travis
 
       # Public: Initialize a Worker Manager.
       #
-      # messaging_connection - A MessagingConnection instance.
-      # config - A Config to use for connection details (default: nil)
-      def initialize(messaging_connection, config = nil)
+      # configuration - A Config to use for connection details (default: nil)
+      def initialize(configuration = nil)
+        config(configuration)
         @worker_threads = []
-        @messaging_connection = messaging_connection
-        @config = config
+        @messaging_connection = MessagingConnection.new(config)
       end
 
       # Public: Connects to the messaging broker and starts the workers.
@@ -46,15 +45,16 @@ module Travis
         #
         # Returns the current instance of the MessagingConnection.
         def start_workers
-          builds_queue = messaging_connection.builds_queue
-          channel = messaging_connection.channel
+          jobs_queue = messaging_connection.jobs_queue
+          channel    = messaging_connection.channel
 
           config.vms.count.times do |num|
+            num += 1
             name = worker_name(num)
 
             puts "[boot] Starting #{name}"
 
-            worker_threads << Worker.start_in_background(name, builds_queue, channel)
+            worker_threads << Worker.start_in_background(name, jobs_queue, channel)
           end
 
           self
@@ -64,16 +64,16 @@ module Travis
         # they are running in.
         def stop_workers
           worker_threads.each do |thread|
-            thread.value.stop_processing
-            thread.stop
+            thread.stop if thread.alive?
           end
         end
 
 
       private
 
-        def config
-          @config ||= Travis::Worker.config
+        def config(configuration = nil)
+          @config ||= configuration || Travis::Worker.config
+          @config
         end
 
         def worker_name(num)

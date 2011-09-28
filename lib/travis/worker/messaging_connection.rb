@@ -23,26 +23,28 @@ module Travis
 
       # Public: Initialize a MessagingConnection
       #
-      # config - A Config to use for connection details (default: nil)
-      def initialize(config = nil)
+      # configuration - A Config to use for connection details (default: nil)
+      def initialize(configuration = nil)
         @connection = @channel = @exchange = @jobs_queue = nil
 
-        @config = config
+        config(configuration)
       end
 
       # Public: Connects to the messaging broker.
       #
-      # Along with connecting to the broker, queues are also declared and setup.
+      # Along with connecting to the broker, queues are declared and setup.
+      #
+      # Returns self
       def bind
-        install_signal_traps
-
         connect_to_broker
 
         declare_queues
-      rescue PossibleAuthenticationFailureException => e
-        announce("[boot] Failed to authenticate with #{connection.address.to_s} on port #{connection.port}")
-      rescue ConnectException => e
-        announce("[boot] Failed to connect to #{connection.address.to_s} on port #{connection.port}")
+
+        self
+      rescue Java::ComRabbitmqClient::PossibleAuthenticationFailureException => e
+        announce("Failed to authenticate with #{connection.address.to_s} on port #{connection.port}")
+      rescue Java::JavaIo::IOException => e
+        announce("Failed to connect with config options #{config.inspect}")
       end
 
       # Public: Closes the connection to the messaging broker.
@@ -50,19 +52,13 @@ module Travis
       # As well as disconnecting from the messaging broker, all related connections to the jobs queue,
       # exchange and channel are also deleted or closed.
       def unbind
-        announce("[shutdown] Closing connection to broker...")
+        announce("Closing connection to broker...")
 
         jobs_queue.delete
-        exchange.delete
         channel.close
         connection.close
 
-        announce("[shutdown] Connection to broker closed")
-      end
-
-      # Public: Returns the number of messages prefetched for the messaging channel.
-      def prefetch_messages
-        channel.prefetch
+        announce("Connection to broker closed")
       end
 
       # Public: Sets the number of messages prefetched for the messaging channel.
@@ -80,16 +76,16 @@ module Travis
         #
         # Connects to the broker along with setting up the main channel and exchange for communications.
         def connect_to_broker
-          announce "[boot] About to connect..."
+          announce "About to connect..."
 
-          @connection = HotBunnies.connect(connection_options)
+          @connection = HotBunnies.connect(config.messaging)
 
           @channel = @connection.create_channel
           @channel.prefetch = config.vms.count
 
           @exchange = @channel.exchange('', :type => :direct, :durable => true)
 
-          announce("[boot] Connected to an AMQP broker at #{@connection.broker_endpoint} using username #{@connection.username}")
+          announce("Connected to an AMQP broker at #{connection.address}:#{connection.port}")
         end
 
         # Internal: Declares the jobs queue with the broker.
@@ -102,16 +98,13 @@ module Travis
 
       private
 
-        def config
-          @config ||= Travis::Worker.config.messaging
-        end
-
-        def connection_options
-          config.slice(HotBunnies::CONNECTION_PROPERTIES)
+        def config(configuration = nil)
+          @config ||= configuration || Travis::Worker.config
+          @config
         end
 
         def announce(what)
-          puts what
+          puts "[messaging] #{what}"
         end
     end
 

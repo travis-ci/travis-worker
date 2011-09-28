@@ -4,34 +4,38 @@ module Travis
   module Worker
     class Application
 
-      attr_reader :manager, :configuration
+      attr_reader :manager, :config
 
-      def initialize(configuration)
-        @configuration = configuration
+      def initialize(config = nil)
+        @config = config
 
-        @manager = Manager.new(messaging_connection)
+        @manager = Manager.new(configuration)
       end
 
       def start
         install_signal_traps
 
-        announce "[boot] About to start the builds manager"
+        announce("About to start the builds manager")
 
-        @manager.start
+        manager.start
       end
 
 
       protected
 
+        def configuration
+          @config ||= Travis::Worker.config
+        end
+
         def install_signal_traps
-          announce "[boot] About to install signal traps..."
+          announce("About to install signal traps...")
 
           Signal.trap("INT")  { self.manager.stop }
           Signal.trap("TERM") { self.manager.stop }
         end
 
         def announce(what)
-          puts what
+          puts "[boot] #{what}"
         end
 
     end

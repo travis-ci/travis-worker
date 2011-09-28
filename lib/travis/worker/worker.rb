@@ -1,4 +1,5 @@
 require 'multi_json'
+require 'hashr'
 require 'hot_bunnies'
 require 'thread'
 
@@ -12,22 +13,25 @@ module Travis
       attr_reader :name
 
       # Public: Returns the builds queue which the worker subscribes to.
-      attr_reader :builds_queue
+      attr_reader :jobs_queue
 
       # Public: Returns the reporting channel used for streaming build results.
       attr_reader :reporting_channel
+
+      # Public: Returns the Subscription to the jobs_queue
+      attr_reader :subscribtion
 
       class << self
         # Public: Instantiates and runs a worker in a new thread.
         #
         # name - The String name of the worker.
-        # builds_queue - The Queue where builds are published to.
+        # jobs_queue - The Queue where builds are published to.
         # reporting_channel - The Channel used for reporting build results.
         #
         # Returns the thread containing the worker.
-        def start_in_background(name, builds_queue, reporting_channel)
+        def start_in_background(name, jobs_queue, reporting_channel)
           Thread.new do
-            self.new(name, builds_queue, reporting_channel).run
+            self.new(name, jobs_queue, reporting_channel).run
           end
         end
       end
@@ -35,35 +39,27 @@ module Travis
       # Public: Instantiates and a new worker.
       #
       # name - The String name of the worker.
-      # builds_queue - The Queue where builds are published to.
+      # jobs_queue - The Queue where jobs are published to.
       # reporting_channel - The Channel used for reporting build results.
       #
       # Returns the thread containing the worker.
-      def initialize(name, builds_queue, reporting_channel)
+      def initialize(name, jobs_queue, reporting_channel)
         @name = name
-        @builds_queue = builds_queue
+        @jobs_queue = jobs_queue
         @reporting_channel = reporting_channel
-        @subscribtion = nil
+        @subscription = nil
       end
 
-      # Public: Subscribes to the builds_queue.
+      # Public: Subscribes to the jobs_queue.
       #
       # Returns the worker.
       def run
         opts = { :ack => true, :blocking => false }
 
-        @subscribtion = builds_queue.subscribe(opts, &method(:process_job))
+        @subscription = jobs_queue.subscribe(opts, &method(:process_job))
 
-        announce("Subscribed to the '#{@builds_queue.name}' queue.")
+        announce("Subscribed to the '#{@jobs_queue.name}' queue.")
 
-        self
-      end
-
-      # Public: Unsubscribes from the builds_queue.
-      #
-      # Returns the worker.
-      def stop
-        @subscribtion.cancel
         self
       end
 
@@ -122,7 +118,8 @@ module Travis
         end
 
         def reject_job_completion(metadata)
-          announce("Caught an exception while dispatching a message: \n\n#{e.message}\n\n")
+          announce("Caught an exception while dispatching a message:")
+          announce_error
           metadata.reject
           announce("Rejected")
         end
@@ -137,13 +134,14 @@ module Travis
           puts "[#{name}] #{what}"
         end
 
-        def deserialized_payload
+        def deserialized_payload(payload)
           deserialized = MultiJson.decode(payload)
-          deserialized.deep_symbolize_keys
+          Hashr.new(deserialized)
         end
 
         def announce_error
-          announce("#{$!.class.name}: #{$!.message}", $@)
+          announce("#{$!.class.name}: #{$!.message}")
+          announce($@)
         end
     end
 
