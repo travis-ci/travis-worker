@@ -27,7 +27,7 @@ GEM
     json (1.5.4-java)
     mario (0.0.6)
     metaclass (0.0.1)
-    minitest (2.6.0)
+    minitest (2.6.1)
     minitest_tu_shim (1.3.2)
       minitest (>= 1.6.0)
     mocha (0.10.0)
