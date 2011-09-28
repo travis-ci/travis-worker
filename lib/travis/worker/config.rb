@@ -22,7 +22,7 @@ module Travis
              :messaging => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :shell     => { :buffer => 0 },
              :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install_deps => 300 },
-             :vms       => { :count => 1, :base => 'lucid32', :memory => 1536, :cookbooks => 'vendor/cookbooks', :log_level => 'info', :json => {}, :_include => Vms }
+             :vms       => { :name_prefix => 'worker', :count => 1, :base => 'lucid32', :memory => 1536, :cookbooks => 'vendor/cookbooks', :log_level => 'info', :json => {}, :_include => Vms }
 
       def initialize
         super(read)
