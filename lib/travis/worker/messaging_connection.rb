@@ -8,6 +8,7 @@ module Travis
     # The connection, main channel and exchange, and jobs queue are all
     # encapsulated and available from this class.
     class MessagingConnection
+
       # Public: Returns the messaging connection.
       attr_reader :connection
 
