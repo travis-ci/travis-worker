@@ -2,19 +2,19 @@ require 'test_helper'
 
 class BuilderRubyTestCase < Test::Unit::TestCase
   def new_config(config={})
-    Travis::Worker::Builders::Ruby::Config.new(config)
+    Travis::Worker::Builder::Ruby::Config.new(config)
   end
 
   def config_any_instance
-    Travis::Worker::Builders::Ruby::Config.any_instance
+    Travis::Worker::Builder::Ruby::Config.any_instance
   end
 
   def new_commands(config={})
-    Travis::Worker::Builders::Ruby::Commands.new(config)
+    Travis::Worker::Builder::Ruby::Commands.new(config)
   end
 
   def commands_any_instance
-    Travis::Worker::Builders::Ruby::Commands.any_instance
+    Travis::Worker::Builder::Ruby::Commands.any_instance
   end
 end
 

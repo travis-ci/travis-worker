@@ -3,6 +3,7 @@ source :rubygems
 gem 'hashr',         '~> 0.0.13'
 gem 'multi_json'
 gem 'json'
+gem 'net-ssh-shell', '~> 0.2.0'
 
 gem 'vagrant',  '~> 0.7.0'
 
