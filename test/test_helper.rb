@@ -1,20 +1,13 @@
 ENV['RAILS_ENV'] ||= 'test'
 
-begin
-  require 'ruby-debug'
-rescue LoadError => e
-  puts e.message
-end
 require 'bundler/setup'
 
 require 'test/unit'
 require 'test_declarative'
 require 'mocha'
-# require 'fakeredis'
-# require 'resque'
 
 require 'travis/worker'
-require 'test_helper/mock'
+require 'support/mock'
 
 FIXTURES = {}
 require 'fixtures/payloads'
