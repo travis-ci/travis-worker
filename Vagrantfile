@@ -8,12 +8,12 @@ with_base = ENV['WITH_BASE'] == 'true'
 Vagrant::Config.run do |c|
   config.names.each_with_index do |name, num|
     next if name == 'base' && !with_base
-
     c.vm.define(name) do |c|
-      c.vm.box = name == 'base' ? 'base' : "worker-#{num}"
+      c.vm.box = (name == 'base' ? 'base' : "#{config.name_prefix}-#{num}")
       c.vm.forward_port('ssh', 22, 2220 + num)
 
       c.vm.customize do |vm|
+        vm.name = "#{config.name_prefix}-#{num}"
         vm.memory_size = config.memory.to_i
       end
 
