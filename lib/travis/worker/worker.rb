@@ -21,6 +21,9 @@ module Travis
       # Public: Returns the Subscription to the jobs_queue
       attr_reader :subscribtion
 
+      # Public: Returns the virtual machine used by this worker
+      attr_reader :virtual_machine
+
       class << self
         # Public: Instantiates and runs a worker in a new thread.
         #
@@ -48,6 +51,7 @@ module Travis
         @jobs_queue = jobs_queue
         @reporting_channel = reporting_channel
         @subscription = nil
+        @virtual_machine = VirtualMachine::VirtualBox.new(name)
       end
 
       # Public: Subscribes to the jobs_queue.
@@ -107,7 +111,7 @@ module Travis
         #
         # Returns ?
         def create_job_and_work(payload)
-          job = Job.create(payload)
+          job = Job.create(payload, virtual_machine)
           job.observers << Reporter.new(reporting_channel)
           job.work!
         end

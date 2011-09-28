@@ -14,10 +14,6 @@ module Travis
       # @see Worker::Config
       class Build < Base
 
-        #
-        # API
-        #
-
         # Build exit status
         # @return [Integer] 0 for success, 1 otherwise
         attr_reader :status
@@ -71,7 +67,7 @@ module Travis
           end
 
           def build!
-            sandboxed do
+            virtual_machine.sandboxed do
               create_builds_directory && checkout_repository && run_build
             end
           end

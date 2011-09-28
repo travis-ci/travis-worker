@@ -47,8 +47,11 @@ module Travis
         # @api plugin
         attr_reader :observers
 
+        attr_reader :virtual_machine
+
         # @api public
-        def initialize(payload)
+        def initialize(payload, virtual_machine)
+          @virtual_machine = virtual_machine
           @payload   = Hashr.new(payload)
           @observers = []
         end

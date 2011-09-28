@@ -15,6 +15,10 @@ module Travis
     autoload :Shell,                'travis/worker/shell'
     autoload :Worker,               'travis/worker/worker'
 
+    module VirtualMachine
+      autoload :VirtualBox,         'travis/worker/virtual_machine/virtual_box'
+    end
+
     class << self
       def config
         @config ||= Config.new

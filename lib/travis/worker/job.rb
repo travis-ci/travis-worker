@@ -6,9 +6,9 @@ module Travis
       autoload :Config, 'travis/worker/job/config'
 
       class << self
-        def create(payload)
+        def create(payload, virtual_machine)
           clazz = payload.key?(:build) && payload[:build].key?(:config) ? Job::Build : Job::Config
-          clazz.new(payload)
+          clazz.new(payload, virtual_machine)
         end
       end
     end # Job
