@@ -2,19 +2,19 @@ require 'test_helper'
 
 class BuilderErlangTestCase < Test::Unit::TestCase
   def new_config(config={})
-    Travis::Worker::Builders::Erlang::Config.new(config)
+    Travis::Worker::Builder::Erlang::Config.new(config)
   end
 
   def config_any_instance
-    Travis::Worker::Builders::Erlang::Config.any_instance
+    Travis::Worker::Builder::Erlang::Config.any_instance
   end
 
   def new_commands(config={})
-    Travis::Worker::Builders::Erlang::Commands.new(config)
+    Travis::Worker::Builder::Erlang::Commands.new(config)
   end
 
   def commands_any_instance
-    Travis::Worker::Builders::Erlang::Commands.any_instance
+    Travis::Worker::Builder::Erlang::Commands.any_instance
   end
 end
 

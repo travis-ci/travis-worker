@@ -1,6 +1,5 @@
 require 'rake'
 require 'rake/testtask'
-require 'resque/tasks'
 
 Rake::TestTask.new do |t|
   t.libs << 'lib' << 'test'
@@ -14,7 +13,7 @@ task 'travis:worker:config' do
   Travis::Worker.init
 end
 
-task 'resque:setup' => 'travis:worker:config'
+# task 'resque:setup' => 'travis:worker:config'
 
 task :default => :test
 

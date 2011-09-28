@@ -74,7 +74,7 @@ DEPENDENCIES
   minitest_tu_shim
   mocha
   multi_json
-  net-ssh-shell
+  net-ssh-shell (~> 0.2.0)
   rake (~> 0.9.2)
   rdiscount
   test_declarative

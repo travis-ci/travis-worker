@@ -52,7 +52,7 @@ class JobBuildTest < Test::Unit::TestCase
       'bundle exec rake ci:after'
     ]
 
-    assert_stdout_equals "Using Travis::Worker::Builders::Ruby\n" do
+    assert_stdout_equals "Using Travis::Worker::Builder::Ruby\n" do
       build.build!
     end
   end
@@ -77,7 +77,7 @@ class JobBuildTest < Test::Unit::TestCase
       'bundle exec rake ci:after'
     ]
 
-    assert_stdout_equals "Using Travis::Worker::Builders::Ruby\n" do
+    assert_stdout_equals "Using Travis::Worker::Builder::Ruby\n" do
       build.build!
     end
   end

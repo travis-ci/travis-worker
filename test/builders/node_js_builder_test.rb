@@ -2,19 +2,19 @@ require 'test_helper'
 
 class BuilderNodeJsTestCase < Test::Unit::TestCase
   def new_config(config={})
-    Travis::Worker::Builders::NodeJs::Config.new(config)
+    Travis::Worker::Builder::NodeJs::Config.new(config)
   end
 
   def config_any_instance
-    Travis::Worker::Builders::NodeJs::Config.any_instance
+    Travis::Worker::Builder::NodeJs::Config.any_instance
   end
 
   def new_commands(config={})
-    Travis::Worker::Builders::NodeJs::Commands.new(config)
+    Travis::Worker::Builder::NodeJs::Commands.new(config)
   end
 
   def commands_any_instance
-    Travis::Worker::Builders::NodeJs::Commands.any_instance
+    Travis::Worker::Builder::NodeJs::Commands.any_instance
   end
 end
 
