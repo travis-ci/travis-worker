@@ -3,6 +3,7 @@ require 'shellwords'
 module Travis
   module Worker
     module Shell
+
       module Helpers
         def echoize(cmd, options = {})
           [cmd].flatten.join("\n").split("\n").map do |cmd|
@@ -20,6 +21,7 @@ module Travis
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
       end # Helpers
+
     end # Shell
   end # Worker
 end # Travis

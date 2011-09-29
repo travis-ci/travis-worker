@@ -1,39 +1,63 @@
 require 'net/ssh'
 require 'net/ssh/shell'
-require 'fileutils'
+require 'travis/worker/shell/helpers'
 
 module Travis
   module Worker
     module Shell
 
+      # Public: Encapsulates an SSH connection to a remote host.
       class Session
-        autoload :Helpers, 'travis/worker/shell/helpers'
-
         include Shell::Helpers
 
-
-        # Public: VirtualBox VM instance used by the session
-        attr_reader :vm
-
-        # VirtualBox environment ssh configuration
+        # Public: Remote host environment ssh configuration.
         attr_reader :config
 
-        # Net::SSH session
-        # @return [Net::SSH::Connection::Session]
+        # Public: The Net::SSH::Session shell
         attr_reader :shell
 
-        # VBoxManage log file path
-        # @return [String]
-        attr_reader :log
-
-        def initialize(vm, config)
-          @vm     = vm
+        # Public: Initialize a shell Session
+        #
+        # config - A Hashr containing the ssh connection information
+        # block - An optional block of commands to be excuted within the session. If
+        #         a block is provided then the session will be started, block evaluated,
+        #         and then the session will be closed.
+        def initialize(config)
           @config = config
-          @shell  = start_shell
+          @shell  = nil
 
-          yield(self) if block_given?
+          if block_given?
+            connect
+            yield(self) if block_given?
+            close
+          end
         end
 
+        # Public: Connects to the remote host.
+        #
+        # Returns the Net::SSH::Shell
+        def connect
+          puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
+          options = { :port => vm.ssh.port, :keys => [config.private_key_path] }
+          @shell = Net::SSH.start(config.host, config.username, options).shell
+        end
+
+        # Public: Closes the Shell and flushes the buffer
+        def close
+          shell.wait!
+          shell.close!
+          buffer.flush
+        end
+
+        # Public: Executes a command within the ssh shell, returning true or false
+        # depending if the command succeded.
+        #
+        # command - The command to be executed.
+        # options - Optional Hash options (default: {}):
+        #           :timeout - The max amount of second to wait before aborting the command.
+        #           :echo    - true or false if the command should be echod to the log
+        #
+        # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
           command = timetrap(command, :timeout => timeout(options)) if options[:timeout]
           command = echoize(command) unless options[:echo] == false
@@ -41,6 +65,12 @@ module Travis
           exec(command) { |p, data| buffer << data } == 0
         end
 
+        # Public: Evaluates a command within the ssh shell, returning the command output.
+        #
+        # command - The command to be evaluated.
+        #
+        # Returns the output from the command.
+        # Raises RuntimeError if the commands exit status is 1
         def evaluate(command)
           result = ''
           status = exec(command) { |p, data| result << data }
@@ -48,12 +78,9 @@ module Travis
           result
         end
 
-        def close
-          shell.wait!
-          shell.close!
-          buffer.flush
-        end
-
+        # Public: Allows you to set a callback when output is received from the ssh shell.
+        #
+        # block - The block to be called.
         def on_output(&block)
           @on_output = block
         end
@@ -61,19 +88,25 @@ module Travis
 
         protected
 
-          def start_shell
-            puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
-            Net::SSH.start(config.host, config.username, :port => vm.ssh.port, :keys => [config.private_key_path]).shell.tap do
-              puts 'done.'
-            end
-          end
-
+          # Internal: Sets up and returns a buffer to use for the entire ssh session when code
+          # is executed.
           def buffer
             @buffer ||= Buffer.new do |string|
               @on_output.call(string) if @on_output
             end
           end
 
+          # Internal: Executes a command using the SSH Shell.
+          #
+          # This is where the real SSH shell work is done. The command is run along with
+          # callbacks setup for when data is returned. The exit status is also captured
+          # when the command has finished running.
+          #
+          # command - The command to be executed.
+          # block   - A block which will be called when output or error output is received
+          #           from the shell command.
+          #
+          # Returns the exit status (0 or 1)
           def exec(command, &on_output)
             status = nil
             shell.execute(command) do |process|

@@ -2,6 +2,7 @@ require 'travis/worker/version'
 require 'socket'
 
 module Travis
+
   module Worker
     class VmNotFound < RuntimeError; end
 
@@ -15,6 +16,12 @@ module Travis
     autoload :Shell,                'travis/worker/shell'
     autoload :Worker,               'travis/worker/worker'
 
+    module Shell
+      autoload :Buffer,  'travis/worker/shell/buffer'
+      autoload :Helpers, 'travis/worker/shell/helpers'
+      autoload :Session, 'travis/worker/shell/session'
+    end
+
     module VirtualMachine
       autoload :VirtualBox,         'travis/worker/virtual_machine/virtual_box'
     end
@@ -24,27 +31,10 @@ module Travis
         @config ||= Config.new
       end
 
-      attr_writer :shell
-
-      def discard_shell!
-        @shell = nil
-      end
-
-      def shell
-        @shell ||= Travis::Worker::Shell::Session.new(vm, vagrant.config.ssh)
-      end
-
       def hostname
         @hostname ||= Socket.gethostname
       end
-
-      def vagrant
-        @vagrant ||= begin
-          require 'vagrant'
-          ::Vagrant::Environment.new.load!
-        end
-      end
     end
-
   end
+
 end
