@@ -81,11 +81,11 @@ module Travis
 
             require 'vboxjxpcom.jar'
 
-            java_import 'org.virtualbox_4_0.VirtualBoxManager'
-            java_import 'org.virtualbox_4_0.VBoxEventType'
-            java_import 'org.virtualbox_4_0.LockType'
-            java_import 'org.virtualbox_4_0.MachineState'
-            java_import 'org.virtualbox_4_0.IMachineStateChangedEvent'
+            java_import 'org.virtualbox_4_1.VirtualBoxManager'
+            java_import 'org.virtualbox_4_1.VBoxEventType'
+            java_import 'org.virtualbox_4_1.LockType'
+            java_import 'org.virtualbox_4_1.MachineState'
+            java_import 'org.virtualbox_4_1.IMachineStateChangedEvent'
           end
 
           def start_sandbox

@@ -1,21 +1,21 @@
 source :rubygems
 
-gem 'hashr',         '~> 0.0.13'
+gem 'hashr',      '~> 0.0.13'
 gem 'multi_json'
 gem 'json'
 
-gem 'vagrant',  '~> 0.7.0'
+gem 'vagrant',    '~> 0.8.0'
 
 platform :jruby do
   gem 'jruby-openssl'
   gem 'hot_bunnies'
 end
 
-gem 'faraday',  '~> 0.7.3'
+gem 'faraday',       '~> 0.7.3'
 
 gem 'net-ssh-shell', '~> 0.2.0'
 
-gem 'rake',     '~> 0.9.2'
+gem 'rake',          '~> 0.9.2'
 gem 'thor'
 
 platform :ruby do
