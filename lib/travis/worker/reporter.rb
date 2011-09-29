@@ -2,6 +2,8 @@ module Travis
   module Worker
     class Reporter
 
+      ROUTING_KEY = 'reporting.jobs'
+
       attr_reader :exchange
 
       def initialize(channel)
@@ -13,15 +15,15 @@ module Travis
       end
 
       def on_update(data)
-        message(:update, data.merge(:incremental => true))
+        message(:update, data, :incremental => true)
       end
 
       def on_finish(data)
         message(:finish, data)
       end
 
-      def message(type, data)
-        exchange.publish(data, :type => type.to_s, :routing_key => "reporting", :arguments => { 'x-incremental' => !!data[:incremental] })
+      def message(type, data, options = {})
+        exchange.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY, :arguments => { 'x-incremental' => !!options[:incremental] })
       end
 
     end
