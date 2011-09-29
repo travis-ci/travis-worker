@@ -13,7 +13,6 @@ module Travis
     autoload :Manager,              'travis/worker/manager'
     autoload :MessagingConnection,  'travis/worker/messaging_connection'
     autoload :Reporter,             'travis/worker/reporter'
-    autoload :Shell,                'travis/worker/shell'
     autoload :Worker,               'travis/worker/worker'
 
     module Shell
