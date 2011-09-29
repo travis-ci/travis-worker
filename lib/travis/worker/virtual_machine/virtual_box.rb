@@ -93,21 +93,14 @@ module Travis
           end
 
           def start_sandbox
-            if snapshot?
-              power_off if running?
-              snapshot
-            end
+            power_off if running?
+            rollback
+            snapshot
             power_on unless running?
           end
 
           def close_sandbox
-            power_off
-            rollback
-            power_on
-          end
-
-          def snapshot?
-            machine.snapshot_count == 0
+            # nothing to do here
           end
 
           def running?
@@ -135,8 +128,8 @@ module Travis
 
           def rollback
             with_machine_session do |session|
-              session.console.restore_snapshot(machine.current_snapshot)
-            end
+              session.console.delete_snapshot(machine.current_snapshot.id)
+            end while machine.current_snapshot
           end
 
           def with_session
@@ -153,7 +146,7 @@ module Travis
             session = manager.open_machine_session(machine)
 
             progress = yield(session)
-            progress.wait_for_completion(-1)
+            progress.wait_for_completion(-1) rescue nil
             sleep(0.5)
 
             manager.close_machine_session(session)
