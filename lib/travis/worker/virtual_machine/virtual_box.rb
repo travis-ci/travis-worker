@@ -88,27 +88,30 @@ module Travis
             java_import 'org.virtualbox_4_1.IMachineStateChangedEvent'
           end
 
+          def manager
+            self.class.manager
+          end
+
           def start_sandbox
-            power_off if running?
-            snapshot  if snapshot?
-            power_on
+            if snapshot?
+              power_off if running?
+              snapshot
+            end
+            power_on unless running?
           end
 
           def close_sandbox
             power_off
             rollback
-          end
-
-          def state
-            machine.state
-          end
-
-          def running?
-            machine.state == MachineState::Running
+            power_on
           end
 
           def snapshot?
             machine.snapshot_count == 0
+          end
+
+          def running?
+            machine.state == MachineState::Running
           end
 
           def power_on
@@ -126,7 +129,7 @@ module Travis
 
           def snapshot
             with_machine_session do |session|
-              session.console.take_snapshot('sandbox', "#{machine.name} sandbox snapshot taken at #{Time.now}")
+              session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now}")
             end
           end
 
@@ -156,11 +159,7 @@ module Travis
             manager.close_machine_session(session)
           end
 
-          def manager
-            self.class.manager
-          end
       end
-
     end
   end
 end
