@@ -54,7 +54,7 @@ module Travis
 
           @name = name
 
-          @machine = self.class.manager.vbox.machines.detect do |machine|
+          @machine = manager.vbox.machines.detect do |machine|
             machine.name == name
           end
 
@@ -154,6 +154,10 @@ module Travis
             sleep(0.5)
 
             manager.close_machine_session(session)
+          end
+
+          def manager
+            self.class.manager
           end
       end
 
