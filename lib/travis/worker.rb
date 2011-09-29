@@ -4,8 +4,6 @@ require 'socket'
 module Travis
 
   module Worker
-    class VmNotFound < RuntimeError; end
-
     autoload :Application,          'travis/worker/application'
     autoload :Builder,              'travis/worker/builder'
     autoload :Config,               'travis/worker/config'

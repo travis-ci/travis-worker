@@ -1,11 +1,18 @@
-# start with:
+# The Java System property vbox.home needs to be setup to use the vboxjxpcom.jar library.
+# This can either be done via the command line using:
 #
-# $ ruby -J-Dvbox.home=/Applications/VirtualBox.app/Contents/MacOS vbox.rb
+#   $ruby -J-Dvbox.home=/Applications/VirtualBox.app/Contents/MacOS script_to_run.rb
 #
-# java.lang.System.setProperty("vbox.home", "/Applications/VirtualBox.app/Contents/MacOS")
+# or by using:
 #
-# /dev/vboxdrv needs to be accessible for the current user
-
+#   java.lang.System.setProperty("vbox.home", "/Applications/VirtualBox.app/Contents/MacOS")
+#
+# Travis takes care of this for you as long as you set the vms.vbox_home config var in the
+# worker yml file.
+#
+# You may need to make /dev/vboxdrv accessible by the current user, either by chmoding the file
+# or by adding the user to the group assigned to the file.
+#
 require 'java'
 
 java_import 'java.util.List'
@@ -17,36 +24,69 @@ module Travis
   module Worker
     module VirtualMachine
 
-      class VirtualBox
-        attr_reader :name, :manager, :machine
+      class VmNotFound < StandardError; end
 
+      # Public: A simple encapsulation of the VirtualBox commands used in the
+      # Travis Virtual Machine test lifecycle.
+      class VirtualBox
+
+        class << self
+          # Public: Instantiates the Singleton VirtualBoxManager.
+          def manager
+            @manager ||= VirtualBoxManager.create_instance(nil)
+          end
+        end
+
+        # Public: The name of the virtual box machine.
+        attr_reader :name
+
+        # Public: The virtual box machine connected to this instance.
+        attr_reader :machine
+
+        # Public: Instantiates a new VirtualBox machine, and connects it to the underlying
+        # virtual machine setup in the local virtual box environment based on the box name.
+        #
+        # name - The Virtual Box vm to connect to.
+        #
+        # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
           setup
 
           @name = name
-          @manager = VirtualBoxManager.create_instance(nil)
-          @machine = manager.vbox.machines.get(0)
+
+          @machine = self.class.manager.vbox.machines.detect do |machine|
+            machine.name == name
+          end
+
+          raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
-        def setup
-          java.lang.System.setProperty("vbox.home", Travis::Worker.config.vms.vbox_home)
-
-          require 'vboxjxpcom.jar'
-
-          java_import 'org.virtualbox_4_0.VirtualBoxManager'
-          java_import 'org.virtualbox_4_0.VBoxEventType'
-          java_import 'org.virtualbox_4_0.LockType'
-          java_import 'org.virtualbox_4_0.MachineState'
-          java_import 'org.virtualbox_4_0.IMachineStateChangedEvent'
-        end
-
+        # Public: Yields a block within a sandboxed virtual box environment
+        #
+        # block - A required block to be executed during the sandboxing.
+        #
+        # Returns the result of the block.
         def sandboxed
           start_sandbox
-          yield
+          result = yield
           close_sandbox
+          result
         end
 
         protected
+
+          # Internal: Defers the setup of the virtual box java library as it requires the Travis config
+          def setup
+            java.lang.System.setProperty("vbox.home", Travis::Worker.config.vms.vbox_home)
+
+            require 'vboxjxpcom.jar'
+
+            java_import 'org.virtualbox_4_0.VirtualBoxManager'
+            java_import 'org.virtualbox_4_0.VBoxEventType'
+            java_import 'org.virtualbox_4_0.LockType'
+            java_import 'org.virtualbox_4_0.MachineState'
+            java_import 'org.virtualbox_4_0.IMachineStateChangedEvent'
+          end
 
           def start_sandbox
             power_off if running?
