@@ -26,24 +26,24 @@ module Travis
 
       class VmNotFound < StandardError; end
 
-      # Public: A simple encapsulation of the VirtualBox commands used in the
+      # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine test lifecycle.
       class VirtualBox
 
         class << self
-          # Public: Instantiates the Singleton VirtualBoxManager.
+          # Instantiates the Singleton VirtualBoxManager.
           def manager
             @manager ||= VirtualBoxManager.create_instance(nil)
           end
         end
 
-        # Public: The name of the virtual box machine.
+        # The name of the virtual box machine.
         attr_reader :name
 
-        # Public: The virtual box machine connected to this instance.
+        # The virtual box machine bound to this instance.
         attr_reader :machine
 
-        # Public: Instantiates a new VirtualBox machine, and connects it to the underlying
+        # Instantiates a new VirtualBox machine, and connects it to the underlying
         # virtual machine setup in the local virtual box environment based on the box name.
         #
         # name - The Virtual Box vm to connect to.
@@ -61,7 +61,7 @@ module Travis
           raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
-        # Public: Yields a block within a sandboxed virtual box environment
+        # Yields a block within a sandboxed virtual box environment
         #
         # block - A required block to be executed during the sandboxing.
         #
@@ -71,6 +71,23 @@ module Travis
           result = yield
           close_sandbox
           result
+        end
+
+        # Sets up the VM with a snapshot for sandboxing if one does not already exist.
+        #
+        # These operations can take several minutes to complete and it is recommended
+        # that you run this method before accepting jobs to work.
+        #
+        # Returns true.
+        def prepare
+          if requires_snapshot?
+            restart
+            sleep(90)
+            pause
+            snapshot
+            sleep(5)
+          end
+          true
         end
 
         protected
@@ -93,65 +110,75 @@ module Travis
           end
 
           def start_sandbox
-            power_off if running?
+            power_off unless powered_off?
             rollback
-            snapshot
-            power_on unless running?
+            power_on
           end
 
           def close_sandbox
-            # nothing to do here
+            power_off
+          end
+
+          def requires_snapshot?
+            machine.snapshot_count == 0
           end
 
           def running?
             machine.state == MachineState::Running
           end
 
+          def powered_off?
+            machine.state == MachineState::PoweredOff ||
+              machine.state == MachineState::Aborted ||
+              machine.state == MachineState::Saved
+          end
+
           def power_on
-            with_session do |session|
+            with_session(false) do |session|
               machine.launch_vm_process(session, 'headless', '')
             end
           end
 
           def power_off
             with_session do |session|
-              machine.lock_machine(session, LockType::Shared)
               session.console.power_down
             end
           end
 
+          def restart
+            power_off if running?
+            power_on
+          end
+
+          def pause
+            with_session do |session|
+              session.console.pause
+            end
+          end
+
           def snapshot
-            with_machine_session do |session|
+            with_session do |session|
               session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now}")
             end
           end
 
           def rollback
-            with_machine_session do |session|
-              session.console.delete_snapshot(machine.current_snapshot.id)
-            end while machine.current_snapshot
+            with_session do |session|
+              session.console.restore_snapshot(machine.current_snapshot)
+            end
           end
 
-          def with_session
-            session = manager.get_session_object
+          def with_session(lock = true)
+            session = manager.session_object
+
+            machine.lock_machine(session, LockType::Shared) if lock
 
             progress = yield(session)
-            progress.wait_for_completion(-1)
+            progress.wait_for_completion(-1) if progress
             sleep(0.5)
 
             session.unlock_machine
           end
-
-          def with_machine_session
-            session = manager.open_machine_session(machine)
-
-            progress = yield(session)
-            progress.wait_for_completion(-1) rescue nil
-            sleep(0.5)
-
-            manager.close_machine_session(session)
-          end
-
       end
     end
   end
