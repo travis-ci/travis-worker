@@ -42,6 +42,7 @@ class VBox
       puts 'snapshot required!'
       restart
       sleep(90)
+      pause
       snapshot
       sleep(5)
       puts 'you now have a snapshot'
@@ -107,7 +108,6 @@ class VBox
     end
 
     def snapshot
-      pause if running?
       with_session do |session|
         puts 'snapshotting'
         machine.lock_machine(session, LockType::Shared)
