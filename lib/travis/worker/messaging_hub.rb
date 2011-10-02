@@ -3,11 +3,11 @@ require 'hot_bunnies'
 module Travis
   module Worker
 
-    # Public: Represents a connection to the Travis messaging broker.
+    # Represents a connection to the Travis messaging broker.
     #
     # The connection, main channel and exchange, and jobs queue are all
     # encapsulated and available from this class.
-    class MessagingConnection
+    class MessagingHub
 
       # Public: Returns the messaging connection.
       attr_reader :connection
@@ -21,7 +21,7 @@ module Travis
       # Public: Returns the jobs queue where jobs are published to.
       attr_reader :jobs_queue
 
-      # Public: Initialize a MessagingConnection
+      # Initialize a MessagingConnection
       #
       # configuration - A Config to use for connection details (default: nil)
       def initialize(configuration = nil)
@@ -30,7 +30,7 @@ module Travis
         config(configuration)
       end
 
-      # Public: Connects to the messaging broker.
+      # Connects to the messaging broker.
       #
       # Along with connecting to the broker, queues are declared and setup.
       #
@@ -47,7 +47,7 @@ module Travis
         announce("Failed to connect with config options #{config.inspect}")
       end
 
-      # Public: Closes the connection to the messaging broker.
+      # Closes the connection to the messaging broker.
       #
       # As well as disconnecting from the messaging broker, all related connections to the jobs queue,
       # exchange and channel are also deleted or closed.
@@ -61,7 +61,7 @@ module Travis
         announce("Connection to broker closed")
       end
 
-      # Public: Sets the number of messages prefetched for the messaging channel.
+      # Sets the number of messages prefetched for the messaging channel.
       #
       # If you have more subscriptions to a queue then you need to prefetch more
       # messages so each subscription has something to work on.
@@ -81,7 +81,7 @@ module Travis
           @connection = HotBunnies.connect(config.messaging)
 
           @channel = @connection.create_channel
-          @channel.prefetch = config.vms.count
+          @channel.prefetch = 1
 
           @exchange = @channel.exchange('', :type => :direct, :durable => true)
 
