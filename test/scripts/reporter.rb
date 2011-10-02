@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'hot_bunnies'
 require 'multi_json'
 require 'hashr'
@@ -52,6 +53,15 @@ class Reporter
   end
 end
 
-agent = Reporter.new
+puts "starting the reporter\n\n"
 
-agent.start
+@reporter = Reporter.new
+@reporter.start
+
+puts "reporter started! send me some logs!! :)\n\n"
+
+Signal.trap("INT")  { @reporter.stop; exit }
+
+while true do
+  sleep(1)
+end

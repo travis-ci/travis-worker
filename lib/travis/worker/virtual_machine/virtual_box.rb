@@ -31,9 +31,44 @@ module Travis
       class VirtualBox
 
         class << self
-          # Instantiates the Singleton VirtualBoxManager.
+          # Instantiates and caches the Singleton VirtualBoxManager.
           def manager
-            @manager ||= VirtualBoxManager.create_instance(nil)
+            @manager ||= begin
+              setup
+              VirtualBoxManager.create_instance(nil)
+            end
+          end
+
+          # Inspects VirtualBox for the number of vms setup for Travis.
+          #
+          # Returns the number of VMs matching the vm name_prefix in the config.
+          def vm_count
+            manager.vbox.machines.count do |machine|
+              machine.name =~ /#{Travis::Worker.config.vms.name_prefix}/
+            end
+          end
+
+          # Inspects VirtualBox for the names of the vms setup for Travis.
+          #
+          # Returns the names of the VMs matching the vm name_prefix in the config.
+          def vm_names
+            machines = manager.vbox.machines.find_all do |machine|
+              machine.name =~ /#{Travis::Worker.config.vms.name_prefix}/
+            end
+            machines ? machines.map { |machine| machine.name } : []
+          end
+
+          # Internal: Defers the setup of the virtual box java library as it requires the Travis config
+          def setup
+            java.lang.System.setProperty("vbox.home", Travis::Worker.config.vms.vbox_home)
+
+            require 'vboxjxpcom.jar'
+
+            java_import 'org.virtualbox_4_1.VirtualBoxManager'
+            java_import 'org.virtualbox_4_1.VBoxEventType'
+            java_import 'org.virtualbox_4_1.LockType'
+            java_import 'org.virtualbox_4_1.MachineState'
+            java_import 'org.virtualbox_4_1.IMachineStateChangedEvent'
           end
         end
 
@@ -50,8 +85,6 @@ module Travis
         #
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
-          setup
-
           @name = name
 
           @machine = manager.vbox.machines.detect do |machine|
@@ -112,19 +145,6 @@ module Travis
         end
 
         protected
-
-          # Internal: Defers the setup of the virtual box java library as it requires the Travis config
-          def setup
-            java.lang.System.setProperty("vbox.home", Travis::Worker.config.vms.vbox_home)
-
-            require 'vboxjxpcom.jar'
-
-            java_import 'org.virtualbox_4_1.VirtualBoxManager'
-            java_import 'org.virtualbox_4_1.VBoxEventType'
-            java_import 'org.virtualbox_4_1.LockType'
-            java_import 'org.virtualbox_4_1.MachineState'
-            java_import 'org.virtualbox_4_1.IMachineStateChangedEvent'
-          end
 
           def manager
             self.class.manager

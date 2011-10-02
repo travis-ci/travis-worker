@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'hot_bunnies'
 require 'multi_json'
 require 'hashr'
@@ -17,7 +18,8 @@ class QueueTester
   end
 
   def stop
-    connection.close
+    connection.close rescue nil
+    true
   end
 
   def queue_job(payload)
@@ -41,7 +43,7 @@ class QueueTester
   end
 end
 
-payload = {
+payload = MultiJson.encode({
   'repository' => {
     'slug' => 'svenfuchs/gem-release',
   },
@@ -54,8 +56,25 @@ payload = {
       'script' => 'rake'
     }
   }
-}
+})
 
-queue_tester = QueueTester.new
-queue_tester.start
-queue_tester.queue_job(MultiJson.encode(payload))
+puts "about the start the queue tester\n\n"
+
+@queue_tester = QueueTester.new
+@queue_tester.start
+
+Signal.trap("INT")  { @queue_tester.stop; exit }
+
+puts "queue tester started! \n\n"
+
+while true do
+  print 'press enter to trigger a build job for svenfuchs/gem-release, or exit to quit : '
+
+  output = gets.chomp
+
+  @queue_tester.stop && exit if output == 'exit'
+
+  @queue_tester.queue_job(payload)
+
+  puts "build payload sent!\n\n"
+end

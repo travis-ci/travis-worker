@@ -4,18 +4,17 @@ require 'travis/worker'
 module Travis
   module Worker
     module Cli
+
       class App < Thor
         namespace 'travis:worker'
 
-
-        desc "start", "Start worker"
+        desc "start", "Start worker manager"
         def start
-          config     = Travis::Worker.config
-          dispatcher = Travis::Worker::Application.new(config)
-          dispatcher.bind(config.amqp.to_hash.deep_symbolize_keys)
+          app = Travis::Worker::Application.new
+          app.start
         end
 
-        desc "stop", "Stop worker if running"
+        desc "stop", "Stop worker manager if running"
         def stop
           # TBD
         end
@@ -25,7 +24,8 @@ module Travis
           # TBT
         end
       end
+
     end
-  end # Worker
-end # Travis
+  end
+end
 

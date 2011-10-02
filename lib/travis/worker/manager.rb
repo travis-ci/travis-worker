@@ -1,7 +1,7 @@
 module Travis
   module Worker
 
-    # Public: The Worker manager, responsible for starting, monitoring,
+    # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
     class Manager
 
@@ -9,31 +9,31 @@ module Travis
       attr_reader :workers
 
       # Returns the MessagingConnection used by the Manager.
-      attr_reader :messaging_connection
+      attr_reader :messaging_hub
 
-      # Public: Initialize a Worker Manager.
+      # Initialize a Worker Manager.
       #
       # configuration - A Config to use for connection details (default: nil)
       def initialize(configuration = nil)
         config(configuration)
         @workers = []
-        @messaging_connection = MessagingConnection.new(config)
+        @messaging_hub = MessagingHub.new(config)
       end
 
-      # Public: Connects to the messaging broker and starts the workers.
+      # Connects to the messaging broker and starts the workers.
       #
       # Returns the current instance of the MessagingConnection.
       def start
-        messaging_connection.bind
+        messaging_hub.bind
         start_workers
         self
       end
 
-      # Public: Disconnects from the messaging broker and stops all the workers.
+      # Disconnects from the messaging broker and stops all the workers.
       #
       # Returns the current instance of the MessagingConnection.
       def stop
-        messaging_connection.unbind
+        messaging_hub.unbind
         self
       end
 
@@ -44,16 +44,20 @@ module Travis
         #
         # Returns the current instance of the MessagingConnection.
         def start_workers
-          jobs_queue = messaging_connection.jobs_queue
-          channel    = messaging_connection.channel
+          jobs_queue = messaging_hub.jobs_queue
+          channel    = messaging_hub.channel
 
-          config.vms.worker_names.each do |name|
+          worker_names = Travis::Worker::VirtualMachine::VirtualBox.vm_names
+
+          worker_names.each do |name|
             puts "[boot] Starting #{name}"
 
             worker = Worker.new(name, jobs_queue, channel)
             workers << worker
             worker.run
           end
+
+          messaging_hub.prefetch_messages = workers.count
 
           self
         end

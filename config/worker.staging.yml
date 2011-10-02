@@ -1,5 +1,3 @@
 queue: builds
 shell:
   buffer: 1.5
-vms:
-  count: 5

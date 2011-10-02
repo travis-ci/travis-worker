@@ -6,17 +6,17 @@ module Travis
   module Worker
     module Shell
 
-      # Public: Encapsulates an SSH connection to a remote host.
+      # Encapsulates an SSH connection to a remote host.
       class Session
         include Shell::Helpers
 
-        # Public: Remote host environment ssh configuration.
+        # Remote host environment ssh configuration.
         attr_reader :config
 
-        # Public: The Net::SSH::Session shell
+        # The Net::SSH::Session shell
         attr_reader :shell
 
-        # Public: Initialize a shell Session
+        # Initialize a shell Session
         #
         # config - A Hashr containing the ssh connection information
         # block - An optional block of commands to be excuted within the session. If
@@ -33,7 +33,7 @@ module Travis
           end
         end
 
-        # Public: Connects to the remote host.
+        # Connects to the remote host.
         #
         # Returns the Net::SSH::Shell
         def connect
@@ -42,15 +42,15 @@ module Travis
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
-        # Public: Closes the Shell and flushes the buffer
+        # Closes the Shell and flushes the buffer
         def close
           shell.wait!
           shell.close!
           buffer.flush
         end
 
-        # Public: Executes a command within the ssh shell, returning true or false
-        # depending if the command succeded.
+        # Executes a command within the ssh shell, returning true or false depending
+        # if the command succeded.
         #
         # command - The command to be executed.
         # options - Optional Hash options (default: {}):
@@ -65,7 +65,7 @@ module Travis
           exec(command) { |p, data| buffer << data } == 0
         end
 
-        # Public: Evaluates a command within the ssh shell, returning the command output.
+        # Evaluates a command within the ssh shell, returning the command output.
         #
         # command - The command to be evaluated.
         #
@@ -78,13 +78,16 @@ module Travis
           result
         end
 
-        # Public: Allows you to set a callback when output is received from the ssh shell.
+        # Allows you to set a callback when output is received from the ssh shell.
         #
         # block - The block to be called.
         def on_output(&block)
           @on_output = block
         end
 
+        # Checks is the current shell is open.
+        #
+        # Returns true if the shell has been setup and is open, otherwise false.
         def open?
           shell ? shell.open? : false
         end

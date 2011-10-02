@@ -1,5 +1,3 @@
 queue: rails
 shell:
   buffer: 2.0
-vms:
-  count: 5
