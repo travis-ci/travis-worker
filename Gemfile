@@ -33,6 +33,7 @@ end
 group :test do
   gem 'mocha'
   gem 'test_declarative'
+  gem 'rspec'
   # gem 'web-socket-ruby'
   # gem 'fakeredis'
   # gem 'fakeweb'
@@ -42,5 +43,8 @@ group :test do
     gem 'minitest_tu_shim'
   end
 
-  gem "evented-spec", :git => "git://github.com/ruby-amqp/evented-spec.git"
+  # gem "evented-spec", :git => "git://github.com/ruby-amqp/evented-spec.git"
 end
+
+
+gem 'simplecov', '>= 0.4.0', :require => false, :group => :test
