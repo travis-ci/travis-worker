@@ -14,16 +14,18 @@ module Travis
         end
 
         class Commands < Base::Commands
-          def initialize(config)
+          def initialize(config, shell)
             @config = Config.new(config)
+            @shell  = shell
           end
 
           def install_dependencies
-            exec("lein deps", :timeout => :install_deps)
+            shell.execute("lein deps", :timeout => :install_deps)
             super
           end # def
         end # Commands
       end # Clojure
+
     end # Builders
   end # Worker
 end # Travis

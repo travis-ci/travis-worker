@@ -28,20 +28,21 @@ module Travis
         end
 
         class Commands < Base::Commands
-          def initialize(config)
+          def initialize(config, shell)
             @config = Config.new(config)
+            @shell  = shell
 
             @config.gemfile_exists = file_exists?(@config.gemfile)
           end
 
           def setup_env
-            exec("rvm use #{config.rvm}")
-            exec("export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}") if config.gemfile_exists?
+            shell.execute("rvm use #{config.rvm}")
+            shell.execute("export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}") if config.gemfile_exists?
             super
           end
 
           def install_dependencies
-            exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) if config.gemfile_exists?
+            shell.execute("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) if config.gemfile_exists?
             super
           end
         end

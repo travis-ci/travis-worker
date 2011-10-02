@@ -37,8 +37,8 @@ module Travis
         #
         # Returns the Net::SSH::Shell
         def connect
-          puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
-          options = { :port => vm.ssh.port, :keys => [config.private_key_path] }
+          puts "starting ssh session to #{config.host}:#{config.port} ..."
+          options = { :port => config.port, :keys => [config.private_key_path] }
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
@@ -83,6 +83,10 @@ module Travis
         # block - The block to be called.
         def on_output(&block)
           @on_output = block
+        end
+
+        def open?
+          shell ? shell.open? : false
         end
 
 

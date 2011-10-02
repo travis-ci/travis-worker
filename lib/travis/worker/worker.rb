@@ -24,21 +24,6 @@ module Travis
       # Public: Returns the virtual machine used by this worker
       attr_reader :virtual_machine
 
-      class << self
-        # Public: Instantiates and runs a worker in a new thread.
-        #
-        # name - The String name of the worker.
-        # jobs_queue - The Queue where builds are published to.
-        # reporting_channel - The Channel used for reporting build results.
-        #
-        # Returns the thread containing the worker.
-        def start_in_background(name, jobs_queue, reporting_channel)
-          Thread.new do
-            self.new(name, jobs_queue, reporting_channel).run
-          end
-        end
-      end
-
       # Public: Instantiates and a new worker.
       #
       # name - The String name of the worker.
@@ -58,9 +43,17 @@ module Travis
       #
       # Returns the worker.
       def run
+        virtual_machine.prepare
+
         opts = { :ack => true, :blocking => false }
 
-        @subscription = jobs_queue.subscribe(opts, &method(:process_job))
+        @subscription = jobs_queue.subscribe(opts) do |meta, payload|
+          begin
+            process_job(meta, payload)
+          rescue => e
+            puts e.inspect
+          end
+        end
 
         announce("Subscribed to the '#{@jobs_queue.name}' queue.")
 
@@ -90,7 +83,7 @@ module Travis
         confirm_job_completion(metadata)
 
         true
-      rescue VmNotFound, Errno::ECONNREFUSED
+      rescue Travis::Worker::VirtualMachine::VmNotFound, Errno::ECONNREFUSED
         announce_error
         requeue(metadata)
         raise $!
@@ -98,8 +91,6 @@ module Travis
         announce_error
         reject_job_completion(metadata)
         false
-      ensure
-        Travis::Worker.discard_shell!
       end
 
 

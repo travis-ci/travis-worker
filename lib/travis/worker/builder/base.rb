@@ -13,12 +13,14 @@ module Travis
         end
 
         class Commands
-          include Shell
 
           attr_reader :config
 
-          def initialize(config)
+          attr_reader :shell
+
+          def initialize(config, shell)
             @config = Config.new(config)
+            @shell  = shell
           end
 
           def run
@@ -31,7 +33,7 @@ module Travis
           end
 
           def setup_env
-            Array(config.env).each { |env| exec "export #{env}" unless env.empty? } if config.env
+            Array(config.env).each { |env| shell.execute("export #{env}") unless env.empty? } if config.env
           end
 
           def run_scripts
@@ -43,18 +45,18 @@ module Travis
 
           def run_script(script, options = {})
             (script.is_a?(Array) ? script : script.split("\n")).each do |script|
-              return false unless exec(script, options)
+              return false unless shell.execute(script, options)
             end && true
           end
 
           protected
             def pwd
-              @pwd ||= evaluate('pwd').strip
+              @pwd ||= shell.evaluate('pwd').strip
             end
 
             def file_exists?(*file_names)
               file_names.any? do |file_name|
-                exec("test -f #{file_name}", :echo => false)
+                shell.execute("test -f #{file_name}", :echo => false)
               end
             end
         end

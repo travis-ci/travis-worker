@@ -10,11 +10,11 @@ module Travis
         end
 
         def names
-          ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+          (1..count.to_i).map { |num| "#{Travis::Worker.config.env}-#{num}" }
         end
 
-        def recipes?
-          !!recipes && !recipes.empty?
+        def provision?
+          !recipes.empty? && File.directory?(cookbooks)
         end
       end
 
@@ -36,11 +36,11 @@ module Travis
           local = read_yml(path)
           env   = local['env']
           local = local[env] || {}
-          read_yml(path(env)).merge(local.merge('env' => env))
+          read_yml(path('base')).deep_merge(read_yml(path(env)).deep_merge(local.merge('env' => env)))
         end
 
         def read_yml(path)
-          YAML.load_file(File.expand_path(path))
+          YAML.load_file(File.expand_path(path)) || {}
         end
 
         def path(environment = nil)

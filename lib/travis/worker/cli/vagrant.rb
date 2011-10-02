@@ -7,53 +7,38 @@ module Travis
   module Worker
     module Cli
       class Vagrant < Thor
-        class << self
-          def config
-            Travis::Worker.config.vms
-          end
-        end
-
-        namespace "travis:worker:vagrant"
+        namespace "travis:vms"
 
         include Cli
 
-        desc 'rebuild', 'Rebuild all worker vms'
-        method_option :from,  :default => config.base
-        method_option :force, :aliases => '-f', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
-        def rebuild
+        desc 'update', 'Update the worker vms from a base box'
+        method_option :env
+        method_option :immute,  :aliases => '-i', :type => :boolean, :default => true, :desc => 'Make all disks in the current vagrant environment immutable'
+        method_option :reset,  :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
+        def update
           vbox.reset
 
-          download
-          add_box from, :to => 'base'
-          exit unless up 'base', :provision => true
-          package_box 'base'
-
-          1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
-          end
-          up
+          # download
+          add_box
+          exit unless up
+          immute
         end
 
-        desc 'package', 'Package the base.box'
-        def package
-          exit unless up 'base', :provision => true
-          package_box 'base'
-        end
-
-        desc 'import', 'Import the base.box to worker boxes'
-        def import
-          1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
+        desc 'immute', "Make all disks in the current vagrant environment immutable"
+        def immute
+          halt
+          uuids.each do |name, uuid|
+            immute_disk(name, uuid)
           end
         end
 
-        desc 'remove', 'Remove the worker boxes'
-        def remove
-          1.upto(config.count) do |num|
-            destroy "worker-#{num}"
-            remove_box "worker-#{num}"
-          end
-        end
+        # desc 'remove', 'Remove the worker boxes'
+        # def remove
+        #   1.upto(config.count) do |num|
+        #     destroy "worker-#{num}"
+        #     remove_box "worker-#{num}"
+        #   end
+        # end
 
         protected
 
@@ -65,40 +50,58 @@ module Travis
             self.class.config
           end
 
-          def from
-            options['from']
+          def env
+            options['env'] || Travis::Worker.config.env
           end
 
-          def download
-            run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
+          def base
+            "boxes/#{env}.box"
           end
 
-          def add_box(name, options = {})
-            run "vagrant box add #{options[:to] || name} #{name}.box"
+          # def download
+          #   run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
+          # end
+
+          def add_box
+            run "vagrant box add #{env} #{base}"
+          end
+
+          def halt
+            run 'vagrant halt'
+          end
+
+          def up
+            run "vagrant up --provision=true"
           end
 
           def remove_box(name)
             run "vagrant box remove #{name}"
           end
 
-          def up(name = nil, options = { :provision => false })
-            ENV['WITH_BASE'] = (name == 'base').inspect
-            run "vagrant up #{name} --provision=#{options[:provision].inspect}"
-          end
-
           def destroy(name)
             run "vagrant destroy #{name}"
-          end
-
-          def package_box(name)
-            run "rm -rf #{name}.box"
-            run "vagrant package --base #{uuid}"
-            run "mv package.box #{name}.box"
           end
 
           def uuid
             vms = JSON.parse(File.read('.vagrant'))
             vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
+          end
+
+          def uuids
+            # "travis-worker_1317520507" {0ea36f25-89a2-4a79-8e6a-d6f6a4450b8f}
+            # "travis-worker_1317520537" {b567d985-2c8a-4f8f-bcd3-be2d4b60e764}
+            `VBoxManage list vms`.split("\n").map do |vm|
+              vm =~ /"(.*)" {(.*)}/
+              [$1, $2]
+            end
+          end
+
+          def immute_disk(name, uuid)
+            run <<-sh
+              VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium none
+              VBoxManage modifyhd ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type immutable
+              VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type hdd
+            sh
           end
       end
     end
