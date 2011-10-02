@@ -9,8 +9,12 @@ module Travis
          self[:count]
         end
 
+        def name_prefix
+          "travis-#{Travis::Worker.config.env}"
+        end
+
         def names
-          (1..count.to_i).map { |num| "#{Travis::Worker.config.env}-#{num}" }
+          (1..count.to_i).map { |num| "#{name_prefix}-#{num}" }
         end
 
         def provision?
@@ -22,7 +26,7 @@ module Travis
              :messaging => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :shell     => { :buffer => 0 },
              :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install_deps => 300 },
-             :vms       => { :name_prefix => 'worker', :count => 1, :base => 'lucid32', :memory => 1536, :cookbooks => 'vendor/cookbooks', :log_level => 'info', :json => {}, :_include => Vms }
+             :vms       => { :_include => Vms }
 
       def initialize
         super(read)
