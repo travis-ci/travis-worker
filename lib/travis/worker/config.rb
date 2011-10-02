@@ -10,11 +10,11 @@ module Travis
         end
 
         def names
-          ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+          (1..count.to_i).map { |num| "#{Travis::Worker.config.env}-#{num}" }
         end
 
-        def recipes?
-          !!recipes && !recipes.empty?
+        def provision?
+          !recipes.empty? && File.directory?(cookbooks)
         end
       end
 
