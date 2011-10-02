@@ -122,7 +122,7 @@ module Travis
         private
 
           def timeout(options)
-            if options[:timeout].is_a?(Numeric) ?
+            if options[:timeout].is_a?(Numeric)
               options[:timeout]
             else
               timeout = options[:timeout] || :default
