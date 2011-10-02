@@ -17,6 +17,7 @@ module Travis
             rm -rf ~/Library/VirtualBox/*
             rm -rf ~/VirtualBox\\ VMs/
             rm -rf ~/.vagrant
+            rm -rf ~/.vagrant.d
             rm -f  .vagrant
 
             killall VBoxXPCOMIPCD > /dev/null 2>&1

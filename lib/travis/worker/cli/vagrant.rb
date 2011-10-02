@@ -7,53 +7,29 @@ module Travis
   module Worker
     module Cli
       class Vagrant < Thor
-        class << self
-          def config
-            Travis::Worker.config.vms
-          end
-        end
-
         namespace "travis:worker:vagrant"
 
         include Cli
 
-        desc 'rebuild', 'Rebuild all worker vms'
-        method_option :from,  :default => config.base
+        desc 'update', 'Update the worker vms from a base box'
+        method_option :env
         method_option :force, :aliases => '-f', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
-        def rebuild
+        def update
           vbox.reset
 
-          download
-          add_box from, :to => 'base'
-          exit unless up 'base', :provision => true
-          package_box 'base'
-
-          1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
-          end
-          up
+          # download
+          add_box
+          exit unless up
+          # immute_disk env
         end
 
-        desc 'package', 'Package the base.box'
-        def package
-          exit unless up 'base', :provision => true
-          package_box 'base'
-        end
-
-        desc 'import', 'Import the base.box to worker boxes'
-        def import
-          1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
-          end
-        end
-
-        desc 'remove', 'Remove the worker boxes'
-        def remove
-          1.upto(config.count) do |num|
-            destroy "worker-#{num}"
-            remove_box "worker-#{num}"
-          end
-        end
+        # desc 'remove', 'Remove the worker boxes'
+        # def remove
+        #   1.upto(config.count) do |num|
+        #     destroy "worker-#{num}"
+        #     remove_box "worker-#{num}"
+        #   end
+        # end
 
         protected
 
@@ -65,41 +41,42 @@ module Travis
             self.class.config
           end
 
-          def from
-            options['from']
+          def env
+            options['env'] || Travis::Worker.config.env
           end
 
-          def download
-            run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
+          def base
+            "boxes/#{env}.box"
           end
 
-          def add_box(name, options = {})
-            run "vagrant box add #{options[:to] || name} #{name}.box"
+          # def download
+          #   run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
+          # end
+
+          # def immute_disk(name)
+          #   run "VBoxManage modifyhd ~/.vagrant.d/boxes/#{name}/box-disk1.vmdk --type immutable"
+          # end
+
+          def add_box
+            run "vagrant box add #{env} #{base}"
+          end
+
+          def up
+            run "vagrant up --provision=true"
           end
 
           def remove_box(name)
             run "vagrant box remove #{name}"
           end
 
-          def up(name = nil, options = { :provision => false })
-            ENV['WITH_BASE'] = (name == 'base').inspect
-            run "vagrant up #{name} --provision=#{options[:provision].inspect}"
-          end
-
           def destroy(name)
             run "vagrant destroy #{name}"
           end
 
-          def package_box(name)
-            run "rm -rf #{name}.box"
-            run "vagrant package --base #{uuid}"
-            run "mv package.box #{name}.box"
-          end
-
-          def uuid
-            vms = JSON.parse(File.read('.vagrant'))
-            vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
-          end
+          # def uuid
+          #   vms = JSON.parse(File.read('.vagrant'))
+          #   vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
+          # end
       end
     end
   end
