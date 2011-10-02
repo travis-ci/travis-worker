@@ -43,6 +43,8 @@ module Travis
       #
       # Returns the worker.
       def run
+        virtual_machine.prepare
+
         opts = { :ack => true, :blocking => false }
 
         @subscription = jobs_queue.subscribe(opts, &method(:process_job))
@@ -75,7 +77,7 @@ module Travis
         confirm_job_completion(metadata)
 
         true
-      rescue VmNotFound, Errno::ECONNREFUSED
+      rescue Travis::Worker::VirtualMachine::VmNotFound, Errno::ECONNREFUSED
         announce_error
         requeue(metadata)
         raise $!
