@@ -24,21 +24,6 @@ module Travis
       # Public: Returns the virtual machine used by this worker
       attr_reader :virtual_machine
 
-      class << self
-        # Public: Instantiates and runs a worker in a new thread.
-        #
-        # name - The String name of the worker.
-        # jobs_queue - The Queue where builds are published to.
-        # reporting_channel - The Channel used for reporting build results.
-        #
-        # Returns the thread containing the worker.
-        def start_in_background(name, jobs_queue, reporting_channel)
-          Thread.new do
-            self.new(name, jobs_queue, reporting_channel).run
-          end
-        end
-      end
-
       # Public: Instantiates and a new worker.
       #
       # name - The String name of the worker.

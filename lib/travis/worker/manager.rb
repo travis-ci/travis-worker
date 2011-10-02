@@ -5,10 +5,10 @@ module Travis
     # and stopping Worker instances.
     class Manager
 
-      # Public: Returns an Array of threads of Worker instances.
-      attr_reader :worker_threads
+      # Returns an Array of Worker instances.
+      attr_reader :workers
 
-      # Public: Returns the MessagingConnection used by the Manager.
+      # Returns the MessagingConnection used by the Manager.
       attr_reader :messaging_connection
 
       # Public: Initialize a Worker Manager.
@@ -16,7 +16,7 @@ module Travis
       # configuration - A Config to use for connection details (default: nil)
       def initialize(configuration = nil)
         config(configuration)
-        @worker_threads = []
+        @workers = []
         @messaging_connection = MessagingConnection.new(config)
       end
 
@@ -33,7 +33,6 @@ module Travis
       #
       # Returns the current instance of the MessagingConnection.
       def stop
-        stop_workers
         messaging_connection.unbind
         self
       end
@@ -48,24 +47,15 @@ module Travis
           jobs_queue = messaging_connection.jobs_queue
           channel    = messaging_connection.channel
 
-          config.vms.count.times do |num|
-            num += 1
-            name = worker_name(num)
-
+          config.vms.worker_names.each do |name|
             puts "[boot] Starting #{name}"
 
-            worker_threads << Worker.start_in_background(name, jobs_queue, channel)
+            worker = Worker.new(name, jobs_queue, channel)
+            workers << worker
+            worker.run
           end
 
           self
-        end
-
-        # Internal: Stops all current Worker instances, along with the thread
-        # they are running in.
-        def stop_workers
-          worker_threads.each do |thread|
-            thread.stop if thread.alive?
-          end
         end
 
 
@@ -74,10 +64,6 @@ module Travis
         def config(configuration = nil)
           @config ||= configuration || Travis::Worker.config
           @config
-        end
-
-        def worker_name(num)
-          "#{config.vms.name_prefix}-#{num}"
         end
     end
 
