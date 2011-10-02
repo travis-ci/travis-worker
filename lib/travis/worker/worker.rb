@@ -47,7 +47,13 @@ module Travis
 
         opts = { :ack => true, :blocking => false }
 
-        @subscription = jobs_queue.subscribe(opts, &method(:process_job))
+        @subscription = jobs_queue.subscribe(opts) do |meta, payload|
+          begin
+            process_job(meta, payload)
+          rescue => e
+            puts e.inspect
+          end
+        end
 
         announce("Subscribed to the '#{@jobs_queue.name}' queue.")
 
