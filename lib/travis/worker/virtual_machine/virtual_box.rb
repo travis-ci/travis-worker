@@ -90,6 +90,27 @@ module Travis
           true
         end
 
+        # Detects the ssh port for the VM
+        #
+        # Returns the ssh port number if found, otherwise nil
+        def ssh_port
+          max_adapters = machine.parent.system_properties.get_max_network_adapters(machine.chipset_type)
+
+          max_adapters.times do |i|
+            adapter = machine.get_network_adapter(i)
+
+            port_details = adapter.nat_driver.redirects.detect do |redirect|
+              redirect.split(',').first == 'ssh'
+            end
+
+            if port_details
+              return port_details.split(',')[3]
+            end
+          end
+
+          nil
+        end
+
         protected
 
           # Internal: Defers the setup of the virtual box java library as it requires the Travis config
