@@ -7,13 +7,13 @@ module Travis
   module Worker
     module Cli
       class Vagrant < Thor
-        namespace "travis:worker:vagrant"
+        namespace "travis:vms"
 
         include Cli
 
         desc 'update', 'Update the worker vms from a base box'
         method_option :env
-        method_option :force, :aliases => '-f', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
+        method_option :reset,  :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         def update
           vbox.reset
 

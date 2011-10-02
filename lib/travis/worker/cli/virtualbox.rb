@@ -9,7 +9,7 @@ module Travis
         include Cli
 
         desc 'reset', 'Completely reset Virtualbox'
-        method_option :force, :aliases => '-f', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
+        method_option :reset,  :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         def reset
           return unless reset?
           run <<-sh
@@ -29,7 +29,7 @@ module Travis
         protected
 
           def reset?
-            options['force'] || yes?('Do you really want to completely reset Virtualbox? (All existing VMs will be wiped out.)')
+            options['reset'] || yes?('Do you really want to completely reset Virtualbox? (All existing VMs will be wiped out.)')
           end
       end
     end
