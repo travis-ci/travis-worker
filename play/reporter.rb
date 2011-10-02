@@ -38,7 +38,7 @@ class Reporter
   end
 
   def create_reporting_queue
-    @reporting_queue = channel.queue('reporting', :durable => true, :exculsive => false)
+    @reporting_queue = channel.queue('reporting.jobs', :durable => true, :exculsive => false)
   end
 
   def subscribe

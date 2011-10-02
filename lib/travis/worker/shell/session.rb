@@ -37,8 +37,8 @@ module Travis
         #
         # Returns the Net::SSH::Shell
         def connect
-          puts "starting ssh session to #{config.host}:#{vm.ssh.port} ..."
-          options = { :port => vm.ssh.port, :keys => [config.private_key_path] }
+          puts "starting ssh session to #{config.host}:#{config.port} ..."
+          options = { :port => config.port, :keys => [config.private_key_path] }
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
@@ -85,6 +85,10 @@ module Travis
           @on_output = block
         end
 
+        def open?
+          shell ? shell.open? : false
+        end
+
 
         protected
 
@@ -122,7 +126,7 @@ module Travis
         private
 
           def timeout(options)
-            if options[:timeout].is_a?(Numeric) ?
+            if options[:timeout].is_a?(Numeric)
               options[:timeout]
             else
               timeout = options[:timeout] || :default

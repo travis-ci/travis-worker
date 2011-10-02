@@ -21,12 +21,6 @@ module Travis
       class Base
 
         #
-        # Behaviors
-        #
-
-        include Shell
-
-        #
         # API
         #
 
