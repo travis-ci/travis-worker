@@ -10,7 +10,15 @@ module Travis
         end
 
         def names
-          ['base'] + (1..count.to_i).map { |num| "worker-#{num}" }
+          [base_name] + worker_names
+        end
+
+        def base_name
+          "#{name_prefix}-base"
+        end
+
+        def worker_names
+          (1..count.to_i).map { |num| "#{name_prefix}-#{num}" }
         end
 
         def recipes?
