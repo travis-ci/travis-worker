@@ -6,25 +6,25 @@ require 'thread'
 module Travis
   module Worker
 
-    # Public: Represents a single Worker which is bound to a single VM instance.
+    # Represents a single Worker which is bound to a single VM instance.
     class Worker
 
-      # Public: Returns the string name of the worker.
+      # Returns the string name of the worker.
       attr_reader :name
 
-      # Public: Returns the builds queue which the worker subscribes to.
+      # Returns the builds queue which the worker subscribes to.
       attr_reader :jobs_queue
 
-      # Public: Returns the reporting channel used for streaming build results.
+      # Returns the reporting channel used for streaming build results.
       attr_reader :reporting_channel
 
-      # Public: Returns the Subscription to the jobs_queue
+      # Returns the Subscription to the jobs_queue
       attr_reader :subscribtion
 
-      # Public: Returns the virtual machine used by this worker
+      # Returns the virtual machine used by this worker
       attr_reader :virtual_machine
 
-      # Public: Instantiates and a new worker.
+      # Instantiates and a new worker.
       #
       # name - The String name of the worker.
       # jobs_queue - The Queue where jobs are published to.
@@ -39,7 +39,7 @@ module Travis
         @virtual_machine = VirtualMachine::VirtualBox.new(name)
       end
 
-      # Public: Subscribes to the jobs_queue.
+      # Subscribes to the jobs_queue.
       #
       # Returns the worker.
       def run
@@ -60,7 +60,7 @@ module Travis
         self
       end
 
-      # Public: Processes the build job using the messaging payload.
+      # Processes the build job using the messaging payload.
       #
       # metadata - The Headers from the messaging backend
       # payload - The String payload.
