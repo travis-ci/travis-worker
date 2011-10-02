@@ -13,17 +13,9 @@ module Travis
         # @see Travis::Job::Base
         class Repository
 
-          #
-          # Behaviors
-          #
-
-          include Shell
-
-          #
-          # API
-          #
-
           attr_reader :slug
+
+          attr_accessor :shell
 
           # @api public
           def initialize(slug)
@@ -47,7 +39,7 @@ module Travis
 
           # @api plugin
           def exists?
-            exec "test -d #{slug}", :echo => false
+            shell.execute("test -d #{slug}", :echo => false)
           end
 
           #
@@ -58,16 +50,16 @@ module Travis
 
             # @api plugin
             def clone
-              exec('export GIT_ASKPASS=echo', :echo => false) # this makes git interactive auth fail
-              exec("git clone --depth=1000 --quiet #{source} #{slug}") &&
+              shell.execute('export GIT_ASKPASS=echo', :echo => false) # this makes git interactive auth fail
+              shell.execute("git clone --depth=1000 --quiet #{source} #{slug}") &&
                 change_directory
             end
 
             # @api plugin
             def fetch
               change_directory
-              exec('git clean -fdx') &&
-                exec('git fetch')
+              shell.execute('git clean -fdx') &&
+                shell.execute('git fetch')
             end
 
             # @api plugin
@@ -76,11 +68,11 @@ module Travis
             end
 
             def change_directory
-              exec "cd #{slug}", :echo => false
+              shell.execute("cd #{slug}", :echo => false)
             end
 
             def checkout_commit(commit)
-              commit ? exec("git checkout -qf #{commit}") : true
+              commit ? shell.execute("git checkout -qf #{commit}") : true
             end
         end # Repository
       end

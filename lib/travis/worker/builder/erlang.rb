@@ -24,20 +24,21 @@ module Travis
         end
 
         class Commands < Base::Commands
-          def initialize(config)
+          def initialize(config, shell)
             @config = Config.new(config)
+            @shell  = shell
 
             check_for_rebar_config
           end
 
           def setup_env
-            exec "source /home/vagrant/otp/#{config.otp_release}/activate"
+            shell.execute "source /home/vagrant/otp/#{config.otp_release}/activate"
             super
           end
 
           def install_dependencies
             if config.rebar_config_exists?
-              exec('./rebar get-deps', :timeout => :install_deps)
+              shell.execute('./rebar get-deps', :timeout => :install_deps)
             else
               true
             end

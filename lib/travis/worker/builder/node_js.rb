@@ -24,18 +24,20 @@ module Travis
         end
 
         class Commands < Base::Commands
-          def initialize(config)
+          def initialize(config, shell)
             @config = Config.new(config)
+            @shell  = shell
+
             @config.package_exists = file_exists?('package.json')
           end
 
           def setup_env
-            exec("nvm use v#{config.nodejs_version}")
+            shell.execute("nvm use v#{config.nodejs_version}")
             super
           end
 
           def install_dependencies
-            exec("npm install #{config.npm_args}".strip, :timeout => :install_deps) if config.package_exists?
+            shell.execute("npm install #{config.npm_args}".strip, :timeout => :install_deps) if config.package_exists?
             super
           end
         end

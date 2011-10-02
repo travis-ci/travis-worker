@@ -98,8 +98,6 @@ module Travis
         announce_error
         reject_job_completion(metadata)
         false
-      ensure
-        Travis::Worker.discard_shell!
       end
 
 
