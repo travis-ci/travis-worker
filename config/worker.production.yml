@@ -16,21 +16,17 @@ vms:
       rubies:
         - 1.8.7
         - 1.9.2
-        - 1.9.3
+        - 1.9.3-rc1
         - jruby
         - rbx
-        - rbx-2.0.0pre
         - ree
         - ruby-head
-        - 1.9.1-p378
-        - 1.8.6
       gems:
         - bundler
         - rake
         - chef
       aliases:
-        rbx-2.0.0pre: rbx-2.0
-        1.9.1-p378:   1.9.1
+        rbx: rbx-2.0
     nodejs:
       versions:
         - 0.4.11
