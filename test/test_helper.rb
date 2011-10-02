@@ -20,7 +20,7 @@ class Test::Unit::TestCase
   attr_reader :shell
 
   def setup
-    @shell = Travis::Worker.shell = Mock::Shell.new
+    @shell = Mock::Shell.new
     Mocha::Mockery.instance.verify
   end
 
