@@ -47,7 +47,9 @@ module Travis
           jobs_queue = messaging_connection.jobs_queue
           channel    = messaging_connection.channel
 
-          config.vms.worker_names.each do |name|
+          worker_names = Travis::Worker::VirtualMachine::VirtualBox.vm_names
+
+          worker_names.each do |name|
             puts "[boot] Starting #{name}"
 
             worker = Worker.new(name, jobs_queue, channel)
