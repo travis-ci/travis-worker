@@ -36,11 +36,11 @@ module Travis
           local = read_yml(path)
           env   = local['env']
           local = local[env] || {}
-          read_yml(path(env)).merge(local.merge('env' => env))
+          read_yml(path('base')).deep_merge(read_yml(path(env)).deep_merge(local.merge('env' => env)))
         end
 
         def read_yml(path)
-          YAML.load_file(File.expand_path(path))
+          YAML.load_file(File.expand_path(path)) || {}
         end
 
         def path(environment = nil)

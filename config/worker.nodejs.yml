@@ -1,52 +1,5 @@
 queue: nodejs
 shell:
   buffer: 2.0
-timeouts:
-  install_deps: 600
-  before_script: 600
-  script: 7200
 vms:
   count: 5
-  base: lucid32_old
-  memory: 1024
-  cookbooks: 'vendor/cookbooks/vagrant_base'
-  json:
-    nodejs:
-      versions:
-        - 0.4.11
-        - 0.5.5
-    mysql:
-      server_root_password: ""
-    postgresql:
-      max_connections: 256
-    travis_build_environment:
-      use_tmpfs_for_builds: true
-  recipes:
-    - travis_build_environment
-    - apt
-    - build-essential
-    - scons
-    - networking_basic
-    - openssl
-    - sysctl
-    - libyaml
-    - emacs::nox
-    - vim
-    - timetrap
-    - git
-    - libqt4
-    - libv8
-    - nodejs::multi
-    - sqlite
-    - postgresql::client
-    - postgresql::server
-    - mysql::client
-    - mysql::server
-    - redis
-    - riak
-    - mongodb
-    - memcached
-    - rabbitmq::with_management_plugin
-    - imagemagick
-    - sphinx::all
-    - xserver
