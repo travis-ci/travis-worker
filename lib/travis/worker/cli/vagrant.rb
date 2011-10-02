@@ -24,34 +24,34 @@ module Travis
           vbox.reset
 
           download
-          add_box from, :to => 'base'
-          exit unless up 'base', :provision => true
-          package_box 'base'
+          add_box from, :to => config.base_name
+          exit unless up(config.base_name, :provision => true)
+          package_box config.base_name
 
           1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
+            add_box config.base_name, :to => "#{config.name_prefix}-#{num}"
           end
           up
         end
 
-        desc 'package', 'Package the base.box'
+        desc 'package', 'Package the worker-base.box'
         def package
-          exit unless up 'base', :provision => true
-          package_box 'base'
+          exit unless up config.base_name, :provision => true
+          package_box config.base_name
         end
 
         desc 'import', 'Import the base.box to worker boxes'
         def import
           1.upto(config.count) do |num|
-            add_box 'base', :to => "worker-#{num}"
+            add_box config.base_name, :to => "#{config.name_prefix}-#{num}"
           end
         end
 
         desc 'remove', 'Remove the worker boxes'
         def remove
           1.upto(config.count) do |num|
-            destroy "worker-#{num}"
-            remove_box "worker-#{num}"
+            destroy "#{config.name_prefix}-#{num}"
+            remove_box "#{config.name_prefix}-#{num}"
           end
         end
 
@@ -82,7 +82,7 @@ module Travis
           end
 
           def up(name = nil, options = { :provision => false })
-            ENV['WITH_BASE'] = (name == 'base').inspect
+            ENV['WITH_BASE'] = (name == config.base_name).inspect
             run "vagrant up #{name} --provision=#{options[:provision].inspect}"
           end
 
@@ -92,13 +92,13 @@ module Travis
 
           def package_box(name)
             run "rm -rf #{name}.box"
-            run "vagrant package --base #{uuid}"
+            run "vagrant package --base #{uuid(name)}"
             run "mv package.box #{name}.box"
           end
 
-          def uuid
+          def uuid(name)
             vms = JSON.parse(File.read('.vagrant'))
-            vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
+            vms['active'][name] || raise("could not find #{name} uuid in #{vms.inspect}")
           end
       end
     end
