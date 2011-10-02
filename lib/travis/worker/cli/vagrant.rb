@@ -13,8 +13,9 @@ module Travis
 
         desc 'update', 'Update the worker vms from a base box'
         method_option :env
-        method_option :immute,  :aliases => '-i', :type => :boolean, :default => true, :desc => 'Make all disks in the current vagrant environment immutable'
-        method_option :reset,  :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
+        method_option :immute, :aliases => '-i', :type => :boolean, :default => false, :desc => 'Make all disks in the current vagrant environment immutable'
+        method_option :snapshot, :aliases => '-s', :type => :boolean, :default => true, :desc => 'Take online snapshots of all vms'
+        method_option :reset, :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         def update
           vbox.reset
 
@@ -24,12 +25,21 @@ module Travis
           immute
         end
 
-        desc 'immute', "Make all disks in the current vagrant environment immutable"
+        desc 'immute', 'Make all disks in the current vagrant environment immutable'
         def immute
-          halt
-          uuids.each do |name, uuid|
-            immute_disk(name, uuid)
-          end
+          modify_disks('immutable')
+        end
+
+        desc 'unimmute', 'Make all disks in the current vagrant environment immutable'
+        def unimmute
+          modify_disks('normal')
+        end
+
+        desc 'snapshot', 'Take online snapshots of all vms'
+        def snapshot
+          up
+          pause
+          vms.each { |name, uuid| take_snapshot(name, uuid) }
         end
 
         # desc 'remove', 'Remove the worker boxes'
@@ -66,12 +76,16 @@ module Travis
             run "vagrant box add #{env} #{base}"
           end
 
-          def halt
-            run 'vagrant halt'
-          end
-
           def up
             run "vagrant up --provision=true"
+          end
+
+          def pause
+            vms.each { |name, uuid| pause_vm(name) }
+          end
+
+          def halt
+            run 'vagrant halt'
           end
 
           def remove_box(name)
@@ -82,26 +96,32 @@ module Travis
             run "vagrant destroy #{name}"
           end
 
-          def uuid
-            vms = JSON.parse(File.read('.vagrant'))
-            vms['active']['base'] || raise("could not find base uuid in #{vms.inspect}")
-          end
-
-          def uuids
-            # "travis-worker_1317520507" {0ea36f25-89a2-4a79-8e6a-d6f6a4450b8f}
-            # "travis-worker_1317520537" {b567d985-2c8a-4f8f-bcd3-be2d4b60e764}
+          def vms
             `VBoxManage list vms`.split("\n").map do |vm|
               vm =~ /"(.*)" {(.*)}/
               [$1, $2]
             end
           end
 
-          def immute_disk(name, uuid)
+          def pause_vm(name)
+            run "VBoxManage controlvm #{name} pause"
+          end
+
+          def modify_disks(type)
+            halt
+            vms.each { |name, uuid| modify_disk(name, uuid, type) }
+          end
+
+          def modify_disk(name, uuid, type)
             run <<-sh
               VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium none
-              VBoxManage modifyhd ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type immutable
+              VBoxManage modifyhd ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type #{type}
               VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type hdd
             sh
+          end
+
+          def take_snapshot(name, uuid)
+            run "VBoxManage snapshot '#{name}' take 'initial snapshot'"
           end
       end
     end
