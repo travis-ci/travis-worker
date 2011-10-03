@@ -13,6 +13,7 @@
 # You may need to make /dev/vboxdrv accessible by the current user, either by chmoding the file
 # or by adding the user to the group assigned to the file.
 #
+$: << File.expand_path('../../../../../vendor/virtualbox-4.1.2', __FILE__)
 require 'java'
 
 java_import 'java.util.List'
@@ -94,6 +95,15 @@ module Travis
           raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
+        def shell
+          @shell ||= Travis::Worker::Shell::Session.new(
+            :host => '127.0.0.1',
+            :port => ssh_port,
+            :username => 'vagrant',
+            :private_key_path => File.expand_path("keys/vagrant")
+          )
+        end
+
         # Yields a block within a sandboxed virtual box environment
         #
         # block - A required block to be executed during the sandboxing.
@@ -115,10 +125,11 @@ module Travis
         def prepare
           if requires_snapshot?
             restart
-            sleep(90)
+            wait_for_boot
+            # sleep(90)
             pause
             snapshot
-            sleep(5)
+            sleep(5) # what do we wait for here? is there a condition we can wait for?
           end
           true
         end
@@ -207,6 +218,11 @@ module Travis
             with_session do |session|
               session.console.restore_snapshot(machine.current_snapshot)
             end
+          end
+
+          def wait_for_boot
+            shell.connect(true)
+            shell.close
           end
 
           def with_session(lock = true)

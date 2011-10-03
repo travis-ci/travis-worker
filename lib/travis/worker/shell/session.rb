@@ -23,7 +23,7 @@ module Travis
         #         a block is provided then the session will be started, block evaluated,
         #         and then the session will be closed.
         def initialize(config)
-          @config = config
+          @config = Hashr.new(config)
           @shell  = nil
 
           if block_given?
@@ -36,8 +36,8 @@ module Travis
         # Connects to the remote host.
         #
         # Returns the Net::SSH::Shell
-        def connect
-          puts "starting ssh session to #{config.host}:#{config.port} ..."
+        def connect(silent = false)
+          puts "starting ssh session to #{config.host}:#{config.port} ..." unless silent
           options = { :port => config.port, :keys => [config.private_key_path] }
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end

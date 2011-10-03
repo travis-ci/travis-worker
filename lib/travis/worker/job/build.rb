@@ -49,15 +49,7 @@ module Travis
         protected
 
           def shell
-            @shell ||= begin
-              connection_details = Hashr.new({
-                :host => '127.0.0.1',
-                :port => virtual_machine.ssh_port,
-                :username => 'vagrant',
-                :private_key_path => File.expand_path("keys/vagrant")
-              })
-              Travis::Worker::Shell::Session.new(connection_details)
-            end
+            virtual_machine.shell
           end
 
           def setup_shell_logging
