@@ -218,7 +218,7 @@ module Travis
             progress.wait_for_completion(-1) if progress
             sleep(0.5)
 
-            session.unlock_machine
+            session.unlock_machine if lock
           end
       end
     end
