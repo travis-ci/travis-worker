@@ -30,8 +30,8 @@ module Travis
         def install_signal_traps
           announce("About to install signal traps...")
 
-          Signal.trap("INT")  { self.manager.stop }
-          Signal.trap("TERM") { self.manager.stop }
+          Signal.trap("INT")  { self.manager.stop; exit }
+          Signal.trap("TERM") { self.manager.stop; exit }
         end
 
         def announce(what)
