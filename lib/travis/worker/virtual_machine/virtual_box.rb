@@ -125,10 +125,11 @@ module Travis
         def prepare
           if requires_snapshot?
             restart
-            sleep(90)
+            wait_for_boot
+            # sleep(90)
             pause
             snapshot
-            sleep(5)
+            sleep(5) # what do we wait for here? is there a condition we can wait for?
           end
           true
         end
@@ -217,6 +218,11 @@ module Travis
             with_session do |session|
               session.console.restore_snapshot(machine.current_snapshot)
             end
+          end
+
+          def wait_for_boot
+            shell.connect(true)
+            shell.close
           end
 
           def with_session(lock = true)
