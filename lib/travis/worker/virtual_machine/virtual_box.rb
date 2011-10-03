@@ -95,6 +95,15 @@ module Travis
           raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
+        def shell
+          @shell ||= Travis::Worker::Shell::Session.new(
+            :host => '127.0.0.1',
+            :port => ssh_port,
+            :username => 'vagrant',
+            :private_key_path => File.expand_path("keys/vagrant")
+          )
+        end
+
         # Yields a block within a sandboxed virtual box environment
         #
         # block - A required block to be executed during the sandboxing.

@@ -23,7 +23,7 @@ module Travis
         #         a block is provided then the session will be started, block evaluated,
         #         and then the session will be closed.
         def initialize(config)
-          @config = config
+          @config = Hashr.new(config)
           @shell  = nil
 
           if block_given?
