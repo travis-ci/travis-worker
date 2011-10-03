@@ -13,6 +13,7 @@
 # You may need to make /dev/vboxdrv accessible by the current user, either by chmoding the file
 # or by adding the user to the group assigned to the file.
 #
+$: << File.expand_path('../../../../../vendor/virtualbox-4.1.2', __FILE__)
 require 'java'
 
 java_import 'java.util.List'
