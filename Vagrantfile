@@ -9,6 +9,10 @@ Vagrant::Config.run do |c|
     c.vm.define(name) do |box|
       box.vm.box = Travis::Worker.config.env
       box.vm.forward_port('ssh', 22, 2220 + num)
+
+      box.vm.customize do |vm|
+        vm.name = "#{config.name_prefix}-#{num + 1}"
+      end
     end
   end
 end
