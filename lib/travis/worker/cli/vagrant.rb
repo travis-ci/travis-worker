@@ -6,6 +6,7 @@ require 'travis/worker'
 module Travis
   module Worker
     module Cli
+
       class Vagrant < Thor
         namespace "travis:vms"
 
@@ -13,13 +14,18 @@ module Travis
 
         desc 'update', 'Update the worker vms from a base box'
         method_option :env
-        method_option :immute, :aliases => '-i', :type => :boolean, :default => false, :desc => 'Make all disks in the current vagrant environment immutable'
-        method_option :snapshot, :aliases => '-s', :type => :boolean, :default => true, :desc => 'Take online snapshots of all vms'
-        method_option :reset, :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
-        def update
-          vbox.reset
+        method_option :immute,   :aliases => '-i', :type => :boolean, :default => false, :desc => 'Make all disks in the current vagrant environment immutable'
+        method_option :snapshot, :aliases => '-s', :type => :boolean, :default => true,  :desc => 'Take online snapshots of all vms'
+        method_option :reset,    :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
+        method_option :local,    :aliases => '-l', :type => :boolean, :default => true,  :desc => 'Copy the packaged base box from ../travis-boxes/boxes to ./boxes otherwise upload them to s3'
 
-          # download
+        def update
+          vbox.reset if options[:reset]
+
+          remove_base_box
+
+          options[:local] ? local : download
+
           add_box
           exit unless up
           immute
@@ -65,15 +71,22 @@ module Travis
           end
 
           def base
-            "boxes/#{env}.box"
+            "boxes/travis-#{env}.box"
           end
 
+          def remove_base_box
+            run "rm -rf boxes/travis-#{env}.box"
+          end
+
+          def local
+            run "cp ../travis-boxes/boxes/travis-#{env}.box boxes"
+          end
           # def download
           #   run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
           # end
 
           def add_box
-            run "vagrant box add #{env} #{base}"
+            run "vagrant box add travis-#{env} #{base}"
           end
 
           def up
@@ -124,6 +137,7 @@ module Travis
             run "VBoxManage snapshot '#{name}' take 'initial snapshot'"
           end
       end
+
     end
   end
 end
