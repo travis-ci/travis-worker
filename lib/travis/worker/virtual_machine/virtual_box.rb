@@ -28,7 +28,7 @@ module Travis
       class VmNotFound < StandardError; end
 
       # A simple encapsulation of the VirtualBox commands used in the
-      # Travis Virtual Machine test lifecycle.
+      # Travis Virtual Machine lifecycle.
       class VirtualBox
 
         class << self
