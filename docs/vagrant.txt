@@ -1,1 +1,0 @@
-http://daniel.hepper.net/blog/2011/03/fixing-a-messed-up-vagrant-installation/
