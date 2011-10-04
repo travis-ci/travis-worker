@@ -3,6 +3,5 @@ timeouts:
   before_script: 600
   script: 7200
 vms:
-  cookbooks: '../travis-cookbooks/vagrant_base'
   vbox_home: '/Applications/VirtualBox.app/Contents/MacOS'
 
