@@ -95,6 +95,9 @@ module Travis
           raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
+        # Prepares a ssh session bound to the virtual box vm.
+        #
+        # Returns a Shell::Session.
         def shell
           @shell ||= Travis::Worker::Shell::Session.new(
             :host => '127.0.0.1',
