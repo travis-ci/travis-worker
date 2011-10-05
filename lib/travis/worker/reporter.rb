@@ -23,7 +23,6 @@ module Travis
       end
 
       def message(type, data, options = {})
-        data = MultiJson.encode(data) if data.is_a?(Hash)
         messaging_hub.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY, :arguments => { 'x-incremental' => !!options[:incremental] })
       end
 
