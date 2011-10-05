@@ -14,7 +14,7 @@ GEM
     ffi (1.0.9-java)
     god (0.11.0)
     hashr (0.0.16)
-    hot_bunnies (1.1.3-java)
+    hot_bunnies (1.2.0-java)
     i18n (0.6.0)
     jruby-openssl (0.7.4)
       bouncy-castle-java
@@ -70,7 +70,7 @@ DEPENDENCIES
   faraday (~> 0.7.3)
   god
   hashr (~> 0.0.13)
-  hot_bunnies
+  hot_bunnies (>= 1.2.0)
   jruby-openssl
   json
   minitest

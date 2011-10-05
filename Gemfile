@@ -8,7 +8,7 @@ gem 'vagrant',    '~> 0.8.0'
 
 platform :jruby do
   gem 'jruby-openssl'
-  gem 'hot_bunnies'
+  gem 'hot_bunnies', '>= 1.2.0'
 end
 
 gem 'faraday',       '~> 0.7.3'
