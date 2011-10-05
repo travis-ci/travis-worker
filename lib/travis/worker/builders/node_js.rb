@@ -5,7 +5,7 @@ module Travis
       module NodeJs
         class Config < Base::Config
           def nodejs_version
-            normalize(self[:nodejs], '0.4.11')
+            normalize(self[:nodejs], '0.4.12')
           end
 
           def package_exists?
