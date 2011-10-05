@@ -129,10 +129,8 @@ module Travis
           if requires_snapshot?
             restart
             wait_for_boot
-            # sleep(90)
             pause
             snapshot
-            sleep(5) # what do we wait for here? is there a condition we can wait for?
           end
           true
         end
@@ -215,6 +213,7 @@ module Travis
             with_session do |session|
               session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now}")
             end
+            sleep(3) # this makes sure the snapshot is finished and ready
           end
 
           def rollback
@@ -224,8 +223,10 @@ module Travis
           end
 
           def wait_for_boot
-            shell.connect(true)
+            sleep(60)
+            shell.connect(false)
             shell.close
+            sleep(10) # make sure the vm has some time to start other services
           end
 
           def with_session(lock = true)
