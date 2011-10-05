@@ -20,7 +20,7 @@ end
 
 class BuilderNodeJsConfigTests < BuilderNodeJsTestCase
   def test_config_default_nodejs_version
-    assert_equal('0.4.11', new_config.nodejs_version)
+    assert_equal('0.4.12', new_config.nodejs_version)
   end
 
   def test_config_custom_nodejs_version
@@ -58,7 +58,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.11").
+      with("nvm use v0.4.12").
       once
 
     new_commands.setup_env
@@ -70,7 +70,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.11").
+      with("nvm use v0.4.12").
       once
 
     commands_any_instance.expects(:exec).
@@ -86,7 +86,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.11").
+      with("nvm use v0.4.12").
       once
     new_commands.setup_env
   end
