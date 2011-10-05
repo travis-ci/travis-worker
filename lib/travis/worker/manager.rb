@@ -8,8 +8,6 @@ module Travis
       # Returns an Array of Worker instances.
       attr_reader :workers
 
-      # Returns the MessagingConnection used by the Manager.
-      attr_reader :messaging_hub
 
       # Initialize a Worker Manager.
       #
@@ -17,14 +15,13 @@ module Travis
       def initialize(configuration = nil)
         config(configuration)
         @workers = []
-        @messaging_hub = MessagingHub.new(config)
       end
 
       # Connects to the messaging broker and starts the workers.
       #
       # Returns the current instance of the MessagingConnection.
       def start
-        messaging_hub.bind
+        connect_messaging
         start_workers
         self
       end
@@ -33,7 +30,8 @@ module Travis
       #
       # Returns the current instance of the MessagingConnection.
       def stop
-        messaging_hub.unbind
+        stop_workers
+        disconnect_messaging
         self
       end
 
@@ -44,26 +42,39 @@ module Travis
         #
         # Returns the current instance of the MessagingConnection.
         def start_workers
-          jobs_queue = messaging_hub.jobs_queue
-          channel    = messaging_hub.channel
+          declare_queues
 
-          worker_names = Travis::Worker::VirtualMachine::VirtualBox.vm_names
+          worker_names = VirtualMachine::VirtualBox.vm_names
 
           worker_names.each do |name|
             puts "[boot] Starting #{name}"
 
-            worker = Worker.new(name, jobs_queue, channel)
+            worker = Worker.new(name)
             workers << worker
             worker.run
           end
 
-          messaging_hub.prefetch_messages = workers.count
-
           self
+        end
+
+        def stop_workers
+          workers.each { |worker| worker.cancel }
         end
 
 
       private
+
+        def connect_messaging
+          Messaging.connect
+        end
+
+        def disconnect_messaging
+          Messaging.disconnect
+        end
+
+        def declare_queues
+          Messaging.declare_queues('builds', 'reporting.jobs')
+        end
 
         def config(configuration = nil)
           @config ||= configuration || Travis::Worker.config

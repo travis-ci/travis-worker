@@ -12,14 +12,8 @@ module Travis
       # Returns the string name of the worker.
       attr_reader :name
 
-      # Returns the builds queue which the worker subscribes to.
-      attr_reader :jobs_queue
-
-      # Returns the reporting channel used for streaming build results.
-      attr_reader :reporting_channel
-
-      # Returns the Subscription to the jobs_queue
-      attr_reader :subscribtion
+      # Returns the messaging hub used for builds queue
+      attr_reader :messaging_hub
 
       # Returns the virtual machine used by this worker
       attr_reader :virtual_machine
@@ -31,11 +25,9 @@ module Travis
       # reporting_channel - The Channel used for reporting build results.
       #
       # Returns the thread containing the worker.
-      def initialize(name, jobs_queue, reporting_channel)
+      def initialize(name)
         @name = name
-        @jobs_queue = jobs_queue
-        @reporting_channel = reporting_channel
-        @subscription = nil
+        @messaging_hub = Messaging.hub('builds')
         @virtual_machine = VirtualMachine::VirtualBox.new(name)
       end
 
@@ -47,7 +39,7 @@ module Travis
 
         opts = { :ack => true, :blocking => false }
 
-        @subscription = jobs_queue.subscribe(opts) do |meta, payload|
+        messaging_hub.subscribe(opts) do |meta, payload|
           begin
             process_job(meta, payload)
           rescue => e
@@ -55,7 +47,7 @@ module Travis
           end
         end
 
-        announce("Subscribed to the '#{@jobs_queue.name}' queue.")
+        announce("Subscribed to the '#{messaging_hub.name}' queue.")
 
         self
       end
@@ -93,6 +85,10 @@ module Travis
         false
       end
 
+      def stop
+        messaging_hub.close
+      end
+
 
       private
 
@@ -102,9 +98,7 @@ module Travis
         #
         # Returns ?
         def create_job_and_work(payload)
-          job = Job.create(payload, virtual_machine)
-          job.observers << Reporter.new(reporting_channel)
-          job.work!
+          Job.create(payload, virtual_machine).work!
         end
 
         def confirm_job_completion(metadata)

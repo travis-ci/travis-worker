@@ -39,15 +39,15 @@ module Travis
         # @api public
         attr_reader :payload
         # @api plugin
-        attr_reader :observers
+        attr_reader :reporter
 
         attr_reader :virtual_machine
 
         # @api public
         def initialize(payload, virtual_machine)
           @virtual_machine = virtual_machine
-          @payload   = Hashr.new(payload)
-          @observers = []
+          @payload  = Hashr.new(payload)
+          @reporter = Reporter.new
         end
 
         # Runs the build, including necessary setup and post-run routines.
@@ -86,9 +86,7 @@ module Travis
 
           # @api plugin
           def notify(event, *args)
-            observers.each do |observer|
-              observer.send(:"on_#{event}", *args) if observer.respond_to?(:"on_#{event}")
-            end
+            reporter.send(:"on_#{event}", *args) if reporter.respond_to?(:"on_#{event}")
           end
 
           def build_dir

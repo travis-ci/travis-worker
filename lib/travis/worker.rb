@@ -9,7 +9,7 @@ module Travis
     autoload :Config,       'travis/worker/config'
     autoload :Job,          'travis/worker/job'
     autoload :Manager,      'travis/worker/manager'
-    autoload :MessagingHub, 'travis/worker/messaging_hub'
+    autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
     autoload :Worker,       'travis/worker/worker'
 

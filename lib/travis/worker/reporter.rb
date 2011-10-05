@@ -4,10 +4,10 @@ module Travis
 
       ROUTING_KEY = 'reporting.jobs'
 
-      attr_reader :exchange
+      attr_reader :messaging_hub
 
-      def initialize(channel)
-        @exchange = channel.exchange('', :type => :direct, :durable => true)
+      def initialize
+        @messaging_hub = Messaging.hub(ROUTING_KEY)
       end
 
       def on_start(data)
@@ -24,7 +24,7 @@ module Travis
 
       def message(type, data, options = {})
         data = MultiJson.encode(data) if data.is_a?(Hash)
-        exchange.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY, :arguments => { 'x-incremental' => !!options[:incremental] })
+        messaging_hub.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY, :arguments => { 'x-incremental' => !!options[:incremental] })
       end
 
     end
