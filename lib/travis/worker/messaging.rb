@@ -28,11 +28,13 @@ module Travis
         end
 
         def declare_queues(*queue_names)
-          channel  = connection.create_channel
+          channel = connection.create_channel
 
           queue_names.each do |queue_name|
             channel.queue(queue_name, :durable => true, :exculsive => false)
           end
+
+          channel.close
         end
 
         def hub(name)
