@@ -43,5 +43,16 @@ class Test::Unit::TestCase
       shell.expects(method).in_sequence(shell_commands).with(command, anything).returns(returns).once
     end
   end
+
+  def assert_stdout_equals(expected_stdout, &block)
+    old_std_out = $stdout
+    $stdout = StringIO.new
+
+    yield block
+
+    assert_equal expected_stdout, $stdout.string
+
+    $stdout = old_std_out
+  end
 end
 

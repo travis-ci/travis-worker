@@ -105,7 +105,7 @@ class BuilderErlangCommandsTests < BuilderErlangTestCase
       with("test -f Rebar.config", :echo => false).
       once.returns(false)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 
   def test_commands_install_dependencies_with_rebar
@@ -114,9 +114,9 @@ class BuilderErlangCommandsTests < BuilderErlangTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with('./rebar get-deps', :timeout => :install_deps).
+      with('./rebar get-deps', :timeout => :install).
       once.returns(true)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 end

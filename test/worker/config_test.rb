@@ -37,20 +37,20 @@ class WorkerConfigTest < Test::Unit::TestCase
     assert_equal 'bar', Config.new.read['bar']
   end
 
+  test 'default timeout is 180' do
+    assert_equal 180, config.timeouts.default
+  end
+
+  test 'install timeout defaults to 300' do
+    assert_equal 300, config.timeouts.install
+  end
+
   test 'before_script timeout defaults to 300' do
     assert_equal 300, config.timeouts.before_script
   end
 
-  test 'after_script timeout defaults to 120' do
-    assert_equal 120, config.timeouts.after_script
-  end
-
   test 'script timeout defaults to 600' do
     assert_equal 600, config.timeouts.script
-  end
-
-  test 'bundle timeout defaults to 300' do
-    assert_equal 300, config.timeouts.install_deps
   end
 
   test 'queue defaults to builds' do

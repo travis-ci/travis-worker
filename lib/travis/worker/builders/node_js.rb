@@ -21,6 +21,16 @@ module Travis
               'make test'
             end
           end
+
+          def install
+            if !self[:install].nil?
+              self[:install]
+            elsif package_exists?
+              "npm install #{npm_args}".strip
+            else
+              nil
+            end
+          end
         end
 
         class Commands < Base::Commands
@@ -31,11 +41,6 @@ module Travis
 
           def setup_env
             exec("nvm use v#{config.nodejs_version}")
-            super
-          end
-
-          def install_dependencies
-            exec("npm install #{config.npm_args}".strip, :timeout => :install_deps) if config.package_exists?
             super
           end
         end

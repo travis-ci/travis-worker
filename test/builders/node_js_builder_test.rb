@@ -96,7 +96,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       with("test -f package.json", :echo => false).
       once.returns(false)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 
   def test_commands_install_dependencies_with_package_without_npm_args
@@ -105,10 +105,10 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("npm install", :timeout => :install_deps).
-      once
+      with("npm install", :timeout => :install).
+      once.returns(true)
 
-    assert new_commands.install_dependencies
+    assert new_commands.run_install_dependencies
   end
 
   def test_commands_install_dependencies_with_package_with_npm_args
@@ -117,9 +117,9 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("npm install --foobar", :timeout => :install_deps).
-      once
+      with("npm install --foobar", :timeout => :install).
+      once.returns(true)
 
-    assert new_commands(:npm_args => '--foobar').install_dependencies
+    assert new_commands(:npm_args => '--foobar').run_install_dependencies
   end
 end

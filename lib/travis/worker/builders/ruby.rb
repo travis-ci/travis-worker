@@ -25,6 +25,16 @@ module Travis
               'rake'
             end
           end
+
+          def install
+            if !self[:install].nil?
+              self[:install]
+            elsif gemfile_exists?
+              "bundle install #{bundler_args}".strip
+            else
+              nil
+            end
+          end
         end
 
         class Commands < Base::Commands
@@ -37,11 +47,6 @@ module Travis
           def setup_env
             exec("rvm use #{config.rvm}")
             exec("export BUNDLE_GEMFILE=#{pwd}/#{config.gemfile}") if config.gemfile_exists?
-            super
-          end
-
-          def install_dependencies
-            exec("bundle install #{config.bundler_args}".strip, :timeout => :install_deps) if config.gemfile_exists?
             super
           end
         end
