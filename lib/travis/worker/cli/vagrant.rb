@@ -28,24 +28,7 @@ module Travis
 
           add_box
           exit unless up
-          immute
-        end
-
-        desc 'immute', 'Make all disks in the current vagrant environment immutable'
-        def immute
-          modify_disks('immutable')
-        end
-
-        desc 'unimmute', 'Make all disks in the current vagrant environment immutable'
-        def unimmute
-          modify_disks('normal')
-        end
-
-        desc 'snapshot', 'Take online snapshots of all vms'
-        def snapshot
-          up
-          pause
-          vms.each { |name, uuid| take_snapshot(name, uuid) }
+          halt
         end
 
         # desc 'remove', 'Remove the worker boxes'
@@ -90,11 +73,7 @@ module Travis
           end
 
           def up
-            run "vagrant up --provision=true"
-          end
-
-          def pause
-            vms.each { |name, uuid| pause_vm(name) }
+            run "vagrant up"
           end
 
           def halt
@@ -107,34 +86,6 @@ module Travis
 
           def destroy(name)
             run "vagrant destroy #{name}"
-          end
-
-          def vms
-            `VBoxManage list vms`.split("\n").map do |vm|
-              vm =~ /"(.*)" {(.*)}/
-              [$1, $2]
-            end
-          end
-
-          def pause_vm(name)
-            run "VBoxManage controlvm #{name} pause"
-          end
-
-          def modify_disks(type)
-            halt
-            vms.each { |name, uuid| modify_disk(name, uuid, type) }
-          end
-
-          def modify_disk(name, uuid, type)
-            run <<-sh
-              VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium none
-              VBoxManage modifyhd ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type #{type}
-              VBoxManage storageattach #{uuid} --storagectl "SATA Controller" --port 0 --device 0 --medium ~/VirtualBox\\ VMs/#{name}/box-disk1.vmdk --type hdd
-            sh
-          end
-
-          def take_snapshot(name, uuid)
-            run "VBoxManage snapshot '#{name}' take 'initial snapshot'"
           end
       end
 
