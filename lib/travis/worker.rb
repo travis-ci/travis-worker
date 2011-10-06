@@ -19,6 +19,10 @@ module Travis
       autoload :Session,    'travis/worker/shell/session'
     end
 
+    module Util
+      autoload :Retryable,  'travis/worker/util/retryable'
+    end
+
     module VirtualMachine
       autoload :VirtualBox, 'travis/worker/virtual_machine/virtual_box'
     end
