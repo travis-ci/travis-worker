@@ -71,6 +71,10 @@ module Travis
             java_import 'org.virtualbox_4_1.LockType'
             java_import 'org.virtualbox_4_1.MachineState'
             java_import 'org.virtualbox_4_1.IMachineStateChangedEvent'
+            java_import 'org.virtualbox_4_1.DeviceType'
+            java_import 'org.virtualbox_4_1.AccessMode'
+            java_import 'org.virtualbox_4_1.MediumType'
+            java_import 'org.virtualbox_4_1.SessionState'
           end
         end
 
@@ -128,7 +132,7 @@ module Travis
         # Returns true.
         def prepare
           if requires_snapshot?
-            restart
+            restart { immutate }
             wait_for_boot
             pause
             snapshot
@@ -201,6 +205,7 @@ module Travis
 
           def restart
             power_off if running?
+            yield if block_given?
             power_on
           end
 
@@ -223,6 +228,40 @@ module Travis
             end
           end
 
+          def immutate
+            return if immutable?
+
+            attachment = machine.medium_attachments.detect { |ma| ma.controller =~ /SATA/ }
+
+            controller_name = attachment.controller
+            medium_path     = attachment.medium.location.to_s
+
+            detach_device(controller_name)
+
+            medium = manager.vbox.open_medium(medium_path, DeviceType::HardDisk, AccessMode::ReadWrite, false)
+            medium.type = MediumType::Immutable
+
+            attach_device(controller_name, medium)
+          end
+
+          def immutable?
+            machine.medium_attachments.detect { |ma| ma.controller =~ /SATA/ }.medium.type == MediumType::Immutable
+          end
+
+          def detach_device(controller_name)
+            with_session do |session|
+              session.machine.detach_device(controller_name, 0, 0)
+              session.machine.save_settings
+            end
+          end
+
+          def attach_device(controller_name, medium)
+            with_session do |session|
+              session.machine.attach_device(controller_name, 0, 0, DeviceType::HardDisk, medium)
+              session.machine.save_settings
+            end
+          end
+
           def wait_for_boot
             retryable(:tries => 3) do
               shell.connect(false)
@@ -239,8 +278,8 @@ module Travis
             progress = yield(session)
             progress.wait_for_completion(-1) if progress
             sleep(0.5)
-
-            session.unlock_machine if lock
+          ensure
+            session.unlock_machine if session && session.state == SessionState::Locked
           end
       end
     end
