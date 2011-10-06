@@ -1,6 +1,7 @@
 require 'pathname'
 require 'fileutils'
 require 'hashr'
+require 'multi_json'
 require 'travis/worker/job/helpers/repository'
 
 module Travis
@@ -83,6 +84,11 @@ module Travis
         #
 
         protected
+
+          def reporting_payload(extra)
+            payload = { :task_id => build[:id], :slug => repository.slug }.merge(extra)
+            MultiJson.encode(payload)
+          end
 
           # @api plugin
           def notify(event, *args)

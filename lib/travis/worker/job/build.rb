@@ -31,22 +31,36 @@ module Travis
         end
 
         def start
-          notify(:start, :started_at => Time.now, :queue => Travis::Worker.config.queue)
-          update(:log => "Using worker: #{Travis::Worker.name}\n\n")
+          payload = reporting_payload({
+            :started_at => Time.now,
+            :queue => Travis::Worker.config.queue
+          })
+          notify(:start, payload)
+          update(:log => "Using worker: #{worker_name}\n\n")
         end
 
         def update(data)
           log << data[:log] if data.key?(:log)
-          notify(:update, data)
+          payload = reporting_payload(data)
+          notify(:update, payload)
         end
 
         def finish
-          notify(:finish, :log => log, :status => status, :finished_at => Time.now)
+          payload = reporting_payload({
+            :log => log,
+            :status => status,
+            :finished_at => Time.now
+          })
+          notify(:finish, payload)
           shell.close if shell.open?
         end
 
 
         protected
+
+          def worker_name
+            "#{Travis::Worker.hostname}:#{virtual_machine.name}"
+          end
 
           def shell
             virtual_machine.shell
