@@ -30,6 +30,7 @@ module Travis
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
       class VirtualBox
+        include Util::Retryable
 
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
@@ -223,9 +224,10 @@ module Travis
           end
 
           def wait_for_boot
-            sleep(60)
-            shell.connect(false)
-            shell.close
+            retryable(:tries => 3) do
+              shell.connect(false)
+              shell.close
+            end
             sleep(10) # make sure the vm has some time to start other services
           end
 
