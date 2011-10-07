@@ -8,6 +8,7 @@ module Travis
 
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
+      include Util::Logging
 
       # Returns the string name of the worker.
       attr_reader :name
@@ -35,6 +36,8 @@ module Travis
       #
       # Returns the worker.
       def run
+        announce("Starting worker #{name}")
+
         virtual_machine.prepare
 
         opts = { :ack => true, :blocking => false }
@@ -64,13 +67,11 @@ module Travis
       # Raises VmNotFound if the VM can not be found
       # Raises Errno::ECONNREFUSED if the SSH connection is refused
       def process_job(metadata, payload)
+        Thread.current[:logging_header] = logging_header
+
         deserialized = deserialized_payload(payload)
 
-        announce("Handling #{deserialized.inspect}")
-
         create_job_and_work(deserialized)
-
-        announce("Done")
 
         confirm_job_completion(metadata)
 
@@ -89,48 +90,42 @@ module Travis
         messaging_hub.close
       end
 
+      def logging_header
+        name
+      end
 
       private
 
         # Internal: Creates a job from the payload and executes it.
         #
         # payload - The job payload.
-        #
-        # Returns ?
         def create_job_and_work(payload)
+          announce("Handling Job payload : #{payload.inspect}")
           Job.create(payload, virtual_machine).work!
+          announce("Job Complete")
         end
 
         def confirm_job_completion(metadata)
           metadata.ack
-          announce("Acknowledged")
+          announce("Job marked as Acknowledged")
         end
 
         def reject_job_completion(metadata)
           announce("Caught an exception while dispatching a message:")
           announce_error
           metadata.reject
-          announce("Rejected")
+          announce("Job marked as Rejected")
         end
 
         def requeue(metadata)
           announce("#{$!.class.name}: #{$!.message}", $@)
-          announce('Can not connect to VM. Stopping job processing ...')
+          announce('Can not connect to VM. Stopping job processing and requeuing job...')
           metadata.reject(:requeue => true)
-        end
-
-        def announce(what)
-          puts "[#{name}] #{what}"
         end
 
         def deserialized_payload(payload)
           deserialized = MultiJson.decode(payload)
           Hashr.new(deserialized)
-        end
-
-        def announce_error
-          announce("#{$!.class.name}: #{$!.message}")
-          announce($@)
         end
     end
 

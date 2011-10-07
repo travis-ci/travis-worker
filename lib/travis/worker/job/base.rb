@@ -20,6 +20,7 @@ module Travis
       # @see Travis::Reporter::Base
       # @abstract
       class Base
+        include Util::Logging
 
         #
         # API
@@ -77,6 +78,10 @@ module Travis
         # @todo We need to pick a more specific name. MK.
         def build
           payload.build ||= Hashr.new
+        end
+
+        def logging_header
+          virtual_machine.name
         end
 
         #

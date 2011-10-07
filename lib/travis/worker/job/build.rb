@@ -55,7 +55,6 @@ module Travis
           shell.close if shell.open?
         end
 
-
         protected
 
           def worker_name
@@ -68,7 +67,7 @@ module Travis
 
           def setup_shell_logging
             shell.on_output do |data|
-              print data
+              announce(data)
               update(:log => data)
             end
           end
@@ -97,7 +96,7 @@ module Travis
 
           def run_build
             builder = Travis::Worker::Builder.create(build.config)
-            puts "Using #{builder.inspect}"
+            announce("Using #{builder.inspect}")
             commands = builder::Commands.new(build.config, shell)
             commands.run
           end

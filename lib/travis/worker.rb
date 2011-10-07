@@ -21,6 +21,7 @@ module Travis
 
     module Util
       autoload :Retryable,  'travis/worker/util/retryable'
+      autoload :Logging,    'travis/worker/util/logging'
     end
 
     module VirtualMachine
