@@ -1,7 +1,8 @@
-PATH
-  remote: /Volumes/Users/sven/Development/projects/travis/travis-build
+GIT
+  remote: git://github.com/travis-ci/travis-build.git
+  revision: 7e3d89c8717c3277de5bf5a20153a35cdaba65b6
   specs:
-    travis-build (0.0.1)
+    travis-build (0.2.0)
 
 GEM
   remote: http://rubygems.org/
