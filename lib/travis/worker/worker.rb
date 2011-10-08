@@ -1,4 +1,4 @@
-require 'travis-build'
+require 'travis/build'
 require 'multi_json'
 require 'hashr'
 require 'hot_bunnies'
