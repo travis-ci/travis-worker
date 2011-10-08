@@ -1,6 +1,7 @@
 require 'travis/build'
 require 'simple_states'
 require 'multi_json'
+require 'thread'
 
 module Travis
   module Worker
@@ -52,7 +53,12 @@ module Travis
         self.state = :booting
         virtual_machine.prepare
         builds_hub.subscribe(:ack => true, :blocking => false) do |meta, payload|
-          work(meta, payload)
+          begin
+            work(meta, payload)
+          rescue Errno::ECONNREFUSED, Exception => error
+            error(error, meta)
+            false
+          end
         end
         self
       end
@@ -66,16 +72,14 @@ module Travis
       # Returns true if the job was processed successfully.
       def work(metadata, payload)
         start(payload)
-        process(payload)
+        process
         finish(metadata)
         true
-      rescue Errno::ECONNREFUSED, Exception => error
-        error(error, metadata)
-        false
       end
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop
+        announce("Stopping Worker for accepting further jobs")
         builds_hub.cancel_subscription if builds_hub
       end
 
@@ -83,6 +87,7 @@ module Travis
       protected
 
         def start(payload)
+          set_logging_header
           self.state = :working
           @job_payload = decode(payload)
         end
@@ -94,26 +99,26 @@ module Travis
 
         def error(error, metadata = nil)
           announce_error
-
           metadata.ack(:requeue => true) if metadata
-
           @stopped_reason = :fatal_error
           @last_error = error
-
           stop
         end
 
-        # Internal: Creates a job from the payload and executes it.
-        #
-        # payload - The job payload.
-        def process(payload)
-          announce("Handling Job payload : #{payload.inspect}")
+        # Internal: Creates a job from the job_payload and executes it.
+        def process
+          announce("Handling Job payload : #{job_payload.inspect}")
 
-          http = Build::Connection::Http.new(Travis::Worker.config) # could probably reuse this connection, no?
-          job = Build::Job.runner(virtual_machine, http, payload, Reporter.new)
+          http  = Build::Connection::Http.new(Travis::Worker.config) # could probably reuse this connection, no?
+          shell = virtual_machine.shell
+          job = Build::Job.runner(virtual_machine, shell, http, job_payload, Reporter.new)
           job.run
 
           announce("Job Complete")
+        end
+
+        def set_logging_header
+          Thread.current[:logging_header] = virtual_machine.name
         end
 
         def decode(payload)
