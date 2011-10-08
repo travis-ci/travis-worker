@@ -1,3 +1,4 @@
+require 'travis-build'
 require 'multi_json'
 require 'hashr'
 require 'hot_bunnies'
@@ -101,7 +102,11 @@ module Travis
         # payload - The job payload.
         def create_job_and_work(payload)
           announce("Handling Job payload : #{payload.inspect}")
-          Job.create(payload, virtual_machine).work!
+
+          http = Build::Connection::Http.new(Travis::Worker.config) # could probably reuse this connection, no?
+          job = Build::Job.runner(virtual_machine, http, payload, Reporter.new)
+          job.run
+
           announce("Job Complete")
         end
 
