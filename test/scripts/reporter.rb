@@ -44,10 +44,7 @@ class Reporter
 
   def subscribe
     @subscription = @reporting_queue.subscribe(:ack => true, :blocking => false) do |headers, payload|
-      payload = MultiJson.decode(payload)
-      payload = Hashr.new(payload)
-      data = payload.log || payload.config
-      puts "(#{payload.slug})[Task Id : #{payload.task_id}] #{data.inspect}"
+      p MultiJson.decode(payload)
       headers.ack
     end
   end

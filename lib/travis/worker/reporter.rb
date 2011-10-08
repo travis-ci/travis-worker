@@ -10,22 +10,15 @@ module Travis
         @messaging_hub = Messaging.hub(ROUTING_KEY)
       end
 
-      def on_start(data)
-        message(:start, data)
+      def notify(event)
+        message(event.type, event.data)
       end
 
-      def on_update(data)
-        message(:update, data, :incremental => true)
-      end
+      protected
 
-      def on_finish(data)
-        message(:finish, data)
-      end
-
-      def message(type, data, options = {})
-        messaging_hub.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY, :arguments => { 'x-incremental' => !!options[:incremental] })
-      end
-
+        def message(type, data)
+          messaging_hub.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY)
+        end
     end
   end
 end
