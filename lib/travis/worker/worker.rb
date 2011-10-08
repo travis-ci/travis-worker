@@ -1,131 +1,112 @@
-require 'multi_json'
-require 'hashr'
-require 'hot_bunnies'
-require 'thread'
+require 'simple_states'
 
 module Travis
   module Worker
 
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
+      include SimpleStates
       include Util::Logging
 
-      # Returns the string name of the worker.
-      attr_reader :name
+      states :created, :booting, :waiting, :working, :stopped
 
-      # Returns the messaging hub used for builds queue
-      attr_reader :messaging_hub
+      event :boot,   :from => :created, :to => :waiting
+      event :work,   :from => :waiting, :to => :waiting
+      event :stop,   :to => :stopped
 
-      # Returns the virtual machine used by this worker
+      # Required by SimpleStates
+      attr_accessor :state
+
+
+      # Returns the MessageHub used to subscribe to the builds queue.
+      attr_reader :builds_hub
+
+      # Returns the virtual machine used exclusivly by this worker.
       attr_reader :virtual_machine
 
-      # Instantiates and a new worker.
+      # Returns the current job payload being processed.
+      attr_reader :job_payload
+
+      # Returns the reason (Symbol) that the worker was stopped.
+      attr_reader :stopped_reason
+
+      # Returns the last error if the last job resulted in an error.
+      attr_reader :last_error
+
+
+      # Instantiates a new worker.
       #
-      # name - The String name of the worker.
-      # jobs_queue - The Queue where jobs are published to.
-      # reporting_channel - The Channel used for reporting build results.
-      #
-      # Returns the thread containing the worker.
-      def initialize(name)
-        @name = name
-        @messaging_hub = Messaging.hub('builds')
-        @virtual_machine = VirtualMachine::VirtualBox.new(name)
+      # builds_hub      - The MessagingHub used to subscribe to the builds queue.
+      # virtual_machine - The virtual machine to be used by the worker.
+      def initialize(builds_hub, virtual_machine)
+        @builds_hub = builds_hub
+        @virtual_machine = virtual_machine
       end
 
-      # Subscribes to the jobs_queue.
+      # Boots the worker by preparing the VM and subscribing to the builds queue.
       #
-      # Returns the worker.
-      def run
-        announce("Starting worker #{name}")
-
+      # Returns self.
+      def boot
+        self.state = :booting
         virtual_machine.prepare
-
-        opts = { :ack => true, :blocking => false }
-
-        messaging_hub.subscribe(opts) do |meta, payload|
-          begin
-            process_job(meta, payload)
-          rescue => e
-            puts e.inspect
-          end
+        builds_hub.subscribe(:ack => true, :blocking => false) do |meta, payload|
+          work(meta, payload)
         end
-
-        announce("Subscribed to the '#{messaging_hub.name}' queue.")
-
         self
       end
 
-      # Processes the build job using the messaging payload.
+      # Processes a build message payload.
       #
-      # metadata - The Headers from the messaging backend
-      # payload - The String payload.
+      # This method also changes the state of the Worker to :workering while processing the
+      # job, and saves the current payload to job_payload for introspection during the
+      # build process.
       #
-      # If the job fails due to the VM not being found, or if the ssh connection
-      # encounters an error, then the job is requeued and the error is reraised.
-      #
-      # Returns true if the job completed correctly, or false if it fails
-      # Raises VmNotFound if the VM can not be found
-      # Raises Errno::ECONNREFUSED if the SSH connection is refused
-      def process_job(metadata, payload)
-        Thread.current[:logging_header] = logging_header
-
-        deserialized = deserialized_payload(payload)
-
-        create_job_and_work(deserialized)
-
-        confirm_job_completion(metadata)
-
+      # Returns true if the job was processed successfully.
+      def work(metadata, payload)
+        start(payload)
+        process(payload)
+        finish(metadata)
         true
-      rescue Travis::Worker::VirtualMachine::VmNotFound, Errno::ECONNREFUSED
-        announce_error
-        requeue(metadata)
-        raise $!
-      rescue Exception => e
-        announce_error
-        reject_job_completion(metadata)
+      rescue Errno::ECONNREFUSED, Exception => error
+        error(error, metadata)
         false
       end
 
+      # Stops the worker by cancelling the builds queue subscription.
       def stop
-        messaging_hub.close
+        builds_hub.cancel_subscription if builds_hub
       end
 
-      def logging_header
-        name
-      end
 
-      private
+      protected
 
-        # Internal: Creates a job from the payload and executes it.
-        #
-        # payload - The job payload.
-        def create_job_and_work(payload)
-          announce("Handling Job payload : #{payload.inspect}")
-          Job.create(payload, virtual_machine).work!
-          announce("Job Complete")
+        def start(payload)
+          self.state = :working
+          @job_payload = payload
         end
 
-        def confirm_job_completion(metadata)
+        def finish(metadata)
+          @job_payload = nil
           metadata.ack
-          announce("Job marked as Acknowledged")
         end
 
-        def reject_job_completion(metadata)
-          announce("Caught an exception while dispatching a message:")
+        def error(error, metadata = nil)
           announce_error
-          metadata.reject
-          announce("Job marked as Rejected")
+
+          metadata.ack(:requeue => true) if metadata
+
+          @stopped_reason = :fatal_error
+          @last_error = error
+
+          stop
         end
 
-        def requeue(metadata)
-          announce("#{$!.class.name}: #{$!.message}", $@)
-          announce('Can not connect to VM. Stopping job processing and requeuing job...')
-          metadata.reject(:requeue => true)
+        def process(payload)
+          Job.create(decode(payload), virtual_machine).work!
         end
 
-        def deserialized_payload(payload)
-          deserialized = MultiJson.decode(payload)
-          Hashr.new(deserialized)
+        def decode(payload)
+          Hashr.new(MultiJson.decode(payload))
         end
     end
 
