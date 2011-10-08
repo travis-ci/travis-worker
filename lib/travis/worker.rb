@@ -1,4 +1,3 @@
-require 'travis/worker/version'
 require 'socket'
 
 module Travis
@@ -12,6 +11,7 @@ module Travis
     autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
     autoload :Worker,       'travis/worker/worker'
+    autoload :Version,      'travis/worker/version'
 
     module Shell
       autoload :Buffer,     'travis/worker/shell/buffer'
