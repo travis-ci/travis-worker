@@ -53,6 +53,9 @@ vms:
     - maven
     - leiningen
     - libqt4
+    - libgdbm
+    - libncurses
+    - libossp-uuid
     - libv8
     - nodejs
     - rvm
