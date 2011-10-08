@@ -47,9 +47,9 @@ module Travis
           worker_names = VirtualMachine::VirtualBox.vm_names
 
           worker_names.each do |name|
-            puts "[boot] Starting #{name}"
+            announce("Starting #{name}")
 
-            worker = Worker.new(name)
+            worker = create_worker(name)
             workers << worker
             worker.run
           end
@@ -63,6 +63,13 @@ module Travis
 
 
       private
+
+        def create_worker(worker_name)
+          virtual_machine = Travis::Worker::Messaging.hub('builds')
+          builds_hub = Travis::Worker::VirtualMachine::VirtualBox.new(worker_name)
+
+          Worker.new(builds_hub, virtual_machine)
+        end
 
         def connect_messaging
           Messaging.connect
