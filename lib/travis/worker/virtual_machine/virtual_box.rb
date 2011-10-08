@@ -105,11 +105,13 @@ module Travis
         #
         # Returns a Shell::Session.
         def shell
-          @shell ||= Travis::Worker::Shell::Session.new(
+          @shell ||= Travis::Build::Shell::Session.new(
             :host => '127.0.0.1',
             :port => ssh_port,
             :username => 'vagrant',
-            :private_key_path => File.expand_path("keys/vagrant")
+            :private_key_path => File.expand_path('keys/vagrant'),
+            :buffer => Travis::Worker.config.shell.buffer,
+            :timeouts => Travis::Worker.config.timeouts
           )
         end
 

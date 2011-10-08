@@ -1,4 +1,6 @@
+require 'travis/build'
 require 'simple_states'
+require 'multi_json'
 
 module Travis
   module Worker
@@ -82,7 +84,7 @@ module Travis
 
         def start(payload)
           self.state = :working
-          @job_payload = payload
+          @job_payload = decode(payload)
         end
 
         def finish(metadata)
@@ -101,8 +103,17 @@ module Travis
           stop
         end
 
+        # Internal: Creates a job from the payload and executes it.
+        #
+        # payload - The job payload.
         def process(payload)
-          Job.create(decode(payload), virtual_machine).work!
+          announce("Handling Job payload : #{payload.inspect}")
+
+          http = Build::Connection::Http.new(Travis::Worker.config) # could probably reuse this connection, no?
+          job = Build::Job.runner(virtual_machine, http, payload, Reporter.new)
+          job.run
+
+          announce("Job Complete")
         end
 
         def decode(payload)

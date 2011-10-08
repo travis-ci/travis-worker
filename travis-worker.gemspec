@@ -6,9 +6,9 @@ require 'travis/worker/version'
 Gem::Specification.new do |s|
   s.name         = "travis-worker"
   s.version      = Travis::Worker::VERSION
-  s.authors      = ["Sven Fuchs"]
-  s.email        = "svenfuchs@artweb-design.de"
-  s.homepage     = "http://github.com/svenfuchs/travis-worker"
+  s.authors      = ['Sven Fuchs', 'Josh Kalderimis', 'Michael Klishin']
+  s.email        = 'contact@travis-ci.org'
+  s.homepage     = 'http://github.com/travis-ci/travis-worker'
   s.summary      = "[summary]"
   s.description  = "[description]"
 
