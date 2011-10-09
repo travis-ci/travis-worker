@@ -24,12 +24,12 @@ describe Logging do
     end
 
     it 'logs before the call' do
-      logger.expects(:log).with(:before, :the_method, [:args])
+      logger.expects(:log).with(:before, "Class", :the_method, [:args])
       object.the_method(:args)
     end
 
     it 'logs after the call' do
-      logger.expects(:log).with(:after, :the_method)
+      logger.expects(:log).with(:after, "Class", :the_method)
       object.the_method(:args)
     end
   end
@@ -40,7 +40,7 @@ describe Logging do
     end
 
     it 'logs before the call' do
-      logger.expects(:log).with(:before, :the_method, [:args])
+      logger.expects(:log).with(:before, "Class", :the_method, [:args])
       object.the_method(:args)
     end
 
@@ -61,7 +61,18 @@ describe Logging do
     end
 
     it 'logs after the call' do
-      logger.expects(:log).with(:after, :the_method)
+      logger.expects(:log).with(:after, "Class", :the_method)
+      object.the_method(:args)
+    end
+  end
+  
+  describe 'given :params => false' do
+    before :each do
+      logging_class.log :the_method, :params => false
+    end
+
+    it 'does not log the params of the method call' do
+      logger.expects(:log).with(:before, "Class", :the_method)
       object.the_method(:args)
     end
   end

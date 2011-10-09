@@ -10,17 +10,22 @@ describe Logging::Logger do
 
   describe 'log' do
     it 'contains the log header' do
-      logger.log(:before, :the_method)
+      logger.log(:before, :the_method, "Class")
       logger.io.string.should include('[vm]')
     end
 
+    it 'contains the class the method was called from' do
+      logger.log(:before, "Class", :the_method, [:foo, :bar])
+      logger.io.string.should include('(Class)')
+    end
+    
     it 'contains the called method' do
-      logger.log(:before, :the_method, [:foo, :bar])
+      logger.log(:before, "Class", :the_method, [:foo, :bar])
       logger.io.string.should include('before :the_method(:foo, :bar)')
     end
 
     it 'colorizes the output (yellow)' do
-      logger.log(:before, :the_method)
+      logger.log(:before, "Class", :the_method)
       logger.io.string.should include("\e[33m")
     end
   end
