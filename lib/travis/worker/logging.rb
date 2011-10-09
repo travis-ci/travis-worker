@@ -1,6 +1,8 @@
 module Travis
   module Worker
     module Logging
+      autoload :Logger, 'travis/worker/logging/logger'
+
       class << self
         def io
           @io ||= $stdout
@@ -18,7 +20,11 @@ module Travis
       end
 
       def proxy
-        @proxy ||= Module.new
+        @proxy ||= Module.new do
+          def log_error(error)
+            logger.error(error)
+          end
+        end
       end
 
       def log(name, options = {})
@@ -30,43 +36,6 @@ module Travis
         end
       end
 
-      class Logger
-        ANSI = {
-          :red    => 31,
-          :green  => 32,
-          :yellow => 33
-        }
-
-        attr_reader :header
-
-        def initialize(header)
-          @header = header
-        end
-
-        def io
-          Logging.io
-        end
-
-        def log(type, method, args = nil)
-          args = "(#{args.map { |arg| arg.inspect}.join(', ')})" if args && !args.empty?
-          message = "#{type} :#{method}#{args}"
-          io.puts format(message)
-        end
-
-        def format(message)
-          yellow("[#{header}] #{message}")
-        end
-
-        def colorize(color, text)
-          "\e[#{ANSI[color]}m#{text}\e[0m"
-        end
-
-        ANSI.keys.each do |color|
-          define_method(color) do |text|
-            colorize(color, text)
-          end
-        end
-      end
     end
   end
 end

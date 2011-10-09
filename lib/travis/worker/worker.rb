@@ -81,7 +81,7 @@ module Travis
         log :finish
 
         def error(error, message)
-          # announce_error(error)
+          log_error(error)
           message.ack(:requeue => true)
           @last_error = error
           stop

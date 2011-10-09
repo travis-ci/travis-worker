@@ -6,7 +6,7 @@ describe Logging do
     Class.new do |c|
       c.extend(Logging)
       c.send(:attr_reader, :logger)
-      c.send(:define_method, :initialize) { @logger = Logging::Logger.new('vm') }
+      c.send(:define_method, :initialize) { @logger = stub('logger', :log => nil) }
       c.send(:define_method, :the_method) { |*args| }
     end
   end
@@ -20,7 +20,6 @@ describe Logging do
 
   describe 'without options' do
     before :each do
-      logger.stubs(:log)
       logging_class.log :the_method
     end
 
@@ -37,7 +36,6 @@ describe Logging do
 
   describe 'given :only => :before' do
     before :each do
-      logger.stubs(:log)
       logging_class.log :the_method, :only => :before
     end
 
@@ -54,7 +52,6 @@ describe Logging do
 
   describe 'given :only => :after' do
     before :each do
-      logger.stubs(:log)
       logging_class.log :the_method, :only => :after
     end
 
@@ -66,23 +63,6 @@ describe Logging do
     it 'logs after the call' do
       logger.expects(:log).with(:after, :the_method)
       object.the_method(:args)
-    end
-  end
-
-  describe 'logger.log' do
-    it 'contains the log header' do
-      logger.log(:before, :the_method)
-      logger.io.string.should include('[vm]')
-    end
-
-    it 'contains the called method' do
-      logger.log(:before, :the_method, [:foo, :bar])
-      logger.io.string.should include('before :the_method(:foo, :bar)')
-    end
-
-    it 'colorizes the output' do
-      logger.log(:before, :the_method)
-      logger.io.string.should include("\e[33m")
     end
   end
 end
