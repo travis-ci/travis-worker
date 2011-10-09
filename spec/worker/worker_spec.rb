@@ -42,6 +42,10 @@ describe Worker do
 
   describe 'work' do
     describe 'without any exception rescued' do
+      before :each do
+        worker.state = :waiting
+      end
+      
       it 'starts working' do
         worker.expects(:start)
         worker.work(message, payload)
@@ -66,6 +70,7 @@ describe Worker do
       let(:exception) { Exception.new }
 
       before :each do
+        worker.state = :waiting
         worker.stubs(:process).raises(exception)
       end
 

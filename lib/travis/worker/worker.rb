@@ -16,8 +16,8 @@ module Travis
 
       states :created, :booting, :waiting, :working, :stopped
 
-      event :boot, :to => :waiting
-      event :work, :to => :waiting
+      event :boot, :from => :created, :to => :waiting
+      event :work, :from => :waiting, :to => :waiting
       event :stop, :to => :stopped
 
       attr_accessor :state
