@@ -93,11 +93,6 @@ describe Worker do
   end
 
   describe 'start' do
-    it 'sets the logging header' do
-      worker.send(:start, payload)
-      Thread.current[:logging_header].should == 'vm-name'
-    end
-
     it 'sets the current payload' do
       worker.send(:start, payload)
       worker.payload.should == { :id => 1 }

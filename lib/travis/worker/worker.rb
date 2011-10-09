@@ -92,11 +92,6 @@ module Travis
           jobs.create(payload).run
         end
 
-        def set_logging_header
-          # this seems to keep rspec/jruby from exiting?
-          # Thread.current[:logging_header] = vm.name
-        end
-
         def decode(payload)
           Hashr.new(MultiJson.decode(payload))
         end
