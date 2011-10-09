@@ -36,7 +36,6 @@ end
 
 group :test do
   gem 'mocha'
-  gem 'test_declarative'
   gem 'rspec'
 
   platforms :ruby_18 do

@@ -1,2 +1,3 @@
+script: rspec spec
 bundler_args: --without development debug
 rvm: 1.9.2
