@@ -65,8 +65,8 @@ module Travis
       private
 
         def create_worker(worker_name)
-          virtual_machine = Travis::Worker::Messaging.hub('builds')
-          builds_hub = Travis::Worker::VirtualMachine::VirtualBox.new(worker_name)
+          builds_hub = Messaging.hub('builds')
+          virtual_machine = VirtualMachine::VirtualBox.new(worker_name)
 
           Worker.new(builds_hub, virtual_machine)
         end
