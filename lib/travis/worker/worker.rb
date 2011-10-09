@@ -31,9 +31,6 @@ module Travis
       # Returns the current job payload being processed.
       attr_reader :payload
 
-      # Returns the reason (Symbol) that the worker was stopped.
-      attr_reader :stopped_reason
-
       # Returns the last error if the last job resulted in an error.
       attr_reader :last_error
 
@@ -99,7 +96,6 @@ module Travis
         def error(error, metadata = nil)
           announce_error(error)
           metadata.ack(:requeue => true) if metadata
-          @stopped_reason = :fatal_error
           @last_error = error
           stop
         end

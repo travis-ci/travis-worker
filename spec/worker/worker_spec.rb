@@ -126,11 +126,6 @@ describe Travis::Worker::Worker do
       worker.send(:error, exception, message)
     end
 
-    it 'sets the reason for stopping the worker to :fatal_error' do
-      worker.send(:error, exception, message)
-      worker.stopped_reason.should == :fatal_error
-    end
-
     it 'stores the error' do
       worker.send(:error, exception, message)
       worker.last_error.should == exception
