@@ -29,9 +29,11 @@ module Travis
 
       def log(name, options = {})
         proxy.send(:define_method, name) do |*args|
-          logger.log(:before, name, args) unless options[:only] == :after
+          clazz = self.class.name
+          arguments = (options[:params] == false ? nil : args)
+          logger.log(:before, clazz, name, arguments) unless options[:only] == :after
           super.tap do |result|
-            logger.log(:after, name) unless options[:only] == :before
+            logger.log(:after, clazz, name) unless options[:only] == :before
           end
         end
       end
