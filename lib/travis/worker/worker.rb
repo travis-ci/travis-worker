@@ -61,7 +61,7 @@ module Travis
       # Stops the worker by cancelling the builds queue subscription.
       def stop
         announce("Stopping Worker for accepting further jobs")
-        queue.cancel_subscription if queue
+        queue.cancel_subscription
       end
 
       protected
