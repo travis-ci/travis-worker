@@ -6,7 +6,7 @@ describe Logging do
     Class.new do |c|
       c.extend(Logging)
       c.send(:attr_reader, :logger)
-      c.send(:define_method, :initialize) { |logger| @logger = Logging::Logger.new('vm') }
+      c.send(:define_method, :initialize) { @logger = Logging::Logger.new('vm') }
       c.send(:define_method, :the_method) { |*args| }
     end
   end
