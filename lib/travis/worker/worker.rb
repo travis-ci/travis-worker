@@ -77,9 +77,9 @@ module Travis
           message.ack
         end
 
-        def error(error, message = nil)
+        def error(error, message)
           announce_error(error)
-          message.ack(:requeue => true) if message
+          message.ack(:requeue => true)
           @last_error = error
           stop
         end
