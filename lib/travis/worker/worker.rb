@@ -29,7 +29,7 @@ module Travis
       attr_reader :vm
 
       # Returns the current job payload being processed.
-      attr_reader :job_payload
+      attr_reader :payload
 
       # Returns the reason (Symbol) that the worker was stopped.
       attr_reader :stopped_reason
@@ -63,7 +63,7 @@ module Travis
       # Processes a build message payload.
       #
       # This method also changes the state of the Worker to :workering while processing the
-      # job, and saves the current payload to job_payload for introspection during the
+      # job, and saves the current payload to payload for introspection during the
       # build process.
       #
       # Returns true.
@@ -88,11 +88,11 @@ module Travis
         def start(payload)
           set_logging_header
           self.state = :working
-          @job_payload = decode(payload)
+          @payload = decode(payload)
         end
 
         def finish(metadata)
-          @job_payload = nil
+          @payload = nil
           metadata.ack
         end
 
@@ -104,10 +104,10 @@ module Travis
           stop
         end
 
-        # Internal: Creates a job from the job_payload and executes it.
+        # Internal: Creates a job from the payload and executes it.
         def process
-          announce("Handling Job payload : #{job_payload.inspect}")
-          jobs.create(job_payload).run
+          announce("Handling Job payload : #{payload.inspect}")
+          jobs.create(payload).run
           announce("Job Complete")
         end
 

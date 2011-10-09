@@ -98,7 +98,7 @@ describe Travis::Worker::Worker do
 
     it 'sets the current payload' do
       worker.send(:start, payload)
-      worker.job_payload.should == { :id => 1 }
+      worker.payload.should == { :id => 1 }
     end
 
     it 'sets the current state to :working' do
@@ -111,7 +111,7 @@ describe Travis::Worker::Worker do
     it 'unsets the current payload' do
       worker.send(:start, '{ "id": 1 }') # TODO should use an attr_accessor
       worker.send(:finish, message)
-      worker.job_payload.should be_nil
+      worker.payload.should be_nil
     end
 
     it 'acknowledges the message' do
