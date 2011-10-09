@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Worker::Worker do
+describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
   let(:worker)    { Worker.new(queue, vm) }

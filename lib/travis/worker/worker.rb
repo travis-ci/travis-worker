@@ -10,7 +10,7 @@ module Travis
       autoload :JobFactory, 'travis/worker/worker/job_factory'
 
       include SimpleStates
-      include Util::Logging
+      extend Logging
 
       states :created, :booting, :waiting, :working, :stopped
 
@@ -19,7 +19,7 @@ module Travis
       event :stop, :to => :stopped
 
       attr_accessor :state
-      attr_reader :vm, :queue, :jobs, :payload, :last_error
+      attr_reader :vm, :queue, :jobs, :payload, :last_error, :logger
 
       # Instantiates a new worker.
       #
@@ -29,6 +29,7 @@ module Travis
         @queue = queue
         @vm = vm
         @jobs = JobFactory.new(vm)
+        @logger = Logging::Logger.new(vm.name)
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.
@@ -60,9 +61,9 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop
-        announce("Stopping Worker for accepting further jobs")
         queue.cancel_subscription
       end
+      log :stop
 
       protected
 
@@ -71,23 +72,24 @@ module Travis
           self.state = :working
           @payload = decode(payload)
         end
+        log :start
 
         def finish(message)
           @payload = nil
           message.ack
         end
+        log :finish
 
         def error(error, message)
-          announce_error(error)
+          # announce_error(error)
           message.ack(:requeue => true)
           @last_error = error
           stop
         end
+        log :error
 
         def process
-          announce("Handling Job payload : #{payload.inspect}")
           jobs.create(payload).run
-          announce("Job Complete")
         end
 
         def set_logging_header
