@@ -3,6 +3,7 @@ require 'stringio'
 
 describe Logging::Logger do
   let(:logger) { Logging::Logger.new('vm') }
+  let(:object) { Object.new }
 
   before :each do
     Logging.io = StringIO.new
@@ -10,22 +11,22 @@ describe Logging::Logger do
 
   describe 'log' do
     it 'contains the log header' do
-      logger.log(:before, :the_method, "Class")
+      logger.log(:before, object, :the_method, "Class")
       logger.io.string.should include('[vm]')
     end
 
     it 'contains the class the method was called from' do
-      logger.log(:before, "Class", :the_method, [:foo, :bar])
-      logger.io.string.should include('(Class)')
+      logger.log(:before, object, :the_method, [:foo, :bar])
+      logger.io.string.should include('(Object)')
     end
-    
+
     it 'contains the called method' do
-      logger.log(:before, "Class", :the_method, [:foo, :bar])
+      logger.log(:before, object, :the_method, [:foo, :bar])
       logger.io.string.should include('before :the_method(:foo, :bar)')
     end
 
     it 'colorizes the output (yellow)' do
-      logger.log(:before, "Class", :the_method)
+      logger.log(:before, object, :the_method)
       logger.io.string.should include("\e[33m")
     end
   end

@@ -18,9 +18,9 @@ module Travis
           Logging.io
         end
 
-        def log(type, clazz, method, args = nil)
+        def log(type, object, method, args = nil)
           args = "(#{args.map { |arg| arg.inspect}.join(', ')})" if args && !args.empty?
-          message = "(#{clazz}) #{type} :#{method}#{args}"
+          message = "(#{object.class.name}) #{type} :#{method}#{args}"
           io.puts format(:yellow, message)
         end
 
