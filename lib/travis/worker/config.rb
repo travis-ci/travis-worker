@@ -4,10 +4,6 @@ require 'hashr'
 module Travis
   module Worker
     class Config < Hashr
-      # this is needed because of rake and fileutils
-      # getting mixed into the global namespace :'(
-      undef :install
-
       module Vms
         def count
          self[:count]
