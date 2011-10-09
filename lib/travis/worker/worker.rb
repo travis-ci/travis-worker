@@ -9,6 +9,8 @@ module Travis
     class Worker
       autoload :JobFactory, 'travis/worker/worker/job_factory'
 
+      class WorkerError < StandardError; end
+
       include SimpleStates
       extend Logging
 
@@ -19,12 +21,13 @@ module Travis
       event :stop, :to => :stopped
 
       attr_accessor :state
+
       attr_reader :vm, :queue, :jobs, :payload, :last_error, :logger
 
       # Instantiates a new worker.
       #
-      # queue      - The MessagingHub used to subscribe to the builds queue.
-      # vm - The virtual machine to be used by the worker.
+      # queue - The MessagingHub used to subscribe to the builds queue.
+      # vm    - The virtual machine to be used by the worker.
       def initialize(queue, vm)
         @queue = queue
         @vm = vm
@@ -38,9 +41,10 @@ module Travis
       def boot
         self.state = :booting
         vm.prepare
-        queue.subscribe(:ack => true, :blocking => false, &method(:work))
+        queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
         self
       end
+      log :boot
 
       # Processes a build message payload.
       #
@@ -49,6 +53,8 @@ module Travis
       # build process.
       #
       # Returns true.
+      #
+      # Raises WorkerError if there was an error processing the job.
       def work(message, payload)
         start(payload)
         process
@@ -56,7 +62,6 @@ module Travis
         true
       rescue Errno::ECONNREFUSED, Exception => error
         error(error, message)
-        false
       end
 
       # Stops the worker by cancelling the builds queue subscription.
@@ -77,18 +82,27 @@ module Travis
           @payload = nil
           message.ack
         end
-        log :finish
+        log :finish, :params => false
 
         def error(error, message)
           log_error(error)
           message.ack(:requeue => true)
           @last_error = error
           stop
+          raise WorkerError, "Error occured during job processing", error.backtrace
         end
         log :error
 
         def process
           jobs.create(payload).run
+        end
+
+        # Internal: This method is just a simple wrapper around work, silently catching
+        # WorkerError.
+        def work_wrapper(message, payload)
+          work(message, payload)
+        rescue WorkerError
+          # do nothing
         end
 
         def decode(payload)

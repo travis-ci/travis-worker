@@ -74,8 +74,10 @@ describe Worker do
         worker.work(message, payload)
       end
 
-      it 'returns false' do
-        worker.work(message, payload).should be_false
+      it 'raises WorkerError' do
+        lambda {
+          worker.work(message, payload)
+        }.should raise_error Worker::WorkerError
       end
     end
   end
@@ -120,17 +122,23 @@ describe Worker do
   describe 'error' do
     it 'requeues the message' do
       message.expects(:ack).with(:requeue => true)
-      worker.send(:error, exception, message)
+      lambda { 
+        worker.send(:error, exception, message)
+      }.should raise_error Worker::WorkerError
     end
 
-    it 'stores the error' do
-      worker.send(:error, exception, message)
+    it 'stores the error' do      
+      lambda { 
+        worker.send(:error, exception, message)
+      }.should raise_error Worker::WorkerError
       worker.last_error.should == exception
     end
 
     it 'stops itself' do
       worker.expects(:stop)
-      worker.send(:error, exception, message)
+      lambda { 
+        worker.send(:error, exception, message)
+      }.should raise_error Worker::WorkerError
     end
   end
 
