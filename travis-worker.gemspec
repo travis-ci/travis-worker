@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.description  = "[description]"
 
   s.files        = Dir['{lib/**/*,test/**/*,[A-Z]*}']
-  s.platform     = Gem::Platform::RUBY
   s.require_path = 'lib'
   s.rubyforge_project = '[none]'
 end
