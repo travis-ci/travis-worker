@@ -19,23 +19,8 @@ module Travis
       event :work, :to => :waiting
       event :stop, :to => :stopped
 
-      # Required by SimpleStates
       attr_accessor :state
-
-      # Returns the MessageHub used to subscribe to the builds queue.
-      attr_reader :queue
-
-      # Returns the virtual machine used exclusivly by this worker.
-      attr_reader :vm
-
-      # Returns the current job payload being processed.
-      attr_reader :payload
-
-      # Returns the last error if the last job resulted in an error.
-      attr_reader :last_error
-
-      attr_reader :jobs
-
+      attr_reader :vm, :queue, :jobs, :payload, :last_error
 
       # Instantiates a new worker.
       #
@@ -100,7 +85,6 @@ module Travis
           stop
         end
 
-        # Internal: Creates a job from the payload and executes it.
         def process
           announce("Handling Job payload : #{payload.inspect}")
           jobs.create(payload).run
