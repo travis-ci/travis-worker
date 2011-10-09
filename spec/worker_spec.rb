@@ -13,7 +13,7 @@ describe Worker do
 
   before(:each) do
     Logging.io = StringIO.new
-    Travis::Build::Job.stubs(:runner).returns(runner)
+    worker.jobs.stubs(:create).returns(runner)
   end
 
   describe 'boot' do
@@ -45,7 +45,7 @@ describe Worker do
       before :each do
         worker.state = :waiting
       end
-      
+
       it 'starts working' do
         worker.expects(:start)
         worker.work(message, payload)
@@ -127,13 +127,13 @@ describe Worker do
   describe 'error' do
     it 'requeues the message' do
       message.expects(:ack).with(:requeue => true)
-      lambda { 
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
     end
 
-    it 'stores the error' do      
-      lambda { 
+    it 'stores the error' do
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
       worker.last_error.should == exception
@@ -141,7 +141,7 @@ describe Worker do
 
     it 'stops itself' do
       worker.expects(:stop)
-      lambda { 
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
     end
