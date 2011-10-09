@@ -5,7 +5,6 @@ require 'thread'
 
 module Travis
   module Worker
-
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
       autoload :JobFactory, 'travis/worker/worker/job_factory'
