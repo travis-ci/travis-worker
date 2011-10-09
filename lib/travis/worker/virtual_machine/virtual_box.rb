@@ -31,7 +31,6 @@ module Travis
       # Travis Virtual Machine lifecycle.
       class VirtualBox
         include Util::Retryable
-        include Util::Logging
 
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
@@ -134,7 +133,6 @@ module Travis
         #
         # Returns true.
         def prepare
-          announce("preparing #{name} vm for use")
           if requires_snapshot?
             restart { immutate }
             wait_for_boot
@@ -180,14 +178,12 @@ module Travis
           end
 
           def start_sandbox
-            announce("starting VM sandbox")
             power_off unless powered_off?
             rollback
             power_on
           end
 
           def close_sandbox
-            announce("closing VM sandbox")
             power_off
           end
 
@@ -206,14 +202,12 @@ module Travis
           end
 
           def power_on
-            announce("powering on VM")
             with_session(false) do |session|
               machine.launch_vm_process(session, 'headless', '')
             end
           end
 
           def power_off
-            announce("powering off VM")
             with_session do |session|
               session.console.power_down
             end
@@ -232,7 +226,6 @@ module Travis
           end
 
           def snapshot
-            announce("taking snapshot of VM")
             with_session do |session|
               session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now}")
             end
@@ -240,7 +233,6 @@ module Travis
           end
 
           def rollback
-            announce("rolling back VM")
             with_session do |session|
               session.console.restore_snapshot(machine.current_snapshot)
             end
@@ -249,7 +241,6 @@ module Travis
           def immutate
             return if immutable?
 
-            announce("immutating VM hdd")
 
             attachment = machine.medium_attachments.detect { |ma| ma.controller =~ /SATA/ }
 
@@ -283,7 +274,6 @@ module Travis
           end
 
           def wait_for_boot
-            announce("waiting for VM to boot")
             retryable(:tries => 3) do
               shell.connect(false)
               shell.close
