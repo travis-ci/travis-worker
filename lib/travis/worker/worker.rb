@@ -23,7 +23,7 @@ module Travis
       attr_accessor :state
 
       # Returns the MessageHub used to subscribe to the builds queue.
-      attr_reader :builds_hub
+      attr_reader :queue
 
       # Returns the virtual machine used exclusivly by this worker.
       attr_reader :virtual_machine
@@ -42,10 +42,10 @@ module Travis
 
       # Instantiates a new worker.
       #
-      # builds_hub      - The MessagingHub used to subscribe to the builds queue.
+      # queue      - The MessagingHub used to subscribe to the builds queue.
       # virtual_machine - The virtual machine to be used by the worker.
-      def initialize(builds_hub, virtual_machine)
-        @builds_hub = builds_hub
+      def initialize(queue, virtual_machine)
+        @queue = queue
         @virtual_machine = virtual_machine
         @jobs = JobFactory.new(virtual_machine)
       end
@@ -56,7 +56,7 @@ module Travis
       def boot
         self.state = :booting
         virtual_machine.prepare
-        builds_hub.subscribe(:ack => true, :blocking => false, &method(:work))
+        queue.subscribe(:ack => true, :blocking => false, &method(:work))
         self
       end
 
@@ -80,7 +80,7 @@ module Travis
       # Stops the worker by cancelling the builds queue subscription.
       def stop
         announce("Stopping Worker for accepting further jobs")
-        builds_hub.cancel_subscription if builds_hub
+        queue.cancel_subscription if queue
       end
 
       protected

@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Travis::Worker::Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:hub)       { stub('hub', :subscribe => nil, :cancel_subscription => nil) }
-  let(:worker)    { Worker.new(hub, vm) }
+  let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
+  let(:worker)    { Worker.new(queue, vm) }
   let(:runner)    { stub('runner', :run => nil) }
 
   let(:message)   { stub('message', :ack => nil) }
@@ -28,7 +28,7 @@ describe Travis::Worker::Worker do
     end
 
     it 'subscribes to the builds queue' do
-      hub.expects(:subscribe)
+      queue.expects(:subscribe)
       worker.boot
     end
 
@@ -80,7 +80,7 @@ describe Travis::Worker::Worker do
 
   describe 'stop' do
     it 'unsubscribes from the builds queue' do
-      hub.expects(:cancel_subscription)
+      queue.expects(:cancel_subscription)
       worker.stop
     end
 
