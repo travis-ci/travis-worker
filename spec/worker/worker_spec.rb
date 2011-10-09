@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'stringio'
 
 describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
@@ -11,6 +12,7 @@ describe Worker do
   let(:exception) { Exception.new }
 
   before(:each) do
+    Logging.io = StringIO.new
     Travis::Build::Job.stubs(:runner).returns(runner)
   end
 
