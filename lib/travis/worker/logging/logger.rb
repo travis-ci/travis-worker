@@ -18,9 +18,9 @@ module Travis
           Logging.io
         end
 
-        def log(type, method, args = nil)
+        def log(type, clazz, method, args = nil)
           args = "(#{args.map { |arg| arg.inspect}.join(', ')})" if args && !args.empty?
-          message = "#{type} :#{method}#{args}"
+          message = "(#{clazz}) #{type} :#{method}#{args}"
           io.puts format(:yellow, message)
         end
 
@@ -33,7 +33,8 @@ module Travis
         protected
 
           def format(color, message)
-            colorize(color, "[#{header}] #{message}")
+            colorized = colorize(color, "[#{header}]")
+            "#{colorized} #{message}"
           end
 
           def colorize(color, text)
