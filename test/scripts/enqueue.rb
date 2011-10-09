@@ -51,10 +51,10 @@ payload = MultiJson.encode({
     'id' => 1,
     'commit' => '313f61b',
     'branch' => 'master',
-    'config' => {
-      'rvm'    => '1.8.7',
-      'script' => 'rake'
-    }
+  },
+  'config' => {
+    'rvm'    => '1.8.7',
+    'script' => 'rake'
   }
 })
 
