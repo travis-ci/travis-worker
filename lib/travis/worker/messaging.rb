@@ -6,7 +6,7 @@ module Travis
 
     module Messaging
       class << self
-        extend Util::Logging
+        # extend Util::Logging
 
         def connection
           @connection ||= begin

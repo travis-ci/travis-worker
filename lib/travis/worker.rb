@@ -1,27 +1,23 @@
 require 'socket'
 
 module Travis
-
   module Worker
     autoload :Application,  'travis/worker/application'
-    autoload :Builder,      'travis/worker/builder'
     autoload :Config,       'travis/worker/config'
-    autoload :Job,          'travis/worker/job'
+    autoload :Logging,      'travis/worker/logging'
     autoload :Manager,      'travis/worker/manager'
     autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
     autoload :Worker,       'travis/worker/worker'
-    autoload :Version,      'travis/worker/version'
 
-    module Shell
-      autoload :Buffer,     'travis/worker/shell/buffer'
-      autoload :Helpers,    'travis/worker/shell/helpers'
-      autoload :Session,    'travis/worker/shell/session'
-    end
+    # module Shell
+    #   autoload :Buffer,     'travis/worker/shell/buffer'
+    #   autoload :Helpers,    'travis/worker/shell/helpers'
+    #   autoload :Session,    'travis/worker/shell/session'
+    # end
 
     module Util
       autoload :Retryable,  'travis/worker/util/retryable'
-      autoload :Logging,    'travis/worker/util/logging'
     end
 
     module VirtualMachine
@@ -38,5 +34,4 @@ module Travis
       end
     end
   end
-
 end
