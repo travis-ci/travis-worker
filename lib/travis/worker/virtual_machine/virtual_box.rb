@@ -165,6 +165,10 @@ module Travis
           nil
         end
 
+        def full_name
+          "#{Travis::Worker.hostname}:#{name}"
+        end
+
         def logging_header
           name
         end
