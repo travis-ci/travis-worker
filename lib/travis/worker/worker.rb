@@ -52,14 +52,7 @@ module Travis
       def boot
         self.state = :booting
         virtual_machine.prepare
-        builds_hub.subscribe(:ack => true, :blocking => false) do |meta, payload|
-          begin
-            work(meta, payload)
-          rescue Errno::ECONNREFUSED, Exception => error
-            error(error, meta)
-            false
-          end
-        end
+        builds_hub.subscribe(:ack => true, :blocking => false, &method(:work))
         self
       end
 
@@ -69,12 +62,14 @@ module Travis
       # job, and saves the current payload to job_payload for introspection during the
       # build process.
       #
-      # Returns true if the job was processed successfully.
+      # Returns true.
       def work(metadata, payload)
         start(payload)
         process
         finish(metadata)
-        true
+      rescue Errno::ECONNREFUSED, Exception => error
+        error(error, metadata)
+        false
       end
 
       # Stops the worker by cancelling the builds queue subscription.
