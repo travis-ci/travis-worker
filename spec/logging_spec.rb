@@ -3,12 +3,12 @@ require 'stringio'
 
 describe Logging do
   let :logging_class do
-    Class.new do |c|
+    Mock.const_set :LoggedClass, Class.new { |c|
       c.extend(Logging)
       c.send(:attr_reader, :logger)
       c.send(:define_method, :initialize) { @logger = stub('logger', :log => nil) }
       c.send(:define_method, :the_method) { |*args| }
-    end
+    }
   end
 
   let(:object) { logging_class.new }
@@ -18,18 +18,22 @@ describe Logging do
     Logging.io = StringIO.new
   end
 
+  after :each do
+    Mock.send(:remove_const, :LoggedClass)
+  end
+
   describe 'without options' do
     before :each do
       logging_class.log :the_method
     end
 
     it 'logs before the call' do
-      logger.expects(:log).with(:before, "Class", :the_method, [:args])
+      logger.expects(:log).with(:before, object, :the_method, [:args])
       object.the_method(:args)
     end
 
     it 'logs after the call' do
-      logger.expects(:log).with(:after, "Class", :the_method)
+      logger.expects(:log).with(:after, object, :the_method)
       object.the_method(:args)
     end
   end
@@ -40,7 +44,7 @@ describe Logging do
     end
 
     it 'logs before the call' do
-      logger.expects(:log).with(:before, "Class", :the_method, [:args])
+      logger.expects(:log).with(:before, object, :the_method, [:args])
       object.the_method(:args)
     end
 
@@ -61,18 +65,27 @@ describe Logging do
     end
 
     it 'logs after the call' do
-      logger.expects(:log).with(:after, "Class", :the_method)
+      logger.expects(:log).with(:after, object, :the_method)
       object.the_method(:args)
     end
   end
-  
-  describe 'given :params => false' do
-    before :each do
-      logging_class.log :the_method, :params => false
+
+  describe 'arguments' do
+    it 'logs arguments by default' do
+      logging_class.log :the_method
+      logger.expects(:log).with(:before, object, :the_method, [:args])
+      object.the_method(:args)
     end
 
-    it 'does not log the params of the method call' do
-      logger.expects(:log).with(:before, "Class", :the_method)
+    it 'logs arguments when :params => true was given' do
+      logging_class.log :the_method, :params => true
+      logger.expects(:log).with(:before, object, :the_method, [:args])
+      object.the_method(:args)
+    end
+
+    it 'does not log arguments when :params => false was given' do
+      logging_class.log :the_method, :params => false
+      logger.expects(:log).with(:before, object, :the_method)
       object.the_method(:args)
     end
   end
