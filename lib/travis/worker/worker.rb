@@ -49,13 +49,13 @@ module Travis
       # build process.
       #
       # Returns true.
-      def work(metadata, payload)
+      def work(message, payload)
         start(payload)
         process
-        finish(metadata)
+        finish(message)
         true
       rescue Errno::ECONNREFUSED, Exception => error
-        error(error, metadata)
+        error(error, message)
         false
       end
 
@@ -73,14 +73,14 @@ module Travis
           @payload = decode(payload)
         end
 
-        def finish(metadata)
+        def finish(message)
           @payload = nil
-          metadata.ack
+          message.ack
         end
 
-        def error(error, metadata = nil)
+        def error(error, message = nil)
           announce_error(error)
-          metadata.ack(:requeue => true) if metadata
+          message.ack(:requeue => true) if message
           @last_error = error
           stop
         end
