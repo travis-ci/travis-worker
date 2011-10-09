@@ -8,18 +8,19 @@ module Travis
 
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
+      autoload :JobFactory, 'travis/worker/worker/job_factory'
+
       include SimpleStates
       include Util::Logging
 
       states :created, :booting, :waiting, :working, :stopped
 
-      event :boot,   :from => :created, :to => :waiting
-      event :work,   :from => :waiting, :to => :waiting
-      event :stop,   :to => :stopped
+      event :boot, :to => :waiting
+      event :work, :to => :waiting
+      event :stop, :to => :stopped
 
       # Required by SimpleStates
       attr_accessor :state
-
 
       # Returns the MessageHub used to subscribe to the builds queue.
       attr_reader :builds_hub
@@ -36,6 +37,8 @@ module Travis
       # Returns the last error if the last job resulted in an error.
       attr_reader :last_error
 
+      attr_reader :jobs
+
 
       # Instantiates a new worker.
       #
@@ -44,6 +47,7 @@ module Travis
       def initialize(builds_hub, virtual_machine)
         @builds_hub = builds_hub
         @virtual_machine = virtual_machine
+        @jobs = JobFactory.new(virtual_machine)
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.
@@ -67,6 +71,7 @@ module Travis
         start(payload)
         process
         finish(metadata)
+        true
       rescue Errno::ECONNREFUSED, Exception => error
         error(error, metadata)
         false
@@ -77,7 +82,6 @@ module Travis
         announce("Stopping Worker for accepting further jobs")
         builds_hub.cancel_subscription if builds_hub
       end
-
 
       protected
 
@@ -93,7 +97,7 @@ module Travis
         end
 
         def error(error, metadata = nil)
-          announce_error
+          announce_error(error)
           metadata.ack(:requeue => true) if metadata
           @stopped_reason = :fatal_error
           @last_error = error
@@ -103,23 +107,18 @@ module Travis
         # Internal: Creates a job from the job_payload and executes it.
         def process
           announce("Handling Job payload : #{job_payload.inspect}")
-
-          http  = Build::Connection::Http.new(Travis::Worker.config) # could probably reuse this connection, no?
-          shell = virtual_machine.shell
-          job = Build::Job.runner(virtual_machine, shell, http, job_payload, Reporter.new)
-          job.run
-
+          jobs.create(job_payload).run
           announce("Job Complete")
         end
 
         def set_logging_header
-          Thread.current[:logging_header] = virtual_machine.name
+          # this seems to keep rspec/jruby from exiting?
+          # Thread.current[:logging_header] = virtual_machine.name
         end
 
         def decode(payload)
           Hashr.new(MultiJson.decode(payload))
         end
     end
-
   end
 end

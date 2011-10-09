@@ -1,47 +1,156 @@
-# require 'spec_helper'
-#
-# class FakeVirtualMachine
-#   def prepare
-#
-#   end
-# end
-#
-# describe Travis::Worker::Worker do
-#   let(:payload) do
-#     {
-#       'repository' => {
-#         'slug' => 'svenfuchs/gem-release',
-#       },
-#       'build' => {
-#         'id' => 1,
-#         'commit' => '313f61b',
-#         'branch' => 'master',
-#         'config' => {
-#           'rvm'    => '1.8.7',
-#           'script' => 'rake'
-#         }
-#       }
-#     }
-#   end
-#
-#   let(:config) do
-#     { 'test' => { 'reporter' => { 'http' => { 'url' => 'http://sven:1234567890@travis-ci.org' } } } }
-#   end
-#
-#   it "subscribes to jobs que and starts job processing when payload is received" do
-#     Travis::Worker::Config.any_instance.stubs(:read).returns(config)
-#     Travis::Worker::VirtualMachine::VirtualBox.stubs(:new).returns(FakeVirtualMachine.new)
-#
-#     connection = HotBunnies.connect
-#     channel = connection.create_channel
-#     channel.prefetch = 1
-#     exchange = channel.exchange('', :type => :direct, :durable => true)
-#     jobs_queue = channel.queue('builds', :durable => true, :exculsive => false)
-#     reporting_queue = channel.queue('reporting.jobs', :durable => true, :exculsive => false)
-#
-#     Travis::Worker::Worker.any_instance.expects(:process_job).once
-#     Travis::Worker::Worker.new("name", jobs_queue, reporting_queue).run
-#     exchange.publish("", :routing_key => 'builds')
-#     sleep 2
-#   end
-# end
+require 'spec_helper'
+
+describe Travis::Worker::Worker do
+  let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
+  let(:hub)       { stub('hub', :subscribe => nil, :cancel_subscription => nil) }
+  let(:worker)    { Worker.new(hub, vm) }
+  let(:runner)    { stub('runner', :run => nil) }
+
+  let(:message)   { stub('message', :ack => nil) }
+  let(:payload)   { '{ "id": 1 }' }
+  let(:exception) { Exception.new }
+
+  before(:each) do
+    Travis::Build::Job.stubs(:runner).returns(runner)
+  end
+
+  describe 'boot' do
+    it 'sets the current state to :booting while it prepares the vm' do
+      state = nil
+      vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
+      worker.boot
+      state.should == :booting
+    end
+
+    it 'prepares the vm' do
+      vm.expects(:prepare)
+      worker.boot
+    end
+
+    it 'subscribes to the builds queue' do
+      hub.expects(:subscribe)
+      worker.boot
+    end
+
+    it 'sets the current state to :waiting' do
+      worker.boot
+      worker.state.should == :waiting
+    end
+  end
+
+  describe 'work' do
+    describe 'without any exception rescued' do
+      it 'starts working' do
+        worker.expects(:start)
+        worker.work(message, payload)
+      end
+
+      it 'processes the current payload' do
+        worker.expects(:process)
+        worker.work(message, payload)
+      end
+
+      it 'finishes' do
+        worker.expects(:finish)
+        worker.work(message, payload)
+      end
+
+      it 'returns true' do
+        worker.work(message, payload).should be_true
+      end
+    end
+
+    describe 'with an exception rescued' do
+      let(:exception) { Exception.new }
+
+      before :each do
+        worker.stubs(:process).raises(exception)
+      end
+
+      it 'responds to the error' do
+        worker.expects(:error).with(exception, message)
+        worker.work(message, payload)
+      end
+
+      it 'returns false' do
+        worker.work(message, payload).should be_false
+      end
+    end
+  end
+
+  describe 'stop' do
+    it 'unsubscribes from the builds queue' do
+      hub.expects(:cancel_subscription)
+      worker.stop
+    end
+
+    it 'sets the current state to :stopped' do
+      worker.stop
+      worker.state.should == :stopped
+    end
+  end
+
+  describe 'start' do
+    it 'sets the logging header' do
+      worker.send(:start, payload)
+      Thread.current[:logging_header].should == 'vm-name'
+    end
+
+    it 'sets the current payload' do
+      worker.send(:start, payload)
+      worker.job_payload.should == { :id => 1 }
+    end
+
+    it 'sets the current state to :working' do
+      worker.send(:start, payload)
+      worker.state.should == :working
+    end
+  end
+
+  describe 'finish' do
+    it 'unsets the current payload' do
+      worker.send(:start, '{ "id": 1 }') # TODO should use an attr_accessor
+      worker.send(:finish, message)
+      worker.job_payload.should be_nil
+    end
+
+    it 'acknowledges the message' do
+      message.expects(:ack)
+      worker.send(:finish, message)
+    end
+  end
+
+  describe 'error' do
+    it 'requeues the message' do
+      message.expects(:ack).with(:requeue => true)
+      worker.send(:error, exception, message)
+    end
+
+    it 'sets the reason for stopping the worker to :fatal_error' do
+      worker.send(:error, exception, message)
+      worker.stopped_reason.should == :fatal_error
+    end
+
+    it 'stores the error' do
+      worker.send(:error, exception, message)
+      worker.last_error.should == exception
+    end
+
+    it 'stops itself' do
+      worker.expects(:stop)
+      worker.send(:error, exception, message)
+    end
+  end
+
+  describe 'process' do
+    it 'creates a new build job' do
+      worker.jobs.expects(:create).returns(runner)
+      worker.send(:process)
+    end
+
+    it 'runs the build job' do
+      runner.expects(:run)
+      worker.send(:process)
+    end
+  end
+end

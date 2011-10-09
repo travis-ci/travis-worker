@@ -3,15 +3,15 @@ module Travis
     module Util
       module Logging
         def announce(messages)
-          messages = messages.split("\n") if messages.is_a?(String)
-          messages.each do |msg|
-            puts "#{format_logging_header}#{msg}"
-          end
+          # messages = messages.split("\\n") if messages.is_a?(String)
+          # Array(messages).each do |msg|
+          #   puts "#{format_logging_header}#{msg}"
+          # end
         end
 
-        def announce_error
-          announce("#{$!.class.name}: #{$!.message}")
-          announce($@)
+        def announce_error(exception)
+          # announce("#{exception.class.name}: #{exception.message}")
+          # announce(exception.backtrace)
         end
 
         private
