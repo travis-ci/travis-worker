@@ -26,7 +26,7 @@ module Travis
       attr_reader :queue
 
       # Returns the virtual machine used exclusivly by this worker.
-      attr_reader :virtual_machine
+      attr_reader :vm
 
       # Returns the current job payload being processed.
       attr_reader :job_payload
@@ -43,11 +43,11 @@ module Travis
       # Instantiates a new worker.
       #
       # queue      - The MessagingHub used to subscribe to the builds queue.
-      # virtual_machine - The virtual machine to be used by the worker.
-      def initialize(queue, virtual_machine)
+      # vm - The virtual machine to be used by the worker.
+      def initialize(queue, vm)
         @queue = queue
-        @virtual_machine = virtual_machine
-        @jobs = JobFactory.new(virtual_machine)
+        @vm = vm
+        @jobs = JobFactory.new(vm)
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.
@@ -55,7 +55,7 @@ module Travis
       # Returns self.
       def boot
         self.state = :booting
-        virtual_machine.prepare
+        vm.prepare
         queue.subscribe(:ack => true, :blocking => false, &method(:work))
         self
       end
@@ -113,7 +113,7 @@ module Travis
 
         def set_logging_header
           # this seems to keep rspec/jruby from exiting?
-          # Thread.current[:logging_header] = virtual_machine.name
+          # Thread.current[:logging_header] = vm.name
         end
 
         def decode(payload)
