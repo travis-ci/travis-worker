@@ -68,7 +68,6 @@ module Travis
       protected
 
         def start(payload)
-          set_logging_header
           self.state = :working
           @payload = decode(payload)
         end
