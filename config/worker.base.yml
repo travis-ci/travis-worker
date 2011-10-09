@@ -1,5 +1,5 @@
 timeouts:
-  bundle: 600
+  install: 600
   before_script: 600
   script: 7200
 vms:
