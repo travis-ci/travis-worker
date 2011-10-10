@@ -51,7 +51,11 @@ module Travis
         end
 
         def execute(command, options = {})
-          timeout = options[:timeout].is_a?(Numeric) ? options[:timeout] : Travis::Worker.config.timeouts.send(options[:timeout] || :default)
+          timeout = if options[:timeout].is_a?(Numeric)
+              options[:timeout]
+            else
+              Travis::Worker.config.timeouts[options[:timeout] || :default]
+            end
           command = timetrap(command, :timeout => timeout) if options[:timeout]
           command = echoize(command) unless options[:echo] == false
           exec(command) { |p, data| buffer << data } == 0

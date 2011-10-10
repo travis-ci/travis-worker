@@ -6,8 +6,9 @@ module Travis
 
       module Base
         class Config < Hashr
-          # this is needed because of rake and fileutils :()
-          def install; self[:install]; end
+          # this is needed because of rake and fileutils
+          # getting mixed into the global namespace :'(
+          undef :install
 
           protected
             def normalize(values, default)
