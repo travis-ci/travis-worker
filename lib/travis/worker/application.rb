@@ -21,8 +21,8 @@ module Travis
       protected
 
         def install_signal_traps
-          Signal.trap("INT")  { self.quit }
-          Signal.trap("TERM") { self.quit }
+          Signal.trap("INT")  { puts "Handling SIGINT...";  self.quit }
+          Signal.trap("TERM") { puts "Handling SIGTERM..."; self.quit }
         end
         log :install_signal_traps
 
