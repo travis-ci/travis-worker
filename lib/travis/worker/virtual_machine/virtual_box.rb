@@ -104,7 +104,7 @@ module Travis
         #
         # Returns a Shell::Session.
         def shell
-          @shell ||= Travis::Build::Shell::Session.new(
+          @shell ||= Shell::Session.new(
             :host => '127.0.0.1',
             :port => ssh_port,
             :username => 'vagrant',
