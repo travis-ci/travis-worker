@@ -14,10 +14,6 @@ describe Util::Logging do
   let(:object) { logging_class.new }
   let(:logger) { object.logger }
 
-  before :each do
-    Util::Logging.io = StringIO.new
-  end
-
   after :each do
     Mock.send(:remove_const, :LoggedClass)
   end

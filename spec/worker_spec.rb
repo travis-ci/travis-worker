@@ -5,7 +5,7 @@ describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
   let(:reporter)  { stub('reporter') }
-  let(:logger)    { Util::Logging::Logger.new(vm.name) }
+  let(:logger)    { Util::Logging::Logger.new(vm.name, StringIO.new) }
   let(:config)    { Hashr.new }
   let(:worker)    { Worker.new(vm, queue, reporter, logger, config) }
 
@@ -15,7 +15,6 @@ describe Worker do
   let(:build)     { stub('build', :run => nil) }
 
   before(:each) do
-    Util::Logging.io = StringIO.new
     Travis::Build.stubs(:create).returns(build)
   end
 

@@ -4,16 +4,6 @@ module Travis
       module Logging
         autoload :Logger, 'travis/worker/util/logging/logger'
 
-        class << self
-          def io
-            @io ||= $stdout
-          end
-
-          def io=(io)
-            @io = io
-          end
-        end
-
         def new(*)
           super.tap do |instance|
             (class << instance; self; end).send(:include, proxy)

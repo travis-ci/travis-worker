@@ -9,14 +9,11 @@ module Travis
             :yellow => 33
           }
 
-          attr_reader :header
+          attr_reader :header, :io
 
-          def initialize(header)
+          def initialize(header, io = $stdout)
             @header = header
-          end
-
-          def io
-            Logging.io
+            @io = io
           end
 
           def log(type, object, method, args = nil)
