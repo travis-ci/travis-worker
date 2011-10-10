@@ -9,15 +9,11 @@ module Travis
         end
 
         def create(payload)
-          Build::Job.runner(vm, shell, http, payload, reporter)
+          Build::Job.runner(vm, vm.shell, http, payload, reporter)
         end
 
         def reporter
           Reporter.new
-        end
-
-        def shell
-          Shell.new(vm.shell)
         end
 
         def http

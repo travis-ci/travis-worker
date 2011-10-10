@@ -8,8 +8,13 @@ module Travis
     autoload :Manager,      'travis/worker/manager'
     autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
-    autoload :Shell,        'travis/worker/shell'
     autoload :Worker,       'travis/worker/worker'
+
+    module Shell
+      autoload :Buffer,     'travis/worker/shell/buffer'
+      autoload :Helpers,    'travis/worker/shell/helpers'
+      autoload :Session,    'travis/worker/shell/session'
+    end
 
     module Util
       autoload :Retryable,  'travis/worker/util/retryable'

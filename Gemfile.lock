@@ -78,7 +78,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
   faraday
   god
   hashr (~> 0.0.13)
