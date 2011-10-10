@@ -4,8 +4,9 @@ module Travis
       class Factory
         attr_reader :name
 
-        def initialize(name)
+        def initialize(name, config = nil)
           @name = name
+          @config = config
         end
 
         def worker
@@ -33,7 +34,7 @@ module Travis
         end
 
         def config
-          Travis::Worker.config
+          @config ||= Travis::Worker.config
         end
       end
     end

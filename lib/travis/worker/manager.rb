@@ -12,8 +12,8 @@ module Travis
       # Initialize a Worker Manager.
       #
       # configuration - A Config to use for connection details (default: nil)
-      def initialize(configuration = nil)
-        config(configuration)
+      def initialize(config = nil)
+        @config = config
         @workers = []
       end
 
@@ -49,7 +49,7 @@ module Travis
           worker_names.each do |name|
             announce("Starting #{name}")
 
-            worker = Worker.create(name)
+            worker = Worker.create(name, config)
             workers << worker
             worker.run
           end
@@ -76,9 +76,8 @@ module Travis
           Messaging.declare_queues('builds', 'reporting.jobs')
         end
 
-        def config(configuration = nil)
-          @config ||= configuration || Travis::Worker.config
-          @config
+        def config
+          @config ||= Travis::Worker.config
         end
     end
 
