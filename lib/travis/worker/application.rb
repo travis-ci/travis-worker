@@ -28,8 +28,8 @@ module Travis
 
         def quit
           self.manager.stop
-          sleep(3) # give all threads a little time to stop completely
-          exit
+          java.lang.Thread.sleep(500)
+          java.lang.System.exit(0)
         end
         log :quit
     end
