@@ -14,7 +14,6 @@ module Travis
       # configuration - A Config to use for connection details (default: nil)
       def initialize(config = nil)
         @config = config
-        @workers = []
       end
 
       # Connects to the messaging broker and starts the workers.
@@ -22,6 +21,7 @@ module Travis
       # Returns the current instance of the MessagingConnection.
       def start
         connect_messaging
+        declare_queues
         start_workers
         self
       end
@@ -35,51 +35,51 @@ module Travis
         self
       end
 
-
       protected
 
-        # Internal: Starts new workers in new threads.
-        #
-        # Returns the current instance of the MessagingConnection.
         def start_workers
-          declare_queues
-
-          worker_names = VirtualMachine::VirtualBox.vm_names
-
-          worker_names.each do |name|
-            announce("Starting #{name}")
-
-            worker = Worker.create(name, config)
-            workers << worker
-            worker.run
+          workers.each do |worker|
+            worker.boot
+            worker.start
           end
-
-          self
         end
+        # log :start_workers
 
         def stop_workers
-          workers.each { |worker| worker.cancel }
+          workers.each do |worker|
+            worker.stop
+          end
+        end
+        # log :stop_workers
+
+        def workers
+          @workers ||= worker_names.map do |name|
+            Worker.create(name, config)
+          end
         end
 
-
-      private
+        def worker_names
+          @worker_names ||= VirtualMachine::VirtualBox.vm_names
+        end
 
         def connect_messaging
           Messaging.connect
         end
+        # log :connect_messaging
 
         def disconnect_messaging
           Messaging.disconnect
         end
+        # log :disconnect_messaging
 
         def declare_queues
           Messaging.declare_queues('builds', 'reporting.jobs')
         end
+        # log :declare_queues
 
         def config
           @config ||= Travis::Worker.config
         end
     end
-
   end
 end
