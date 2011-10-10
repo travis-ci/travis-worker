@@ -1,12 +1,12 @@
 require 'spec_helper'
 require 'stringio'
 
-describe Logging::Logger do
-  let(:logger) { Logging::Logger.new('vm') }
+describe Util::Logging::Logger do
+  let(:logger) { Util::Logging::Logger.new('vm') }
   let(:object) { Object.new }
 
   before :each do
-    Logging.io = StringIO.new
+    Util::Logging.io = StringIO.new
   end
 
   describe 'log' do

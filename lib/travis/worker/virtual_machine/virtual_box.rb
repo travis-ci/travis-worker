@@ -241,7 +241,6 @@ module Travis
           def immutate
             return if immutable?
 
-
             attachment = machine.medium_attachments.detect { |ma| ma.controller =~ /SATA/ }
 
             controller_name = attachment.controller

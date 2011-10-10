@@ -4,7 +4,6 @@ module Travis
   module Worker
     autoload :Application,  'travis/worker/application'
     autoload :Config,       'travis/worker/config'
-    autoload :Logging,      'travis/worker/logging'
     autoload :Manager,      'travis/worker/manager'
     autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
@@ -17,6 +16,7 @@ module Travis
     end
 
     module Util
+      autoload :Logging,    'travis/worker/util/logging'
       autoload :Retryable,  'travis/worker/util/retryable'
     end
 

@@ -12,7 +12,7 @@ module Travis
       class WorkerError < StandardError; end
 
       include SimpleStates
-      extend Logging
+      extend Util::Logging
 
       states :created, :booting, :waiting, :working, :stopped
 
@@ -32,7 +32,7 @@ module Travis
         @queue = queue
         @vm = vm
         @jobs = JobFactory.new(vm)
-        @logger = Logging::Logger.new(vm.name)
+        @logger = Util::Logging::Logger.new(vm.name)
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.

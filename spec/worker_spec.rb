@@ -12,7 +12,7 @@ describe Worker do
   let(:exception) { Exception.new }
 
   before(:each) do
-    Logging.io = StringIO.new
+    Util::Logging.io = StringIO.new
     worker.jobs.stubs(:create).returns(runner)
   end
 
