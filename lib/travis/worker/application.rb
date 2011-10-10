@@ -4,12 +4,10 @@ module Travis
   module Worker
     class Application
 
-      attr_reader :manager, :config
+      attr_reader :manager
 
-      def initialize(config = nil)
-        @config = config
-
-        @manager = Manager.new(configuration)
+      def initialize
+        @manager = Manager.create
       end
 
       def start
@@ -23,10 +21,6 @@ module Travis
 
       protected
 
-        def configuration
-          @config ||= Travis::Worker.config
-        end
-
         def install_signal_traps
           announce("About to install signal traps...")
 
@@ -37,7 +31,6 @@ module Travis
         def announce(what)
           puts "[boot] #{what}"
         end
-
     end
   end
 end

@@ -14,8 +14,8 @@ module Travis
       include SimpleStates
       extend Util::Logging
 
-      def self.create(name)
-        Factory.new(name).worker
+      def self.create(name, config)
+        Factory.new(name, config).worker
       end
 
       states :created, :booting, :waiting, :working, :stopped
