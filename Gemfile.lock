@@ -81,7 +81,7 @@ DEPENDENCIES
   faraday
   god
   hashr (~> 0.0.13)
-  hot_bunnies (>= 1.2.0)
+  hot_bunnies (>= 1.2.1)
   jruby-openssl
   json
   minitest
