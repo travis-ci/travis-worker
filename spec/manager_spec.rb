@@ -2,25 +2,15 @@ require 'spec_helper'
 require 'stringio'
 
 describe Manager do
-  let(:logger)    { Util::Logging::Logger.new('manager', StringIO.new)}
-  let(:manager)   { Manager.new(logger) }
-  let(:messaging) { Messaging }
-  let(:queues)    { %w(builds reporting.jobs) }
+  let(:worker_names) { %(worker-1 worker-2)}
+  let(:messaging)    { stub('messaging', :connect => nil, :disconnect => nil, :declare_queues => nil) }
+  let(:logger)       { Util::Logging::Logger.new('manager', StringIO.new)}
+  let(:manager)      { Manager.new(worker_names, messaging, logger, {}) }
 
-  let(:worker_1)  { worker('worker-1') }
-  let(:worker_2)  { worker('worker-2') }
-  let(:workers)   { [worker_1, worker_2] }
-
-  def worker(name)
-    stub(name, :boot => nil, :start => nil, :stop => nil)
-  end
+  let(:queues)       { %w(builds reporting.jobs) }
+  let(:workers)      { worker_names.map { |name| stub(name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
-    messaging.stubs(:connect)
-    messaging.stubs(:disconnect)
-    messaging.stubs(:declare_queues)
-
-    VirtualMachine::VirtualBox.stubs(:vm_names).returns(%w(travis-test-1 travis-test-2))
     Worker.stubs(:create).returns(*workers)
   end
 
@@ -36,10 +26,7 @@ describe Manager do
     end
 
     it 'starts the workers' do
-      workers.each do |worker|
-        worker.expects(:boot)
-        worker.expects(:start)
-      end
+      workers.each { |worker| worker.expects(:boot) }
       manager.start
     end
 

@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/travis-ci/travis-build.git
-  revision: 5fd44249ed928a06366ce9e9654905ee6424c9df
+  revision: c9e24b760a3120fce8b8328c796ae813d80785f1
   specs:
     travis-build (0.2.0)
 
@@ -22,7 +22,7 @@ GEM
     ffi (1.0.9-java)
     god (0.11.0)
     hashr (0.0.16)
-    hot_bunnies (1.2.0-java)
+    hot_bunnies (1.2.1-java)
     i18n (0.6.0)
     jruby-openssl (0.7.4)
       bouncy-castle-java
