@@ -9,11 +9,19 @@ module Travis
         end
 
         def create(payload)
-          Build::Job.runner(vm, vm.shell, http, payload, Reporter.new)
+          Build::Job.runner(vm, shell, http, payload, reporter)
+        end
+
+        def reporter
+          Reporter.new
+        end
+
+        def shell
+          Shell.new(vm.shell)
         end
 
         def http
-          Build::Connection::Http.new(Travis::Worker.config) # TODO can we reuse this? is faraday thread-safe?
+          Build::Connection::Http.new(Travis::Worker.config)
         end
       end
     end

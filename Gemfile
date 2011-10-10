@@ -2,17 +2,15 @@ source :rubygems
 
 gem 'travis-build', :git => 'git://github.com/travis-ci/travis-build.git'
 
+gem 'activesupport'
 gem 'vagrant',       '~> 0.8.0'
-
 gem 'net-ssh-shell', '~> 0.2.0'
-
 gem 'faraday'
 
+gem 'simple_states'
 gem 'hashr',         '~> 0.0.13'
 gem 'multi_json'
 gem 'json'
-
-gem 'simple_states'
 
 gem 'rake',          '~> 0.9.2'
 gem 'thor'
