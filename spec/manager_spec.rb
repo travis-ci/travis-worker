@@ -26,10 +26,7 @@ describe Manager do
     end
 
     it 'starts the workers' do
-      workers.each do |worker|
-        worker.expects(:boot)
-        worker.expects(:start)
-      end
+      workers.each { |worker| worker.expects(:boot) }
       manager.start
     end
 

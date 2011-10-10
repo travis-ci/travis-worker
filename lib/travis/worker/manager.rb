@@ -47,7 +47,6 @@ module Travis
         def start_workers
           workers.each do |worker|
             worker.boot
-            worker.start
           end
         end
         log :start_workers
