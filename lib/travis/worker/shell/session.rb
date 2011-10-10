@@ -7,12 +7,15 @@ module Travis
       # Encapsulates an SSH connection to a remote host.
       class Session
         include Shell::Helpers
+        extend Util::Logging
 
         # Remote host environment ssh configuration.
         attr_reader :config
 
         # The Net::SSH::Session shell
         attr_reader :shell
+
+        attr_reader :logger
 
         # Initialize a shell Session
         #
@@ -22,6 +25,7 @@ module Travis
         #         and then the session will be closed.
         def initialize(config)
           @config = Hashr.new(config)
+          @logger = config.delete(:logger)
           @shell  = nil
 
           if block_given?
@@ -35,7 +39,7 @@ module Travis
         #
         # Returns the Net::SSH::Shell
         def connect(silent = false)
-          puts "starting ssh session to #{config.host}:#{config.port} ..." unless silent
+          logger.log("starting ssh session to #{config.host}:#{config.port} ...", self, :connect) unless silent
           options = { :port => config.port, :keys => [config.private_key_path] }
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
