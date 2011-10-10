@@ -4,12 +4,12 @@ module Travis
       class Factory
         attr_reader :name
 
-        def intialize(name)
+        def initialize(name)
           @name = name
         end
 
         def worker
-          Worker.new(queue, vm, reporter, logger, config)
+          Worker.new(vm, queue, reporter, logger, config)
         end
 
         def vm
@@ -24,12 +24,12 @@ module Travis
           Util::Logging::Logger.new(vm.name)
         end
 
-        def reporting
-          Messaging.hub('reporting.jobs')
-        end
-
         def queue
           Messaging.hub('builds')
+        end
+
+        def reporting
+          Messaging.hub('reporting.jobs')
         end
 
         def config
