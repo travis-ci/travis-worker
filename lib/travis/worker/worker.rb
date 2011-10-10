@@ -68,7 +68,7 @@ module Travis
       rescue Errno::ECONNREFUSED, Exception => error
         error(error, message)
       end
-      log :work
+      log :work, :params => false
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop
