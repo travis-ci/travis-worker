@@ -21,14 +21,14 @@ module Travis
       protected
 
         def install_signal_traps
-          Signal.trap("INT")  { puts "Handling SIGINT...";  self.quit }
-          Signal.trap("TERM") { puts "Handling SIGTERM..."; self.quit }
+          Signal.trap("INT")  { quit }
+          Signal.trap("TERM") { quit }
         end
         log :install_signal_traps
 
         def quit
           self.manager.stop
-          sleep(3) # give all threads a little time to stop completely
+          java.lang.System.exit(0)
           exit
         end
         log :quit
