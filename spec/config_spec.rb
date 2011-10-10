@@ -1,16 +1,14 @@
 require 'spec_helper'
 
 
-describe Config do
-  Config = Travis::Worker::Config
-
+describe Travis::Worker::Config do
   before(:each) do
-    Config.send :public, *Config.protected_instance_methods
-    Config.any_instance.stubs(:read_yml).returns({})
+    Travis::Worker::Config.send :public, *Travis::Worker::Config.protected_instance_methods
+    Travis::Worker::Config.any_instance.stubs(:read_yml).returns({})
     File.stubs(:exists?).returns(true)
   end
 
-  let(:config) { Config.new }
+  let(:config) { Travis::Worker::Config.new }
 
   it "looks for a file ./config/worker.yml" do
     File.stubs(:exists?).with('./config/worker.yml').returns(true)
@@ -26,8 +24,8 @@ describe Config do
   it "reads ./config/worker.yml first, ./config/worker.[env].yml second and merges them" do
     File.stubs(:exists?).with('./config/worker.yml').returns(true)
 
-    Config.any_instance.stubs(:read_yml).with('./config/worker.yml').returns('env' => 'staging', 'staging' => { 'foo' => 'foo' })
-    Config.any_instance.stubs(:read_yml).with('./config/worker.staging.yml').returns('bar' => 'bar')
+    Travis::Worker::Config.any_instance.stubs(:read_yml).with('./config/worker.yml').returns('env' => 'staging', 'staging' => { 'foo' => 'foo' })
+    Travis::Worker::Config.any_instance.stubs(:read_yml).with('./config/worker.staging.yml').returns('bar' => 'bar')
 
     config.read['env'].should eql 'staging'
     config.read['foo'].should eql 'foo'
@@ -35,8 +33,8 @@ describe Config do
   end
 
   it 'vms includes the Vms module' do
-    Config.any_instance.stubs(:read_yml).returns({ 'vms' => { 'count' => 5 } })
-    config.vms.meta_class.included_modules.include?(Config::Vms).should be_true
+    Travis::Worker::Config.any_instance.stubs(:read_yml).returns({ 'vms' => { 'count' => 5 } })
+    config.vms.meta_class.included_modules.include?(Travis::Worker::Config::Vms).should be_true
     config.vms.count.should eql 5
   end
 
