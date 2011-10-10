@@ -49,7 +49,7 @@ module Travis
           worker_names.each do |name|
             announce("Starting #{name}")
 
-            worker = create_worker(name)
+            worker = Worker.create(name)
             workers << worker
             worker.run
           end
@@ -63,18 +63,6 @@ module Travis
 
 
       private
-
-        def create_worker(worker_name)
-          builds_hub = Messaging.hub('builds')
-          reporting_hub = Messaging.hub('reporting.jobs')
-
-          vm = VirtualMachine::VirtualBox.new(worker_name)
-          reporter = Reporter.new(reporting_hub)
-          logger = Util::Logging::Logger.new(vm.name)
-          config = Travis::Worker.config
-
-          Worker.new(builds_hub, vm, reporter, logger, config)
-        end
 
         def connect_messaging
           Messaging.connect

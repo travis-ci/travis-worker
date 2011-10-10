@@ -7,10 +7,16 @@ module Travis
   module Worker
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
+      autoload :Factory, 'travis/worker/worker/factory'
+
       class WorkerError < StandardError; end
 
       include SimpleStates
       extend Util::Logging
+
+      def self.create(name)
+        Factory.new(name).worker
+      end
 
       states :created, :booting, :waiting, :working, :stopped
 
