@@ -110,7 +110,8 @@ module Travis
             :username => 'vagrant',
             :private_key_path => File.expand_path('keys/vagrant'),
             :buffer => Travis::Worker.config.shell.buffer,
-            :timeouts => Travis::Worker.config.timeouts
+            :timeouts => Travis::Worker.config.timeouts,
+            :logger => Util::Logging::Logger.new(name)
           )
         end
 
