@@ -66,9 +66,14 @@ module Travis
 
         def create_worker(worker_name)
           builds_hub = Messaging.hub('builds')
-          virtual_machine = VirtualMachine::VirtualBox.new(worker_name)
+          reporting_hub = Messaging.hub('reporting.jobs')
 
-          Worker.new(builds_hub, virtual_machine)
+          vm = VirtualMachine::VirtualBox.new(worker_name)
+          reporter = Reporter.new(reporting_hub)
+          logger = Util::Logging::Logger.new(vm.name)
+          config = Travis::Worker.config
+
+          Worker.new(builds_hub, vm, reporter, logger, config)
         end
 
         def connect_messaging

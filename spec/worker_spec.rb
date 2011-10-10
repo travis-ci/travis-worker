@@ -4,16 +4,19 @@ require 'stringio'
 describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
-  let(:worker)    { Worker.new(queue, vm) }
-  let(:runner)    { stub('runner', :run => nil) }
+  let(:reporter)  { stub('reporter') }
+  let(:logger)    { Util::Logging::Logger.new(vm.name) }
+  let(:config)    { Hashr.new }
+  let(:worker)    { Worker.new(vm, queue, reporter, logger, config) }
 
   let(:message)   { stub('message', :ack => nil) }
   let(:payload)   { '{ "id": 1 }' }
   let(:exception) { Exception.new }
+  let(:build)     { stub('build', :run => nil) }
 
   before(:each) do
     Util::Logging.io = StringIO.new
-    worker.jobs.stubs(:create).returns(runner)
+    Travis::Build.stubs(:create).returns(build)
   end
 
   describe 'boot' do
@@ -149,12 +152,12 @@ describe Worker do
 
   describe 'process' do
     it 'creates a new build job' do
-      worker.jobs.expects(:create).returns(runner)
+      Travis::Build.expects(:create).returns(build)
       worker.send(:process)
     end
 
     it 'runs the build job' do
-      runner.expects(:run)
+      build.expects(:run)
       worker.send(:process)
     end
   end
