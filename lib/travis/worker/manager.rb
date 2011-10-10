@@ -4,15 +4,15 @@ module Travis
     # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
     class Manager
+      extend Util::Logging
 
-      # Returns an Array of Worker instances.
-      attr_reader :workers
-
+      attr_reader :logger
 
       # Initialize a Worker Manager.
       #
       # configuration - A Config to use for connection details (default: nil)
-      def initialize(config = nil)
+      def initialize(logger = nil, config = nil)
+        @logger = logger || Util::Logging::Logger.new('manager')
         @config = config
       end
 
@@ -43,14 +43,14 @@ module Travis
             worker.start
           end
         end
-        # log :start_workers
+        log :start_workers
 
         def stop_workers
           workers.each do |worker|
             worker.stop
           end
         end
-        # log :stop_workers
+        log :stop_workers
 
         def workers
           @workers ||= worker_names.map do |name|
@@ -65,17 +65,17 @@ module Travis
         def connect_messaging
           Messaging.connect
         end
-        # log :connect_messaging
+        log :connect_messaging
 
         def disconnect_messaging
           Messaging.disconnect
         end
-        # log :disconnect_messaging
+        log :disconnect_messaging
 
         def declare_queues
           Messaging.declare_queues('builds', 'reporting.jobs')
         end
-        # log :declare_queues
+        log :declare_queues
 
         def config
           @config ||= Travis::Worker.config
