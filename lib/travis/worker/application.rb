@@ -3,34 +3,35 @@ require "hot_bunnies"
 module Travis
   module Worker
     class Application
+      extend Util::Logging
 
-      attr_reader :manager
+      attr_reader :manager, :logger
 
       def initialize
         @manager = Manager.create
+        @logger  = Util::Logging::Logger.new('boot')
       end
 
       def start
         install_signal_traps
-
-        announce("About to start the builds manager")
-
         manager.start
       end
-
+      log :start
 
       protected
 
         def install_signal_traps
-          announce("About to install signal traps...")
-
-          Signal.trap("INT")  { self.manager.stop; exit }
-          Signal.trap("TERM") { self.manager.stop; exit }
+          Signal.trap("INT")  { self.quit }
+          Signal.trap("TERM") { self.quit }
         end
+        log :install_signal_traps
 
-        def announce(what)
-          puts "[boot] #{what}"
+        def quit
+          self.manager.stop
+          sleep(3) # give all threads a little time to stop completely
+          exit
         end
+        log :quit
     end
   end
 end
