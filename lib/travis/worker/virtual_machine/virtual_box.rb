@@ -81,9 +81,6 @@ module Travis
         # The name of the virtual box machine.
         attr_reader :name
 
-        # The virtual box machine bound to this instance.
-        attr_reader :machine
-
         # Instantiates a new VirtualBox machine, and connects it to the underlying
         # virtual machine setup in the local virtual box environment based on the box name.
         #
@@ -92,12 +89,15 @@ module Travis
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
           @name = name
+        end
 
-          @machine = manager.vbox.machines.detect do |machine|
-            machine.name == name
+        # The virtual box machine bound to this instance.
+        def machine
+          @machine = begin
+            machine = manager.vbox.machines.detect { |machine| machine.name == name }
+            raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
+            machine
           end
-
-          raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
         end
 
         # Prepares a ssh session bound to the virtual box vm.
@@ -240,7 +240,6 @@ module Travis
 
           def immutate
             return if immutable?
-
 
             attachment = machine.medium_attachments.detect { |ma| ma.controller =~ /SATA/ }
 

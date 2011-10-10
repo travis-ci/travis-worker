@@ -7,12 +7,16 @@ module Travis
   module Worker
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
-      autoload :JobFactory, 'travis/worker/worker/job_factory'
+      autoload :Factory, 'travis/worker/worker/factory'
 
       class WorkerError < StandardError; end
 
       include SimpleStates
-      extend Logging
+      extend Util::Logging
+
+      def self.create(name)
+        Factory.new(name).worker
+      end
 
       states :created, :booting, :waiting, :working, :stopped
 
@@ -22,17 +26,18 @@ module Travis
 
       attr_accessor :state
 
-      attr_reader :vm, :queue, :jobs, :payload, :last_error, :logger
+      attr_reader :vm, :queue, :reporter, :logger, :config, :payload, :last_error
 
       # Instantiates a new worker.
       #
       # queue - The MessagingHub used to subscribe to the builds queue.
       # vm    - The virtual machine to be used by the worker.
-      def initialize(queue, vm)
-        @queue = queue
-        @vm = vm
-        @jobs = JobFactory.new(vm)
-        @logger = Logging::Logger.new(vm.name)
+      def initialize(vm, queue, reporter, logger, config)
+        @vm       = vm
+        @queue    = queue
+        @reporter = reporter
+        @logger   = logger
+        @config   = config
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.
@@ -95,7 +100,7 @@ module Travis
         log :error
 
         def process
-          jobs.create(payload).run
+          Build.create(vm, vm.shell, reporter, payload, config).run
         end
 
         # Internal: This method is just a simple wrapper around work, silently catching

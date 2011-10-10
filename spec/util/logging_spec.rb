@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'stringio'
 
-describe Logging do
+describe Util::Logging do
   let :logging_class do
     Mock.const_set :LoggedClass, Class.new { |c|
-      c.extend(Logging)
+      c.extend(Util::Logging)
       c.send(:attr_reader, :logger)
       c.send(:define_method, :initialize) { @logger = stub('logger', :log => nil) }
       c.send(:define_method, :the_method) { |*args| }
@@ -13,10 +13,6 @@ describe Logging do
 
   let(:object) { logging_class.new }
   let(:logger) { object.logger }
-
-  before :each do
-    Logging.io = StringIO.new
-  end
 
   after :each do
     Mock.send(:remove_const, :LoggedClass)

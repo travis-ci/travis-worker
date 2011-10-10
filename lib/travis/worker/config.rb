@@ -25,7 +25,7 @@ module Travis
       define :queue     => 'builds',
              :messaging => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :shell     => { :buffer => 0 },
-             :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install_deps => 300 },
+             :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install => 300 },
              :vms       => { :count => 1, :_include => Vms }
 
       def initialize

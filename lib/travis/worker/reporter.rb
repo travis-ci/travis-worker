@@ -1,13 +1,12 @@
 module Travis
   module Worker
     class Reporter
-
       ROUTING_KEY = 'reporting.jobs'
 
-      attr_reader :messaging_hub
+      attr_reader :exchange
 
-      def initialize
-        @messaging_hub = Messaging.hub(ROUTING_KEY)
+      def initialize(exchange)
+        @exchange = exchange
       end
 
       def notify(event)
@@ -17,7 +16,7 @@ module Travis
       protected
 
         def message(type, data)
-          messaging_hub.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY)
+          exchange.publish(data, :type => type.to_s, :routing_key => ROUTING_KEY) # do we really need to re-specify the key here?
         end
     end
   end

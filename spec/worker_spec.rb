@@ -4,16 +4,18 @@ require 'stringio'
 describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
-  let(:worker)    { Worker.new(queue, vm) }
-  let(:runner)    { stub('runner', :run => nil) }
+  let(:reporter)  { stub('reporter') }
+  let(:logger)    { Util::Logging::Logger.new(vm.name, StringIO.new) }
+  let(:config)    { Hashr.new }
+  let(:worker)    { Worker.new(vm, queue, reporter, logger, config) }
 
   let(:message)   { stub('message', :ack => nil) }
   let(:payload)   { '{ "id": 1 }' }
   let(:exception) { Exception.new }
+  let(:build)     { stub('build', :run => nil) }
 
   before(:each) do
-    Logging.io = StringIO.new
-    Travis::Build::Job.stubs(:runner).returns(runner)
+    Travis::Build.stubs(:create).returns(build)
   end
 
   describe 'boot' do
@@ -45,7 +47,7 @@ describe Worker do
       before :each do
         worker.state = :waiting
       end
-      
+
       it 'starts working' do
         worker.expects(:start)
         worker.work(message, payload)
@@ -127,13 +129,13 @@ describe Worker do
   describe 'error' do
     it 'requeues the message' do
       message.expects(:ack).with(:requeue => true)
-      lambda { 
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
     end
 
-    it 'stores the error' do      
-      lambda { 
+    it 'stores the error' do
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
       worker.last_error.should == exception
@@ -141,7 +143,7 @@ describe Worker do
 
     it 'stops itself' do
       worker.expects(:stop)
-      lambda { 
+      lambda {
         worker.send(:error, exception, message)
       }.should raise_error Worker::WorkerError
     end
@@ -149,12 +151,12 @@ describe Worker do
 
   describe 'process' do
     it 'creates a new build job' do
-      worker.jobs.expects(:create).returns(runner)
+      Travis::Build.expects(:create).returns(build)
       worker.send(:process)
     end
 
     it 'runs the build job' do
-      runner.expects(:run)
+      build.expects(:run)
       worker.send(:process)
     end
   end

@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'travis/worker'
-require 'fixtures/payloads'
+require 'spec/support/payloads'
 
 ENV['VM'] = 'worker-1'
 

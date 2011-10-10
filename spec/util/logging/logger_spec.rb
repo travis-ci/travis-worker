@@ -1,13 +1,9 @@
 require 'spec_helper'
 require 'stringio'
 
-describe Logging::Logger do
-  let(:logger) { Logging::Logger.new('vm') }
+describe Util::Logging::Logger do
+  let(:logger) { Util::Logging::Logger.new('vm', StringIO.new) }
   let(:object) { Object.new }
-
-  before :each do
-    Logging.io = StringIO.new
-  end
 
   describe 'log' do
     it 'contains the log header' do
