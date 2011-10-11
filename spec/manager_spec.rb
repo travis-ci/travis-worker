@@ -25,9 +25,27 @@ describe Manager do
       manager.start
     end
 
-    it 'starts the workers' do
-      workers.each { |worker| worker.expects(:boot) }
-      manager.start
+    describe 'with no worker names given' do
+      it 'starts the workers' do
+        workers.each { |worker| worker.expects(:start) }
+        manager.start
+      end
+    end
+
+    describe 'with a worker name given' do
+      it 'starts the worker' do
+        workers.first.expects(:start)
+        manager.start('worker-1')
+      end
+
+      it 'does not start other workers' do
+        workers.last.expects(:start).never
+        manager.start('worker-1')
+      end
+
+      it 'raises WorkerNotFound if there is no worker with the given name' do
+        lambda { manager.start('worker-3') }.should raise_error(WorkerNotFound)
+      end
     end
 
     it 'returns itself' do
@@ -40,11 +58,6 @@ describe Manager do
         logger.io.string.should =~ /connect_messaging/
       end
 
-      it 'should log declaring the queues' do
-        manager.start
-        logger.io.string.should =~ /declare_queues/
-      end
-
       it 'should log starting the workers' do
         manager.start
         logger.io.string.should =~ /start_workers/
@@ -53,11 +66,34 @@ describe Manager do
   end
 
   describe 'stop' do
-    it 'stops the workers' do
-      workers.each do |worker|
-        worker.expects(:stop)
+    describe 'with no worker names given' do
+      it 'stops the workers' do
+        workers.each { |worker| worker.expects(:stop) }
+        manager.stop
       end
-      manager.stop
+    end
+
+    describe 'with a worker name given' do
+      it 'stops the worker' do
+        workers.first.expects(:stop)
+        manager.stop('worker-1')
+      end
+
+      it 'does not start other workers' do
+        workers.last.expects(:stop).never
+        manager.stop('worker-1')
+      end
+
+      it 'raises WorkerNotFound if there is no worker with the given name' do
+        lambda { manager.stop('worker-3') }.should raise_error(WorkerNotFound)
+      end
+    end
+
+    describe 'with an option :force => true given' do
+      it 'stops the worker with that option' do
+        workers.first.expects(:stop).with(:force => true)
+        manager.stop('worker-1', :force => true)
+      end
     end
 
     it 'disconnects the messaging connection' do

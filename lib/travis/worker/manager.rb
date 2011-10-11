@@ -1,5 +1,7 @@
 module Travis
   module Worker
+    class WorkerNotFound < Exception; end
+
     # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
     class Manager
@@ -23,37 +25,45 @@ module Travis
         @config = config
       end
 
-      # Connects to the messaging broker and starts the workers.
+      # Connects to the messaging broker and start all workers.
       #
-      # Returns the current instance of the MessagingConnection.
-      def start
+      # Returns the current manager instance.
+      def start(*names)
+        names = worker_names if names.empty?
         connect_messaging
-        declare_queues
-        start_workers
+        start_workers(names.flatten)
         self
       end
 
-      # Disconnects from the messaging broker and stops all the workers.
+      # Disconnects from the messaging broker and stops all workers.
       #
-      # Returns the current instance of the MessagingConnection.
-      def stop
-        stop_workers
+      # Returns the current manager instance.
+      def stop(*names)
+        names = worker_names if names.empty?
+        stop_workers(names.flatten)
         disconnect_messaging
         self
       end
 
+      def status
+        # worker state
+        # current payload
+        # last error
+      end
+
       protected
 
-        def start_workers
-          workers.each do |worker|
-            worker.boot
+        def start_workers(names)
+          names.each do |name|
+            worker(name).start
           end
         end
         log :start_workers
 
-        def stop_workers
-          workers.each do |worker|
-            worker.stop
+        def stop_workers(names)
+          options = names.last.is_a?(Hash) ? names.pop : {}
+          names.each do |name|
+            worker(name).stop(options)
           end
         end
         log :stop_workers
@@ -64,8 +74,13 @@ module Travis
           end
         end
 
+        def worker(name)
+          workers.detect { |worker| worker.name == name } || raise(WorkerNotFound.new(name))
+        end
+
         def connect_messaging
           messaging.connect
+          messaging.declare_queues('builds', 'reporting.jobs')
         end
         log :connect_messaging
 
@@ -73,11 +88,6 @@ module Travis
           messaging.disconnect
         end
         log :disconnect_messaging
-
-        def declare_queues
-          messaging.declare_queues('builds', 'reporting.jobs')
-        end
-        log :declare_queues
     end
   end
 end
