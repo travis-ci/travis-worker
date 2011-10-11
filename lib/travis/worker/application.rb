@@ -9,7 +9,7 @@ module Travis
 
       def initialize
         @manager = Manager.create
-        @logger  = Util::Logging::Logger.new('boot')
+        @logger  = Util::Logging::Logger.new('application')
       end
 
       def start

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'stringio'
 
 describe Manager do
-  let(:worker_names) { %(worker-1 worker-2)}
+  let(:worker_names) { %w(worker-1 worker-2)}
   let(:messaging)    { stub('messaging', :connect => nil, :disconnect => nil, :declare_queues => nil) }
   let(:logger)       { Util::Logging::Logger.new('manager', StringIO.new)}
   let(:manager)      { Manager.new(worker_names, messaging, logger, {}) }
@@ -37,17 +37,17 @@ describe Manager do
     describe 'logging' do
       it 'should log connecting the messaging connection' do
         manager.start
-        logger.io.string.should =~ /:connect_messaging/
+        logger.io.string.should =~ /connect_messaging/
       end
 
       it 'should log declaring the queues' do
         manager.start
-        logger.io.string.should =~ /:declare_queues/
+        logger.io.string.should =~ /declare_queues/
       end
 
       it 'should log starting the workers' do
         manager.start
-        logger.io.string.should =~ /:start_workers/
+        logger.io.string.should =~ /start_workers/
       end
     end
   end
@@ -72,12 +72,12 @@ describe Manager do
     describe 'logging' do
       it 'should log stopping the workers' do
         manager.stop
-        logger.io.string.should =~ /:stop_workers/
+        logger.io.string.should =~ /stop_workers/
       end
 
       it 'should log disconnecting the messaging connection' do
         manager.stop
-        logger.io.string.should =~ /:disconnect_messaging/
+        logger.io.string.should =~ /disconnect_messaging/
       end
     end
   end

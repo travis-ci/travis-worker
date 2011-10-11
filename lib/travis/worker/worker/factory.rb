@@ -22,7 +22,7 @@ module Travis
         end
 
         def logger
-          Util::Logging::Logger.new(vm.name)
+          Util::Logging::Logger.new("worker:#{vm.name}")
         end
 
         def queue
