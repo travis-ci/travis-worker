@@ -18,11 +18,11 @@ module Travis
         Factory.new(name, config).worker
       end
 
-      states :created, :booting, :waiting, :working, :stopped
+      states :created, :starting, :waiting, :working, :stopped
 
-      event :boot, :from => :created, :to => :waiting
-      event :work, :from => :waiting, :to => :waiting
-      event :stop, :to => :stopped
+      event :start, :from => :created, :to => :waiting
+      event :work,  :from => :waiting, :to => :waiting
+      event :stop,  :to => :stopped
 
       attr_accessor :state
 
@@ -43,13 +43,13 @@ module Travis
       # Boots the worker by preparing the VM and subscribing to the builds queue.
       #
       # Returns self.
-      def boot
-        self.state = :booting
+      def start
+        self.state = :starting
         vm.prepare
         queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
         self
       end
-      log :boot
+      log :start
 
       # Processes a build message payload.
       #
@@ -61,7 +61,7 @@ module Travis
       #
       # Raises WorkerError if there was an error processing the job.
       def work(message, payload)
-        start(payload)
+        prepare(payload)
         process
         finish(message)
         true
@@ -71,14 +71,15 @@ module Travis
       log :work, :params => false
 
       # Stops the worker by cancelling the builds queue subscription.
-      def stop
+      def stop(options = {})
         queue.cancel_subscription
+        # stop current job if options[:force]
       end
       log :stop
 
       protected
 
-        def start(payload)
+        def prepare(payload)
           self.state = :working
           @payload = decode(payload)
         end

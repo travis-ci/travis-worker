@@ -18,26 +18,26 @@ describe Worker do
     Travis::Build.stubs(:create).returns(build)
   end
 
-  describe 'boot' do
-    it 'sets the current state to :booting while it prepares the vm' do
+  describe 'start' do
+    it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
-      worker.boot
-      state.should == :booting
+      worker.start
+      state.should == :starting
     end
 
     it 'prepares the vm' do
       vm.expects(:prepare)
-      worker.boot
+      worker.start
     end
 
     it 'subscribes to the builds queue' do
       queue.expects(:subscribe)
-      worker.boot
+      worker.start
     end
 
     it 'sets the current state to :waiting' do
-      worker.boot
+      worker.start
       worker.state.should == :waiting
     end
   end
@@ -48,8 +48,8 @@ describe Worker do
         worker.state = :waiting
       end
 
-      it 'starts working' do
-        worker.expects(:start)
+      it 'prepares work' do
+        worker.expects(:prepare)
         worker.work(message, payload)
       end
 
@@ -101,21 +101,21 @@ describe Worker do
     end
   end
 
-  describe 'start' do
+  describe 'prepare' do
     it 'sets the current payload' do
-      worker.send(:start, payload)
+      worker.send(:prepare, payload)
       worker.payload.should == { :id => 1 }
     end
 
     it 'sets the current state to :working' do
-      worker.send(:start, payload)
+      worker.send(:prepare, payload)
       worker.state.should == :working
     end
   end
 
   describe 'finish' do
     it 'unsets the current payload' do
-      worker.send(:start, '{ "id": 1 }') # TODO should use an attr_accessor
+      worker.send(:prepare, '{ "id": 1 }')
       worker.send(:finish, message)
       worker.payload.should be_nil
     end
