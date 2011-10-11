@@ -22,6 +22,10 @@ module Travis
           connection
         end
 
+        def connected?
+          !!@connection
+        end
+
         def disconnect
           if connection
             connection.close
