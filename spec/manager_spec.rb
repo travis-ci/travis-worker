@@ -3,7 +3,7 @@ require 'stringio'
 
 describe Manager do
   let(:worker_names) { %w(worker-1 worker-2)}
-  let(:messaging)    { stub('messaging', :connect => nil, :disconnect => nil, :declare_queues => nil) }
+  let(:messaging)    { stub('messaging', :connect => nil, :disconnect => nil) }
   let(:logger)       { Util::Logging::Logger.new('manager', StringIO.new)}
   let(:manager)      { Manager.new(worker_names, messaging, logger, {}) }
 
@@ -17,11 +17,6 @@ describe Manager do
   describe 'start' do
     it 'connects the messaging connection' do
       messaging.expects(:connect)
-      manager.start
-    end
-
-    it 'declares the messaging queues' do
-      messaging.expects(:declare_queues).with(*queues)
       manager.start
     end
 

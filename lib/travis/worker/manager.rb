@@ -79,8 +79,7 @@ module Travis
         end
 
         def connect_messaging
-          messaging.connect
-          messaging.declare_queues('builds', 'reporting.jobs')
+          messaging.connect('builds', 'reporting.jobs')
         end
         log :connect_messaging
 

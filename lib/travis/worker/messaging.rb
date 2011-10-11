@@ -18,8 +18,8 @@ module Travis
           end
         end
 
-        def connect
-          connection
+        def connect(*queues)
+          declare_queues(queues)
         end
 
         def connected?
@@ -33,11 +33,11 @@ module Travis
           end
         end
 
-        def declare_queues(*queue_names)
+        def declare_queues(names)
           channel = connection.create_channel
 
-          queue_names.each do |queue_name|
-            channel.queue(queue_name, :durable => true, :exculsive => false)
+          names.each do |name|
+            channel.queue(name, :durable => true, :exculsive => false)
           end
 
           channel.close
