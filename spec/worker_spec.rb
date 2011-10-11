@@ -7,7 +7,7 @@ describe Worker do
   let(:reporter)  { stub('reporter') }
   let(:logger)    { Util::Logging::Logger.new(vm.name, StringIO.new) }
   let(:config)    { Hashr.new }
-  let(:worker)    { Worker.new(vm, queue, reporter, logger, config) }
+  let(:worker)    { Worker.new('worker-1', vm, queue, reporter, logger, config) }
 
   let(:message)   { stub('message', :ack => nil) }
   let(:payload)   { '{ "id": 1 }' }

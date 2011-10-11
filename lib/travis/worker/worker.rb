@@ -26,13 +26,14 @@ module Travis
 
       attr_accessor :state
 
-      attr_reader :vm, :queue, :reporter, :logger, :config, :payload, :last_error
+      attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error
 
       # Instantiates a new worker.
       #
       # queue - The MessagingHub used to subscribe to the builds queue.
       # vm    - The virtual machine to be used by the worker.
-      def initialize(vm, queue, reporter, logger, config)
+      def initialize(name, vm, queue, reporter, logger, config)
+        @name     = name
         @vm       = vm
         @queue    = queue
         @reporter = reporter

@@ -10,7 +10,7 @@ module Travis
         end
 
         def worker
-          Worker.new(vm, queue, reporter, logger, config)
+          Worker.new(name, vm, queue, reporter, logger, config)
         end
 
         def vm
@@ -22,7 +22,7 @@ module Travis
         end
 
         def logger
-          Util::Logging::Logger.new("worker:#{vm.name}")
+          Util::Logging::Logger.new("worker:#{name}")
         end
 
         def queue

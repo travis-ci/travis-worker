@@ -8,7 +8,7 @@ describe Manager do
   let(:manager)      { Manager.new(worker_names, messaging, logger, {}) }
 
   let(:queues)       { %w(builds reporting.jobs) }
-  let(:workers)      { worker_names.map { |name| stub(name, :boot => nil, :start => nil, :stop => nil) } }
+  let(:workers)      { worker_names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
     Worker.stubs(:create).returns(*workers)
