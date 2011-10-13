@@ -74,7 +74,7 @@ module Travis
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
         queue.cancel_subscription
-        # stop current job if options[:force]
+        kill_jobs if options[:force]
       end
       log :stop
 
@@ -103,6 +103,10 @@ module Travis
 
         def process
           Build.create(vm, vm.shell, reporter, payload, config).run
+        end
+
+        def kill_jobs
+          vm.shell.terminate('The worker was stopped forcefully')
         end
 
         # Internal: This method is just a simple wrapper around work, silently catching
