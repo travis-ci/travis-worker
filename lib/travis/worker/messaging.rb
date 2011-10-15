@@ -58,9 +58,7 @@ module Travis
 
 
       class Hub
-        attr_reader :name
-        attr_reader :connection
-        attr_reader :subscription
+        attr_reader :name, :connection, :subscription
 
         def initialize(name, connection)
           @name = name
@@ -74,7 +72,7 @@ module Travis
         end
 
         def subscribe(options = {}, &block)
-          queue.subscribe(options, &block)
+          @subscription = queue.subscribe(options, &block)
         end
 
         def cancel_subscription
