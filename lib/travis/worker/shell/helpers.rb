@@ -56,6 +56,10 @@ module Travis
           result
         end
 
+        def terminate(message)
+          execute("sudo shutdown -n now #{message}")
+        end
+
         # Formats a shell command to be echod and executed by a ssh session.
         #
         # cmd - command to format.

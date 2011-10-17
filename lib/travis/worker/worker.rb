@@ -18,21 +18,22 @@ module Travis
         Factory.new(name, config).worker
       end
 
-      states :created, :booting, :waiting, :working, :stopped
+      states :created, :starting, :waiting, :working, :stopped
 
-      event :boot, :from => :created, :to => :waiting
-      event :work, :from => :waiting, :to => :waiting
-      event :stop, :to => :stopped
+      event :start, :from => :created, :to => :waiting
+      event :work,  :from => :waiting, :to => :waiting
+      event :stop,  :to => :stopped
 
       attr_accessor :state
 
-      attr_reader :vm, :queue, :reporter, :logger, :config, :payload, :last_error
+      attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error
 
       # Instantiates a new worker.
       #
       # queue - The MessagingHub used to subscribe to the builds queue.
       # vm    - The virtual machine to be used by the worker.
-      def initialize(vm, queue, reporter, logger, config)
+      def initialize(name, vm, queue, reporter, logger, config)
+        @name     = name
         @vm       = vm
         @queue    = queue
         @reporter = reporter
@@ -43,13 +44,13 @@ module Travis
       # Boots the worker by preparing the VM and subscribing to the builds queue.
       #
       # Returns self.
-      def boot
-        self.state = :booting
+      def start
+        self.state = :starting
         vm.prepare
         queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
         self
       end
-      log :boot
+      log :start
 
       # Processes a build message payload.
       #
@@ -61,7 +62,7 @@ module Travis
       #
       # Raises WorkerError if there was an error processing the job.
       def work(message, payload)
-        start(payload)
+        prepare(payload)
         process
         finish(message)
         true
@@ -71,14 +72,15 @@ module Travis
       log :work, :params => false
 
       # Stops the worker by cancelling the builds queue subscription.
-      def stop
+      def stop(options = {})
         queue.cancel_subscription
+        kill_jobs if options[:force]
       end
       log :stop
 
       protected
 
-        def start(payload)
+        def prepare(payload)
           self.state = :working
           @payload = decode(payload)
         end
@@ -101,6 +103,10 @@ module Travis
 
         def process
           Build.create(vm, vm.shell, reporter, payload, config).run
+        end
+
+        def kill_jobs
+          vm.shell.terminate('The worker was stopped forcefully')
         end
 
         # Internal: This method is just a simple wrapper around work, silently catching

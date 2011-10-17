@@ -16,10 +16,16 @@ module Travis
             @io = io
           end
 
-          def log(type, object, method, args = nil)
-            args = "(#{args.map { |arg| arg.inspect}.join(', ')})" if args && !args.empty?
-            message = "(#{object.class.name}) #{type} :#{method}#{args}"
+          def log(message)
             io.puts format(:yellow, message)
+          end
+
+          def before(method, args = [])
+            io.puts format(:yellow, "about to #{method}#{format_args(args)}")
+          end
+
+          def after(method)
+            io.puts format(:yellow, "done: #{method}")
           end
 
           def error(exception)
@@ -33,6 +39,10 @@ module Travis
             def format(color, message)
               colorized = colorize(color, "[#{header}]")
               "#{colorized} #{message}"
+            end
+
+            def format_args(args)
+              args.empty? ? '' : "(#{args.map { |arg| arg.inspect}.join(', ')})"
             end
 
             def colorize(color, text)

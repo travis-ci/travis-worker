@@ -9,7 +9,7 @@ module Travis
 
       def initialize
         @manager = Manager.create
-        @logger  = Util::Logging::Logger.new('boot')
+        @logger  = Util::Logging::Logger.new('application')
       end
 
       def start
@@ -28,8 +28,8 @@ module Travis
 
         def quit
           self.manager.stop
+          java.lang.Thread.sleep(500)
           java.lang.System.exit(0)
-          exit
         end
         log :quit
     end

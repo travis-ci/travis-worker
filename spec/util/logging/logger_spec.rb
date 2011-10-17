@@ -5,24 +5,36 @@ describe Util::Logging::Logger do
   let(:logger) { Util::Logging::Logger.new('vm', StringIO.new) }
   let(:object) { Object.new }
 
-  describe 'log' do
+  describe 'before' do
     it 'contains the log header' do
-      logger.log(:before, object, :the_method, "Class")
+      logger.before(:the_method, [:foo, :bar])
       logger.io.string.should include('[vm]')
     end
 
-    it 'contains the class the method was called from' do
-      logger.log(:before, object, :the_method, [:foo, :bar])
-      logger.io.string.should include('(Object)')
-    end
-
     it 'contains the called method' do
-      logger.log(:before, object, :the_method, [:foo, :bar])
-      logger.io.string.should include('before :the_method(:foo, :bar)')
+      logger.before(:the_method, [:foo, :bar])
+      logger.io.string.should include('about to the_method(:foo, :bar)')
     end
 
     it 'colorizes the output (yellow)' do
-      logger.log(:before, object, :the_method)
+      logger.before(:the_method, [:foo, :bar])
+      logger.io.string.should include("\e[33m")
+    end
+  end
+
+  describe 'after' do
+    it 'contains the log header' do
+      logger.after(:the_method)
+      logger.io.string.should include('[vm]')
+    end
+
+    it 'contains the called method' do
+      logger.after(:the_method)
+      logger.io.string.should include('done: the_method')
+    end
+
+    it 'colorizes the output (yellow)' do
+      logger.after(:the_method)
       logger.io.string.should include("\e[33m")
     end
   end

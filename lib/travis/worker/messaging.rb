@@ -16,8 +16,12 @@ module Travis
           end
         end
 
-        def connect
-          connection
+        def connect(*queues)
+          declare_queues(queues)
+        end
+
+        def connected?
+          !!@connection
         end
 
         def disconnect
@@ -27,11 +31,11 @@ module Travis
           end
         end
 
-        def declare_queues(*queue_names)
+        def declare_queues(names)
           channel = connection.create_channel
 
-          queue_names.each do |queue_name|
-            channel.queue(queue_name, :durable => true, :exculsive => false)
+          names.each do |name|
+            channel.queue(name, :durable => true, :exculsive => false)
           end
 
           channel.close
@@ -48,9 +52,7 @@ module Travis
 
 
       class Hub
-        attr_reader :name
-        attr_reader :connection
-        attr_reader :subscription
+        attr_reader :name, :connection, :subscription
 
         def initialize(name, connection)
           @name = name
@@ -64,7 +66,7 @@ module Travis
         end
 
         def subscribe(options = {}, &block)
-          queue.subscribe(options, &block)
+          @subscription = queue.subscribe(options, &block)
         end
 
         def cancel_subscription
