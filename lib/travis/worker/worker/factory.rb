@@ -26,7 +26,7 @@ module Travis
         end
 
         def queue
-          Messaging.hub('builds')
+          Messaging.hub(Travis::Worker.config.queue)
         end
 
         def reporting
