@@ -22,7 +22,7 @@ module Travis
         end
       end
 
-      define :queue     => 'builds',
+      define :queue     => 'builds.ruby',
              :messaging => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :shell     => { :buffer => 0 },
              :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install => 300 },
