@@ -6,15 +6,13 @@ module Travis
 
     module Messaging
       class << self
-        # extend Util::Logging
-
         def connection
           @connection ||= begin
             conn = HotBunnies.connect(config)
           rescue Java::ComRabbitmqClient::PossibleAuthenticationFailureException => e
-            announce("Failed to authenticate with #{conn.address.to_s} on port #{conn.port}")
+            puts("Failed to authenticate with #{conn.address.to_s} on port #{conn.port}")
           rescue Java::JavaIo::IOException => e
-            announce("Failed to connect with config options #{config.inspect}")
+            puts("Failed to connect with config options #{config.inspect}")
           end
         end
 
@@ -45,10 +43,6 @@ module Travis
 
         def config
           Travis::Worker.config.messaging
-        end
-
-        def logging_header
-          "messaging"
         end
       end
 
