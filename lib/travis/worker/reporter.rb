@@ -8,13 +8,13 @@ module Travis
       end
 
       def notify(event)
-        message(event.type, event.data)
+        message(event.name, event.data)
       end
 
       protected
 
         def message(type, data)
-          exchange.publish(data, :type => type.to_s)
+          exchange.publish(data, :properties => { :type => type.to_s })
         end
     end
   end
