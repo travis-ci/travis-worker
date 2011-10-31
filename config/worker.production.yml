@@ -14,13 +14,14 @@ vms:
   json:
     rvm:
       rubies:
-        - rbx-head # Build rubinius first so that we can catch build issues early. MK.
-        - 1.8.7
-        - ree
-        - 1.9.2
-        - 1.9.3
-        - ruby-head
-        - jruby
+        rbx: rbx-head --branch 2.0.testing
+        ruby-head: ruby-head
+        1.8.6: 1.8.6
+        1.8.7: 1.8.7
+        ree: ree
+        1.9.2: 1.9.2
+        1.9.3: 1.9.3
+        jruby: jruby
       gems:
         - bundler
         - rake
