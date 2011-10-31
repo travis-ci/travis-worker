@@ -57,6 +57,7 @@ vms:
     - libncurses
     - libossp-uuid
     - libv8
+    - ragel
     - nodejs
     - rvm
     - rvm::multi
