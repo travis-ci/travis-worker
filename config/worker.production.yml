@@ -30,6 +30,8 @@ vms:
         rbx: rbx-head
         rbx-2.0: rbx-head
         rbx-2.0.0pre: rbx-head
+        rbx-18mode: rbx-head
+        rbx-19mode: rbx-head-d19
     mysql:
       server_root_password: ""
     postgresql:
