@@ -13,15 +13,22 @@ vms:
   log_level: 'info'
   json:
     rvm:
+      default: 1.8.7
       rubies:
-        rbx: rbx-head --branch 2.0.testing
-        ruby-head: ruby-head
-        1.8.6: 1.8.6
-        1.8.7: 1.8.7
-        ree: ree
-        1.9.2: 1.9.2
-        1.9.3: 1.9.3
-        jruby: jruby
+      - name: rbx-head
+        arguments: --branch 2.0.testing
+        using: 1.8.7
+      - name: rbx-head
+        arguments: -n d19 --branch 2.0.testing -- --default-version=1.9
+        using: 1.9.3
+        check_for: rbx-head-d19
+      - name: 1.8.7
+      - name: jruby
+      - name: ree
+      - name: 1.9.2
+      - name: 1.9.3
+      - name: ruby-head
+      - name: 1.8.6
       gems:
         - bundler
         - rake
