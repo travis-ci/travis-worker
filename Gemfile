@@ -16,7 +16,7 @@ gem 'thor'
 
 platform :jruby do
   gem 'jruby-openssl'
-  gem 'hot_bunnies', '>= 1.2.1'
+  gem 'hot_bunnies', '~> 1.2.2'
 end
 
 platform :ruby do
