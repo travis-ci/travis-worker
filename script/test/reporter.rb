@@ -44,7 +44,7 @@ class Reporter
 
   def subscribe
     @subscription = @reporting_queue.subscribe(:ack => true, :blocking => false) do |headers, payload|
-      p MultiJson.decode(payload)
+      p [headers.properties.getType, MultiJson.decode(payload)]
       headers.ack
     end
   end
