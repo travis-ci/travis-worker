@@ -21,7 +21,7 @@ describe Worker::Factory do
       end
 
       it 'has the reporting key "builds"' do
-        worker.queue.name.should == 'builds' # TODO should come from Travis::Worker.config, no?
+        worker.queue.name.should == 'builds.ruby'
       end
     end
 

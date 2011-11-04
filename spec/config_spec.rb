@@ -56,7 +56,7 @@ describe Travis::Worker::Config do
     end
 
     it 'queue defaults to builds' do
-      config.queue.should == 'builds'
+      config.queue.should == 'builds.ruby'
     end
 
     it 'vms.count defaults to 1' do
