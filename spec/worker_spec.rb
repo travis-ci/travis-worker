@@ -5,6 +5,7 @@ describe Worker do
   let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
   let(:reporter)  { stub('reporter') }
+  let(:heart)     { stub('heart', :beat => nil, :stop => nil) }
   let(:logger)    { Util::Logging::Logger.new(vm.name, StringIO.new) }
   let(:config)    { Hashr.new }
   let(:worker)    { Worker.new('worker-1', vm, queue, reporter, logger, config) }
@@ -24,6 +25,12 @@ describe Worker do
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
       worker.start
       state.should == :starting
+    end
+
+    it 'starts the heartbeat' do
+      worker.stubs(:heart).returns(heart)
+      heart.expects(:beat)
+      worker.start
     end
 
     it 'prepares the vm' do
@@ -90,6 +97,12 @@ describe Worker do
   end
 
   describe 'stop' do
+    it 'stops the heartbeat' do
+      worker.stubs(:heart).returns(heart)
+      heart.expects(:stop)
+      worker.stop
+    end
+
     it 'unsubscribes from the builds queue' do
       queue.expects(:cancel_subscription)
       worker.stop

@@ -8,6 +8,7 @@ module Travis
     # Represents a single Worker which is bound to a single VM instance.
     class Worker
       autoload :Factory, 'travis/worker/worker/factory'
+      autoload :Heart,   'travis/worker/worker/heart'
 
       class WorkerError < StandardError; end
 
@@ -46,7 +47,7 @@ module Travis
       # Returns self.
       def start
         self.state = :starting
-        heartbeat
+        heart.beat
         vm.prepare
         queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
         self
@@ -74,7 +75,7 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
-        heartbeat.terminate
+        heart.stop
         queue.cancel_subscription
         kill_jobs if options[:force]
       end
@@ -82,11 +83,8 @@ module Travis
 
       protected
 
-        def heartbeat
-          @heardbeat ||= Thread.new do
-            reporter.notify(:'worker:ping', :name => name, :hostname => hostname)
-            sleep(1)
-          end
+        def heart
+          @heart ||= Heart.new(name, Travis::Worker.hostname, Travis::Worker.config.heartbeat.interval)
         end
 
         def prepare(payload)

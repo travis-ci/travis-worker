@@ -11,7 +11,7 @@ module Travis
 
           attr_reader :header, :io
 
-          def initialize(header, io = $stdout)
+          def initialize(header, io = STDOUT)
             @header = header
             @io = io
           end
