@@ -46,6 +46,7 @@ module Travis
       # Returns self.
       def start
         self.state = :starting
+        heartbeat
         vm.prepare
         queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
         self
@@ -73,12 +74,20 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
+        hearbeat.terminate
         queue.cancel_subscription
         kill_jobs if options[:force]
       end
       log :stop
 
       protected
+
+        def heartbeat
+          @heardbeat ||= Thread.new do
+            reporter.notify(:'worker:ping', :name => name, :hostname => hostname)
+            sleep(1)
+          end
+        end
 
         def prepare(payload)
           self.state = :working

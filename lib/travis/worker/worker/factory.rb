@@ -22,15 +22,15 @@ module Travis
         end
 
         def queue
-          queue ||= Messaging.hub(Travis::Worker.config.queue)
-        end
-
-        def logger
-          @logger ||= Util::Logging::Logger.new("worker:#{name}")
+          @queue ||= Messaging.hub(Travis::Worker.config.queue)
         end
 
         def reporting
           @reporting ||= Messaging.hub('reporting.jobs')
+        end
+
+        def logger
+          @logger ||= Util::Logging::Logger.new("worker:#{name}")
         end
 
         def config
