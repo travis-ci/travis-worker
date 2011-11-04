@@ -27,7 +27,7 @@ module Travis
              :shell     => { :buffer => 0 },
              :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install => 300 },
              :vms       => { :count => 1, :_include => Vms },
-             :heartbeat => { :interval => 5 }
+             :heartbeat => { :interval => 10 }
 
       def initialize
         super(read)
