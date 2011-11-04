@@ -84,7 +84,7 @@ module Travis
       protected
 
         def heart
-          @heart ||= Heart.new(name, Travis::Worker.hostname, Travis::Worker.config.heartbeat.interval)
+          @heart ||= Heart.new(name) { |event| reporter.notify(event) }
         end
 
         def prepare(payload)
