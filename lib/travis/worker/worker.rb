@@ -74,7 +74,7 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
-        hearbeat.terminate
+        heartbeat.terminate
         queue.cancel_subscription
         kill_jobs if options[:force]
       end
