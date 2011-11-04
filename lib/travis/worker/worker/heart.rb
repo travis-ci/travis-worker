@@ -14,7 +14,7 @@ module Travis
         def beat
           @thread ||= Thread.new do
             loop do
-              callback.call(event)
+              callback.call(:'worker:ping', :name => name, :host => host)
               sleep(interval)
             end
           end
@@ -22,10 +22,6 @@ module Travis
 
         def stop
           thread.terminate if thread
-        end
-
-        def event
-          @event ||= Travis::Build::Event.new(:'worker:ping', self, :name => name, :host => host)
         end
       end
     end

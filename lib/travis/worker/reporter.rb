@@ -14,12 +14,10 @@ module Travis
         message(event.name, event.data)
       end
 
-      protected
-
-        def message(type, data)
-          exchange.publish(data, :properties => { :type => type.to_s })
-        end
-        log :message
+      def message(type, data)
+        exchange.publish(data, :properties => { :type => type.to_s })
+      end
+      log :message
     end
   end
 end
