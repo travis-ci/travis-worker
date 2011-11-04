@@ -18,19 +18,19 @@ module Travis
         end
 
         def reporter
-          Reporter.new(reporting)
-        end
-
-        def logger
-          Util::Logging::Logger.new("worker:#{name}")
+          Reporter.new(reporting, logger)
         end
 
         def queue
-          Messaging.hub(Travis::Worker.config.queue)
+          queue ||= Messaging.hub(Travis::Worker.config.queue)
+        end
+
+        def logger
+          @logger ||= Util::Logging::Logger.new("worker:#{name}")
         end
 
         def reporting
-          Messaging.hub('reporting.jobs')
+          @reporting ||= Messaging.hub('reporting.jobs')
         end
 
         def config

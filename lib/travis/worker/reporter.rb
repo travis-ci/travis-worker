@@ -1,10 +1,13 @@
 module Travis
   module Worker
     class Reporter
-      attr_reader :exchange
+      extend Util::Logging
 
-      def initialize(exchange)
+      attr_reader :exchange, :logger
+
+      def initialize(exchange, logger)
         @exchange = exchange
+        @logger = logger
       end
 
       def notify(event)
@@ -16,6 +19,7 @@ module Travis
         def message(type, data)
           exchange.publish(data, :properties => { :type => type.to_s })
         end
+        log :message
     end
   end
 end
