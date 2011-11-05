@@ -28,6 +28,7 @@ module Travis
       autoload :Erlang,   'travis/worker/builders/erlang'
       autoload :Ruby,     'travis/worker/builders/ruby'
       autoload :NodeJs,   'travis/worker/builders/node_js'
+      autoload :Php,      'travis/worker/builders/php'
     end
   end
 end
