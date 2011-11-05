@@ -4,7 +4,7 @@ module Travis
 
       module Php
         class Config < Base::Config
-          def php_version
+          def php
             normalize(super, '5.3.8')
           end
 
@@ -23,7 +23,7 @@ module Travis
           end
 
           def setup_env
-            exec "phpenv php-#{config.php_version}"
+            exec "phpenv php-#{config.php}"
             super
           end
 

@@ -19,18 +19,18 @@ class BuilderPhpTestCase < Test::Unit::TestCase
 end
 
 class BuilderPhpConfigTests < BuilderPhpTestCase
-  def test_config_default_php_version
-    assert_equal('5.3.8', new_config.php_version)
+  def test_config_default_php
+    assert_equal('5.3.8', new_config.php)
   end
 
-  def test_config_custom_php_version
-    config = new_config('php_version' => 'foobar')
-    assert_equal('foobar', config.php_version)
+  def test_config_custom_php
+    config = new_config('php' => 'foobar')
+    assert_equal('foobar', config.php)
   end
 
-  def test_config_custom_php_version_as_an_array
-    config = new_config('php_version' => ['foobar'])
-    assert_equal('foobar', config.php_version)
+  def test_config_custom_php_as_an_array
+    config = new_config('php' => ['foobar'])
+    assert_equal('foobar', config.php)
   end
 
   def test_config_default_script
@@ -46,7 +46,7 @@ end
 class BuilderPhpCommandsTests < BuilderPhpTestCase
   def test_setup_env
     commands_any_instance.expects(:exec).
-      with("phpenv 5.3.8").
+      with("phpenv php-5.3.8").
       once
 
     new_commands.setup_env
@@ -54,7 +54,7 @@ class BuilderPhpCommandsTests < BuilderPhpTestCase
 
   def test_setup_env_with_other_env_vars
     commands_any_instance.expects(:exec).
-      with("phpenv 5.3.8").
+      with("phpenv php-5.3.8").
       once
 
     commands_any_instance.expects(:exec).
