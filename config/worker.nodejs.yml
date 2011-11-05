@@ -37,6 +37,7 @@ vms:
     - libqt4
     - libv8
     - nodejs::multi
+    - php::multi
     - sqlite
     - postgresql::client
     - postgresql::server
