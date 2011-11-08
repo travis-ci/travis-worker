@@ -46,7 +46,7 @@ end
 class BuilderPhpCommandsTests < BuilderPhpTestCase
   def test_setup_env
     commands_any_instance.expects(:exec).
-      with("phpenv php-5.3.8").
+      with("phpenv global php-5.3.8").
       once
 
     new_commands.setup_env

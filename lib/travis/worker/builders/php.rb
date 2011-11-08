@@ -23,7 +23,7 @@ module Travis
           end
 
           def setup_env
-            exec "phpenv php-#{config.php}"
+            exec "phpenv global php-#{config.php}"
             super
           end
 
