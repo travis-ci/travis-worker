@@ -46,7 +46,7 @@ module Travis
         end
 
         def config
-          Travis::Worker.config.messaging
+          Travis::Worker.config.amqp
         end
       end
 

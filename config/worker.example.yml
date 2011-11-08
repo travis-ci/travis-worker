@@ -1,8 +1,15 @@
 env: staging
+production:
+  shell:
+    buffer: 0.75
 staging:
-  redis:
-    url: "redis://YOUR_REDIS_URL"
-  reporter:
-    http:
-      url: "YOUR_GITHUB_USERNAME:YOUR_TRAVIS_TOKEN@YOUR_APP.heroku.com"
+  shell:
+    buffer: 1
+  amqp:
+    host: [host]
+    port: [port]
+    username: [username]
+    password: [password]
+    virtual_host: [virtual_host]
+
 
