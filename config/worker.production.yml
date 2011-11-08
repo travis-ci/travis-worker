@@ -1,4 +1,4 @@
-queue: builds.ruby
+queue: builds.common
 shell:
   buffer: 1.5
 timeouts:
