@@ -3,6 +3,9 @@
 This is home for the next generation of Travis CI worker. It is a WIP and is still very rough around the edges
 for broader community of contributors to jump in.
 
+## Running the worker
+
+   JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup thor travis:worker:start > log/staging.log&
 
 ## Getting started ##
 
