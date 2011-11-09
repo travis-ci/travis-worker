@@ -40,7 +40,7 @@ module Travis
           end
 
           def setup_env
-            exec("nvm use v#{config.nodejs_version}")
+            exec("nvm use #{config.nodejs_version}")
             super
           end
         end
