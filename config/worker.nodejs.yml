@@ -11,10 +11,6 @@ vms:
   memory: 1024
   cookbooks: 'vendor/cookbooks/vagrant_base'
   json:
-    nodejs:
-      versions:
-        - 0.4.11
-        - 0.5.5
     mysql:
       server_root_password: ""
     postgresql:
