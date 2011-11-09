@@ -1,4 +1,4 @@
-queue: nodejs
+queue: node_and_php
 shell:
   buffer: 2.0
 timeouts:
