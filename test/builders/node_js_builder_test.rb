@@ -28,8 +28,18 @@ class BuilderNodeJsConfigTests < BuilderNodeJsTestCase
     assert_equal('foobar', config.node_js_version)
   end
 
+  def test_config_custom_nodejs_version
+    config = new_config('nodejs' => 'foobar')
+    assert_equal('foobar', config.node_js_version)
+  end
+
   def test_config_custom_node_js_version_as_an_array
     config = new_config('node_js' => ['foobar'])
+    assert_equal('foobar', config.node_js_version)
+  end
+
+  def test_config_custom_nodejs_version_as_an_array
+    config = new_config('nodejs' => ['foobar'])
     assert_equal('foobar', config.node_js_version)
   end
 
