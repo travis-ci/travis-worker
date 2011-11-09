@@ -19,18 +19,28 @@ class BuilderNodeJsTestCase < Test::Unit::TestCase
 end
 
 class BuilderNodeJsConfigTests < BuilderNodeJsTestCase
-  def test_config_default_nodejs_version
-    assert_equal('0.4.12', new_config.nodejs_version)
+  def test_config_default_node_js_version
+    assert_equal('0.4', new_config.node_js_version)
+  end
+
+  def test_config_custom_node_js_version
+    config = new_config('node_js' => 'foobar')
+    assert_equal('foobar', config.node_js_version)
   end
 
   def test_config_custom_nodejs_version
     config = new_config('nodejs' => 'foobar')
-    assert_equal('foobar', config.nodejs_version)
+    assert_equal('foobar', config.node_js_version)
+  end
+
+  def test_config_custom_node_js_version_as_an_array
+    config = new_config('node_js' => ['foobar'])
+    assert_equal('foobar', config.node_js_version)
   end
 
   def test_config_custom_nodejs_version_as_an_array
     config = new_config('nodejs' => ['foobar'])
-    assert_equal('foobar', config.nodejs_version)
+    assert_equal('foobar', config.node_js_version)
   end
 
   def test_config_default_script_when_package_does_not_exist
@@ -58,7 +68,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.12").
+      with("nvm use 0.4").
       once
 
     new_commands.setup_env
@@ -70,7 +80,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.12").
+      with("nvm use 0.4").
       once
 
     commands_any_instance.expects(:exec).
@@ -86,7 +96,7 @@ class BuilderNodeJsCommandsTests < BuilderNodeJsTestCase
       once.returns(true)
 
     commands_any_instance.expects(:exec).
-      with("nvm use v0.4.12").
+      with("nvm use 0.4").
       once
     new_commands.setup_env
   end

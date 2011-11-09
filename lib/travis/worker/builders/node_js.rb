@@ -4,8 +4,9 @@ module Travis
 
       module NodeJs
         class Config < Base::Config
-          def nodejs_version
-            normalize(self[:nodejs], '0.4.12')
+          def node_js_version
+            version_from_config = self[:node_js] || self[:nodejs]
+            normalize(version_from_config, '0.4')
           end
 
           def package_exists?
@@ -40,7 +41,7 @@ module Travis
           end
 
           def setup_env
-            exec("nvm use v#{config.nodejs_version}")
+            exec("nvm use #{config.node_js_version}")
             super
           end
         end
