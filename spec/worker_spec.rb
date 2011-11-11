@@ -104,7 +104,7 @@ describe Worker do
 
     it 'sets the current state to :stopped' do
       worker.stop
-      worker.state.should == :stopped
+      worker.stopped?.should be_true
     end
   end
 
@@ -142,17 +142,27 @@ describe Worker do
     end
 
     it 'stores the error' do
-      lambda {
+      begin
         worker.send(:error, exception, message)
-      }.should raise_error Worker::WorkerError
+      rescue Worker::WorkerError
+      end
       worker.last_error.should == exception
     end
 
     it 'stops itself' do
       worker.expects(:stop)
-      lambda {
+      begin
         worker.send(:error, exception, message)
-      }.should raise_error Worker::WorkerError
+      rescue Worker::WorkerError
+      end
+    end
+
+    it 'sets the current state to :errored' do
+      begin
+        worker.send(:error, exception, message)
+      rescue Worker::WorkerError
+      end
+      worker.errored?.should be_true
     end
   end
 

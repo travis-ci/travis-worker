@@ -24,6 +24,7 @@ module Travis
       event :start, :from => :created, :to => :waiting
       event :work,  :from => :waiting, :to => :waiting
       event :stop,  :to => :stopped
+      event :error, :to => :errored
 
       attr_accessor :state
 
@@ -105,6 +106,7 @@ module Travis
           log_error(error)
           message.ack(:requeue => true)
           stop
+          self.state = :errored
           raise WorkerError, "An error occured during job processing the message: #{message}:\n\n #{error.message}", error.backtrace
         end
         log :error
