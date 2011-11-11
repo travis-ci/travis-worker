@@ -50,7 +50,7 @@ module Travis
         self.state = :starting
         heart.beat
         vm.prepare
-        queue.subscribe(:ack => true, :blocking => false, &method(:work_wrapper))
+        queue.subscribe(:ack => true, :blocking => false, &method(:process))
         self
       end
       log :start
@@ -64,28 +64,37 @@ module Travis
       # Returns true.
       #
       # Raises WorkerError if there was an error processing the job.
-      def work(message, payload)
-        prepare(payload)
-        process
-        finish(message)
-        true
+      def process(message, payload)
+        work(message, payload)
       rescue Errno::ECONNREFUSED, Exception => error
         error(error, message)
       end
-      log :work, :params => false
+      log :process, :params => false
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
         self.state = :stopping unless errored?
         queue.cancel_subscription
-        kill_jobs if options[:force]
+        kill if options[:force]
       end
       log :stop
+
+      # Forcefully stops the current job
+      def kill
+        vm.shell.terminate('The worker was stopped forcefully')
+      end
 
       protected
 
         def heart
           @heart ||= Heart.new(self) { |type, data| reporter.message(type, data) }
+        end
+
+        def work(message, payload)
+          prepare(payload)
+          Build.create(vm, vm.shell, reporter, payload, config).run
+          finish(message)
+          true
         end
 
         def prepare(payload)
@@ -106,26 +115,8 @@ module Travis
           log_error(error)
           message.ack(:requeue => true)
           stop
-          self.state = :errored
-          raise WorkerError, "An error occured during job processing the message: #{message}:\n\n #{error.message}", error.backtrace
         end
         log :error
-
-        def process
-          Build.create(vm, vm.shell, reporter, payload, config).run
-        end
-
-        def kill_jobs
-          vm.shell.terminate('The worker was stopped forcefully')
-        end
-
-        # Internal: This method is just a simple wrapper around work, silently catching
-        # WorkerError.
-        def work_wrapper(message, payload)
-          work(message, payload)
-        rescue WorkerError
-          # do nothing
-        end
 
         def decode(payload)
           Hashr.new(MultiJson.decode(payload))

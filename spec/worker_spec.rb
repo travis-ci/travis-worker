@@ -49,53 +49,6 @@ describe Worker do
     end
   end
 
-  describe 'work' do
-    describe 'without any exception rescued' do
-      before :each do
-        worker.state = :waiting
-      end
-
-      it 'prepares work' do
-        worker.expects(:prepare)
-        worker.work(message, payload)
-      end
-
-      it 'processes the current payload' do
-        worker.expects(:process)
-        worker.work(message, payload)
-      end
-
-      it 'finishes' do
-        worker.expects(:finish)
-        worker.work(message, payload)
-      end
-
-      it 'returns true' do
-        worker.work(message, payload).should be_true
-      end
-    end
-
-    describe 'with an exception rescued' do
-      let(:exception) { Exception.new }
-
-      before :each do
-        worker.state = :waiting
-        worker.stubs(:process).raises(exception)
-      end
-
-      it 'responds to the error' do
-        worker.expects(:error).with(exception, message)
-        worker.work(message, payload)
-      end
-
-      it 'raises WorkerError' do
-        lambda {
-          worker.work(message, payload)
-        }.should raise_error Worker::WorkerError
-      end
-    end
-  end
-
   describe 'stop' do
     it 'unsubscribes from the builds queue' do
       queue.expects(:cancel_subscription)
@@ -105,6 +58,67 @@ describe Worker do
     it 'sets the current state to :stopped' do
       worker.stop
       worker.stopped?.should be_true
+    end
+  end
+
+  describe 'process' do
+    describe 'without any exception rescued' do
+      before :each do
+        worker.state = :waiting
+      end
+
+      it 'works' do
+        worker.expects(:work)
+        worker.process(message, payload)
+      end
+
+      it 'returns true' do
+        worker.process(message, payload).should be_true
+      end
+    end
+
+    describe 'with an exception rescued' do
+      let(:exception) { Exception.new }
+
+      before :each do
+        worker.state = :waiting
+        worker.stubs(:work).raises(exception)
+      end
+
+      it 'responds to the error' do
+        worker.expects(:error).with(exception, message)
+        worker.process(message, payload)
+      end
+    end
+  end
+
+  describe 'work' do
+    before :each do
+      worker.state = :waiting
+    end
+
+    it 'prepares work' do
+      worker.expects(:prepare)
+      worker.send(:work, message, payload)
+    end
+
+    it 'creates a new build job' do
+      Travis::Build.expects(:create).returns(build)
+      worker.send(:work, message, payload)
+    end
+
+    it 'runs the build' do
+      build.expects(:run)
+      worker.send(:work, message, payload)
+    end
+
+    it 'finishes' do
+      worker.expects(:finish)
+      worker.send(:work, message, payload)
+    end
+
+    it 'returns true' do
+      worker.send(:work, message, payload).should be_true
     end
   end
 
@@ -136,45 +150,22 @@ describe Worker do
   describe 'error' do
     it 'requeues the message' do
       message.expects(:ack).with(:requeue => true)
-      lambda {
-        worker.send(:error, exception, message)
-      }.should raise_error Worker::WorkerError
+      worker.send(:error, exception, message)
     end
 
     it 'stores the error' do
-      begin
-        worker.send(:error, exception, message)
-      rescue Worker::WorkerError
-      end
+      worker.send(:error, exception, message)
       worker.last_error.should == exception
     end
 
     it 'stops itself' do
       worker.expects(:stop)
-      begin
-        worker.send(:error, exception, message)
-      rescue Worker::WorkerError
-      end
+      worker.send(:error, exception, message)
     end
 
     it 'sets the current state to :errored' do
-      begin
-        worker.send(:error, exception, message)
-      rescue Worker::WorkerError
-      end
+      worker.send(:error, exception, message)
       worker.errored?.should be_true
-    end
-  end
-
-  describe 'process' do
-    it 'creates a new build job' do
-      Travis::Build.expects(:create).returns(build)
-      worker.send(:process)
-    end
-
-    it 'runs the build job' do
-      build.expects(:run)
-      worker.send(:process)
     end
   end
 end
