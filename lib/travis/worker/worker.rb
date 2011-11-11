@@ -19,7 +19,7 @@ module Travis
         Factory.new(name, config).worker
       end
 
-      states :created, :starting, :waiting, :working, :stopped
+      states :created, :starting, :waiting, :working, :stopping, :errored, :stopped
 
       event :start, :from => :created, :to => :waiting
       event :work,  :from => :waiting, :to => :waiting
@@ -75,6 +75,7 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
+        self.state = :stopping unless errored?
         heart.stop
         queue.cancel_subscription
         kill_jobs if options[:force]
@@ -100,11 +101,12 @@ module Travis
         log :finish, :params => false
 
         def error(error, message)
+          self.state = :errored
+          @last_error = error
           log_error(error)
           message.ack(:requeue => true)
-          @last_error = error
           stop
-          raise WorkerError, "Error occured during job processing", error.backtrace
+          raise WorkerError, "An error occured during job processing the message: #{message}:\n\n #{error.message}", error.backtrace
         end
         log :error
 
