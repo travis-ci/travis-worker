@@ -66,7 +66,7 @@ module Travis
         end
 
         def subscribe(options = {}, &block)
-          @subscription = queue.subscribe(options, &block)
+          @subscription ||= queue.subscribe(options, &block)
         end
 
         def cancel_subscription
