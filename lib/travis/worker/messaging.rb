@@ -93,7 +93,7 @@ module Travis
           end
 
           def queue
-            @queue ||= channel.queue(name, :durable => true, :exculsive => false)
+            @queue ||= channel.queue(name, :durable => true, :exclusive => false)
           end
       end
     end
