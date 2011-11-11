@@ -97,12 +97,6 @@ describe Worker do
   end
 
   describe 'stop' do
-    it 'stops the heartbeat' do
-      worker.stubs(:heart).returns(heart)
-      heart.expects(:stop)
-      worker.stop
-    end
-
     it 'unsubscribes from the builds queue' do
       queue.expects(:cancel_subscription)
       worker.stop
