@@ -85,7 +85,7 @@ module Travis
       protected
 
         def heart
-          @heart ||= Heart.new(name) { |type, data| reporter.message(type, data) }
+          @heart ||= Heart.new(self) { |type, data| reporter.message(type, data) }
         end
 
         def prepare(payload)

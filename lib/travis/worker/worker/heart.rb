@@ -2,10 +2,10 @@ module Travis
   module Worker
     class Worker
       class Heart
-        attr_reader :thread, :name, :host, :interval, :callback
+        attr_reader :thread, :worker, :host, :interval, :callback
 
-        def initialize(name, &block)
-          @name = name
+        def initialize(worker, &block)
+          @worker = worker
           @callback = block
           @host = Travis::Worker.hostname
           @interval = Travis::Worker.config.heartbeat.interval
@@ -14,7 +14,7 @@ module Travis
         def beat
           @thread ||= Thread.new do
             loop do
-              callback.call(:'worker:ping', :name => name, :host => host)
+              callback.call(:'worker:ping', :name => worker.name, :host => host, :state => worker.state)
               sleep(interval)
             end
           end
