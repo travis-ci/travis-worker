@@ -10,8 +10,6 @@ module Travis
       autoload :Factory, 'travis/worker/worker/factory'
       autoload :Heart,   'travis/worker/worker/heart'
 
-      class WorkerError < StandardError; end
-
       include SimpleStates
       extend Util::Logging
 
@@ -44,8 +42,6 @@ module Travis
       end
 
       # Boots the worker by preparing the VM and subscribing to the builds queue.
-      #
-      # Returns self.
       def start
         self.state = :starting
         heart.beat
@@ -60,10 +56,6 @@ module Travis
       # This method also changes the state of the Worker to :workering while processing the
       # job, and saves the current payload to payload for introspection during the
       # build process.
-      #
-      # Returns true.
-      #
-      # Raises WorkerError if there was an error processing the job.
       def process(message, payload)
         work(message, payload)
       rescue Errno::ECONNREFUSED, Exception => error
