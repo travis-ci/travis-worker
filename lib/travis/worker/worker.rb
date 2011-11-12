@@ -51,18 +51,6 @@ module Travis
       end
       log :start
 
-      # Processes a build message payload.
-      #
-      # This method also changes the state of the Worker to :workering while processing the
-      # job, and saves the current payload to payload for introspection during the
-      # build process.
-      def process(message, payload)
-        work(message, payload)
-      rescue Errno::ECONNREFUSED, Exception => error
-        error(error, message)
-      end
-      log :process, :params => false
-
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
         self.state = :stopping unless errored?
@@ -78,16 +66,19 @@ module Travis
 
       protected
 
-        def heart
-          @heart ||= Heart.new(self) { |type, data| reporter.message(type, data) }
+        def process(message, payload)
+          work(message, payload)
+        rescue Errno::ECONNREFUSED, Exception => error
+          error(error, message)
         end
 
         def work(message, payload)
-          prepare(payload)
+          payload = prepare(payload)
           Build.create(vm, vm.shell, reporter, payload, config).run
           finish(message)
           true
         end
+        log :work
 
         def prepare(payload)
           self.state = :working
@@ -109,6 +100,10 @@ module Travis
           stop
         end
         log :error
+
+        def heart
+          @heart ||= Heart.new(self) { |type, data| reporter.message(type, data) }
+        end
 
         def decode(payload)
           Hashr.new(MultiJson.decode(payload))
