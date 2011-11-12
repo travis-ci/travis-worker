@@ -2,18 +2,19 @@ require 'spec_helper'
 require 'stringio'
 
 describe Worker do
-  let(:vm)        { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
-  let(:reporter)  { stub('reporter') }
-  let(:heart)     { stub('heart', :beat => nil, :stop => nil) }
-  let(:logger)    { Logger.new(vm.name, StringIO.new) }
-  let(:config)    { Hashr.new }
-  let(:worker)    { Worker.new('worker-1', vm, queue, reporter, logger, config) }
+  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
+  let(:subscription) { stub('subscription', :cancel => nil) }
+  let(:queue)        { stub('queue', :subscribe => subscription) }
+  let(:reporter)     { stub('reporter') }
+  let(:heart)        { stub('heart', :beat => nil, :stop => nil) }
+  let(:logger)       { Logger.new(vm.name, StringIO.new) }
+  let(:config)       { Hashr.new }
+  let(:worker)       { Worker.new('worker-1', vm, queue, reporter, logger, config) }
 
-  let(:message)   { stub('message', :ack => nil) }
-  let(:payload)   { '{ "id": 1 }' }
-  let(:exception) { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
-  let(:build)     { stub('build', :run => nil) }
+  let(:message)      { stub('message', :ack => nil) }
+  let(:payload)      { '{ "id": 1 }' }
+  let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
+  let(:build)        { stub('build', :run => nil) }
 
   before(:each) do
     Travis::Build.stubs(:create).returns(build)
@@ -50,8 +51,12 @@ describe Worker do
   end
 
   describe 'stop' do
+    before :each do
+      worker.stubs(:subscription).returns(subscription)
+    end
+
     it 'unsubscribes from the builds queue' do
-      queue.expects(:cancel_subscription)
+      subscription.expects(:cancel)
       worker.stop
     end
 

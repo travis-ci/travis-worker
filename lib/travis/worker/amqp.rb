@@ -35,7 +35,7 @@ module Travis
         end
       end
 
-      attr_reader :name, :subscription
+      attr_reader :name
 
       def initialize(name)
         @name = name
@@ -48,11 +48,7 @@ module Travis
       end
 
       def subscribe(options = {}, &block)
-        @subscription ||= queue.subscribe(options, &block)
-      end
-
-      def cancel_subscription
-        subscription.cancel if subscription
+        queue.subscribe(options, &block)
       end
 
       protected
