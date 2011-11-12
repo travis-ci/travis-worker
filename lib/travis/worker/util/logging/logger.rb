@@ -29,9 +29,8 @@ module Travis
           end
 
           def error(exception)
-            ["#{exception.class.name}: #{exception.message}", exception.backtrace].each do |message|
-              io.puts format(:red, message)
-            end
+            messages = ["#{exception.class.name}: #{exception.message}"] + exception.backtrace
+            messages.each { |message| io.puts format(:red, message) }
           end
 
           protected
