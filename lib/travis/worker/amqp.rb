@@ -10,8 +10,8 @@ module Travis
           @builds ||= new(Travis::Worker.config.queue)
         end
 
-        def control
-          @control ||= new('workers.control')
+        def commands
+          @commands ||= new('workers.commands')
         end
 
         def reporting

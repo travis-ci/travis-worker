@@ -57,7 +57,7 @@ module Travis
       protected
 
         def subscribe
-          amqp.control.subscribe(:ack => true, :blocking => false, &method(:process))
+          amqp.commands.subscribe(:ack => true, :blocking => false, &method(:process))
         end
 
         def disconnect

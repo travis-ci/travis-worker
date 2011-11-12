@@ -2,11 +2,11 @@ require 'spec_helper'
 require 'stringio'
 
 describe Manager do
-  let(:names)   { %w(worker-1 worker-2)}
-  let(:control) { stub('control', :subscribe => nil) }
-  let(:amqp)    { stub('amqp', :connect => nil, :disconnect => nil, :control => control) }
-  let(:logger)  { Logger.new('manager', StringIO.new)}
-  let(:manager) { Manager.new(names, amqp, logger, {}) }
+  let(:names)    { %w(worker-1 worker-2)}
+  let(:commands) { stub('commands', :subscribe => nil) }
+  let(:amqp)     { stub('amqp', :connect => nil, :disconnect => nil, :commands => commands) }
+  let(:logger)   { Logger.new('manager', StringIO.new)}
+  let(:manager)  { Manager.new(names, amqp, logger, {}) }
 
   let(:queues)  { %w(builds reporting.jobs) }
   let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
@@ -17,8 +17,8 @@ describe Manager do
   end
 
   describe 'start' do
-    it 'subscribes to the amqp control queue' do
-      control.expects(:subscribe)
+    it 'subscribes to the amqp commands queue' do
+      commands.expects(:subscribe)
       manager.start
     end
 

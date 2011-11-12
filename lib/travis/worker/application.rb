@@ -36,7 +36,7 @@ module Travis
         log :install_signal_traps
 
         def call_remote(command, options)
-          Amqp.control.publish(options.merge(:command => command))
+          Amqp.commands.publish(options.merge(:command => command))
           Amqp.disconnect
         end
         log :call_remote
