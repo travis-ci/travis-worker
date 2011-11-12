@@ -46,14 +46,9 @@ describe Manager do
     end
 
     describe 'logging' do
-      it 'should log subscribing to the amqp control queue' do
-        manager.start
-        logger.io.string.should =~ /subscribe/
-      end
-
       it 'should log starting the workers' do
         manager.start
-        logger.io.string.should =~ /start_workers/
+        logger.io.string.should =~ /start/
       end
     end
   end
@@ -92,13 +87,13 @@ describe Manager do
     describe 'logging' do
       it 'should log stopping the workers' do
         manager.stop
-        logger.io.string.should =~ /stop_workers/
+        logger.io.string.should =~ /stop/
       end
     end
   end
 
   describe 'process' do
-    let(:message) { stub('message') }
+    let(:message) { stub('message', :ack => nil) }
     let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }' }
 
     it 'accepts a :stop command and stops' do

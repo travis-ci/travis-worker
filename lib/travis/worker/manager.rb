@@ -65,6 +65,7 @@ module Travis
         end
 
         def process(message, payload)
+          message.ack # TODO shouldn't need to ack here, right?
           payload = decode(payload)
           send(payload.delete(:command), payload)
         end
