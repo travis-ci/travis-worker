@@ -25,8 +25,8 @@ module Travis
 
       # Connects to the messaging broker and start the given workers.
       def start(options = {})
-        subscribe
         start_workers(options.delete(:workers) || self.names)
+        subscribe
       end
       log :start
 
