@@ -67,6 +67,7 @@ module Travis
       protected
 
         def process(message, payload)
+          message.ack
           work(message, payload)
         rescue Errno::ECONNREFUSED, Exception => error
           error(error, message)
