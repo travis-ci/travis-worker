@@ -9,7 +9,7 @@ module Travis
 
       def initialize
         @manager = Manager.create
-        @logger  = Util::Logging::Logger.new('application')
+        @logger  = Logger.new('application')
       end
 
       def start
@@ -27,7 +27,7 @@ module Travis
         log :install_signal_traps
 
         def quit
-          self.manager.stop
+          manager.stop
           java.lang.Thread.sleep(500)
           java.lang.System.exit(0)
         end

@@ -17,20 +17,16 @@ module Travis
           VirtualMachine::VirtualBox.new(name)
         end
 
-        def reporter
-          Reporter.new(reporting, logger)
-        end
-
         def queue
-          @queue ||= Messaging.hub(Travis::Worker.config.queue)
+          Amqp.builds
         end
 
-        def reporting
-          @reporting ||= Messaging.hub('reporting.jobs')
+        def reporter
+          Reporter.new(Amqp.reporting, logger)
         end
 
         def logger
-          @logger ||= Util::Logging::Logger.new("worker:#{name}")
+          @logger ||= Logger.new("worker:#{name}")
         end
 
         def config

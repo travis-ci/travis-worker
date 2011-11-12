@@ -6,13 +6,13 @@ describe Worker do
   let(:queue)     { stub('queue', :subscribe => nil, :cancel_subscription => nil) }
   let(:reporter)  { stub('reporter') }
   let(:heart)     { stub('heart', :beat => nil, :stop => nil) }
-  let(:logger)    { Util::Logging::Logger.new(vm.name, StringIO.new) }
+  let(:logger)    { Logger.new(vm.name, StringIO.new) }
   let(:config)    { Hashr.new }
   let(:worker)    { Worker.new('worker-1', vm, queue, reporter, logger, config) }
 
   let(:message)   { stub('message', :ack => nil) }
   let(:payload)   { '{ "id": 1 }' }
-  let(:exception) { Exception.new }
+  let(:exception) { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
   let(:build)     { stub('build', :run => nil) }
 
   before(:each) do
@@ -69,11 +69,11 @@ describe Worker do
 
       it 'works' do
         worker.expects(:work)
-        worker.process(message, payload)
+        worker.send(:process, message, payload)
       end
 
       it 'returns true' do
-        worker.process(message, payload).should be_true
+        worker.send(:process, message, payload).should be_true
       end
     end
 
@@ -87,7 +87,7 @@ describe Worker do
 
       it 'responds to the error' do
         worker.expects(:error).with(exception, message)
-        worker.process(message, payload)
+        worker.send(:process, message, payload)
       end
     end
   end

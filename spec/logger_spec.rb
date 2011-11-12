@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'stringio'
 
-describe Util::Logging::Logger do
-  let(:logger) { Util::Logging::Logger.new('vm', StringIO.new) }
+describe Logger do
+  let(:logger) { Logger.new('vm', StringIO.new) }
   let(:object) { Object.new }
 
   describe 'before' do
@@ -40,7 +40,7 @@ describe Util::Logging::Logger do
   end
 
   describe 'error' do
-    let(:error) { Exception.new('tis kaputt') }
+    let(:error) { stub('exception', :message => 'tis kaputt', :backtrace => ['kaputt.rb']) }
 
     it 'contains the log header' do
       logger.error(error)
@@ -49,12 +49,17 @@ describe Util::Logging::Logger do
 
     it 'contains the error class name' do
       logger.error(error)
-      logger.io.string.should include('Exception')
+      logger.io.string.should include('Mocha::Mock')
     end
 
     it 'contains the error message' do
       logger.error(error)
-      logger.io.string.should include('tis kaputt')
+      logger.io.string.should include('Mocha::Mock: tis kaputt')
+    end
+
+    it 'contains the backtrace' do
+      logger.error(error)
+      logger.io.string.should include('kaputt.rb')
     end
 
     it 'colorizes the output (red)' do

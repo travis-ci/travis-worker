@@ -4,7 +4,7 @@ describe Worker::Factory do
   let(:factory) { Worker::Factory.new('worker-name') }
   let(:worker)  { factory.worker }
 
-  before(:each) { Messaging.stubs(:connection).returns(stub('amqp')) }
+  before(:each) { Amqp.stubs(:connection).returns(stub('amqp')) }
 
   describe 'worker' do
     it 'returns a worker' do
@@ -17,7 +17,7 @@ describe Worker::Factory do
 
     describe 'queue' do
       it 'is a messaging hub' do
-        worker.queue.should be_a(Messaging::Hub)
+        worker.queue.should be_a(Amqp)
       end
 
       it 'has the reporting key "builds"' do
@@ -31,7 +31,7 @@ describe Worker::Factory do
       end
 
       it 'has a reporting hub' do
-        worker.reporter.exchange.should be_a(Messaging::Hub)
+        worker.reporter.exchange.should be_a(Amqp)
       end
 
       it 'has the reporting key "reporting.jobs"' do

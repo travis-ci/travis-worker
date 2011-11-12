@@ -2,10 +2,11 @@ require 'socket'
 
 module Travis
   module Worker
+    autoload :Amqp,         'travis/worker/amqp'
     autoload :Application,  'travis/worker/application'
     autoload :Config,       'travis/worker/config'
+    autoload :Logger,       'travis/worker/logger'
     autoload :Manager,      'travis/worker/manager'
-    autoload :Messaging,    'travis/worker/messaging'
     autoload :Reporter,     'travis/worker/reporter'
     autoload :Worker,       'travis/worker/worker'
 
@@ -31,6 +32,10 @@ module Travis
 
       def hostname
         @hostname ||= Socket.gethostname
+      end
+
+      def names
+        VirtualMachine::VirtualBox.vm_names
       end
     end
   end

@@ -30,7 +30,7 @@ module Travis
 
       # Instantiates a new worker.
       #
-      # queue - The MessagingHub used to subscribe to the builds queue.
+      # queue - The Amqp builds queue.
       # vm    - The virtual machine to be used by the worker.
       def initialize(name, vm, queue, reporter, logger, config)
         @name     = name
@@ -53,15 +53,16 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
-        self.state = :stopping unless errored?
         queue.cancel_subscription
         kill if options[:force]
+        sleep(0.1) until !working?
+        self.state = :stopped unless errored?
       end
       log :stop
 
       # Forcefully stops the current job
       def kill
-        vm.shell.terminate('The worker was stopped forcefully')
+        vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
       protected

@@ -2,21 +2,22 @@ require 'spec_helper'
 require 'stringio'
 
 describe Manager do
-  let(:worker_names) { %w(worker-1 worker-2)}
-  let(:messaging)    { stub('messaging', :connect => nil, :disconnect => nil) }
-  let(:logger)       { Util::Logging::Logger.new('manager', StringIO.new)}
-  let(:manager)      { Manager.new(worker_names, messaging, logger, {}) }
+  let(:names)   { %w(worker-1 worker-2)}
+  let(:control) { stub('control', :subscribe => nil) }
+  let(:amqp)    { stub('amqp', :connect => nil, :disconnect => nil, :control => control) }
+  let(:logger)  { Logger.new('manager', StringIO.new)}
+  let(:manager) { Manager.new(names, amqp, logger, {}) }
 
-  let(:queues)       { %w(builds reporting.jobs) }
-  let(:workers)      { worker_names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
+  let(:queues)  { %w(builds reporting.jobs) }
+  let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
     Worker.stubs(:create).returns(*workers)
   end
 
   describe 'start' do
-    it 'connects the messaging connection' do
-      messaging.expects(:connect)
+    it 'subscribes to the amqp control queue' do
+      control.expects(:subscribe)
       manager.start
     end
 
@@ -30,16 +31,16 @@ describe Manager do
     describe 'with a worker name given' do
       it 'starts the worker' do
         workers.first.expects(:start)
-        manager.start('worker-1')
+        manager.start(['worker-1'])
       end
 
       it 'does not start other workers' do
         workers.last.expects(:start).never
-        manager.start('worker-1')
+        manager.start(['worker-1'])
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { manager.start('worker-3') }.should raise_error(WorkerNotFound)
+        lambda { manager.start(['worker-3']) }.should raise_error(WorkerNotFound)
       end
     end
 
@@ -48,9 +49,9 @@ describe Manager do
     end
 
     describe 'logging' do
-      it 'should log connecting the messaging connection' do
+      it 'should log subscribing to the amqp control queue' do
         manager.start
-        logger.io.string.should =~ /connect_messaging/
+        logger.io.string.should =~ /subscribe/
       end
 
       it 'should log starting the workers' do
@@ -71,28 +72,28 @@ describe Manager do
     describe 'with a worker name given' do
       it 'stops the worker' do
         workers.first.expects(:stop)
-        manager.stop('worker-1')
+        manager.stop(['worker-1'])
       end
 
       it 'does not start other workers' do
         workers.last.expects(:stop).never
-        manager.stop('worker-1')
+        manager.stop(['worker-1'])
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { manager.stop('worker-3') }.should raise_error(WorkerNotFound)
+        lambda { manager.stop(['worker-3']) }.should raise_error(WorkerNotFound)
       end
     end
 
     describe 'with an option :force => true given' do
       it 'stops the worker with that option' do
         workers.first.expects(:stop).with(:force => true)
-        manager.stop('worker-1', :force => true)
+        manager.stop(['worker-1'], :force => true)
       end
     end
 
-    it 'disconnects the messaging connection' do
-      messaging.expects(:disconnect)
+    it 'disconnects the amqp connection' do
+      amqp.expects(:disconnect)
       manager.stop
     end
 
@@ -106,10 +107,37 @@ describe Manager do
         logger.io.string.should =~ /stop_workers/
       end
 
-      it 'should log disconnecting the messaging connection' do
+      it 'should log disconnecting the amqp connection' do
         manager.stop
-        logger.io.string.should =~ /disconnect_messaging/
+        logger.io.string.should =~ /disconnect/
       end
+    end
+  end
+
+  describe 'process' do
+    let(:message) { stub('message') }
+    let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "options": { "force": true } }' }
+
+    it 'accepts a :stop command and stops' do
+      manager.expects(:stop).with(%w(worker-1 worker-2), { :force => true })
+      manager.send(:process, message, payload)
+    end
+  end
+
+  describe 'decode' do
+    it 'decodes the json payload' do
+      hashr = manager.send(:decode, '{ "foo": "bar" }')
+      hashr.foo.should == 'bar'
+    end
+
+    it 'defaults :workers to an empty array' do
+      hashr = manager.send(:decode, '{}')
+      hashr.workers.should == []
+    end
+
+    it 'defaults :options to an empty hash' do
+      hashr = manager.send(:decode, '{}')
+      hashr.options.should == {}
     end
   end
 end

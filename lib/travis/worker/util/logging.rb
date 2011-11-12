@@ -2,8 +2,6 @@ module Travis
   module Worker
     module Util
       module Logging
-        autoload :Logger, 'travis/worker/util/logging/logger'
-
         def new(*)
           super.tap do |instance|
             (class << instance; self; end).send(:include, proxy)

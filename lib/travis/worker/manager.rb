@@ -5,32 +5,32 @@ module Travis
     # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
     class Manager
-      autoload :Factory, 'travis/worker/manager/factory'
-
       extend Util::Logging
 
       def self.create
-        Factory.new.manager
+        Manager.new(Travis::Worker.names, Amqp, Logger.new('manager'), Travis::Worker.config)
       end
 
-      attr_reader :worker_names, :messaging, :logger, :config
+      attr_reader :names, :amqp, :logger, :config
 
       # Initialize a Worker Manager.
       #
       # configuration - A Config to use for connection details (default: nil)
-      def initialize(worker_names, messaging, logger, config)
-        @worker_names = worker_names
-        @messaging = messaging
+      def initialize(names, amqp, logger, config)
+        @names  = names
+        @amqp   = amqp
         @logger = logger
         @config = config
+
+        # subscribe to control queue
       end
 
       # Connects to the messaging broker and start all workers.
       #
       # Returns the current manager instance.
-      def start(*names)
-        names = worker_names if names.empty?
-        connect_messaging
+      def start(names = [])
+        names = self.names if names.empty?
+        subscribe
         start_workers(names.flatten)
         self
       end
@@ -38,10 +38,10 @@ module Travis
       # Disconnects from the messaging broker and stops all workers.
       #
       # Returns the current manager instance.
-      def stop(*names)
-        names = worker_names if names.empty?
-        stop_workers(names.flatten)
-        disconnect_messaging
+      def stop(names = [], options = {})
+        names = self.names if names.empty?
+        stop_workers(names, options)
+        disconnect
         self
       end
 
@@ -53,23 +53,33 @@ module Travis
 
       protected
 
+        def subscribe
+          amqp.control.subscribe(:ack => true, :blocking => false, &method(:process))
+        end
+        log :subscribe
+
+        def disconnect
+          amqp.disconnect
+        end
+        log :disconnect
+
+        def process(message, payload)
+          payload = decode(payload)
+          send(payload.command, payload.workers, payload.options)
+        end
+
         def start_workers(names)
-          names.each do |name|
-            worker(name).start
-          end
+          names.each { |name| worker(name).start }
         end
         log :start_workers
 
-        def stop_workers(names)
-          options = names.last.is_a?(Hash) ? names.pop : {}
-          names.each do |name|
-            worker(name).stop(options)
-          end
+        def stop_workers(names, options)
+          names.each { |name| worker(name).stop(options) }
         end
         log :stop_workers
 
         def workers
-          @workers ||= worker_names.map do |name|
+          @workers ||= names.map do |name|
             Worker.create(name, config)
           end
         end
@@ -78,15 +88,9 @@ module Travis
           workers.detect { |worker| worker.name == name } || raise(WorkerNotFound.new(name))
         end
 
-        def connect_messaging
-          messaging.connect('builds', 'reporting.jobs')
+        def decode(payload)
+          Hashr.new(MultiJson.decode(payload), :workers => [], :options => {})
         end
-        log :connect_messaging
-
-        def disconnect_messaging
-          messaging.disconnect
-        end
-        log :disconnect_messaging
     end
   end
 end
