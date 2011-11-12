@@ -28,17 +28,20 @@ module Travis
         subscribe
         start_workers(options.delete(:workers) || self.names)
       end
+      log :start
 
       # Disconnects from the messaging broker and stops the given workers.
       def stop(options = {})
         stop_workers(options.delete(:workers) || self.names, options)
       end
+      log :stop
 
       def terminate
         stop
         disconnect
         quit
       end
+      log :terminate
 
       def status
         # worker state
@@ -56,12 +59,10 @@ module Travis
         def subscribe
           amqp.control.subscribe(:ack => true, :blocking => false, &method(:process))
         end
-        log :subscribe
 
         def disconnect
           amqp.disconnect
         end
-        log :disconnect
 
         def process(message, payload)
           payload = decode(payload)
@@ -71,12 +72,10 @@ module Travis
         def start_workers(names)
           names.each { |name| worker(name).start }
         end
-        log :start_workers
 
         def stop_workers(names, options)
           names.each { |name| worker(name).stop(options) }
         end
-        log :stop_workers
 
         def workers
           @workers ||= names.map do |name|
