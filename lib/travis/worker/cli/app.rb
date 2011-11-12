@@ -1,4 +1,4 @@
-require "thor"
+require 'thor'
 require 'travis/worker'
 
 module Travis
@@ -7,12 +7,18 @@ module Travis
       class App < Thor
         namespace 'travis:worker'
 
-        desc 'start', 'Start worker manager'
+        desc 'start', 'Start the manager and workers'
         def start
           app.start
         end
 
-        desc 'stop', 'Stop worker manager if running'
+        desc 'terminate', 'Stop all workers and the manager'
+        method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
+        def status
+          app.terminate(:force => options['force'])
+        end
+
+        desc 'stop', 'Stop workers'
         method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
         def stop(*workers)
           app.stop(workers, :force => options['force'])

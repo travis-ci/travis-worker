@@ -5,13 +5,6 @@ module Travis
     class Application
       extend Util::Logging
 
-      attr_reader :manager, :logger
-
-      def initialize
-        @manager = Manager.create
-        @logger  = Logger.new('application')
-      end
-
       def start
         install_signal_traps
         manager.start
@@ -19,26 +12,31 @@ module Travis
       log :start
 
       def stop(workers, options)
-        call_remote(:stop, :workers => workers, :options => options)
+        call_remote(:stop, options.merge(:workers => workers))
+      end
+
+      def terminate(options)
+        call_remote(:terminate, options)
       end
 
       protected
 
+        def manager
+          @manager ||= Manager.create
+        end
+
+        def logger
+          @logger ||= Logger.new('app')
+        end
+
         def install_signal_traps
-          Signal.trap('INT')  { quit }
-          Signal.trap('TERM') { quit }
+          Signal.trap('INT')  { manager.quit }
+          Signal.trap('TERM') { manager.quit }
         end
         log :install_signal_traps
 
-        def quit
-          manager.stop
-          java.lang.Thread.sleep(500)
-          java.lang.System.exit(0)
-        end
-        log :quit
-
         def call_remote(command, options)
-          Amqp.control.publish({ :command => command}.merge(options))
+          Amqp.control.publish(options.merge(:command => command))
           Amqp.disconnect
         end
         log :call_remote

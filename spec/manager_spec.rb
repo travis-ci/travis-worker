@@ -13,6 +13,7 @@ describe Manager do
 
   before :each do
     Worker.stubs(:create).returns(*workers)
+    manager.stubs(:quit)
   end
 
   describe 'start' do
@@ -31,21 +32,17 @@ describe Manager do
     describe 'with a worker name given' do
       it 'starts the worker' do
         workers.first.expects(:start)
-        manager.start(['worker-1'])
+        manager.start(:workers => ['worker-1'])
       end
 
       it 'does not start other workers' do
         workers.last.expects(:start).never
-        manager.start(['worker-1'])
+        manager.start(:workers => ['worker-1'])
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { manager.start(['worker-3']) }.should raise_error(WorkerNotFound)
+        lambda { manager.start(:workers => ['worker-3']) }.should raise_error(WorkerNotFound)
       end
-    end
-
-    it 'returns itself' do
-      manager.start.should == manager
     end
 
     describe 'logging' do
@@ -72,33 +69,24 @@ describe Manager do
     describe 'with a worker name given' do
       it 'stops the worker' do
         workers.first.expects(:stop)
-        manager.stop(['worker-1'])
+        manager.stop(:workers => ['worker-1'])
       end
 
       it 'does not start other workers' do
         workers.last.expects(:stop).never
-        manager.stop(['worker-1'])
+        manager.stop(:workers => ['worker-1'])
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { manager.stop(['worker-3']) }.should raise_error(WorkerNotFound)
+        lambda { manager.stop(:workers => ['worker-3']) }.should raise_error(WorkerNotFound)
       end
     end
 
     describe 'with an option :force => true given' do
       it 'stops the worker with that option' do
         workers.first.expects(:stop).with(:force => true)
-        manager.stop(['worker-1'], :force => true)
+        manager.stop(:workers => ['worker-1'], :force => true)
       end
-    end
-
-    it 'disconnects the amqp connection' do
-      amqp.expects(:disconnect)
-      manager.stop
-    end
-
-    it 'returns itself' do
-      manager.stop.should == manager
     end
 
     describe 'logging' do
@@ -106,20 +94,15 @@ describe Manager do
         manager.stop
         logger.io.string.should =~ /stop_workers/
       end
-
-      it 'should log disconnecting the amqp connection' do
-        manager.stop
-        logger.io.string.should =~ /disconnect/
-      end
     end
   end
 
   describe 'process' do
     let(:message) { stub('message') }
-    let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "options": { "force": true } }' }
+    let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }' }
 
     it 'accepts a :stop command and stops' do
-      manager.expects(:stop).with(%w(worker-1 worker-2), { :force => true })
+      manager.expects(:stop).with(:workers => %w(worker-1 worker-2), :force => true)
       manager.send(:process, message, payload)
     end
   end
@@ -133,11 +116,6 @@ describe Manager do
     it 'defaults :workers to an empty array' do
       hashr = manager.send(:decode, '{}')
       hashr.workers.should == []
-    end
-
-    it 'defaults :options to an empty hash' do
-      hashr = manager.send(:decode, '{}')
-      hashr.options.should == {}
     end
   end
 end

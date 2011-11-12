@@ -21,34 +21,34 @@ module Travis
         @amqp   = amqp
         @logger = logger
         @config = config
-
-        # subscribe to control queue
       end
 
-      # Connects to the messaging broker and start all workers.
-      #
-      # Returns the current manager instance.
-      def start(names = [])
-        names = self.names if names.empty?
+      # Connects to the messaging broker and start the given workers.
+      def start(options = {})
         subscribe
-        start_workers(names.flatten)
-        self
+        start_workers(options.delete(:workers) || self.names)
       end
 
-      # Disconnects from the messaging broker and stops all workers.
-      #
-      # Returns the current manager instance.
-      def stop(names = [], options = {})
-        names = self.names if names.empty?
-        stop_workers(names, options)
+      # Disconnects from the messaging broker and stops the given workers.
+      def stop(options = {})
+        stop_workers(options.delete(:workers) || self.names, options)
+      end
+
+      def terminate
+        stop
         disconnect
-        self
+        quit
       end
 
       def status
         # worker state
         # current payload
         # last error
+      end
+
+      def quit
+        java.lang.Thread.sleep(500)
+        java.lang.System.exit(0)
       end
 
       protected
@@ -65,7 +65,7 @@ module Travis
 
         def process(message, payload)
           payload = decode(payload)
-          send(payload.command, payload.workers, payload.options)
+          send(payload.delete(:command), payload)
         end
 
         def start_workers(names)
@@ -89,7 +89,7 @@ module Travis
         end
 
         def decode(payload)
-          Hashr.new(MultiJson.decode(payload), :workers => [], :options => {})
+          Hashr.new(MultiJson.decode(payload), :workers => [])
         end
     end
   end
