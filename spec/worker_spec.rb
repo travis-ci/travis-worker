@@ -43,9 +43,9 @@ describe Worker do
       worker.start
     end
 
-    it 'sets the current state to :waiting' do
+    it 'sets the current state to :ready' do
       worker.start
-      worker.state.should == :waiting
+      worker.state.should == :ready
     end
   end
 
@@ -64,7 +64,7 @@ describe Worker do
   describe 'process' do
     describe 'without any exception rescued' do
       before :each do
-        worker.state = :waiting
+        worker.state = :ready
       end
 
       it 'works' do
@@ -81,7 +81,7 @@ describe Worker do
       let(:exception) { Exception.new }
 
       before :each do
-        worker.state = :waiting
+        worker.state = :ready
         worker.stubs(:work).raises(exception)
       end
 
@@ -94,7 +94,7 @@ describe Worker do
 
   describe 'work' do
     before :each do
-      worker.state = :waiting
+      worker.state = :ready
     end
 
     it 'prepares work' do

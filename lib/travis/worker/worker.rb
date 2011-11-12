@@ -17,10 +17,10 @@ module Travis
         Factory.new(name, config).worker
       end
 
-      states :created, :starting, :waiting, :working, :stopping, :errored, :stopped
+      states :created, :starting, :ready, :working, :stopping, :errored, :stopped
 
-      event :start, :from => :created, :to => :waiting
-      event :work,  :from => :waiting, :to => :waiting
+      event :start, :from => :created, :to => :ready
+      event :work,  :from => :ready, :to => :ready
       event :stop,  :to => :stopped
       event :error, :to => :errored
 

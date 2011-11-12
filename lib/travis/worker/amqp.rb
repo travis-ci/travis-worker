@@ -55,11 +55,6 @@ module Travis
         subscription.cancel if subscription
       end
 
-      def close
-        cancel_subscription
-        channel.close
-      end
-
       protected
 
         def exchange
