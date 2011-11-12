@@ -1,4 +1,4 @@
-require "hot_bunnies"
+require 'hot_bunnies'
 
 module Travis
   module Worker
@@ -18,11 +18,15 @@ module Travis
       end
       log :start
 
+      def stop(workers, options)
+        call_remote(:stop, :workers => workers, :options => options)
+      end
+
       protected
 
         def install_signal_traps
-          Signal.trap("INT")  { quit }
-          Signal.trap("TERM") { quit }
+          Signal.trap('INT')  { quit }
+          Signal.trap('TERM') { quit }
         end
         log :install_signal_traps
 
@@ -32,6 +36,12 @@ module Travis
           java.lang.System.exit(0)
         end
         log :quit
+
+        def call_remote(command, options)
+          Amqp.control.publish({ :command => command}.merge(options))
+          Amqp.disconnect
+        end
+        log :call_remote
     end
   end
 end
