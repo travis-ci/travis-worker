@@ -61,7 +61,7 @@ describe Worker do
     end
   end
 
-  describe 'work' do
+  describe 'process' do
     describe 'without any exception rescued' do
       before :each do
         worker.state = :ready
@@ -69,31 +69,11 @@ describe Worker do
 
       it 'works' do
         worker.expects(:work)
-        worker.send(:work, message, payload)
-      end
-
-      it 'prepares work' do
-        worker.expects(:prepare)
-        worker.send(:work, message, payload)
-      end
-
-      it 'creates a new build job' do
-        Travis::Build.expects(:create).returns(build)
-        worker.send(:work, message, payload)
-      end
-
-      it 'runs the build' do
-        build.expects(:run)
-        worker.send(:work, message, payload)
-      end
-
-      it 'finishes' do
-        worker.expects(:finish)
-        worker.send(:work, message, payload)
+        worker.send(:process, message, payload)
       end
 
       it 'returns true' do
-        worker.send(:work, message, payload).should be_true
+        worker.send(:process, message, payload).should be_true
       end
     end
 
@@ -102,13 +82,43 @@ describe Worker do
 
       before :each do
         worker.state = :ready
-        build.stubs(:run).raises(exception)
+        worker.stubs(:work).raises(exception)
       end
 
       it 'responds to the error' do
         worker.expects(:error).with(exception, message)
-        worker.send(:work, message, payload)
+        worker.send(:process, message, payload)
       end
+    end
+  end
+
+  describe 'work' do
+    before :each do
+      worker.state = :ready
+    end
+
+    it 'prepares work' do
+      worker.expects(:prepare)
+      worker.send(:work, message, payload)
+    end
+
+    it 'creates a new build job' do
+      Travis::Build.expects(:create).returns(build)
+      worker.send(:work, message, payload)
+    end
+
+    it 'runs the build' do
+      build.expects(:run)
+      worker.send(:work, message, payload)
+    end
+
+    it 'finishes' do
+      worker.expects(:finish)
+      worker.send(:work, message, payload)
+    end
+
+    it 'returns true' do
+      worker.send(:work, message, payload).should be_true
     end
   end
 

@@ -44,7 +44,7 @@ module Travis
       def start
         self.state = :starting
         vm.prepare
-        queue.subscribe(:ack => true, :blocking => false, &method(:work))
+        queue.subscribe(:ack => true, :blocking => false, &method(:process))
         heart.beat
       end
       log :start
@@ -63,12 +63,16 @@ module Travis
 
       protected
 
+        def process(message, payload)
+          work(message, payload)
+        rescue Errno::ECONNREFUSED, Exception => error
+          error(error, message)
+        end
+
         def work(message, payload)
           payload = prepare(payload)
           Build.create(vm, vm.shell, reporter, payload, config).run
           finish(message)
-        rescue Errno::ECONNREFUSED, Exception => error
-          error(error, message)
         end
         log :work
 
