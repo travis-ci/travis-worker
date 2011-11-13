@@ -16,8 +16,8 @@ describe Worker::Factory do
     end
 
     describe 'queue' do
-      it 'is a messaging hub' do
-        worker.queue.should be_a(Amqp)
+      it 'is an amqp queue' do
+        worker.queue.should be_a(Amqp::Queue)
       end
 
       it 'has the reporting key "builds"' do
@@ -30,12 +30,12 @@ describe Worker::Factory do
         worker.reporter.should be_a(Reporter)
       end
 
-      it 'has a reporting hub' do
-        worker.reporter.exchange.should be_a(Amqp)
+      it 'has a reporting exchange' do
+        worker.reporter.exchange.should be_a(Amqp::Exchange)
       end
 
       it 'has the reporting key "reporting.jobs"' do
-        worker.reporter.exchange.name.should == 'reporting.jobs'
+        worker.reporter.exchange.routing_key.should == 'reporting.jobs'
       end
     end
   end

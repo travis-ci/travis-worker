@@ -43,7 +43,7 @@ module Travis
       protected
 
         def consume_commands
-          Amqp.commands.subscribe(:ack => false, :blocking => false, &method(:process))
+          Amqp::Queue.commands.subscribe(:ack => false, :blocking => false, &method(:process))
         end
 
         def process(message, payload)
@@ -69,7 +69,7 @@ module Travis
         log :install_signal_traps
 
         def call_remote(command, options)
-          Amqp.commands.publish(options.merge(:command => command))
+          Amqp::Exchange.commands.publish(options.merge(:command => command))
           Amqp.disconnect
         end
         log :call_remote

@@ -13,9 +13,6 @@ module Travis
 
       attr_reader :names, :amqp, :logger, :config
 
-      # Initialize a Worker Manager.
-      #
-      # configuration - A Config to use for connection details (default: nil)
       def initialize(names, amqp, logger, config)
         @names  = names
         @amqp   = amqp
