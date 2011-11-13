@@ -26,7 +26,6 @@ module Travis
       # Connects to the messaging broker and start the given workers.
       def start(options = {})
         start_workers(options.delete(:workers) || self.names)
-        subscribe
       end
       log :start
 
@@ -56,19 +55,8 @@ module Travis
 
       protected
 
-        def subscribe
-          amqp.commands.subscribe(:ack => true, :blocking => false, &method(:process))
-        end
-
         def disconnect
           amqp.disconnect
-        end
-
-        def process(message, payload)
-          payload = decode(payload)
-          send(payload.delete(:command), payload)
-        rescue => e
-          puts e.message, e.backtrace
         end
 
         def start_workers(names)
@@ -87,10 +75,6 @@ module Travis
 
         def worker(name)
           workers.detect { |worker| worker.name == name } || raise(WorkerNotFound.new(name))
-        end
-
-        def decode(payload)
-          Hashr.new(MultiJson.decode(payload), :workers => [])
         end
     end
   end

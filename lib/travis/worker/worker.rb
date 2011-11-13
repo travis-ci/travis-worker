@@ -44,9 +44,9 @@ module Travis
       # Boots the worker by preparing the VM and subscribing to the builds queue.
       def start
         self.state = :starting
-        heart.beat
         vm.prepare
         @subscription = queue.subscribe(:ack => true, :blocking => false, &method(:process))
+        heart.beat
       end
       log :start
 
@@ -67,7 +67,6 @@ module Travis
       protected
 
         def process(message, payload)
-          message.ack
           work(message, payload)
         rescue Errno::ECONNREFUSED, Exception => error
           error(error, message)

@@ -17,11 +17,6 @@ describe Manager do
   end
 
   describe 'start' do
-    it 'subscribes to the amqp commands queue' do
-      commands.expects(:subscribe)
-      manager.start
-    end
-
     describe 'with no worker names given' do
       it 'starts the workers' do
         workers.each { |worker| worker.expects(:start) }
@@ -89,28 +84,6 @@ describe Manager do
         manager.stop
         logger.io.string.should =~ /stop/
       end
-    end
-  end
-
-  describe 'process' do
-    let(:message) { stub('message', :ack => nil) }
-    let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }' }
-
-    it 'accepts a :stop command and stops' do
-      manager.expects(:stop).with(:workers => %w(worker-1 worker-2), :force => true)
-      manager.send(:process, message, payload)
-    end
-  end
-
-  describe 'decode' do
-    it 'decodes the json payload' do
-      hashr = manager.send(:decode, '{ "foo": "bar" }')
-      hashr.foo.should == 'bar'
-    end
-
-    it 'defaults :workers to an empty array' do
-      hashr = manager.send(:decode, '{}')
-      hashr.workers.should == []
     end
   end
 end
