@@ -8,7 +8,7 @@ module Travis
     class Application
       extend Util::Logging
 
-      def run(workers = [])
+      def boot(workers = [])
         install_signal_traps
         manager.start(workers)
         subscribe

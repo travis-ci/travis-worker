@@ -13,15 +13,15 @@ describe Application do
     application.stubs(:logger).returns(logger)
   end
 
-  describe 'run' do
+  describe 'boot' do
     it 'subscribes to the amqp commands queue' do
       commands.expects(:subscribe)
-      application.run
+      application.boot
     end
 
     it 'subscribes to the amqp commands queue' do
       commands.expects(:subscribe)
-      application.run
+      application.boot
     end
   end
 
