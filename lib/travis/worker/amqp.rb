@@ -48,13 +48,7 @@ module Travis
       end
 
       def subscribe(options = {}, &block)
-        queue.subscribe(options, &block).tap do |subscription|
-          ready = lambda do
-             subscriber = subscription.instance_variable_get(:@subscriber)
-             subscriber && subscriber.consumer.consumer_tag
-          end
-          sleep(0.1) until ready.call
-        end
+        queue.subscribe(options, &block)
       end
 
       protected

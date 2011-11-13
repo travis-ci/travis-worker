@@ -16,6 +16,15 @@ module Travis
         install_signal_traps
         manager.start(workers)
 
+        # we need to delay starting commands consumer until after all worker consumers are
+        # ready. The proper way of doing it would be to use java.util.concurrent.CountDownLatch that we
+        # would pass to Manager#start and then Worker#initialize. Then once consumer is registered (we got
+        # basic.consume-ok from RabbitMQ) we would countDown on that latch. However, HotBunnies right now
+        # does not provide a way of registering basic.consume-ok callback. So we figured we can just wait
+        # because nobody will try to stop the worker that was just started in real world scenarios.
+        # Per discussion with Sven. MK.
+        sleep(workers.size * 1.5)
+
         consume_commands
       end
 
