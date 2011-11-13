@@ -10,7 +10,7 @@ module Travis
           end
 
           def commands
-            @commands ||= new('workers.commands')
+            @commands ||= new('worker.commands')
           end
         end
 
