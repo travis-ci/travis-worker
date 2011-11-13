@@ -86,4 +86,21 @@ describe Manager do
       end
     end
   end
+
+  describe 'terminate' do
+    it 'stops all workers with the given options' do
+      manager.expects(:stop).with(:force => true)
+      manager.terminate(:force => true)
+    end
+
+    it 'disconnects from amqp' do
+      manager.expects(:disconnect)
+      manager.terminate
+    end
+
+    it 'quits the application' do
+      manager.expects(:quit)
+      manager.terminate
+    end
+  end
 end

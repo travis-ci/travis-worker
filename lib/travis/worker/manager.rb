@@ -32,8 +32,8 @@ module Travis
       end
       log :stop
 
-      def terminate
-        stop
+      def terminate(options = {})
+        stop(options)
         disconnect
         quit
       end
