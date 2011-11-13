@@ -47,7 +47,6 @@ module Travis
         end
 
         def process(message, payload)
-          message.ack
           payload = decode(payload)
           manager.send(payload.delete(:command), payload)
         rescue Exception => e
