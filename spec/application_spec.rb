@@ -8,7 +8,7 @@ describe Application do
   let(:application) { Application.new }
 
   before :each do
-    Amqp::Queue.stubs(:commands).returns(commands)
+    Amqp::Consumer.stubs(:commands).returns(commands)
     application.stubs(:manager).returns(manager)
     application.stubs(:logger).returns(logger)
   end

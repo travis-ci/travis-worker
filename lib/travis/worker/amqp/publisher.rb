@@ -4,7 +4,7 @@ require 'multi_json'
 module Travis
   module Worker
     module Amqp
-      class Exchange
+      class Publisher
         class << self
           def commands
             @commands ||= new('worker.commands')

@@ -18,11 +18,11 @@ module Travis
         end
 
         def queue
-          Amqp::Queue.builds
+          Amqp::Consumer.builds
         end
 
         def reporter
-          Reporter.new(Amqp::Exchange.reporting, logger)
+          Reporter.new(Amqp::Publisher.reporting, logger)
         end
 
         def logger

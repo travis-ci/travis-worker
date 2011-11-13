@@ -17,7 +17,7 @@ describe Worker::Factory do
 
     describe 'queue' do
       it 'is an amqp queue' do
-        worker.queue.should be_a(Amqp::Queue)
+        worker.queue.should be_a(Amqp::Consumer)
       end
 
       it 'has the reporting key "builds"' do
@@ -31,7 +31,7 @@ describe Worker::Factory do
       end
 
       it 'has a reporting exchange' do
-        worker.reporter.exchange.should be_a(Amqp::Exchange)
+        worker.reporter.exchange.should be_a(Amqp::Publisher)
       end
 
       it 'has the reporting key "reporting.jobs"' do

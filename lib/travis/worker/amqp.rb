@@ -3,8 +3,8 @@ require 'hot_bunnies'
 module Travis
   module Worker
     module Amqp
-      autoload :Exchange, 'travis/worker/amqp/exchange'
-      autoload :Queue,    'travis/worker/amqp/queue'
+      autoload :Consumer,  'travis/worker/amqp/consumer'
+      autoload :Publisher, 'travis/worker/amqp/publisher'
 
       class << self
         def connected?
