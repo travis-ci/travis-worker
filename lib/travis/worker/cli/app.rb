@@ -7,9 +7,9 @@ module Travis
       class App < Thor
         namespace 'travis:worker'
 
-        desc 'start', 'Start the manager and workers'
-        def start
-          app.start
+        desc 'run', 'Boot the manager and start workers'
+        def run(*workers)
+          app.run(workers)
         end
 
         desc 'terminate', 'Stop all workers and the manager'

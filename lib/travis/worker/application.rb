@@ -8,12 +8,15 @@ module Travis
     class Application
       extend Util::Logging
 
-      def start
+      def run(workers = [])
         install_signal_traps
-        manager.start
+        manager.start(workers)
         subscribe
       end
-      log :start
+
+      def start(workers)
+        call_remote(:start, :workers => workers)
+      end
 
       def stop(workers, options)
         call_remote(:stop, options.merge(:workers => workers))
