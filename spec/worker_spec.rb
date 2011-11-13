@@ -3,8 +3,7 @@ require 'stringio'
 
 describe Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:subscription) { stub('subscription', :cancel => nil) }
-  let(:queue)        { stub('queue', :subscribe => subscription) }
+  let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter') }
   let(:heart)        { stub('heart', :beat => nil, :stop => nil) }
   let(:logger)       { Logger.new(vm.name, StringIO.new) }
@@ -51,12 +50,8 @@ describe Worker do
   end
 
   describe 'stop' do
-    before :each do
-      worker.stubs(:subscription).returns(subscription)
-    end
-
     it 'unsubscribes from the builds queue' do
-      subscription.expects(:cancel)
+      queue.expects(:unsubscribe)
       worker.stop
     end
 

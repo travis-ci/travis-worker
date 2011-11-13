@@ -26,7 +26,7 @@ module Travis
 
       attr_accessor :state
 
-      attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error, :subscription
+      attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error
 
       # Instantiates a new worker.
       #
@@ -45,14 +45,14 @@ module Travis
       def start
         self.state = :starting
         vm.prepare
-        @subscription = queue.subscribe(:ack => true, :blocking => false, &method(:process))
+        queue.subscribe(:ack => true, :blocking => false, &method(:process))
         heart.beat
       end
       log :start
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
-        subscription.cancel if subscription
+        queue.unsubscribe
         kill if options[:force]
         sleep(0.1) until !working?
         self.state = :stopped unless errored?

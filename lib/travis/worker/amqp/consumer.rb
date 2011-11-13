@@ -14,14 +14,18 @@ module Travis
           end
         end
 
-        attr_reader :name
+        attr_reader :name, :subscription
 
         def initialize(name)
           @name = name
         end
 
         def subscribe(options = {}, &block)
-          queue.subscribe(options, &block)
+          @subscription = queue.subscribe(options, &block)
+        end
+
+        def unsubscribe
+          subscription.cancel if subscription
         end
 
         protected
