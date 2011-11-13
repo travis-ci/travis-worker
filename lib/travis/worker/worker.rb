@@ -19,7 +19,7 @@ module Travis
 
       states :created, :starting, :ready, :working, :stopping, :errored, :stopped
 
-      event :start, :from => :created, :to => :ready
+      event :start, :to => :ready # :from => [:created, :stopped, :errored] ... TODO simple_states doesn't allow an array here?
       event :work,  :from => :ready, :to => :ready
       event :stop,  :to => :stopped
       event :error, :to => :errored
