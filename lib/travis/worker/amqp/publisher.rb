@@ -23,7 +23,7 @@ module Travis
 
         def publish(data, options = {})
           data = MultiJson.encode(data) if data.is_a?(Hash)
-          options = options.merge(:routing_key => name)
+          options = options.merge(:routing_key => routing_key)
           exchange.publish(data, options)
         end
 
