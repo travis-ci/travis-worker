@@ -28,10 +28,6 @@ module Travis
           subscription.cancel if subscription
         end
 
-        def ready?
-          !!subscription.try(:ready?)
-        end
-
         protected
 
           def queue
@@ -43,17 +39,6 @@ module Travis
               channel.prefetch = 1
             end
           end
-      end
-    end
-  end
-end
-
-require 'hot_bunnies/queue'
-module HotBunnies
-  class Queue
-    class Subscription
-      def ready?
-        @subscriber || @subscriber.consumer_tag
       end
     end
   end
