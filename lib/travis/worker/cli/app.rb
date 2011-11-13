@@ -14,8 +14,13 @@ module Travis
 
         desc 'terminate', 'Stop all workers and the manager'
         method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
-        def status
+        def terminate
           app.terminate(:force => options['force'])
+        end
+
+        desc 'start', 'Start workers'
+        def start(*workers)
+          app.start(workers)
         end
 
         desc 'stop', 'Stop workers'
