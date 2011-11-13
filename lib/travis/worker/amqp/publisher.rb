@@ -7,11 +7,11 @@ module Travis
       class Publisher
         class << self
           def commands
-            @commands ||= new('worker.commands')
+            new('worker.commands')
           end
 
           def reporting
-            @reporting ||= new('reporting.jobs')
+            new('reporting.jobs')
           end
         end
 

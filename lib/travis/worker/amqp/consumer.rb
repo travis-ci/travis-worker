@@ -6,11 +6,11 @@ module Travis
       class Consumer
         class << self
           def builds
-            @builds ||= new(Travis::Worker.config.queue)
+            new(Travis::Worker.config.queue)
           end
 
           def commands
-            @commands ||= new('worker.commands')
+            new('worker.commands')
           end
         end
 
