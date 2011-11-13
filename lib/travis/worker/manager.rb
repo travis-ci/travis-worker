@@ -60,9 +60,7 @@ module Travis
         end
 
         def workers
-          @workers ||= names.map do |name|
-            Worker.create(name, config)
-          end
+          @workers ||= names.map { |name| Worker.create(name, config) }
         end
 
         def worker(name)

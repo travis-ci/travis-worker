@@ -36,7 +36,7 @@ module Travis
           message.ack
           payload = decode(payload)
           manager.send(payload.delete(:command), payload)
-        rescue => e
+        rescue Exception => e
           puts e.message, e.backtrace
         end
 
