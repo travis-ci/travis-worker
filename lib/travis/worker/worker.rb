@@ -20,7 +20,6 @@ module Travis
       states :created, :starting, :ready, :working, :stopping, :errored, :stopped
 
       event :start, :to => :ready # :from => [:created, :stopped, :errored] ... TODO simple_states doesn't allow an array here?
-      event :work,  :from => :ready, :to => :ready
       event :stop,  :to => :stopped
       event :error, :to => :errored
 
@@ -45,7 +44,7 @@ module Travis
       def start
         self.state = :starting
         vm.prepare
-        queue.subscribe(:ack => true, :blocking => false, &method(:process))
+        queue.subscribe(:ack => true, :blocking => false, &method(:work))
         heart.beat
       end
       log :start
@@ -54,8 +53,6 @@ module Travis
       def stop(options = {})
         queue.unsubscribe
         kill if options[:force]
-        sleep(0.1) until !working?
-        self.state = :stopped unless errored?
       end
       log :stop
 
@@ -66,17 +63,12 @@ module Travis
 
       protected
 
-        def process(message, payload)
-          work(message, payload)
-        rescue Errno::ECONNREFUSED, Exception => error
-          error(error, message)
-        end
-
         def work(message, payload)
           payload = prepare(payload)
           Build.create(vm, vm.shell, reporter, payload, config).run
           finish(message)
-          true
+        rescue Errno::ECONNREFUSED, Exception => error
+          error(error, message)
         end
         log :work
 
@@ -89,6 +81,7 @@ module Travis
         def finish(message)
           @payload = nil
           message.ack
+          self.state = :ready if working? # do not overwrite :stopped or :errored states
         end
         log :finish, :params => false
 
