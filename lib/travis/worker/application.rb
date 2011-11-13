@@ -23,7 +23,8 @@ module Travis
         # does not provide a way of registering basic.consume-ok callback. So we figured we can just wait
         # because nobody will try to stop the worker that was just started in real world scenarios.
         # Per discussion with Sven. MK.
-        sleep(workers.size * 1.5)
+        # sleep(workers.size * 1.5)
+        sleep(0.1) until manager.ready?
 
         consume_commands
       end

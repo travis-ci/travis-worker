@@ -64,6 +64,10 @@ module Travis
         vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
+      def ready?
+        queue.ready?
+      end
+
       protected
 
         def process(message, payload)

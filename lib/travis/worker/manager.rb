@@ -50,6 +50,10 @@ module Travis
         java.lang.System.exit(0)
       end
 
+      def ready?
+        workers.all(:ready?)
+      end
+
       protected
 
         def disconnect

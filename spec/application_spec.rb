@@ -4,7 +4,7 @@ require 'stringio'
 describe Application do
   let(:commands)    { stub('commands', :subscribe => nil) }
   let(:logger)      { Logger.new('manager', StringIO.new)}
-  let(:manager)     { stub('manager', :start => nil) }
+  let(:manager)     { stub('manager', :start => nil, :ready? => true) }
   let(:application) { Application.new }
 
   before :each do
