@@ -5,13 +5,18 @@ require 'multi_json'
 
 module Travis
   module Worker
+    import java.util.concurrent.CountDownLatch
+
     class Application
       extend Util::Logging
 
       def boot(workers = [])
+        @worker_initialization_barrier = CountDownLatch.new(workers.size)
+
         install_signal_traps
         manager.start(workers)
-        subscribe
+
+        consume_commands
       end
 
       def start(workers)
@@ -28,7 +33,7 @@ module Travis
 
       protected
 
-        def subscribe
+        def consume_commands
           Amqp.commands.subscribe(:ack => false, :blocking => false, &method(:process))
         end
 
