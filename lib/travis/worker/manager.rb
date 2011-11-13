@@ -23,15 +23,15 @@ module Travis
         @config = config
       end
 
-      # Connects to the messaging broker and start the given workers.
       def start(options = {})
-        start_workers(options.delete(:workers) || self.names)
+        names = options.delete(:workers) || self.names
+        names.each { |name| worker(name).start }
       end
       log :start
 
-      # Disconnects from the messaging broker and stops the given workers.
       def stop(options = {})
-        stop_workers(options.delete(:workers) || self.names, options)
+        names = options.delete(:workers) || self.names
+        names.each { |name| worker(name).stop(options) }
       end
       log :stop
 
@@ -57,14 +57,6 @@ module Travis
 
         def disconnect
           amqp.disconnect
-        end
-
-        def start_workers(names)
-          names.each { |name| worker(name).start }
-        end
-
-        def stop_workers(names, options)
-          names.each { |name| worker(name).stop(options) }
         end
 
         def workers
