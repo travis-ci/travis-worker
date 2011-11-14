@@ -1,3 +1,8 @@
 queue: builds.nodejs
 shell:
   buffer: 2.0
+timeouts:
+  before_install: 240
+  install: 240
+  before_script: 240
+  script: 720
