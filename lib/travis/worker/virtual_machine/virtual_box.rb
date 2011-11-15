@@ -24,13 +24,12 @@ java_import 'java.io.InputStreamReader'
 module Travis
   module Worker
     module VirtualMachine
-
       class VmNotFound < StandardError; end
 
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
       class VirtualBox
-        include Util::Retryable
+        include Util::Retryable, Util::Logging
 
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
@@ -89,6 +88,7 @@ module Travis
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
           @name = name
+          @logger = Logger.new("vm:#{name}")
         end
 
         # The virtual box machine bound to this instance.
@@ -135,6 +135,7 @@ module Travis
         # Returns true.
         def prepare
           if requires_snapshot?
+            log "Preparing vm #{name} ..."
             restart { immutate }
             wait_for_boot
             pause
