@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'hashr'
 require 'stringio'
 
 describe Worker do
@@ -45,7 +46,7 @@ describe Worker do
 
     it 'sets the current state to :ready' do
       worker.start
-      worker.state.should == :ready
+      worker.should be_ready
     end
   end
 
@@ -57,7 +58,7 @@ describe Worker do
 
     it 'sets the current state to :stopped' do
       worker.stop
-      worker.stopped?.should be_true
+      worker.should be_stopping
     end
   end
 
@@ -70,10 +71,6 @@ describe Worker do
       it 'works' do
         worker.expects(:work)
         worker.send(:process, message, payload)
-      end
-
-      it 'returns true' do
-        worker.send(:process, message, payload).should be_true
       end
     end
 
@@ -116,10 +113,6 @@ describe Worker do
       worker.expects(:finish)
       worker.send(:work, message, payload)
     end
-
-    it 'returns true' do
-      worker.send(:work, message, payload).should be_true
-    end
   end
 
   describe 'prepare' do
@@ -130,7 +123,7 @@ describe Worker do
 
     it 'sets the current state to :working' do
       worker.send(:prepare, payload)
-      worker.state.should == :working
+      worker.should be_working
     end
   end
 
@@ -145,6 +138,9 @@ describe Worker do
       message.expects(:ack)
       worker.send(:finish, message)
     end
+
+    it 'sets the current state to :read if the worker is working'
+    it 'sets the current state to :stopped if the worker is stopping'
   end
 
   describe 'error' do
@@ -165,7 +161,7 @@ describe Worker do
 
     it 'sets the current state to :errored' do
       worker.send(:error, exception, message)
-      worker.errored?.should be_true
+      worker.should be_errored
     end
   end
 end

@@ -63,7 +63,7 @@ module Travis
         def process(message, payload)
           work(message, payload)
         rescue Errno::ECONNREFUSED, Exception => error
-          puts error.message, error.backtrace
+          # puts error.message, error.backtrace
           error(error, message)
         end
 
@@ -92,11 +92,11 @@ module Travis
         log :finish, :params => false
 
         def error(error, message)
-          self.state = :errored
           @last_error = error
           log_error(error)
           message.ack(:requeue => true)
           stop
+          self.state = :errored
         end
         log :error
 
