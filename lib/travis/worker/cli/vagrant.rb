@@ -62,8 +62,9 @@ module Travis
           end
 
           def local
-            run "cp ../travis-boxes/boxes/travis-#{env}.box boxes"
+            run "cp ../travis-boxes/boxes/travis-#{env}.box boxes" # TODOdon't copy if files are identical
           end
+
           # def download
           #   run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
           # end
