@@ -7,6 +7,10 @@ for broader community of contributors to jump in.
 
    JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup thor travis:worker:start > log/staging.log&
 
+## Running the Thor console
+
+   ruby -Ilib -rubygems lib/thor/console.rb
+
 ## Getting started ##
 
 Install Bundler:
