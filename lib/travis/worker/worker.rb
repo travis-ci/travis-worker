@@ -19,11 +19,7 @@ module Travis
 
       states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
-      event :start, :to => :ready # :from => [:created, :stopped, :errored] ... TODO simple_states doesn't allow an array here?
-      event :error, :to => :errored
-
       attr_accessor :state
-
       attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error
 
       # Instantiates a new worker.
@@ -43,8 +39,9 @@ module Travis
       def start
         self.state = :starting
         vm.prepare
-        queue.subscribe(:ack => true, :blocking => false, &method(:process))
         heart.beat
+        self.state = :ready
+        queue.subscribe(:ack => true, :blocking => false, &method(:process))
       end
       log :start
 
