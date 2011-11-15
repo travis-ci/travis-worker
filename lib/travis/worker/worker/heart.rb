@@ -14,8 +14,8 @@ module Travis
         def beat
           @thread ||= Thread.new do
             loop do
-              callback.call(:'worker:ping', :name => worker.name, :host => host, :state => worker.state)
               sleep(interval)
+              callback.call(:'worker:ping', :name => worker.name, :host => host, :state => worker.state)
             end
           end
         end
