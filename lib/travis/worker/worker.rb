@@ -17,10 +17,9 @@ module Travis
         Factory.new(name, config).worker
       end
 
-      states :created, :starting, :ready, :working, :stopping, :errored, :stopped
+      states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
       event :start, :to => :ready # :from => [:created, :stopped, :errored] ... TODO simple_states doesn't allow an array here?
-      event :stop,  :to => :stopped
       event :error, :to => :errored
 
       attr_accessor :state
@@ -51,7 +50,11 @@ module Travis
 
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
-        queue.unsubscribe
+        if working?
+          self.state = :stopping
+        else
+          queue.unsubscribe
+        end
         kill if options[:force]
       end
       log :stop
@@ -66,6 +69,7 @@ module Travis
         def process(message, payload)
           work(message, payload)
         rescue Errno::ECONNREFUSED, Exception => error
+          puts error.message, error.backtrace
           error(error, message)
         end
 
@@ -83,9 +87,14 @@ module Travis
         log :start
 
         def finish(message)
-          @payload = nil
           message.ack
-          self.state = :ready if working? # do not overwrite :stopped or :errored states
+          if working?
+            self.state = :ready
+          elsif stopping? || errored?
+            queue.unsubscribe
+            self.state = :stopped if stopping?
+          end
+          @payload = nil
         end
         log :finish, :params => false
 
