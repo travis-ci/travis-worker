@@ -11,7 +11,7 @@ module Travis
       autoload :Heart,   'travis/worker/worker/heart'
 
       include SimpleStates
-      extend Util::Logging
+      include Util::Logging
 
       def self.create(name, config)
         Factory.new(name, config).worker

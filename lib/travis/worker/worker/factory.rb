@@ -18,7 +18,7 @@ module Travis
         end
 
         def queue
-          Amqp::Consumer.builds
+          Amqp::Consumer.builds(logger)
         end
 
         def reporter

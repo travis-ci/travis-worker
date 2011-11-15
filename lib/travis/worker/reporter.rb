@@ -1,7 +1,7 @@
 module Travis
   module Worker
     class Reporter
-      extend Util::Logging
+      include Util::Logging
 
       attr_reader :exchange, :logger
 

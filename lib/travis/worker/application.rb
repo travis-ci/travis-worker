@@ -8,7 +8,7 @@ module Travis
     import java.util.concurrent.CountDownLatch
 
     class Application
-      extend Util::Logging
+      include Util::Logging
 
       def boot(workers = [])
         @worker_initialization_barrier = CountDownLatch.new(workers.size)
@@ -33,7 +33,7 @@ module Travis
       protected
 
         def consume_commands
-          Amqp::Consumer.commands.subscribe(:ack => false, :blocking => false, &method(:process))
+          Amqp::Consumer.commands(logger).subscribe(:ack => false, :blocking => false, &method(:process))
         end
 
         def process(message, payload)

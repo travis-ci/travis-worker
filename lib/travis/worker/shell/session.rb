@@ -7,7 +7,7 @@ module Travis
       # Encapsulates an SSH connection to a remote host.
       class Session
         include Shell::Helpers
-        extend Util::Logging
+        include Util::Logging
 
         # Remote host environment ssh configuration.
         attr_reader :config

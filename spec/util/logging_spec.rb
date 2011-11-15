@@ -4,7 +4,7 @@ require 'stringio'
 describe Util::Logging do
   let :logging_class do
     Mock.const_set :LoggedClass, Class.new { |c|
-      c.extend(Util::Logging)
+      c.send(:include, Util::Logging)
       c.send(:attr_reader, :logger)
       c.send(:define_method, :initialize) { @logger = stub('logger', :before => nil, :after => nil) }
       c.send(:define_method, :the_method) { |*args| }

@@ -1,5 +1,6 @@
 require 'hot_bunnies'
 require 'multi_json'
+require 'hashr'
 
 module Travis
   module Worker
@@ -15,10 +16,11 @@ module Travis
           end
         end
 
-        attr_reader :routing_key
+        attr_reader :routing_key, :options
 
-        def initialize(routing_key)
+        def initialize(routing_key, options = {})
           @routing_key = routing_key
+          @options = options
         end
 
         def publish(data, options = {})
@@ -34,7 +36,7 @@ module Travis
           end
 
           def channel
-            @channel ||= Amqp.connection.create_channel
+            @channel ||= Amqp.connection.create_channel # TODO set prefetch?
           end
       end
     end
