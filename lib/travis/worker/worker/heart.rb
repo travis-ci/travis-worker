@@ -14,7 +14,8 @@ module Travis
         def beat
           @thread ||= Thread.new do
             loop do
-              sleep(interval)
+              # sleep(interval)
+              java.lang.Thread.sleep(interval * 1000)
               callback.call(:'worker:ping', :name => worker.name, :host => host, :state => worker.state)
             end
           end

@@ -36,7 +36,8 @@ module Travis
             @thread = Thread.new do
               loop do
                 flush
-                sleep(interval) if interval
+                # sleep(interval) if interval
+                java.lang.Thread.sleep(interval * 1000) if interval
               end
             end
           end
