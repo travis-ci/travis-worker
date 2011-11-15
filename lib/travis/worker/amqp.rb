@@ -1,5 +1,18 @@
 require 'hot_bunnies'
 
+module HotBunnies
+  class Queue
+    class Subscription
+      def cancel
+        raise 'Can\'t cancel: the subscriber haven\'t received an OK yet' if !@subscriber || !@subscriber.consumer_tag
+        @channel.basic_cancel(@subscriber.consumer_tag)
+        # @executor.shutdown_now if @executor && @shut_down_executor
+        @executor.shutdown if @executor && @shut_down_executor
+      end
+    end
+  end
+end
+
 module Travis
   module Worker
     module Amqp
