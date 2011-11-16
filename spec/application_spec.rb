@@ -11,6 +11,7 @@ describe Application do
     Amqp::Consumer.stubs(:commands).returns(commands)
     application.stubs(:manager).returns(manager)
     application.stubs(:logger).returns(logger)
+    application.stubs(:reply)
   end
 
   describe 'boot' do
@@ -26,24 +27,12 @@ describe Application do
   end
 
   describe 'process' do
-    let(:message) { stub('message', :ack => nil) }
+    let(:message) { stub('message', :ack => nil, :properties => stub(:message_id => 1)) }
     let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }' }
 
     it 'accepts a :stop command and stops' do
-      manager.expects(:stop).with(:workers => %w(worker-1 worker-2), :force => true)
+      manager.expects(:stop).with('workers' => %w(worker-1 worker-2), 'force' => true)
       application.send(:process, message, payload)
-    end
-  end
-
-  describe 'decode' do
-    it 'decodes the json payload' do
-      hashr = application.send(:decode, '{ "foo": "bar" }')
-      hashr.foo.should == 'bar'
-    end
-
-    it 'defaults :workers to an empty array' do
-      hashr = application.send(:decode, '{}')
-      hashr.workers.should == []
     end
   end
 end

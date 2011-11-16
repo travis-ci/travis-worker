@@ -39,10 +39,10 @@ module Travis
       end
       log :terminate
 
-      def status
-        # worker state
-        # current payload
-        # last error
+      def status(options = {})
+        workers.inject({}) do |result, worker|
+          result.merge(worker.name => worker.report)
+        end
       end
 
       def quit

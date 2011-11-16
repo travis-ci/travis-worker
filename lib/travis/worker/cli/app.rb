@@ -31,7 +31,12 @@ module Travis
 
         desc 'status', 'Display status information'
         def status
-          # TBT
+          reports = app.status
+          max_length = reports.keys.max_by { |name| name.length }.length
+
+          puts "Current worker states:\n\n"
+          puts reports.map { |worker, report| "#{"#{worker}:".ljust(max_length)} #{report.state}" }
+          puts
         end
 
         protected

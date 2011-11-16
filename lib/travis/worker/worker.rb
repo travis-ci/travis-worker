@@ -58,6 +58,10 @@ module Travis
         vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
+      def report
+        { :state => state, :last_error => last_error, :payload => payload }
+      end
+
       protected
 
         def process(message, payload)

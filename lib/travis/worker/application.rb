@@ -5,43 +5,32 @@ require 'multi_json'
 
 module Travis
   module Worker
-    import java.util.concurrent.CountDownLatch
-
     class Application
       include Util::Logging
 
       def boot(workers = [])
-        @worker_initialization_barrier = CountDownLatch.new(workers.size)
-
         install_signal_traps
         manager.start(workers)
         consume_commands
       end
 
       def start(workers)
-        call_remote(:start, :workers => workers)
+        request(:start, :workers => workers)
       end
 
       def stop(workers, options)
-        call_remote(:stop, options.merge(:workers => workers))
+        request(:stop, options.merge(:workers => workers))
       end
 
       def terminate(options)
-        call_remote(:terminate, options)
+        request(:terminate, options)
+      end
+
+      def status
+        request(:status)
       end
 
       protected
-
-        def consume_commands
-          Amqp::Consumer.commands(logger).subscribe(:ack => false, :blocking => false, &method(:process))
-        end
-
-        def process(message, payload)
-          payload = decode(payload)
-          manager.send(payload.delete(:command), payload)
-        rescue Exception => e
-          puts e.message, e.backtrace
-        end
 
         def manager
           @manager ||= Manager.create
@@ -51,21 +40,37 @@ module Travis
           @logger ||= Logger.new('app')
         end
 
+        def consume_commands
+          Amqp::Consumer.commands(logger).subscribe(:ack => false, :blocking => false, &method(:process))
+        end
+
+        def process(message, payload)
+          log "processing #{payload}"
+          payload = MultiJson.decode(payload)
+          result = manager.send(payload.delete('command'), payload)
+          reply(message, result)
+        rescue Exception => e
+          puts e.message, e.backtrace
+        end
+
+        def reply(message, result)
+          Amqp::Publisher.replies.publish(MultiJson.encode(result), :correlation_id => message.properties.message_id)
+        end
+
+        def request(command, options = {})
+          Amqp::Publisher.commands.publish(options.merge(:command => command), :reply_to => 'replies')
+          Amqp::Consumer.replies(logger).subscribe do |message, payload|
+            Amqp.disconnect
+            return Hashr.new(MultiJson.decode(payload))
+          end
+        end
+        log :request
+
         def install_signal_traps
           Signal.trap('INT')  { manager.quit }
           Signal.trap('TERM') { manager.quit }
         end
         log :install_signal_traps
-
-        def call_remote(command, options)
-          Amqp::Publisher.commands.publish(options.merge(:command => command))
-          Amqp.disconnect
-        end
-        log :call_remote
-
-        def decode(payload)
-          Hashr.new(MultiJson.decode(payload), :workers => [])
-        end
     end
   end
 end

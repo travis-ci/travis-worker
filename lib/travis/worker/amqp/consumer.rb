@@ -13,6 +13,10 @@ module Travis
           def commands(logger)
             new('worker.commands', logger)
           end
+
+          def replies(logger)
+            new('replies', logger) # TODO can't create a queue worker.replies?
+          end
         end
 
         include Util::Logging

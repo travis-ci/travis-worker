@@ -14,6 +14,10 @@ module Travis
           def reporting
             new('reporting.jobs')
           end
+
+          def replies
+            new('replies') # TODO can't create a queue worker.replies?
+          end
         end
 
         attr_reader :routing_key, :options
@@ -25,7 +29,7 @@ module Travis
 
         def publish(data, options = {})
           data = MultiJson.encode(data) if data.is_a?(Hash)
-          options = options.merge(:routing_key => routing_key)
+          options = options.merge(:routing_key => routing_key, :properties => { :message_id => rand(100000000000).to_s })
           exchange.publish(data, options)
         end
 
