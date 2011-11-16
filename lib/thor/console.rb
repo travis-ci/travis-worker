@@ -18,8 +18,9 @@ class Thor
 
     attr_accessor :namespace
 
-    def initialize
+    def initialize(namespace = '')
       Thor::Runner.new.send(:initialize_thorfiles)
+      @namespace = namespace
       run
     end
 
@@ -82,4 +83,3 @@ class Thor
   end
 end
 
-Thor::Console.new
