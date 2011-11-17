@@ -12,6 +12,8 @@ module Travis
         install_signal_traps
         manager.start(workers)
         consume_commands
+      rescue e
+        puts e.message, e.backtrace
       end
 
       def start(workers)
@@ -41,7 +43,7 @@ module Travis
         end
 
         def consume_commands
-          Amqp::Consumer.commands(logger).subscribe(:ack => false, :blocking => false, &method(:process))
+          Amqp::Consumer.commands(logger).subscribe(&method(:process))
         end
 
         def process(message, payload)
@@ -59,7 +61,7 @@ module Travis
 
         def request(command, options = {})
           Amqp::Publisher.commands.publish(options.merge(:command => command), :reply_to => 'replies')
-          Amqp::Consumer.replies(logger).subscribe do |message, payload|
+          Amqp::Consumer.replies(logger).subscribe(:blocking => true) do |message, payload|
             Amqp.disconnect
             return Hashr.new(MultiJson.decode(payload))
           end

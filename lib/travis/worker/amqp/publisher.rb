@@ -8,7 +8,7 @@ module Travis
       class Publisher
         class << self
           def commands
-            new('worker.commands')
+            new("worker.commands.#{Travis::Worker.name}")
           end
 
           def reporting
@@ -29,8 +29,8 @@ module Travis
 
         def publish(data, options = {})
           data = MultiJson.encode(data) if data.is_a?(Hash)
-          options = options.merge(:routing_key => routing_key, :properties => { :message_id => rand(100000000000).to_s })
-          exchange.publish(data, options)
+          defaults = { :routing_key => routing_key, :properties => { :message_id => rand(100000000000).to_s } }
+          exchange.publish(data, deep_merge(defaults, options))
         end
 
         protected
@@ -40,7 +40,11 @@ module Travis
           end
 
           def channel
-            @channel ||= Amqp.connection.create_channel # TODO set prefetch?
+            @channel ||= Amqp.connection.create_channel
+          end
+
+          def deep_merge(hash, other)
+            hash.merge(other, &(merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }))
           end
       end
     end

@@ -30,6 +30,10 @@ module Travis
         @config ||= Config.new
       end
 
+      def name
+        @name ||= hostname.split('.').first
+      end
+
       def hostname
         @hostname ||= Socket.gethostname
       end

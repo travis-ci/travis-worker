@@ -11,7 +11,7 @@ module Travis
           end
 
           def commands(logger)
-            new('worker.commands', logger)
+            new("worker.commands.#{Travis::Worker.name}", logger)
           end
 
           def replies(logger)
@@ -22,9 +22,9 @@ module Travis
         include Util::Logging
 
         DEFAULTS = {
-          :durable   => true,
-          :exclusive => false,
-          :prefetch  => 1
+          :subscribe => { :ack => false, :blocking => false },
+          :queue     => { :durable => true, :exclusive => false },
+          :channel   => { :prefetch => 1 }
         }
 
         attr_reader :name, :options, :logger, :subscription
@@ -32,10 +32,11 @@ module Travis
         def initialize(name, logger, options = {})
           @name    = name
           @logger  = logger
-          @options = Hashr.new(DEFAULTS.merge(options))
+          @options = Hashr.new(DEFAULTS.deep_merge(options))
         end
 
         def subscribe(options = {}, &block)
+          options = deep_merge(self.options.subscribe, options)
           log "subscribing to #{name.inspect} with #{options.inspect}"
           @subscription = queue.subscribe(options, &block)
         end
@@ -48,13 +49,17 @@ module Travis
         protected
 
           def queue
-            @queue ||= channel.queue(name, options)
+            @queue ||= channel.queue(name, options.queue)
           end
 
           def channel
             @channel ||= Amqp.connection.create_channel.tap do |channel|
-              channel.prefetch = options.prefetch
+              channel.prefetch = options.channel.prefetch
             end
+          end
+
+          def deep_merge(hash, other)
+            hash.merge(other, &(merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }))
           end
       end
     end
