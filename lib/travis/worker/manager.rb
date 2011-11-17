@@ -21,13 +21,13 @@ module Travis
       end
 
       def start(options = {})
-        names = options.delete(:workers) || self.names
+        names = options.delete('workers') || self.names
         names.each { |name| worker(name).start }
       end
       log :start
 
       def stop(options = {})
-        names = options.delete(:workers) || self.names
+        names = options.delete('workers') || self.names
         names.each { |name| worker(name).stop(options) }
       end
       log :stop
