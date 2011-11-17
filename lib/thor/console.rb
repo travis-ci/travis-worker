@@ -32,6 +32,7 @@ class Thor
           break if line.nil?
           evaluate(line) unless line.empty?
         end
+        puts
       end
 
       def prompt

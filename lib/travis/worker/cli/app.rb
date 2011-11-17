@@ -1,5 +1,6 @@
 require 'thor'
 require 'travis/worker'
+require 'hashr'
 
 module Travis
   module Worker
@@ -31,11 +32,17 @@ module Travis
 
         desc 'status', 'Display status information'
         def status
-          reports = app.status
-          max_length = reports.keys.max_by { |name| name.length }.length
+          reports = Hashr.new(app.status)
+          # TODO extract a formatter
+          max_length = reports.keys.map(&:to_s).max_by { |name| name.length }.length
 
           puts "Current worker states:\n\n"
-          puts reports.map { |worker, report| "#{"#{worker}:".ljust(max_length)} #{report.state}" }
+          puts reports.map { |worker, report|
+            line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
+            line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.state == "working"
+            line += " (#{report.last_error})" if report.state == "errored"
+            line
+          }
           puts
         end
 

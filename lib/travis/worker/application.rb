@@ -63,7 +63,7 @@ module Travis
           Amqp::Publisher.commands.publish(options.merge(:command => command), :reply_to => 'replies')
           Amqp::Consumer.replies(logger).subscribe(:blocking => true) do |message, payload|
             Amqp.disconnect
-            return Hashr.new(MultiJson.decode(payload))
+            return MultiJson.decode(payload)
           end
         end
         log :request
