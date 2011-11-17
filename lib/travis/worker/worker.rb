@@ -48,7 +48,7 @@ module Travis
       # Stops the worker by cancelling the builds queue subscription.
       def stop(options = {})
         self.state = :stopping
-        queue.unsubscribe
+        queue.unsubscribe rescue nil # TODO how to check the status of the subscription?
         kill if options[:force]
         self.state = :stopped unless working?
       end
