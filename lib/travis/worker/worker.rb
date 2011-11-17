@@ -50,6 +50,7 @@ module Travis
         self.state = :stopping
         queue.unsubscribe
         kill if options[:force]
+        self.state = :stopped unless working?
       end
       log :stop
 
