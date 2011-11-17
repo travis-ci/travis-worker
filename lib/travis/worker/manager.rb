@@ -1,6 +1,10 @@
 module Travis
   module Worker
-    class WorkerNotFound < Exception; end
+    class WorkerNotFound < Exception
+      def initialize(name)
+        super "Unknown worker #{name}"
+      end
+    end
 
     # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
