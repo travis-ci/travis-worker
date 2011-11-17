@@ -31,7 +31,7 @@ module Travis
 
         def disconnect
           if connection
-            connection.close rescue nil # TODO how to check if the connection is actually open?
+            connection.close if connection.isOpen
             @connection = nil
           end
         end

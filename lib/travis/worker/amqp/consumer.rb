@@ -43,7 +43,7 @@ module Travis
 
         def unsubscribe
           log "unsubscribing from #{name.inspect}"
-          subscription.cancel if subscription
+          subscription.cancel if subscription.try(:active?)
         end
 
         protected
