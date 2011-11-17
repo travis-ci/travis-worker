@@ -26,12 +26,14 @@ module Travis
 
       def start(options = {})
         names = options.delete(:workers) || self.names
+        names = self.names if names.empty?
         names.each { |name| worker(name).start }
       end
       log :start
 
       def stop(options = {})
         names = options.delete(:workers) || self.names
+        names = self.names if names.empty?
         names.each { |name| worker(name).stop(options) }
       end
       log :stop
