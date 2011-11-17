@@ -22,7 +22,7 @@ class Thor
       Thor::Runner.new.send(:initialize_thorfiles)
 
       Readline.completion_append_character = ' '
-      Readline.completion_proc = lambda { |prefix| Travis::Worker.names.grep(/^#{Regexp.escape(prefix)}/)
+      Readline.completion_proc = lambda { |prefix| Travis::Worker.names.grep(/^#{Regexp.escape(prefix)}/) }
 
       @namespace = namespace
       run
