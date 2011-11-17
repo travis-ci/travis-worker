@@ -10,6 +10,7 @@ module Travis
 
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
+          require 'autoload_gauntlet'
           app.boot(workers)
         end
 
