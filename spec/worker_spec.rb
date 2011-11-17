@@ -56,9 +56,16 @@ describe Worker do
       worker.stop
     end
 
-    it 'sets the current state to :stopped' do
+    it 'sets the current state to :stopping if the worker is still working' do
+      worker.stubs(:working?).returns(true)
       worker.stop
       worker.should be_stopping
+    end
+
+    it 'sets the current state to :stopped if the worker is not working' do
+      worker.stubs(:working?).returns(false)
+      worker.stop
+      worker.should be_stopped
     end
   end
 

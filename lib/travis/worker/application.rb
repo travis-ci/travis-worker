@@ -48,8 +48,8 @@ module Travis
 
         def process(message, payload)
           log "processing #{payload}"
-          payload = MultiJson.decode(payload)
-          result = manager.send(payload.delete('command'), payload)
+          payload = Hashr.new(MultiJson.decode(payload))
+          result = manager.send(payload.delete(:command), payload)
           reply(message, result)
         rescue Exception => e
           puts e.message, e.backtrace

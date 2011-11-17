@@ -31,7 +31,7 @@ describe Application do
     let(:payload) { '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }' }
 
     it 'accepts a :stop command and stops' do
-      manager.expects(:stop).with('workers' => %w(worker-1 worker-2), 'force' => true)
+      manager.expects(:stop).with(:workers => %w(worker-1 worker-2), :force => true)
       application.send(:process, message, payload)
     end
   end
