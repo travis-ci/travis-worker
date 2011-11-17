@@ -39,7 +39,15 @@ module Travis
         end
 
         def format_args(args)
-          args.empty? ? '' : "(#{args.map { |arg| arg.inspect}.join(', ')})"
+          args.empty? ? '' : "(#{args.map { |arg| format_arg(arg).inspect }.join(', ')})"
+        end
+
+        def format_arg(arg)
+          if arg.is_a?(Hash) && arg.key?(:log) && arg[:log].size > 80
+            arg = arg.dup
+            arg[:log] = "#{arg[:log][0..80]} ..."
+          end
+          arg
         end
 
         def colorize(color, text)
