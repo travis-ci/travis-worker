@@ -7,7 +7,7 @@ gem 'net-ssh-shell', '~> 0.2.0'
 gem 'faraday'
 
 gem 'simple_states'
-gem 'hashr',         '~> 0.0.13'
+gem 'hashr',         '~> 0.0.17'
 gem 'multi_json'
 gem 'json'
 
