@@ -65,7 +65,6 @@ module Travis
           shell ? shell.open? : false
         end
 
-
         protected
 
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
@@ -96,18 +95,6 @@ module Travis
             end
             shell.session.loop { status.nil? }
             status
-          end
-
-
-        private
-
-          def timeout(options)
-            if options[:timeout].is_a?(Numeric)
-              options[:timeout]
-            else
-              timeout = options[:timeout] || :default
-              config.timeouts[timeout]
-            end
           end
       end
     end

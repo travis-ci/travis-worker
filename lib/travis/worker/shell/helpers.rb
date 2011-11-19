@@ -92,6 +92,14 @@ module Travis
         def parse_cmd(cmd)
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
+
+        def timeout(options)
+          if options[:timeout].is_a?(Numeric)
+            options[:timeout]
+          else
+            config.timeouts[options[:timeout] || :default]
+          end
+        end
       end
     end
   end
