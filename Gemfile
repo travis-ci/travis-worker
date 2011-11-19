@@ -3,42 +3,22 @@ source :rubygems
 gem 'travis-build', :git => 'git://github.com/travis-ci/travis-build.git'
 
 gem 'vagrant',       '~> 0.8.0'
-gem 'net-ssh-shell', '~> 0.2.0'
-gem 'faraday'
-
-gem 'simple_states'
-gem 'hashr',         '~> 0.0.17'
-gem 'multi_json'
-gem 'json'
-
 gem 'rake',          '~> 0.9.2'
-gem 'thor'
+gem 'thor',          '~> 0.14.6'
 
-platform :jruby do
-  gem 'jruby-openssl'
-  gem 'hot_bunnies', '~> 1.3.3'
-end
+gem 'hot_bunnies', '~> 1.3.3'
+gem 'faraday',       '~> 0.7.5'
+gem 'net-ssh-shell', '~> 0.2.0'
+gem 'jruby-openssl', '~> 0.7.4'
 
-platform :ruby do
-  gem 'god'
-end
-
-group :development do
-  gem 'yard', '~> 0.7.1'
-
-  platform :ruby do
-    gem 'rdiscount'
-  end
-end
+gem 'simple_states', '~> 0.1.0.pre1'
+gem 'hashr',         '~> 0.0.17'
+gem 'multi_json',    '~> 1.0.3'
+gem 'json'
 
 group :test do
   gem 'mocha'
   gem 'rspec'
-
-  platforms :ruby_18 do
-    gem 'minitest'
-    gem 'minitest_tu_shim'
-  end
+  gem 'simplecov', '>= 0.4.0', :require => false
 end
 
-gem 'simplecov', '>= 0.4.0', :require => false, :group => :test
