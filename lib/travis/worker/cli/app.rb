@@ -32,25 +32,45 @@ module Travis
         end
 
         desc 'status', 'Display status information'
+        method_option :watch,    :aliases => '-w', :type => :boolean, :default => false, :desc => 'Watch the worker status'
+        method_option :interval, :aliases => '-i', :type => :numeric, :default => 2,     :desc => 'Refresh interval when watching the worker status'
         def status
-          reports = Hashr.new(app.status)
-          # TODO extract a formatter
-          max_length = reports.keys.map(&:to_s).max_by { |name| name.length }.length
-
-          puts "Current worker states:\n\n"
-          puts reports.map { |worker, report|
-            line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
-            line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.state == "working"
-            line += " (#{report.last_error})" if report.state == "errored"
-            line
-          }
-          puts
+          watching do
+            print_status(app.status)
+          end
         end
 
         protected
 
           def app
             @app ||= Travis::Worker::Application.new
+          end
+
+          def watching
+            if options['watch']
+              # TODO install signal traps
+              loop do
+                yield
+                sleep(options['interval'])
+              end
+            else
+              yield
+            end
+          end
+
+          def print_status(reports)
+            reports = Hashr.new(reports)
+            max_length = reports.keys.map(&:to_s).max_by { |name| name.length }.length
+
+            puts "#{Time.now}\n"
+            puts "Current worker states:\n\n" # TODO extract a formatter
+            puts reports.map { |worker, report|
+              line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
+              line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.state == "working"
+              line += " (#{report.last_error})" if report.state == "errored"
+              line
+            }
+            puts
           end
       end
     end
