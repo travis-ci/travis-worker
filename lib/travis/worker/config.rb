@@ -25,7 +25,7 @@ module Travis
       define :queue     => 'builds.ruby',
              :amqp      => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :shell     => { :buffer => 0 },
-             :timeouts  => { :before_script => 300, :after_script => 120, :script => 600, :install => 300 },
+             :timeouts  => { :before_install => , :install => 300, :before_script => 300, :script => 600, :after_script => 120 },
              :vms       => { :count => 1, :_include => Vms },
              :heartbeat => { :interval => 10 }
 
