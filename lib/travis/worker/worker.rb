@@ -13,7 +13,7 @@ module Travis
 
       include SimpleStates, Logging
 
-      log_header { "worker:#{name}" }
+      log_header { "#{name}:worker" }
 
       def self.create(name, config)
         Factory.new(name, config).worker

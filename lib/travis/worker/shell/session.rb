@@ -9,9 +9,9 @@ module Travis
         include Shell::Helpers
         include Logging
 
-        log_header { "#{Thread.current[:log_header]}:session" }
+        log_header { "#{name}:session" }
 
-        attr_reader :config, :shell
+        attr_reader :name, :config, :shell
 
         # Initialize a shell Session
         #
@@ -19,7 +19,8 @@ module Travis
         # block - An optional block of commands to be excuted within the session. If
         #         a block is provided then the session will be started, block evaluated,
         #         and then the session will be closed.
-        def initialize(config)
+        def initialize(name, config)
+          @name = config.delete(:name)
           @config = Hashr.new(config)
           @shell = nil
 
@@ -66,7 +67,7 @@ module Travis
           # is executed.
           def buffer
             @buffer ||= Buffer.new(config.buffer) do |string|
-              @on_output.call(string) if @on_output
+              @on_output.call(string, :header => log_header) if @on_output
             end
           end
 
