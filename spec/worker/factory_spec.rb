@@ -21,7 +21,7 @@ describe Worker::Factory do
       end
 
       it 'has the reporting key "builds"' do
-        worker.queue.name.should == 'builds.ruby'
+        worker.queue.name.should == 'builds.common'
       end
     end
 
