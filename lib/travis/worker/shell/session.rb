@@ -9,11 +9,9 @@ module Travis
         include Shell::Helpers
         include Logging
 
-        # Remote host environment ssh configuration.
-        attr_reader :config
+        log_header { "#{Thread.current[:log_header]}:session" }
 
-        # The Net::SSH::Session shell
-        attr_reader :shell
+        attr_reader :config, :shell
 
         # Initialize a shell Session
         #
@@ -23,7 +21,7 @@ module Travis
         #         and then the session will be closed.
         def initialize(config)
           @config = Hashr.new(config)
-          @shell  = nil
+          @shell = nil
 
           if block_given?
             connect

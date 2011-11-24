@@ -67,6 +67,7 @@ module Travis
       protected
 
         def process(message, payload)
+          Thread.current[:log_header] = name
           work(message, payload)
         rescue Errno::ECONNREFUSED, Exception => error
           # puts error.message, error.backtrace
@@ -78,7 +79,7 @@ module Travis
           Build.create(vm, vm.shell, reporter, payload, config).run
           finish(message)
         end
-        log :work
+        log :work, :as => :debug
 
         def prepare(payload)
           self.state = :working
