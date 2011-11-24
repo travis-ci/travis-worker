@@ -7,16 +7,17 @@ describe Worker do
   let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter') }
   let(:heart)        { stub('heart', :beat => nil, :stop => nil) }
-  let(:logger)       { Logger.new(vm.name, StringIO.new) }
   let(:config)       { Hashr.new }
-  let(:worker)       { Worker.new('worker-1', vm, queue, reporter, logger, config) }
+  let(:worker)       { Worker.new('worker-1', vm, queue, reporter, config) }
 
   let(:message)      { stub('message', :ack => nil) }
   let(:payload)      { '{ "id": 1 }' }
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
   let(:build)        { stub('build', :run => nil) }
+  let(:io)           { StringIO.new }
 
-  before(:each) do
+  before :each do
+    Travis.logger = Logger.new(io)
     Travis::Build.stubs(:create).returns(build)
   end
 

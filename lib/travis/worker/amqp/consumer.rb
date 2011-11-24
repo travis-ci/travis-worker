@@ -6,20 +6,20 @@ module Travis
     module Amqp
       class Consumer
         class << self
-          def builds(logger)
-            new(Travis::Worker.config.queue, logger)
+          def builds
+            new(Travis::Worker.config.queue)
           end
 
-          def commands(logger)
-            new("worker.commands.#{Travis::Worker.name}", logger)
+          def commands
+            new("worker.commands.#{Travis::Worker.name}")
           end
 
-          def replies(logger)
-            new('replies', logger) # TODO can't create a queue worker.replies?
+          def replies
+            new('replies') # TODO can't create a queue worker.replies?
           end
         end
 
-        include Util::Logging
+        include Logging
 
         DEFAULTS = {
           :subscribe => { :ack => false, :blocking => false },
@@ -27,22 +27,21 @@ module Travis
           :channel   => { :prefetch => 1 }
         }
 
-        attr_reader :name, :options, :logger, :subscription
+        attr_reader :name, :options, :subscription
 
-        def initialize(name, logger, options = {})
+        def initialize(name, options = {})
           @name    = name
-          @logger  = logger
           @options = Hashr.new(DEFAULTS.deep_merge(options))
         end
 
         def subscribe(options = {}, &block)
           options = deep_merge(self.options.subscribe, options)
-          log "subscribing to #{name.inspect} with #{options.inspect}"
+          debug "subscribing to #{name.inspect} with #{options.inspect}"
           @subscription = queue.subscribe(options, &block)
         end
 
         def unsubscribe
-          log "unsubscribing from #{name.inspect}"
+          debug "unsubscribing from #{name.inspect}"
           subscription.cancel if subscription.try(:active?)
         end
 

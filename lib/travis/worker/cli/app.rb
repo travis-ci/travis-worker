@@ -10,7 +10,7 @@ module Travis
 
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
-          require 'autoload_gauntlet'
+          preload_constants!
           app.boot(workers)
         end
 
@@ -46,6 +46,16 @@ module Travis
             @app ||= Travis::Worker::Application.new
           end
 
+          def preload_constants!
+            require 'core_ext/module/load_constants'
+            require 'travis/build'
+            require 'faraday'
+
+            [Travis::Worker, Travis::Build, Faraday].each do |target|
+              target.load_constants!
+            end
+          end
+
           def watching
             if options['watch']
               # TODO install signal traps
@@ -66,7 +76,7 @@ module Travis
             puts "Current worker states:\n\n" # TODO extract a formatter
             puts reports.map { |worker, report|
               line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
-              line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.state == "working"
+              line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.payload.try(:repository?)
               line += " (#{report.last_error})" if report.state == "errored"
               line
             }

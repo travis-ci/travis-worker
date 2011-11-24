@@ -2,6 +2,7 @@ require 'travis/build'
 require 'simple_states'
 require 'multi_json'
 require 'thread'
+require 'core_ext/hash/compact'
 
 module Travis
   module Worker
@@ -10,8 +11,9 @@ module Travis
       autoload :Factory, 'travis/worker/worker/factory'
       autoload :Heart,   'travis/worker/worker/heart'
 
-      include SimpleStates
-      include Util::Logging
+      include SimpleStates, Logging
+
+      log_header { "worker:#{name}" }
 
       def self.create(name, config)
         Factory.new(name, config).worker
@@ -20,18 +22,17 @@ module Travis
       states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
       attr_accessor :state
-      attr_reader :name, :vm, :queue, :reporter, :logger, :config, :payload, :last_error
+      attr_reader :name, :vm, :queue, :reporter, :config, :payload, :last_error
 
       # Instantiates a new worker.
       #
       # queue - The Amqp builds queue.
       # vm    - The virtual machine to be used by the worker.
-      def initialize(name, vm, queue, reporter, logger, config)
+      def initialize(name, vm, queue, reporter, config)
         @name     = name
         @vm       = vm
         @queue    = queue
         @reporter = reporter
-        @logger   = logger
         @config   = config
       end
 
@@ -60,7 +61,7 @@ module Travis
       end
 
       def report
-        { :state => state, :last_error => last_error, :payload => payload }
+        { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }.compact
       end
 
       protected
@@ -83,7 +84,7 @@ module Travis
           self.state = :working
           @payload = decode(payload)
         end
-        log :start
+        log :prepare
 
         def finish(message)
           message.ack
@@ -98,15 +99,19 @@ module Travis
 
         def error(error, message)
           @last_error = error
-          log_error(error)
+          log_exception(error)
           message.ack(:requeue => true)
           stop
           self.state = :errored
         end
         log :error
 
+        def host
+          Travis::Worker.hostname
+        end
+
         def heart
-          @heart ||= Heart.new(self) { |type, data| reporter.message(type, data) }
+          @heart ||= Heart.new { reporter.message(:'worker:ping', report) }
         end
 
         def decode(payload)

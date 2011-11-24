@@ -10,7 +10,7 @@ module Travis
         end
 
         def worker
-          Worker.new(name, vm, queue, reporter, logger, config)
+          Worker.new(name, vm, queue, reporter, config)
         end
 
         def vm
@@ -18,15 +18,11 @@ module Travis
         end
 
         def queue
-          Amqp::Consumer.builds(logger)
+          Amqp::Consumer.builds
         end
 
         def reporter
-          Reporter.new(Amqp::Publisher.reporting, logger)
-        end
-
-        def logger
-          @logger ||= Logger.new("worker:#{name}")
+          Reporter.new(Amqp::Publisher.reporting)
         end
 
         def config

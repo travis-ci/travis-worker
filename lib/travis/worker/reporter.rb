@@ -1,13 +1,12 @@
 module Travis
   module Worker
     class Reporter
-      include Util::Logging
+      include Logging
 
-      attr_reader :exchange, :logger
+      attr_reader :exchange
 
-      def initialize(exchange, logger)
+      def initialize(exchange)
         @exchange = exchange
-        @logger = logger
       end
 
       def notify(event)

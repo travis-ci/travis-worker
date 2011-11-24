@@ -9,18 +9,17 @@ module Travis
     # The Worker manager, responsible for starting, monitoring,
     # and stopping Worker instances.
     class Manager
-      include Util::Logging
+      include Logging
 
       def self.create
-        Manager.new(Travis::Worker.names, Amqp, Logger.new('manager'), Travis::Worker.config)
+        Manager.new(Travis::Worker.names, Amqp, Travis::Worker.config) # Logger.new('manager'), 
       end
 
-      attr_reader :names, :amqp, :logger, :config
+      attr_reader :names, :amqp, :config
 
-      def initialize(names, amqp, logger, config)
+      def initialize(names, amqp, config)
         @names  = names
         @amqp   = amqp
-        @logger = logger
         @config = config
       end
 

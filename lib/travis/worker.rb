@@ -1,11 +1,11 @@
 require 'socket'
+require 'travis/support'
 
 module Travis
   module Worker
     autoload :Amqp,         'travis/worker/amqp'
     autoload :Application,  'travis/worker/application'
     autoload :Config,       'travis/worker/config'
-    autoload :Logger,       'travis/worker/logger'
     autoload :Manager,      'travis/worker/manager'
     autoload :Reporter,     'travis/worker/reporter'
     autoload :Worker,       'travis/worker/worker'
@@ -14,11 +14,6 @@ module Travis
       autoload :Buffer,     'travis/worker/shell/buffer'
       autoload :Helpers,    'travis/worker/shell/helpers'
       autoload :Session,    'travis/worker/shell/session'
-    end
-
-    module Util
-      autoload :Logging,    'travis/worker/util/logging'
-      autoload :Retryable,  'travis/worker/util/retryable'
     end
 
     module VirtualMachine

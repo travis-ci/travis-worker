@@ -6,14 +6,12 @@ require 'multi_json'
 module Travis
   module Worker
     class Application
-      include Util::Logging
+      include Logging
 
       def boot(workers = [])
         install_signal_traps
         manager.start(workers)
         consume_commands
-      rescue e
-        puts e.message, e.backtrace
       end
 
       def start(workers)
@@ -38,16 +36,12 @@ module Travis
           @manager ||= Manager.create
         end
 
-        def logger
-          @logger ||= Logger.new('app')
-        end
-
         def consume_commands
-          Amqp::Consumer.commands(logger).subscribe(&method(:process))
+          Amqp::Consumer.commands.subscribe(&method(:process))
         end
 
         def process(message, payload)
-          log "processing #{payload}"
+          info "processing #{payload}"
           payload = Hashr.new(MultiJson.decode(payload))
           result = manager.send(payload.delete(:command), payload)
           reply(message, result)
@@ -61,7 +55,7 @@ module Travis
 
         def request(command, options = {})
           Amqp::Publisher.commands.publish(options.merge(:command => command), :reply_to => 'replies')
-          Amqp::Consumer.replies(logger).subscribe(:blocking => true) do |message, payload|
+          Amqp::Consumer.replies.subscribe(:blocking => true) do |message, payload|
             Amqp.disconnect
             return MultiJson.decode(payload)
           end
@@ -72,7 +66,6 @@ module Travis
           Signal.trap('INT')  { manager.quit }
           Signal.trap('TERM') { manager.quit }
         end
-        log :install_signal_traps
     end
   end
 end

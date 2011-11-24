@@ -15,6 +15,7 @@
 #
 $: << File.expand_path('../../../../../vendor/virtualbox-4.1.2', __FILE__)
 require 'java'
+require 'travis/support'
 
 java_import 'java.util.List'
 java_import 'java.util.Arrays'
@@ -29,7 +30,7 @@ module Travis
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
       class VirtualBox
-        include Util::Retryable, Util::Logging
+        include Retryable, Logging
 
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
@@ -77,7 +78,6 @@ module Travis
           end
         end
 
-        # The name of the virtual box machine.
         attr_reader :name
 
         # Instantiates a new VirtualBox machine, and connects it to the underlying
@@ -88,7 +88,6 @@ module Travis
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
           @name = name
-          @logger = Logger.new("vm:#{name}")
         end
 
         # The virtual box machine bound to this instance.
@@ -110,8 +109,7 @@ module Travis
             :username => 'vagrant',
             :private_key_path => File.expand_path('keys/vagrant'),
             :buffer => Travis::Worker.config.shell.buffer,
-            :timeouts => Travis::Worker.config.timeouts,
-            :logger => Logger.new(name)
+            :timeouts => Travis::Worker.config.timeouts
           )
         end
 

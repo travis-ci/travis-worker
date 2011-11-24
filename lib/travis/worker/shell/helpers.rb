@@ -56,6 +56,10 @@ module Travis
           result
         end
 
+        def echo(output)
+          buffer << output
+        end
+
         def terminate(message)
           execute("sudo shutdown -n now #{message}")
         end

@@ -5,13 +5,14 @@ describe Manager do
   let(:names)    { %w(worker-1 worker-2)}
   let(:commands) { stub('commands', :subscribe => nil) }
   let(:amqp)     { stub('amqp', :connect => nil, :disconnect => nil, :commands => commands) }
-  let(:logger)   { Logger.new('manager', StringIO.new)}
-  let(:manager)  { Manager.new(names, amqp, logger, {}) }
+  let(:manager)  { Manager.new(names, amqp, {}) }
 
-  let(:queues)  { %w(builds reporting.jobs) }
-  let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
+  let(:queues)   { %w(builds reporting.jobs) }
+  let(:workers)  { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
+  let(:io)       { StringIO.new }
 
   before :each do
+    Travis.logger = Logger.new(io)
     Worker.stubs(:create).returns(*workers)
     manager.stubs(:quit)
   end
@@ -43,7 +44,7 @@ describe Manager do
     describe 'logging' do
       it 'should log starting the workers' do
         manager.start
-        logger.io.string.should =~ /start/
+        io.string.should =~ /start/
       end
     end
   end
@@ -82,7 +83,7 @@ describe Manager do
     describe 'logging' do
       it 'should log stopping the workers' do
         manager.stop
-        logger.io.string.should =~ /stop/
+        io.string.should =~ /stop/
       end
     end
   end
