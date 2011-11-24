@@ -9,6 +9,7 @@ module Travis
       include Logging
 
       def boot(workers = [])
+        setup
         install_signal_traps
         manager.start(workers)
         consume_commands
@@ -31,6 +32,10 @@ module Travis
       end
 
       protected
+
+        def setup
+          Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
+        end
 
         def manager
           @manager ||= Manager.create
