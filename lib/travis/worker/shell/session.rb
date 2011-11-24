@@ -20,7 +20,7 @@ module Travis
         #         a block is provided then the session will be started, block evaluated,
         #         and then the session will be closed.
         def initialize(name, config)
-          @name = config.delete(:name)
+          @name = name
           @config = Hashr.new(config)
           @shell = nil
 
