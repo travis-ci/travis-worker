@@ -3,9 +3,12 @@ module Travis
     class Reporter
       include Logging
 
-      attr_reader :exchange
+      log_header { "reporter:#{name}" }
 
-      def initialize(exchange)
+      attr_reader :name, :exchange
+
+      def initialize(name, exchange)
+        @name = name
         @exchange = exchange
       end
 

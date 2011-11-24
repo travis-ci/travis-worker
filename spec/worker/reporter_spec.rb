@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Worker::Reporter do
-  let(:reporter) { Worker::Reporter.new(exchange) }
+  let(:reporter) { Worker::Reporter.new('staging-1', exchange) }
   let(:exchange) { stub('exchange', :publish => nil) }
   let(:event)    { stub('event', :name => 'build:started', :data => { :foo => :bar } ) }
   let(:logger)   { stub('logger', :before => nil, :after => nil) }

@@ -22,7 +22,7 @@ module Travis
         end
 
         def reporter
-          Reporter.new(Amqp::Publisher.reporting)
+          Reporter.new(name, Amqp::Publisher.reporting)
         end
 
         def config
