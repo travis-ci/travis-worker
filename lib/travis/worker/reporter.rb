@@ -19,7 +19,7 @@ module Travis
       def message(type, data)
         exchange.publish(data, :properties => { :type => type.to_s })
       end
-      log :message
+      log :message, :as => :debug
     end
   end
 end
