@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'travis-build', :git => 'git://github.com/travis-ci/travis-build.git', :ref => 'extract-logging'
+gem 'travis-build', :git => 'git://github.com/travis-ci/travis-build.git'
 
 gem 'vagrant',       '~> 0.8.0'
 gem 'rake',          '~> 0.9.2'
