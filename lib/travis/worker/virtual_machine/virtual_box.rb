@@ -133,7 +133,7 @@ module Travis
         # Returns true.
         def prepare
           if requires_snapshot?
-            log "Preparing vm #{name} ..."
+            info "Preparing vm #{name} ..."
             restart { immutate }
             wait_for_boot
             pause
