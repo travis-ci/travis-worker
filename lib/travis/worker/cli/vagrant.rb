@@ -65,9 +65,11 @@ module Travis
             run "cp ../travis-boxes/boxes/travis-#{env}.box boxes" # TODOdon't copy if files are identical
           end
 
-          # def download
-          #   run "wget http://files.vagrantup.com/#{from}.box" unless File.exists?("#{from}.box")
-          # end
+          def download
+            unless File.exists?("boxes/travis-#{env}.box")
+              run "wget http://files.travis-ci.org/boxes/provisioned/travis-#{env}.box -P boxes"
+            end
+          end
 
           def add_box
             run "vagrant box add travis-#{env} #{base}"
