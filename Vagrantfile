@@ -1,5 +1,6 @@
 $: << 'lib'
 require 'yaml'
+require 'bundle/setup'
 require 'travis/worker'
 
 config = Travis::Worker.config.vms
