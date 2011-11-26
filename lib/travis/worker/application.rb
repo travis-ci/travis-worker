@@ -65,7 +65,7 @@ module Travis
             return MultiJson.decode(payload)
           end
         end
-        log :request
+        log :request, :as => :debug
 
         def install_signal_traps
           Signal.trap('INT')  { manager.quit }
