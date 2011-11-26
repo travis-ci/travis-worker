@@ -1,0 +1,8 @@
+queue: builds.php
+shell:
+  buffer: 1.0
+timeouts:
+  before_install: 600
+  install: 600
+  before_script: 600
+  script: 720

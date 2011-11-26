@@ -1,3 +1,9 @@
 queue: builds.rails
+timeouts:
+  before_install: 300
+  install: 600
+  before_script: 600
+  script: 2700
+  after_script: 60
 shell:
-  buffer: 2.0
+  buffer: 1.0

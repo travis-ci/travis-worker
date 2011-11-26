@@ -1,9 +1,3 @@
-timeouts:
-  before_install: 300
-  install: 600
-  before_script: 600
-  script: 7200
-  after_script: 60
 vms:
   vbox_home: '/Applications/VirtualBox.app/Contents/MacOS'
 
