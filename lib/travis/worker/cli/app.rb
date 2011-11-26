@@ -76,7 +76,7 @@ module Travis
             puts "Current worker states:\n\n" # TODO extract a formatter
             puts reports.map { |worker, report|
               line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
-              line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.payload.try(:repository?)
+              line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.payload? && report.payload.repository?
               line += " (#{report.last_error})" if report.state == "errored"
               line
             }
