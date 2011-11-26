@@ -1,4 +1,4 @@
-queue: builds.node
+queue: builds.node_js
 shell:
   buffer: 1.0
 timeouts:
