@@ -227,7 +227,7 @@ module Travis
 
           def snapshot
             with_session do |session|
-              session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now}")
+              session.console.take_snapshot('sandbox', "#{machine.get_name} sandbox snapshot taken at #{Time.now.utc}")
             end
             sleep(3) # this makes sure the snapshot is finished and ready
           end

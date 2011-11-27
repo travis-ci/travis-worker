@@ -72,7 +72,7 @@ module Travis
             reports = Hashr.new(reports)
             max_length = reports.keys.map(&:to_s).max_by { |name| name.length }.length
 
-            puts "#{Time.now}\n"
+            puts "#{Time.now.utc}\n"
             puts "Current worker states:\n\n" # TODO extract a formatter
             puts reports.map { |worker, report|
               line = "#{"#{worker}:".ljust(max_length)} #{report.state}"
