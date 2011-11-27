@@ -8,7 +8,7 @@ gem 'thor',          '~> 0.14.6'
 
 gem 'faraday',       '~> 0.7.5'
 gem 'simple_states', '~> 0.1.0.pre1'
-gem 'hashr',         '~> 0.0.17'
+gem 'hashr',         '~> 0.0.18'
 gem 'multi_json',    '~> 1.0.3'
 gem 'json'
 
