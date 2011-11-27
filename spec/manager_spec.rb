@@ -5,7 +5,7 @@ describe Manager do
   let(:names)    { %w(worker-1 worker-2)}
   let(:commands) { stub('commands', :subscribe => nil) }
   let(:amqp)     { stub('amqp', :connect => nil, :disconnect => nil, :commands => commands) }
-  let(:manager)  { Manager.new(names, amqp, {}) }
+  let(:manager)  { Manager.new(names, amqp, Travis::Worker.config) }
 
   let(:queues)   { %w(builds reporting.jobs) }
   let(:workers)  { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }

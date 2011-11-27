@@ -12,7 +12,7 @@ module Travis
       include Logging
 
       def self.create
-        Manager.new(Travis::Worker.names, Amqp, Travis::Worker.config) # Logger.new('manager'), 
+        Manager.new(Travis::Worker.names, Amqp, Travis::Worker.config) # Logger.new('manager'),
       end
 
       attr_reader :names, :amqp, :config
@@ -48,6 +48,10 @@ module Travis
         workers.inject({}) do |result, worker|
           result.merge(worker.name => worker.report)
         end
+      end
+
+      def set(config)
+        config.each { |path, value| self.config.set(path, value) }
       end
 
       def quit

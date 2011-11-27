@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe Travis::Worker::Config do
   before(:each) do
     Travis::Worker::Config.send :public, *Travis::Worker::Config.protected_instance_methods
@@ -38,7 +37,7 @@ describe Travis::Worker::Config do
     config.vms.count.should eql 5
   end
 
-  context :defaults do
+  describe :defaults do
     it 'before_script timeout defaults to 120' do
       config.timeouts.before_script.should == 300
     end
@@ -71,6 +70,13 @@ describe Travis::Worker::Config do
 
     it 'vms.recipes? defaults to false' do
       config.vms.recipes?.should be_false
+    end
+  end
+
+  describe 'set' do
+    it 'sets a value to a dot-separated path' do
+      config.set('foo.bar', 'baz' => 'buz')
+      config.foo.bar.baz.should == 'buz'
     end
   end
 end

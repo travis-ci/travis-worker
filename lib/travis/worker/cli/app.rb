@@ -14,6 +14,13 @@ module Travis
           app.boot(workers)
         end
 
+        # desc 'reboot', 'Reboot the manager and workers'
+        # method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
+        # def reboot
+        #   terminate
+        #   would need a control process or daemon for this
+        # end
+
         desc 'terminate', 'Stop all workers and the manager'
         method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
         def terminate
@@ -38,6 +45,16 @@ module Travis
           watching do
             print_status(app.status)
           end
+        end
+
+        desc 'config', 'Show the current Travis::Worker.config'
+        def config
+          p app.config
+        end
+
+        desc 'set', 'Set a value to Travis::Worker.config using a dot-separated path'
+        def set(expression)
+          app.set(parse(expression))
         end
 
         protected
@@ -81,6 +98,12 @@ module Travis
               line
             }
             puts
+          end
+
+          def parse(expression)
+            raise "the given argument needs to have the format dot.separated.path=value" unless expression =~ /[^=]+=[^=]+/
+            path, value = expression.split('=')
+            { path => eval(value) }
           end
       end
     end
