@@ -3,7 +3,6 @@ source :rubygems
 gem 'travis-build', :git => 'git://github.com/travis-ci/travis-build.git'
 
 gem 'vagrant',       '~> 0.8.0'
-gem 'rake',          '~> 0.9.2'
 gem 'thor',          '~> 0.14.6'
 
 gem 'faraday',       '~> 0.7.5'
@@ -19,6 +18,7 @@ platform :jruby do
 end
 
 group :test do
+  gem 'rake',          '~> 0.9.2'
   gem 'mocha'
   gem 'rspec'
   gem 'simplecov', '>= 0.4.0', :require => false
