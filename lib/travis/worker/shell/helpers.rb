@@ -8,6 +8,11 @@ module Travis
           execute(*["export #{name}=#{value}", options].compact) if name
         end
 
+        def export_line(line, options = nil)
+          execute(*["export #{line}", options].compact) if line
+        end
+
+
         def chdir(dir)
           execute("mkdir -p #{dir}", :echo => false)
           execute("cd #{dir}")

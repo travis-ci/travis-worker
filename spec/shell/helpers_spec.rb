@@ -9,9 +9,21 @@ describe Shell::Helpers do
       shell.export('FOO', 'bar')
     end
 
-    it 'exports a shell variable (no options given)' do
+    it 'exports a shell variable (options given)' do
       shell.expects(:execute).with('export FOO=bar', :echo => true)
       shell.export('FOO', 'bar', :echo => true)
+    end
+  end
+
+  describe 'export_line' do
+    it 'exports a shell variable (no options given)' do
+      shell.expects(:execute).with('export TEST_WITH="ruby -I. test/ci"')
+      shell.export_line('TEST_WITH="ruby -I. test/ci"')
+    end
+
+    it 'exports multiple shell variable (options given)' do
+      shell.expects(:execute).with('export FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
+      shell.export_line('FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
     end
   end
 
