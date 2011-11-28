@@ -89,6 +89,10 @@ describe Manager do
   end
 
   describe 'terminate' do
+    before :each do
+      manager.stubs(:reboot)
+    end
+
     it 'stops all workers with the given options' do
       manager.expects(:stop).with(:force => true)
       manager.terminate(:force => true)
@@ -102,6 +106,11 @@ describe Manager do
     it 'quits the application' do
       manager.expects(:quit)
       manager.terminate
+    end
+
+    it 'reboots the application if given :reboot => true' do
+      manager.expects(:reboot)
+      manager.terminate(:reboot => true)
     end
   end
 end

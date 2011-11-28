@@ -1,3 +1,5 @@
+require 'java'
+
 module Travis
   module Worker
     class WorkerNotFound < Exception
@@ -40,6 +42,7 @@ module Travis
       def terminate(options = {})
         stop(options)
         disconnect
+        reboot if options[:reboot]
         quit
       end
       log :terminate
@@ -55,15 +58,10 @@ module Travis
       end
 
       def quit
-        java.lang.Thread.sleep(500)
         java.lang.System.exit(0)
       end
 
       protected
-
-        def disconnect
-          amqp.disconnect
-        end
 
         def workers
           @workers ||= names.map { |name| Worker.create(name, config) }
@@ -71,6 +69,15 @@ module Travis
 
         def worker(name)
           workers.detect { |worker| worker.name == name } || raise(WorkerNotFound.new(name))
+        end
+
+        def disconnect
+          amqp.disconnect
+          java.lang.Thread.sleep(500)
+        end
+
+        def reboot
+          system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
         end
     end
   end
