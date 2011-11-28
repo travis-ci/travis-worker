@@ -15,3 +15,4 @@ vendor/amqp
 #*
 .yardoc/*
 coverage/*
+play/*
