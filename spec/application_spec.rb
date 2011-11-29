@@ -4,8 +4,10 @@ require 'stringio'
 describe Travis::Worker::Application do
   let(:app)     { Travis::Worker::Application.new }
   let(:workers) { stub('workers', :start => nil, :stop => nil) }
+  let(:heart)   { stub('heart', :beat => nil, :stop => nil) }
 
   before :each do
+    app.stubs(:heart).returns(heart)
     app.stubs(:workers).returns(workers)
     app.stubs(:logger).returns(Logger.new(StringIO.new))
     Travis::Worker::Application::Command.stubs(:subscribe)
@@ -30,6 +32,11 @@ describe Travis::Worker::Application do
     it 'starts the given workers' do
       workers.expects(:start).with(['worker-1'])
       app.boot(:workers => ['worker-1'])
+    end
+
+    it 'starts the heartbeat' do
+      heart.expects(:beat)
+      app.boot
     end
 
     it 'subscribes to the command queue' do
@@ -88,6 +95,11 @@ describe Travis::Worker::Application do
       app.terminate
     end
 
+    it 'stops the heartbeat' do
+      heart.expects(:stop)
+      app.terminate
+    end
+
     describe 'given :update => true' do
       it 'resets the current git working directory' do
         app.expects(:system).with('git reset --hard > log/worker.log')
@@ -117,22 +129,6 @@ describe Travis::Worker::Application do
       app.terminate
     end
   end
-
-  # describe 'process' do
-  #   let(:message) { stub('message', :ack => nil, :properties => stub(:message_id => 1)) }
-
-  #   it 'accepts a :stop command and stops' do
-  #     payload = '{ "command": "stop", "workers": ["worker-1", "worker-2"], "force": true }'
-  #     manager.expects(:stop).with(:workers => %w(worker-1 worker-2), :force => true)
-  #     application.send(:process, message, payload)
-  #   end
-
-  #   it 'accepts a :config command and fetches the config' do
-  #     payload = '{ "command": "config" }'
-  #     manager.expects(:config).with()
-  #     application.send(:process, message, payload)
-  #   end
-  # end
 
   describe 'logging' do
     let(:io) { StringIO.new }

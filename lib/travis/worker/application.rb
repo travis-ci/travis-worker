@@ -4,6 +4,7 @@ module Travis
   class Worker
     class Application
       autoload :Command, 'travis/worker/application/command'
+      autoload :Heart,   'travis/worker/application/heart'
       autoload :Remote,  'travis/worker/application/remote'
 
       include Logging
@@ -12,6 +13,7 @@ module Travis
         setup
         install_signal_traps
         start(options)
+        heart.beat
         Command.subscribe(self)
       end
       log :boot
@@ -53,6 +55,10 @@ module Travis
           @workers ||= Pool.create
         end
 
+        def heart
+          @heart ||= Heart.new { workers.status }
+        end
+
         def setup
           Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
         end
@@ -81,6 +87,7 @@ module Travis
         end
 
         def disconnect
+          heart.stop
           Amqp.disconnect
           sleep(0.5)
         end

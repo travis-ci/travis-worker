@@ -18,6 +18,11 @@ module Travis
           def replies
             new('replies') # TODO can't create a queue worker.replies?
           end
+
+          def status
+            new('reporting.jobs')
+            # new('worker.status') # TODO Amqp in travis-core is still fucked
+          end
         end
 
         attr_reader :routing_key, :options

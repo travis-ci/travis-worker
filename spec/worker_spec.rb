@@ -6,7 +6,6 @@ describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter') }
-  let(:heart)        { stub('heart', :beat => nil, :stop => nil) }
   let(:config)       { Hashr.new }
   let(:worker)       { Travis::Worker.new('worker-1', vm, queue, reporter, config) }
 
@@ -27,12 +26,6 @@ describe Travis::Worker do
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
       worker.start
       state.should == :starting
-    end
-
-    it 'starts the heartbeat' do
-      worker.stubs(:heart).returns(heart)
-      heart.expects(:beat)
-      worker.start
     end
 
     it 'prepares the vm' do

@@ -12,7 +12,6 @@ module Travis
     autoload :Application,    'travis/worker/application'
     autoload :Config,         'travis/worker/config'
     autoload :Factory,        'travis/worker/factory'
-    autoload :Heart,          'travis/worker/heart'
     autoload :Pool,           'travis/worker/pool'
     autoload :Reporter,       'travis/worker/reporter'
     autoload :Shell,          'travis/worker/shell'
@@ -60,7 +59,6 @@ module Travis
     def start
       self.state = :starting
       vm.prepare
-      heart.beat # TODO move this to the application
       self.state = :ready
       queue.subscribe(:ack => true, :blocking => false, &method(:process))
     end
@@ -127,10 +125,6 @@ module Travis
 
       def host
         Travis::Worker.hostname
-      end
-
-      def heart
-        @heart ||= Heart.new { reporter.message(:'worker:ping', report) }
       end
 
       def decode(payload)
