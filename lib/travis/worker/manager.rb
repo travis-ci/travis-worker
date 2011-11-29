@@ -93,7 +93,7 @@ module Travis
           #
           # on mac osx atd is disabled:
           # http://superuser.com/questions/43678/mac-os-x-at-command-not-working
-          system('echo "sh -c thor travis:worker:boot >> log/worker.log" | at now')
+          system('echo "thor travis:worker:boot >> log/worker.log" | at now')
           info "reboot scheduled"
         end
 
