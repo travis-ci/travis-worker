@@ -1,5 +1,5 @@
 module Travis
-  module Worker
+  class Worker
     class Application
       class Remote
         include Logging

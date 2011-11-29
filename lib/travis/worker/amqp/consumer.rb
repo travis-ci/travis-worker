@@ -2,7 +2,7 @@ require 'hot_bunnies'
 require 'hashr'
 
 module Travis
-  module Worker
+  class Worker
     module Amqp
       class Consumer
         class << self

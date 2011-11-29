@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Shell::Helpers do
-  let(:shell) { Class.new { include Shell::Helpers }.new }
+describe Travis::Worker::Shell::Helpers do
+  let(:shell) { Class.new { include Travis::Worker::Shell::Helpers }.new }
 
   describe 'export' do
     it 'exports a shell variable (no options given)' do

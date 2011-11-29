@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Shell::Buffer do
+describe Travis::Worker::Shell::Buffer do
   it 'buffers' do
     result = []
-    buffer = Shell::Buffer.new { |data| result << data }
+    buffer = Travis::Worker::Shell::Buffer.new { |data| result << data }
 
     buffer << 'foo'
     buffer << 'bar'

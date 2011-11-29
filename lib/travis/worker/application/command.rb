@@ -3,29 +3,28 @@ require 'json'
 require 'multi_json'
 
 module Travis
-  module Worker
+  class Worker
     class Application
       class Command < Hashr
         class << self
           def subscribe(subscriber)
             Amqp::Consumer.commands.subscribe do |message, payload|
-              Command.new(subscriber.manager, message, payload)
+              new(subscriber, message, payload).process
             end
           end
         end
 
         attr_reader :target, :command, :message
 
-        def intialize(target, message, payload)
-          payload  = MultiJson.decode(payload)
+        def initialize(target, message, payload)
+          super(MultiJson.decode(payload))
           @target  = target
           @message = message
-          @command = payload.delete(:command)
-          super(payload)
+          @command = delete(:command)
         end
 
         def process
-          reply(target.send(command, *args, &method(:reply)))
+          reply(target.send(command, *args)) # , &method(:reply)
         rescue Exception => e
           puts e.message, e.backtrace
         end

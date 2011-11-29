@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Worker::Reporter do
-  let(:reporter) { Worker::Reporter.new('staging-1', exchange) }
+describe Travis::Worker::Reporter do
+  let(:reporter) { Travis::Worker::Reporter.new('staging-1', exchange) }
   let(:exchange) { stub('exchange', :publish => nil) }
   let(:event)    { stub('event', :name => 'build:started', :data => { :foo => :bar } ) }
   let(:logger)   { stub('logger', :before => nil, :after => nil) }
@@ -25,4 +25,3 @@ describe Worker::Reporter do
     end
   end
 end
-

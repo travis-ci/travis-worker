@@ -1,33 +1,98 @@
 require 'hot_bunnies'
 
 module Travis
-  module Worker
+  class Worker
     class Application
       autoload :Command, 'travis/worker/application/command'
       autoload :Remote,  'travis/worker/application/remote'
 
       include Logging
 
-      def boot(workers = [])
+      def boot(options = {})
         setup
         install_signal_traps
-        manager.start(workers)
+        start(options)
         Command.subscribe(self)
       end
+      log :boot
+
+      def start(options = {})
+        workers.start(options[:workers] || [])
+      end
+      log :start
+
+      def stop(options = {})
+        workers.stop(options.delete(:workers) || [], options)
+      end
+      log :stop
+
+      def status(*)
+        workers.status
+      end
+
+      def set(config)
+        config.each { |path, value| self.config.set(path, value) }
+      end
+
+      def terminate(options = {})
+        stop(options)
+        disconnect
+        update if options[:update]
+        reboot if options[:reboot]
+        quit
+      end
+      log :terminate
 
       protected
+
+        def config
+          Travis::Worker.config
+        end
+
+        def workers
+          @workers ||= Pool.create
+        end
 
         def setup
           Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
         end
 
-        def manager
-          @manager ||= Manager.create
+        def update
+          execute <<-sh
+            git reset --hard
+            git pull
+            bundle install
+          sh
+        end
+        log :update
+
+        def reboot
+          # unfortunately fork is not available on jruby
+          # system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
+          system('echo "thor travis:worker:boot >> log/worker.log" | at now')
+          info "reboot scheduled"
+        end
+
+        def execute(commands)
+          commands.split("\n").each do |command|
+            info(command.strip)
+            system("#{command.strip} > log/worker.log")
+          end
+        end
+
+        def disconnect
+          Amqp.disconnect
+          sleep(0.5)
+        end
+        log :disconnect
+
+        def quit
+          java.lang.System.exit(0)
         end
 
         def install_signal_traps
-          Signal.trap('INT')  { manager.quit }
-          Signal.trap('TERM') { manager.quit }
+          Signal.trap('INT')  { quit }
+          Signal.trap('TERM') { quit }
         end
     end
   end

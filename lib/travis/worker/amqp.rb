@@ -14,7 +14,7 @@ module HotBunnies
 end
 
 module Travis
-  module Worker
+  class Worker
     module Amqp
       autoload :Consumer,  'travis/worker/amqp/consumer'
       autoload :Publisher, 'travis/worker/amqp/publisher'

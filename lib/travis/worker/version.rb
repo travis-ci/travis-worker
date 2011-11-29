@@ -1,5 +1,5 @@
 module Travis
-  module Worker
+  class Worker
     VERSION = "0.2.0"
   end
 end

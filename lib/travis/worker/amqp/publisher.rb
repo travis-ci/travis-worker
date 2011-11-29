@@ -3,7 +3,7 @@ require 'multi_json'
 require 'hashr'
 
 module Travis
-  module Worker
+  class Worker
     module Amqp
       class Publisher
         class << self

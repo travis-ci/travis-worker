@@ -2,13 +2,13 @@ require 'spec_helper'
 require 'hashr'
 require 'stringio'
 
-describe Worker do
+describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter') }
   let(:heart)        { stub('heart', :beat => nil, :stop => nil) }
   let(:config)       { Hashr.new }
-  let(:worker)       { Worker.new('worker-1', vm, queue, reporter, config) }
+  let(:worker)       { Travis::Worker.new('worker-1', vm, queue, reporter, config) }
 
   let(:message)      { stub('message', :ack => nil) }
   let(:payload)      { '{ "id": 1 }' }

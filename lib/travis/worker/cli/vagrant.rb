@@ -4,9 +4,8 @@ require 'json'
 require 'travis/worker'
 
 module Travis
-  module Worker
+  class Worker
     module Cli
-
       class Vagrant < Thor
         namespace "travis:vms"
 
@@ -21,11 +20,8 @@ module Travis
 
         def update
           vbox.reset if options[:reset]
-
           remove_base_box
-
           options[:local] ? local : download
-
           add_box
           exit unless up
           halt
@@ -91,7 +87,6 @@ module Travis
             run "vagrant destroy #{name}"
           end
       end
-
     end
   end
 end

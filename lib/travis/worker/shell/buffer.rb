@@ -1,5 +1,5 @@
 module Travis
-  module Worker
+  class Worker
     module Shell
       class Buffer < String
         attr_reader :interval, :callback

@@ -1,7 +1,7 @@
 require 'shellwords'
 
 module Travis
-  module Worker
+  class Worker
     module Shell
       module Helpers
         def export(name, value, options = nil)

@@ -1,5 +1,5 @@
 module Travis
-  module Worker
+  class Worker
     class Reporter
       include Logging
 

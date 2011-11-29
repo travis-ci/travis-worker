@@ -14,7 +14,6 @@ require 'stringio'
 FIXTURES = {}
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| load f}
 
-include Travis::Worker
 include Mocha::API
 
 RSpec.configure do |config|

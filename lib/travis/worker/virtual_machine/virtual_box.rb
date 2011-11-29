@@ -23,7 +23,7 @@ java_import 'java.io.BufferedReader'
 java_import 'java.io.InputStreamReader'
 
 module Travis
-  module Worker
+  class Worker
     module VirtualMachine
       class VmNotFound < StandardError; end
 

@@ -1,7 +1,7 @@
 require "thor"
 
 module Travis
-  module Worker
+  class Worker
     module Cli
       class Vbox < Thor
         namespace "travis:worker:virtualbox"

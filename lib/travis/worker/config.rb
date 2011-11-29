@@ -2,7 +2,7 @@ require 'yaml'
 require 'hashr'
 
 module Travis
-  module Worker
+  class Worker
     class Config < Hashr
       module Vms
         def count
