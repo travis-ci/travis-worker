@@ -42,6 +42,7 @@ module Travis
       def terminate(options = {})
         stop(options)
         disconnect
+        update if options[:update]
         reboot if options[:reboot]
         quit
       end
@@ -75,9 +76,32 @@ module Travis
           amqp.disconnect
           java.lang.Thread.sleep(500)
         end
+        log :disconnect
+
+        def update
+          execute <<-sh
+            git reset --hard
+            git pull
+            bundle install
+          sh
+        end
+        log :update
 
         def reboot
-          system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
+          # unfortunately fork is not available on jruby
+          # system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
+          #
+          # on mac osx atd is disabled:
+          # http://superuser.com/questions/43678/mac-os-x-at-command-not-working
+          system('echo "sh -c thor travis:worker:boot >> log/worker.log" | at now')
+          info "reboot scheduled"
+        end
+
+        def execute(commands)
+          commands.split("\n").each do |command|
+            info(command.strip)
+            system("#{command.strip} > log/worker.log")
+          end
         end
     end
   end

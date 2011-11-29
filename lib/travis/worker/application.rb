@@ -73,24 +73,26 @@ module Travis
         def request(command, payload = {}, options = { :reply => true})
           Amqp::Publisher.commands.publish(payload.merge(:command => command), :reply_to => 'replies')
 
-          @timeout = Thread.new do
-            sleep(1)
-            puts 'Timed out after 5 seconds without any reply'
-            # TODO why does this not work?
-            # Amqp::Publisher.commands.unsubscribe
-            # sleep(0.5)
-            # Amqp.disconnect
-            java.lang.System.exit(0)
+          if options[:reply]
+            @timeout = Thread.new do
+              sleep(5)
+              puts 'Timed out after 5 seconds without any reply'
+              # TODO why does this not work?
+              # Amqp::Publisher.commands.unsubscribe
+              # sleep(0.5)
+              # Amqp.disconnect
+              java.lang.System.exit(0)
+            end
+
+            # TODO why does this not work? throws https://gist.github.com/f5c2c338cab1eeb6c59b
+            # Amqp::Consumer.replies.subscribe(:blocking => true, &method(:handle_reply)) if options[:reply]
+
+            Amqp::Consumer.replies.subscribe(:blocking => true) do |message, payload|
+              @timeout.kill
+              Amqp.disconnect
+              return MultiJson.decode(payload)
+            end
           end
-
-          # TODO why does this not work? throws https://gist.github.com/f5c2c338cab1eeb6c59b
-          # Amqp::Consumer.replies.subscribe(:blocking => true, &method(:handle_reply)) if options[:reply]
-
-          Amqp::Consumer.replies.subscribe(:blocking => true) do |message, payload|
-            @timeout.kill
-            Amqp.disconnect
-            return MultiJson.decode(payload)
-          end if options[:reply]
         end
         log :request, :as => :debug
 

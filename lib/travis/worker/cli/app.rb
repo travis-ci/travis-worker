@@ -14,12 +14,17 @@ module Travis
           app.boot(workers)
         end
 
-        # desc 'reboot', 'Reboot the manager and workers'
-        # method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
-        # def reboot
-        #   terminate
-        #   would need a control process or daemon for this
-        # end
+        desc 'reboot', 'Reboot the manager and workers'
+        method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
+        def reboot
+          app.terminate(:force => options['force'], :reboot => true)
+        end
+
+        desc 'update', 'Update the worker code and reboot the manager and workers'
+        method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
+        def update
+          app.terminate(:force => options['force'], :reboot => true, :update => true)
+        end
 
         desc 'terminate', 'Stop all workers and the manager'
         method_option :force,  :aliases => '-f', :type => :boolean, :default => false, :desc => 'Forcefully terminate the current build(s)'
@@ -29,6 +34,12 @@ module Travis
 
         desc 'start', 'Start workers'
         def start(*workers)
+          app.start(workers)
+        end
+
+        desc 'resart', 'Restart workers (forcefully terminates current builds)'
+        def restart(*workers)
+          app.stop(workers, :force => true)
           app.start(workers)
         end
 
