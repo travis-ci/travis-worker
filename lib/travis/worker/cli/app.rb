@@ -37,7 +37,7 @@ module Travis
           app.start(workers)
         end
 
-        desc 'resart', 'Restart workers (forcefully terminates current builds)'
+        desc 'restart', 'Restart workers (forcefully terminates current builds)'
         def restart(*workers)
           app.stop(workers, :force => true)
           app.start(workers)
@@ -71,7 +71,7 @@ module Travis
         protected
 
           def app
-            @app ||= Travis::Worker::Application.new
+            @app ||= Travis::Worker::Application::Remote.new
           end
 
           def preload_constants!
