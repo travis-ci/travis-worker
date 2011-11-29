@@ -1,5 +1,6 @@
 require 'yaml'
 require 'hashr'
+require 'socket'
 
 module Travis
   class Worker
@@ -29,6 +30,18 @@ module Travis
              :shell     => { :buffer => 0 },
              :timeouts  => { :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 120 },
              :vms       => { :count => 1, :_include => Vms }
+
+      def name # TODO move these to config
+        @name ||= host.split('.').first
+      end
+
+      def host
+        @host ||= Socket.gethostname
+      end
+
+      def names
+        VirtualMachine::VirtualBox.vm_names
+      end
 
       def initialize
         super(read)

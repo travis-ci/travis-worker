@@ -1,4 +1,3 @@
-require 'socket'
 require 'simple_states'
 require 'multi_json'
 require 'thread'
@@ -20,18 +19,6 @@ module Travis
     class << self
       def config
         @config ||= Config.new
-      end
-
-      def name # TODO move these to config
-        @name ||= hostname.split('.').first
-      end
-
-      def hostname
-        @hostname ||= Socket.gethostname
-      end
-
-      def names
-        VirtualMachine::VirtualBox.vm_names
       end
     end
 
@@ -124,7 +111,7 @@ module Travis
       log :error
 
       def host
-        Travis::Worker.hostname
+        Travis::Worker.config.host
       end
 
       def decode(payload)

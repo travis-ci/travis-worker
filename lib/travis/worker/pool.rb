@@ -10,7 +10,7 @@ module Travis
   class Worker
     class Pool
       def self.create
-        new(Travis::Worker.names, Travis::Worker.config)
+        new(Travis::Worker.config.names, Travis::Worker.config)
       end
 
       attr_reader :names, :config

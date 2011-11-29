@@ -164,7 +164,7 @@ module Travis
         end
 
         def full_name
-          "#{Travis::Worker.hostname}:#{name}"
+          "#{Travis::Worker.config.host}:#{name}"
         end
 
         def logging_header

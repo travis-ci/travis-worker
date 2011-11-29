@@ -31,6 +31,21 @@ describe Travis::Worker::Config do
     config.read['bar'].should eql 'bar'
   end
 
+  it 'name returns the first part of the host name' do
+    Socket.stubs(:gethostname).returns('test-1.worker.travis-ci.org')
+    config.name.should == 'test-1'
+  end
+
+  it 'host return the machine hostname' do
+    Socket.stubs(:gethostname).returns('test-1.worker.travis-ci.org')
+    config.host.should == 'test-1.worker.travis-ci.org'
+  end
+
+  it 'names returns the vm names' do
+    Travis::Worker::VirtualMachine::VirtualBox.stubs(:vm_names).returns(%w(worker-1))
+    config.names.should == %w(worker-1)
+  end
+
   it 'vms includes the Vms module' do
     Travis::Worker::Config.any_instance.stubs(:read_yml).returns({ 'vms' => { 'count' => 5 } })
     config.vms.meta_class.included_modules.include?(Travis::Worker::Config::Vms).should be_true

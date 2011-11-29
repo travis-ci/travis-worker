@@ -11,7 +11,7 @@ module Travis
           end
 
           def commands
-            new("worker.commands.#{Travis::Worker.name}")
+            new("worker.commands.#{Travis::Worker.config.name}")
           end
 
           def replies
