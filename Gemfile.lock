@@ -6,7 +6,7 @@ GIT
 
 GIT
   remote: git://github.com/travis-ci/travis-support.git
-  revision: e6ff77e45b1395bb837b6c29e75fef63e7094f3d
+  revision: e9ac98198bd7671407ab762d9061bb605e278e63
   specs:
     travis-support (0.0.1)
 
@@ -36,7 +36,7 @@ GEM
     metaclass (0.0.1)
     mocha (0.10.0)
       metaclass (~> 0.0.1)
-    multi_json (1.0.3)
+    multi_json (1.0.4)
     multipart-post (1.1.4)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
