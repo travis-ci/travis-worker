@@ -1,10 +1,12 @@
-PATH
-  remote: ~/Development/projects/travis/travis-build
+GIT
+  remote: git://github.com/travis-ci/travis-build.git
+  revision: c8a0d5c52a53f2ac7c469b969e86d83185a7c4b2
   specs:
     travis-build (0.2.0)
 
-PATH
-  remote: ~/Development/projects/travis/travis-support
+GIT
+  remote: git://github.com/travis-ci/travis-support.git
+  revision: e6ff77e45b1395bb837b6c29e75fef63e7094f3d
   specs:
     travis-support (0.0.1)
 

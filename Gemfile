@@ -1,9 +1,7 @@
 source :rubygems
 
-# gem 'travis-build',   :git => 'git://github.com/travis-ci/travis-build.git'
-# gem 'travis-support', :git => 'git://github.com/travis-ci/travis-support.git'
-gem 'travis-support', :path => '~/Development/projects/travis/travis-support'
-gem 'travis-build',   :path => '~/Development/projects/travis/travis-build'
+gem 'travis-build',   :git => 'git://github.com/travis-ci/travis-build.git'
+gem 'travis-support', :git => 'git://github.com/travis-ci/travis-support.git'
 
 gem 'vagrant',       '~> 0.8.0'
 gem 'thor',          '~> 0.14.6'
