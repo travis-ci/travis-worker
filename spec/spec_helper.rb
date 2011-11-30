@@ -7,7 +7,6 @@ require 'rspec'
 require 'mocha'
 
 require 'travis/worker'
-require 'travis/support'
 require 'logger'
 require 'stringio'
 

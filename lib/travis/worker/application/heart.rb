@@ -7,7 +7,7 @@ module Travis
         def initialize(&block)
           @status = block
           @interval = Travis::Worker.config.heartbeat.interval
-          @exchange = Travis::Worker::Amqp::Publisher.status
+          @exchange = Travis::Amqp::Publisher.status
         end
 
         def beat

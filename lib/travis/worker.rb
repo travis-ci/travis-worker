@@ -7,7 +7,6 @@ require 'travis/support'
 
 module Travis
   class Worker
-    autoload :Amqp,           'travis/worker/amqp'
     autoload :Application,    'travis/worker/application'
     autoload :Config,         'travis/worker/config'
     autoload :Factory,        'travis/worker/factory'

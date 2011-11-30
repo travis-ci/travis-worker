@@ -80,7 +80,7 @@ describe Travis::Worker::Application do
   describe 'terminate' do
     before :each do
       java.lang.System.stubs(:exit)
-      Travis::Worker::Amqp.stubs(:disconnect)
+      Travis::Amqp.stubs(:disconnect)
       app.stubs(:sleep)
       app.stubs(:system)
     end
@@ -91,7 +91,7 @@ describe Travis::Worker::Application do
     end
 
     it 'disconnects from amqp' do
-      Travis::Worker::Amqp.expects(:disconnect)
+      Travis::Amqp.expects(:disconnect)
       app.terminate
     end
 

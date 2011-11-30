@@ -61,6 +61,7 @@ module Travis
 
         def setup
           Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
+          Travis::Amqp.config = config.amqp
         end
 
         def update

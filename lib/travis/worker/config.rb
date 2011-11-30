@@ -31,7 +31,7 @@ module Travis
              :timeouts  => { :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 120 },
              :vms       => { :count => 1, :_include => Vms }
 
-      def name # TODO move these to config
+      def name
         @name ||= host.split('.').first
       end
 

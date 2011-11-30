@@ -1,8 +1,12 @@
-GIT
-  remote: git://github.com/travis-ci/travis-build.git
-  revision: 3800f512704f0b6d70827af7e673f1d2c75ce89c
+PATH
+  remote: ~/Development/projects/travis/travis-build
   specs:
     travis-build (0.2.0)
+
+PATH
+  remote: ~/Development/projects/travis/travis-support
+  specs:
+    travis-support (0.0.1)
 
 GEM
   remote: http://rubygems.org/
@@ -86,4 +90,5 @@ DEPENDENCIES
   simplecov (>= 0.4.0)
   thor (~> 0.14.6)
   travis-build!
+  travis-support!
   vagrant (~> 0.8.0)
