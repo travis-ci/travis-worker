@@ -29,7 +29,7 @@ module Travis
       end
 
       def status
-        workers.inject({}) { |reports, worker| reports.merge(worker.name => worker.report) }
+        workers.map { |worker| worker.report }
       end
 
       protected
