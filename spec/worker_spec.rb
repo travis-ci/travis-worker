@@ -5,7 +5,7 @@ require 'stringio'
 describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
-  let(:reporter)     { stub('reporter') }
+  let(:reporter)     { stub('reporter', :notify => nil) }
   let(:config)       { Hashr.new }
   let(:worker)       { Travis::Worker.new('worker-1', vm, queue, reporter, config) }
 
@@ -16,6 +16,7 @@ describe Travis::Worker do
   let(:io)           { StringIO.new }
 
   before :each do
+    Socket.stubs(:gethostname).returns('host')
     Travis.logger = Logger.new(io)
     Travis::Build.stubs(:create).returns(build)
   end
@@ -26,6 +27,11 @@ describe Travis::Worker do
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
       worker.start
       state.should == :starting
+    end
+
+    it 'notifies the reporter about the :starting state' do
+      reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :starting)
+      worker.start
     end
 
     it 'prepares the vm' do
@@ -42,6 +48,11 @@ describe Travis::Worker do
       worker.start
       worker.should be_ready
     end
+
+    it 'notifies the reporter about the :ready state' do
+      reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :ready)
+      worker.start
+    end
   end
 
   describe 'stop' do
@@ -50,16 +61,36 @@ describe Travis::Worker do
       worker.stop
     end
 
-    it 'sets the current state to :stopping if the worker is still working' do
-      worker.stubs(:working?).returns(true)
-      worker.stop
-      worker.should be_stopping
+    describe 'if the worker is still working' do
+      before :each do
+        worker.stubs(:working?).returns(true)
+      end
+
+      it 'sets the current state to :stopping ' do
+        worker.stop
+        worker.should be_stopping
+      end
+
+      it 'notifies the reporter about the :stopping state' do
+        reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :stopping)
+        worker.stop
+      end
     end
 
-    it 'sets the current state to :stopped if the worker is not working' do
-      worker.stubs(:working?).returns(false)
-      worker.stop
-      worker.should be_stopped
+    describe 'if the worker is not working' do
+      before :each do
+        worker.stubs(:working?).returns(false)
+      end
+
+      it 'sets the current state to :stopped' do
+        worker.stop
+        worker.should be_stopped
+      end
+
+      it 'notifies the reporter about the :stopped state' do
+        reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :stopped)
+        worker.stop
+      end
     end
   end
 

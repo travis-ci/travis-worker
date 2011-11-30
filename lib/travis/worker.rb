@@ -43,18 +43,18 @@ module Travis
     end
 
     def start
-      self.state = :starting
+      set :starting
       vm.prepare
-      self.state = :ready
+      set :ready
       queue.subscribe(:ack => true, :blocking => false, &method(:process))
     end
     log :start
 
     def stop(options = {})
-      self.state = :stopping
+      set :stopping
       queue.unsubscribe
       kill if options[:force]
-      self.state = :stopped unless working?
+      set :stopped unless working?
     end
     log :stop
 
@@ -67,6 +67,11 @@ module Travis
     end
 
     protected
+
+      def set(state)
+        self.state = state
+        reporter.notify('worker:status', report)
+      end
 
       def process(message, payload)
         Thread.current[:log_header] = name
@@ -84,7 +89,7 @@ module Travis
       log :work, :as => :debug
 
       def prepare(payload)
-        self.state = :working
+        set :working
         @payload = decode(payload)
       end
       log :prepare
@@ -92,9 +97,9 @@ module Travis
       def finish(message)
         message.ack
         if working?
-          self.state = :ready
+          set :ready
         elsif stopping?
-          self.state = :stopped
+          set :stopped
         end
         @payload = nil
       end
@@ -105,7 +110,7 @@ module Travis
         log_exception(error)
         message.ack(:requeue => true)
         stop
-        self.state = :errored
+        set :errored
       end
       log :error
 

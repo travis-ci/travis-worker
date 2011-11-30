@@ -19,7 +19,7 @@ module Travis
 
       def message(event, data)
         target = event =~ /worker:*/ ? workers : jobs
-        target.publish(data, :properties => { :type => event.to_s })
+        target.publish(data, :properties => { :type => event })
       end
       log :message, :as => :debug
     end
