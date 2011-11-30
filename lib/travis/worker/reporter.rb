@@ -5,19 +5,21 @@ module Travis
 
       log_header { "reporter:#{name}" }
 
-      attr_reader :name, :exchange
+      attr_reader :name, :jobs, :workers
 
-      def initialize(name, exchange)
+      def initialize(name, jobs, workers)
         @name = name
-        @exchange = exchange
+        @jobs = jobs
+        @workers = workers
       end
 
-      def notify(event)
-        message(event.name, event.data)
+      def notify(event, data)
+        message(event, data)
       end
 
-      def message(type, data)
-        exchange.publish(data, :properties => { :type => type.to_s })
+      def message(event, data)
+        target = event =~ /worker:*/ ? workers : jobs
+        target.publish(data, :properties => { :type => event.to_s })
       end
       log :message, :as => :debug
     end

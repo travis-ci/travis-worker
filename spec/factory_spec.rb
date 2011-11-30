@@ -30,12 +30,20 @@ describe Travis::Worker::Factory do
         worker.reporter.should be_a(Travis::Worker::Reporter)
       end
 
-      it 'has a reporting exchange' do
-        worker.reporter.exchange.should be_a(Travis::Amqp::Publisher)
+      it 'has a jobs exchange exchange' do
+        worker.reporter.jobs.should be_a(Travis::Amqp::Publisher)
       end
 
-      it 'has the reporting key "reporting.jobs"' do
-        worker.reporter.exchange.routing_key.should == 'reporting.jobs'
+      it 'the jobs exchange has the reporting key "reporting.jobs"' do
+        worker.reporter.jobs.routing_key.should == 'reporting.jobs'
+      end
+
+      it 'has a jobs exchange exchange' do
+        worker.reporter.workers.should be_a(Travis::Amqp::Publisher)
+      end
+
+      it 'the workers exchange has the reporting key "reporting.jobs"' do
+        worker.reporter.workers.routing_key.should == 'reporting.workers'
       end
     end
   end
