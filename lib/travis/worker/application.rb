@@ -9,8 +9,12 @@ module Travis
 
       include Logging
 
+      def initialize
+        Travis.logger.level = Logger.const_get(log_level.to_s.upcase) # TODO hrmm ...
+        Travis::Amqp.config = config.amqp
+      end
+
       def boot(options = {})
-        setup
         install_signal_traps
         start(options)
         heart.beat
@@ -59,11 +63,6 @@ module Travis
           @heart ||= Heart.new { workers.status }
         end
 
-        def setup
-          Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
-          Travis::Amqp.config = config.amqp
-        end
-
         def update
           execute <<-sh
             git reset --hard
@@ -83,7 +82,7 @@ module Travis
         def execute(commands)
           commands.split("\n").each do |command|
             info(command.strip)
-            system("#{command.strip} > log/worker.log")
+            system("#{command.strip} >> log/worker.log")
           end
         end
 
