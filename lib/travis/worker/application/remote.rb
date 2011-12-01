@@ -4,6 +4,11 @@ module Travis
       class Remote
         include Logging
 
+        def initialize
+          Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
+          Travis::Amqp.config = Travis::Worker.config.amqp
+        end
+
         def boot(workers = [])
           # TODO use ssh to start the worker app
         end
@@ -40,7 +45,7 @@ module Travis
 
           def request(command, payload = {}, options = {})
             publish(command, payload)
-            listen unless options[:listen] == false
+            options[:listen] == false ? disconnect : listen
           end
           log :request, :as => :debug
 
