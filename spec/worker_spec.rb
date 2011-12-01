@@ -30,7 +30,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :starting state' do
-      reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :starting)
+      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting }])
       worker.start
     end
 
@@ -50,7 +50,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :ready state' do
-      reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :ready)
+      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :ready }])
       worker.start
     end
   end
@@ -72,7 +72,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopping state' do
-        reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :stopping)
+        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopping }])
         worker.stop
       end
     end
@@ -88,7 +88,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopped state' do
-        reporter.expects(:notify).with('worker:status', :name => 'worker-1', :host => 'host', :state => :stopped)
+        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopped }])
         worker.stop
       end
     end
@@ -183,7 +183,7 @@ describe Travis::Worker do
 
     it 'stores the error' do
       worker.send(:error, exception, message)
-      worker.last_error.should == exception
+      worker.last_error.should == "broken\nkaputt.rb"
     end
 
     it 'stops itself' do

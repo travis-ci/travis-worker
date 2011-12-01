@@ -70,7 +70,7 @@ module Travis
 
       def set(state)
         self.state = state
-        reporter.notify('worker:status', report)
+        reporter.notify('worker:status', [report])
       end
 
       def process(message, payload)
