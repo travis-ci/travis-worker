@@ -40,7 +40,7 @@ module Travis
       end
 
       def names
-        VirtualMachine::VirtualBox.vm_names
+        @names ||= VirtualMachine::VirtualBox.vm_names.map { |name| name.gsub(/^travis-/, '') }
       end
 
       def initialize
