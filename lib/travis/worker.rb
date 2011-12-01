@@ -32,12 +32,12 @@ module Travis
     states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
     attr_accessor :state
-    attr_reader :name, :vm, :queue, :reporter, :config, :payload, :last_error
+    attr_reader :name, :vm, :queues, :reporter, :config, :payload, :last_error
 
-    def initialize(name, vm, queue, reporter, config)
+    def initialize(name, vm, queues, reporter, config)
       @name     = name
       @vm       = vm
-      @queue    = queue
+      @queues   = queues
       @reporter = reporter
       @config   = config
     end
@@ -46,13 +46,13 @@ module Travis
       set :starting
       vm.prepare
       set :ready
-      queue.subscribe(:ack => true, :blocking => false, &method(:process))
+      subscribe
     end
     log :start
 
     def stop(options = {})
       set :stopping
-      queue.unsubscribe
+      unsubscribe
       kill if options[:force]
       set :stopped unless working?
     end
@@ -67,6 +67,14 @@ module Travis
     end
 
     protected
+
+      def subscribe
+        queues.each { |queue| queue.subscribe(:ack => true, :blocking => false, &method(:process)) }
+      end
+
+      def unsubscribe
+        queues.each { |queue| queue.unsubscribe }
+      end
 
       def set(state)
         self.state = state

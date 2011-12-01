@@ -9,15 +9,15 @@ module Travis
       end
 
       def worker
-        Worker.new(name, vm, queue, reporter, config)
+        Worker.new(name, vm, queues, reporter, config)
       end
 
       def vm
         VirtualMachine::VirtualBox.new(name)
       end
 
-      def queue
-        Amqp::Consumer.builds
+      def queues
+        [Amqp::Consumer.configure, Amqp::Consumer.builds]
       end
 
       def reporter

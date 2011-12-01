@@ -15,13 +15,13 @@ describe Travis::Worker::Factory do
       worker.vm.should be_a(Travis::Worker::VirtualMachine::VirtualBox)
     end
 
-    describe 'queue' do
-      it 'is an amqp queue' do
-        worker.queue.should be_a(Travis::Amqp::Consumer)
+    describe 'queues' do
+      it 'includes a consumer with the reporting key "builds.configure"' do
+        worker.queues.first.name.should == 'builds.configure'
       end
 
-      it 'has the reporting key "builds"' do
-        worker.queue.name.should == 'builds.common'
+      it 'includes a consumer with the reporting key "builds.common"' do
+        worker.queues.last.name.should == 'builds.common'
       end
     end
 

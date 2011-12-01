@@ -7,7 +7,7 @@ describe Travis::Worker do
   let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter', :notify => nil) }
   let(:config)       { Hashr.new }
-  let(:worker)       { Travis::Worker.new('worker-1', vm, queue, reporter, config) }
+  let(:worker)       { Travis::Worker.new('worker-1', vm, [queue], reporter, config) }
 
   let(:message)      { stub('message', :ack => nil) }
   let(:payload)      { '{ "id": 1 }' }
