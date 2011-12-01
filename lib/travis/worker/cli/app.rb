@@ -101,12 +101,12 @@ module Travis
           end
 
           def print_status(reports)
-            reports = Hashr.new(reports)
-            max_length = reports.keys.map(&:to_s).max_by { |name| name.length }.length
+            max_length = reports.max_by { |report| report['name'].length }['name'].length
 
             puts "#{Time.now.utc}\n"
             puts "Current worker states:\n\n" # TODO extract a formatter
             puts reports.map { |report|
+              report = Hashr.new(report)
               line = "#{"#{report.name}:".ljust(max_length)} #{report.state}"
               line += " (#{report.payload.repository.slug} ##{report.payload.build.number})" if report.payload? && report.payload.repository?
               line += " (#{report.last_error})" if report.state == "errored"
