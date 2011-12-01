@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 $: << 'lib'
+require 'rubygems'
 require 'travis/worker/cli'
 require 'thor/runner'
 
