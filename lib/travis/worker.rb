@@ -106,7 +106,7 @@ module Travis
       log :finish, :params => false
 
       def error(error, message)
-        @last_error = error
+        @last_error = [error.message, error.backtrace].flatten.join("\n")
         log_exception(error)
         message.ack(:requeue => true)
         stop
