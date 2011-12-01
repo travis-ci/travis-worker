@@ -13,7 +13,7 @@ module Travis
       end
 
       def vm
-        VirtualMachine::VirtualBox.new(name)
+        VirtualMachine::VirtualBox.new("travis-#{name}")
       end
 
       def queues
