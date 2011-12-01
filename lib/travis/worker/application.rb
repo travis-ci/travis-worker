@@ -10,7 +10,7 @@ module Travis
       include Logging
 
       def initialize
-        Travis.logger.level = Logger.const_get(log_level.to_s.upcase) # TODO hrmm ...
+        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase) # TODO hrmm ...
         Travis::Amqp.config = config.amqp
       end
 
