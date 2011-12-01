@@ -5,8 +5,8 @@ for broader community of contributors to jump in.
 
 ## Running the worker
 
-    nohup thor travis:worker:boot > log/worker.log&
-    JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup thor travis:worker:boot > log/worker.log&
+    nohup thor travis:worker:boot >> log/worker.log &2>1 &
+    JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup thor travis:worker:boot >> log/worker.log &2>1 &
 
 ## Running the Thor console
 
