@@ -1,6 +1,5 @@
 require 'hashr'
 require 'json'
-require 'multi_json'
 
 module Travis
   class Worker
@@ -34,7 +33,7 @@ module Travis
         end
 
         def reply(result)
-          replies.publish(MultiJson.encode(result), :correlation_id => correlation_id)
+          replies.publish(result, :correlation_id => correlation_id)
         end
 
         def replies
