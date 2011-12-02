@@ -63,7 +63,7 @@ module Travis
     end
 
     def report
-      { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }.compact
+      { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }
     end
 
     protected

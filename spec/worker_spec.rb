@@ -30,7 +30,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :starting state' do
-      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting }])
+      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
       worker.start
     end
 
@@ -50,7 +50,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :ready state' do
-      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :ready }])
+      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil }])
       worker.start
     end
   end
@@ -72,7 +72,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopping state' do
-        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopping }])
+        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil }])
         worker.stop
       end
     end
@@ -88,7 +88,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopped state' do
-        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopped }])
+        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil }])
         worker.stop
       end
     end
