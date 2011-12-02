@@ -90,26 +90,27 @@ module Travis
       end
 
       def work(message, payload)
-        payload = prepare(payload)
-        Build.create(vm, vm.shell, reporter, payload, config).run
+        prepare(payload)
+        Build.create(vm, vm.shell, reporter, self.payload, config).run
         finish(message)
       end
       log :work, :as => :debug
 
       def prepare(payload)
-        set :working
+        @last_error = nil
         @payload = decode(payload)
+        set :working
       end
       log :prepare
 
       def finish(message)
         message.ack
+        @payload = nil
         if working?
           set :ready
         elsif stopping?
           set :stopped
         end
-        @payload = nil
       end
       log :finish, :params => false
 

@@ -82,7 +82,7 @@ module Travis
         def execute(commands)
           commands.split("\n").each do |command|
             info(command.strip)
-            system("#{command.strip} >> log/worker.log")
+            system("#{command.strip} >> log/worker.log &2>1")
           end
         end
 
