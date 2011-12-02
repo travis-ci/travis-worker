@@ -10,7 +10,7 @@ module Travis
 
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
-          # preload_constants!
+          preload_constants!
           app.boot(:workers => workers)
         end
 
