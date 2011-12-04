@@ -75,14 +75,14 @@ module Travis
         def reboot
           # unfortunately fork is not available on jruby
           # system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
-          system('echo "thor travis:worker:boot >> log/worker.log &2>1" | at now')
+          system('echo "thor travis:worker:boot >> log/worker.log 2>&1" | at now')
           info "reboot scheduled"
         end
 
         def execute(commands)
           commands.split("\n").each do |command|
             info(command.strip)
-            system("#{command.strip} >> log/worker.log &2>1")
+            system("#{command.strip} >> log/worker.log 2>&1")
           end
         end
 

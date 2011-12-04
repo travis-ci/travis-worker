@@ -102,24 +102,24 @@ describe Travis::Worker::Application do
 
     describe 'given :update => true' do
       it 'resets the current git working directory' do
-        app.expects(:system).with('git reset --hard >> log/worker.log &2>1')
+        app.expects(:system).with('git reset --hard >> log/worker.log 2>&1')
         app.terminate(:update => true)
       end
 
       it 'updates the code base' do
-        app.expects(:system).with('git pull >> log/worker.log &2>1')
+        app.expects(:system).with('git pull >> log/worker.log 2>&1')
         app.terminate(:update => true)
       end
 
       it 'installs the bundle' do
-        app.expects(:system).with('bundle install >> log/worker.log &2>1')
+        app.expects(:system).with('bundle install >> log/worker.log 2>&1')
         app.terminate(:update => true)
       end
     end
 
     describe 'given :reboot => true' do
       it 'schedules a system job for restarting the application' do
-        app.expects(:system).with('echo "thor travis:worker:boot >> log/worker.log &2>1" | at now')
+        app.expects(:system).with('echo "thor travis:worker:boot >> log/worker.log 2>&1" | at now')
         app.terminate(:reboot => true)
       end
     end
