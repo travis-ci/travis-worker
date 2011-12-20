@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'timeout'
 
 module Travis
   class Worker
@@ -36,10 +37,13 @@ module Travis
         #
         # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
-          command = timetrap(command, :timeout => timeout(options)) if options[:timeout]
           command = echoize(command) unless options[:echo] == false
 
-          exec(command) { |p, data| buffer << data } == 0
+          timetrap(options) do
+            exec(command) { |p, data| buffer << data } == 0
+          end
+        rescue Timeout::Error => e
+          false
         end
 
         # Evaluates a command within the ssh shell, returning the command output.
@@ -87,10 +91,9 @@ module Travis
         #           :timeout - The timeout, in seconds, to be used.
         #
         # Returns the cmd formatted.
-        def timetrap(cmd, options = {})
-          vars, cmd = parse_cmd(cmd)
-          opts = options[:timeout] ? "-t #{options[:timeout]}" : nil
-          [vars, 'timetrap', opts, cmd].compact.join(' ')
+        def timetrap(options = {}, &cmd)
+          secs = timeout(options)
+          Timeout.timeout(secs, &cmd)
         end
 
         # Formats a shell command to be echod and executed by a ssh session.
@@ -105,8 +108,10 @@ module Travis
         def timeout(options)
           if options[:timeout].is_a?(Numeric)
             options[:timeout]
-          else
+          elsif config && config.timeouts
             config.timeouts[options[:timeout] || :default]
+          else
+            0
           end
         end
       end

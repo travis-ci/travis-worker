@@ -1,7 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Worker::Shell::Helpers do
-  let(:shell) { Class.new { include Travis::Worker::Shell::Helpers }.new }
+  let(:shell) do
+    class Shell
+      include Travis::Worker::Shell::Helpers
+      attr_accessor :config
+    end
+    Shell.new
+  end
 
   describe 'export' do
     it 'exports a shell variable (no options given)' do
@@ -70,28 +76,19 @@ describe Travis::Worker::Shell::Helpers do
   end
 
   describe 'timetrap' do
-    it 'wraps a command without env vars into a command without a timeout' do
-      shell.timetrap('rake').should == 'timetrap rake'
+    it 'executes a block with no timeout if no timeout value is specified' do
+      shell.timetrap { sleep 2; true }.should be_true
     end
 
-    it 'wraps a command without env vars into a command with a timeout' do
-      shell.timetrap('rake', :timeout => 900).should == 'timetrap -t 900 rake'
+    it 'executes a block with a custom specified timeout' do
+      shell.timetrap(:timeout => 2) { sleep 1; true }.should be_true
     end
 
-    it 'wraps a command with env vars into a command without a timeout' do
-      shell.timetrap('FOO=bar rake').should == 'FOO=bar timetrap rake'
+    it 'raises a Timeout::Error if the block execution exceeds the specified timeout' do
+      lambda do
+        shell.timetrap(:timeout => 1) { sleep 2; true }
+      end.should raise_error Timeout::Error
     end
-
-    it 'wraps a command with env vars into a command with a timeout' do
-      shell.timetrap('FOO=bar rake', :timeout => 900).should == 'FOO=bar timetrap -t 900 rake'
-    end
-
-    # This breaks scripts that contain SQL statements with a ;, e.g. 'mysql -e "create database foo;"'.
-    # Would need a more sophisticated parser :/
-    #
-    # it 'wraps multiple commands with env vars into a command with a timeout' do
-    #   shell.timetrap('FOO=bar rake ci:prepare; rake', :timeout => 900) 'FOO=bar timetrap -t 900 rake ci:prepare; -t 900 rake'
-    # end
   end
 
   describe 'parse_cmd' do
