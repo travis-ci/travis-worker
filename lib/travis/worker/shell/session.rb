@@ -89,7 +89,7 @@ module Travis
               process.on_error_output(&on_output)
               process.on_finish { |p| status = p.exit_status }
             end
-            shell.session.loop { status.nil? }
+            shell.session.loop(0.2) { status.nil? }
             status
           end
       end
