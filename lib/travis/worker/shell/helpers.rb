@@ -108,7 +108,8 @@ module Travis
           if options[:timeout].is_a?(Numeric)
             options[:timeout]
           elsif config && config.timeouts
-            config.timeouts[options[:timeout] || :default]
+            key = options[:timeout] || :default
+            config.timeouts[key]
           else
             0
           end
