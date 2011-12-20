@@ -57,7 +57,7 @@ module Travis
             result << data
             buffer << data if options[:echo]
           end
-          raise("command #{command} failed: #{result}") unless status == 0
+          raise("command '#{command}' failed: '#{result}'") unless status == 0
           result
         end
 
