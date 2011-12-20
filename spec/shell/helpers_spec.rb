@@ -84,10 +84,8 @@ describe Travis::Worker::Shell::Helpers do
       shell.timetrap(:timeout => 2) { sleep 1; true }.should be_true
     end
 
-    it 'raises a Timeout::Error if the block execution exceeds the specified timeout' do
-      lambda do
-        shell.timetrap(:timeout => 1) { sleep 2; true }
-      end.should raise_error Timeout::Error
+    it 'returns false if the block execution exceeds the specified timeout' do
+      shell.timetrap(:timeout => 1) { sleep 2; true }.should be_false
     end
   end
 
