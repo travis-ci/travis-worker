@@ -42,7 +42,6 @@ module Travis
 
         # Closes the Shell and flushes the buffer
         def close
-          shell.wait!
           shell.close!
           buffer.flush
         end
