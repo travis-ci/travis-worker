@@ -42,8 +42,6 @@ module Travis
           timetrap(options) do
             exec(command) { |p, data| buffer << data } == 0
           end
-        rescue Timeout::Error => e
-          false
         end
 
         # Evaluates a command within the ssh shell, returning the command output.
@@ -84,16 +82,17 @@ module Travis
           end.join("\n")
         end
 
-        # Formats a shell command to be run within a timetrap.
+        # Runs the block in a timeout
         #
-        # cmd     - command to format.
         # options - Optional Hash options to be used for configuring the timeout. (default: {})
         #           :timeout - The timeout, in seconds, to be used.
         #
-        # Returns the cmd formatted.
+        # Returns the result of the block, or false if it timed-out
         def timetrap(options = {}, &cmd)
           secs = timeout(options)
           Timeout.timeout(secs, &cmd)
+        rescue Timeout::Error => e
+          false
         end
 
         # Formats a shell command to be echod and executed by a ssh session.
