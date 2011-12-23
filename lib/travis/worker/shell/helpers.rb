@@ -13,7 +13,6 @@ module Travis
           execute(*["export #{line}", options].compact) if line
         end
 
-
         def chdir(dir)
           execute("mkdir -p #{dir}", :echo => false)
           execute("cd #{dir}")
@@ -37,9 +36,11 @@ module Travis
         #
         # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
+          seconds = timeout(options[:timeout])
+
           command = echoize(command) unless options[:echo] == false
 
-          timetrap(options) do
+          Timeout.timeout(seconds) do
             exec(command) { |p, data| buffer << data } == 0
           end
         end
@@ -78,21 +79,8 @@ module Travis
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
           [cmd].flatten.join("\n").split("\n").map do |cmd|
-            "echo #{Shellwords.escape("$ #{cmd.gsub(/timetrap (?:-t \d* )?/, '')}")}\n#{cmd}"
+            "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}"
           end.join("\n")
-        end
-
-        # Runs the block in a timeout
-        #
-        # options - Optional Hash options to be used for configuring the timeout. (default: {})
-        #           :timeout - The timeout, in seconds, to be used.
-        #
-        # Returns the result of the block, or false if it timed-out
-        def timetrap(options = {}, &cmd)
-          secs = timeout(options)
-          Timeout.timeout(secs, &cmd)
-        rescue Timeout::Error => e
-          false
         end
 
         # Formats a shell command to be echod and executed by a ssh session.
@@ -104,14 +92,12 @@ module Travis
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
 
-        def timeout(options)
-          if options[:timeout].is_a?(Numeric)
-            options[:timeout]
-          elsif config && config.timeouts
-            key = options[:timeout] || :default
-            config.timeouts[key]
+        def timeout(category)
+          if category.is_a?(Numeric)
+            category
           else
-            0
+            key = category || :default
+            config.timeouts[key]
           end
         end
       end
