@@ -9,6 +9,28 @@ describe Travis::Worker::Shell::Helpers do
     Shell.new
   end
 
+  describe 'execute' do
+    it "echoizes the command by default" do
+      shell.expects(:timeout).with(nil).returns(0)
+      shell.expects(:exec).with("echo \\$\\ ./super_command\n./super_command").returns(true)
+      shell.execute('./super_command')
+    end
+
+    it "does not echoize if :echo => false" do
+      shell.expects(:timeout).with(nil).returns(0)
+      shell.expects(:exec).with("./super_command").returns(true)
+      shell.execute('./super_command', :echo => false)
+    end
+
+    describe 'timeouts' do
+      it "raises a Timeout::Error if the execution takes too long" do
+        shell.expects(:timeout).with(1).returns(1)
+        shell.expects(:exec).with("./super_command").returns{ sleep 2 }
+        shell.execute('./super_command', :echo => false, :timeout => 1)
+      end
+    end
+  end
+
   describe 'export' do
     it 'exports a shell variable (no options given)' do
       shell.expects(:execute).with('export FOO=bar')
@@ -68,24 +90,6 @@ describe Travis::Worker::Shell::Helpers do
 
     it 'echo the command before executing it (2)' do
       shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']).should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=bar\\ rake\\ ci\nFOO=bar rake ci"
-    end
-
-    it 'removes a prefix from the echo command' do
-      shell.echoize('timetrap -t 900 rake').should == "echo \\$\\ rake\ntimetrap -t 900 rake"
-    end
-  end
-
-  describe 'timetrap' do
-    it 'executes a block with no timeout if no timeout value is specified' do
-      shell.timetrap { sleep 2; true }.should be_true
-    end
-
-    it 'executes a block with a custom specified timeout' do
-      shell.timetrap(:timeout => 2) { sleep 1; true }.should be_true
-    end
-
-    it 'returns false if the block execution exceeds the specified timeout' do
-      shell.timetrap(:timeout => 1) { sleep 2; true }.should be_false
     end
   end
 
