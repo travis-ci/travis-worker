@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'timeout'
 
 module Travis
   class Worker
@@ -11,7 +12,6 @@ module Travis
         def export_line(line, options = nil)
           execute(*["export #{line}", options].compact) if line
         end
-
 
         def chdir(dir)
           execute("mkdir -p #{dir}", :echo => false)
@@ -36,10 +36,13 @@ module Travis
         #
         # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
-          command = timetrap(command, :timeout => timeout(options)) if options[:timeout]
+          seconds = timeout(options[:timeout])
+
           command = echoize(command) unless options[:echo] == false
 
-          exec(command) { |p, data| buffer << data } == 0
+          Timeout.timeout(seconds) do
+            exec(command) { |p, data| buffer << data } == 0
+          end
         end
 
         # Evaluates a command within the ssh shell, returning the command output.
@@ -76,21 +79,8 @@ module Travis
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
           [cmd].flatten.join("\n").split("\n").map do |cmd|
-            "echo #{Shellwords.escape("$ #{cmd.gsub(/timetrap (?:-t \d* )?/, '')}")}\n#{cmd}"
+            "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}"
           end.join("\n")
-        end
-
-        # Formats a shell command to be run within a timetrap.
-        #
-        # cmd     - command to format.
-        # options - Optional Hash options to be used for configuring the timeout. (default: {})
-        #           :timeout - The timeout, in seconds, to be used.
-        #
-        # Returns the cmd formatted.
-        def timetrap(cmd, options = {})
-          vars, cmd = parse_cmd(cmd)
-          opts = options[:timeout] ? "-t #{options[:timeout]}" : nil
-          [vars, 'timetrap', opts, cmd].compact.join(' ')
         end
 
         # Formats a shell command to be echod and executed by a ssh session.
@@ -102,11 +92,12 @@ module Travis
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
 
-        def timeout(options)
-          if options[:timeout].is_a?(Numeric)
-            options[:timeout]
+        def timeout(category)
+          if category.is_a?(Numeric)
+            category
           else
-            config.timeouts[options[:timeout] || :default]
+            key = category || :default
+            config.timeouts[key]
           end
         end
       end
