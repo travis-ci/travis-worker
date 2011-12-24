@@ -1,12 +1,12 @@
 GIT
   remote: git://github.com/travis-ci/travis-build.git
-  revision: 53a1728f5ab98436eb94ae9ec483636ed0087d9e
+  revision: e82f86c3e106fa15529d58e2a089f0112d805188
   specs:
     travis-build (0.2.0)
 
 GIT
   remote: git://github.com/travis-ci/travis-support.git
-  revision: a8e60bf16ea0ecd08e7e5fa6bc40750de48013ff
+  revision: adab4cfe8881d8a46150702957c335b8449c9649
   specs:
     travis-support (0.0.1)
 
@@ -61,7 +61,7 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     thor (0.14.6)
-    vagrant (0.8.8)
+    vagrant (0.8.10)
       archive-tar-minitar (= 0.5.2)
       erubis (~> 2.7.0)
       i18n (~> 0.6.0)
@@ -84,7 +84,7 @@ DEPENDENCIES
   jruby-openssl (~> 0.7.4)
   json
   mocha
-  multi_json (~> 1.0.3)
+  multi_json (~> 1.0.4)
   net-ssh-shell (~> 0.2.0)
   rake (~> 0.9.2)
   rspec
@@ -93,4 +93,4 @@ DEPENDENCIES
   thor (~> 0.14.6)
   travis-build!
   travis-support!
-  vagrant (~> 0.8.0)
+  vagrant (~> 0.8.10)

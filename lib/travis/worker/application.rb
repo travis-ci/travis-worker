@@ -12,6 +12,12 @@ module Travis
       def initialize
         Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase) # TODO hrmm ...
         Travis::Amqp.config = config.amqp
+
+        # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
+        # we should use ok_json
+        # bad (AS::JSON) : http://staging.travis-ci.org/#!/travis-repos/rake-pipeline/builds/367776
+        # good (ok_json) : http://staging.travis-ci.org/#!/travis-repos/rake-pipeline/builds/367791
+        MultiJson.engine = :ok_json
       end
 
       def boot(options = {})
