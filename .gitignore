@@ -16,3 +16,4 @@ vendor/amqp
 .yardoc/*
 coverage/*
 play/*
+.DS_Store
