@@ -21,7 +21,7 @@ module Travis
       end
 
       def reporter
-        Reporter.new(name, Amqp::Publisher.jobs, Amqp::Publisher.workers)
+        Reporter.new(name, Amqp::Publisher.jobs(config.queue), Amqp::Publisher.workers)
       end
 
       def config
