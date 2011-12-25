@@ -6,4 +6,4 @@ timeouts:
   script: 2700
   after_script: 60
 shell:
-  buffer: 1.0
+  buffer: 0.5
