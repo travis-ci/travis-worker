@@ -6,8 +6,7 @@ GIT
 
 GIT
   remote: git://github.com/travis-ci/travis-support.git
-  revision: 9ef418c5729a6a7d1841606a700f225265cadb66
-  branch: moarexchanges
+  revision: 810d87ee8c45a7b5da68f46a626a6381d16c2e47
   specs:
     travis-support (0.0.1)
 
