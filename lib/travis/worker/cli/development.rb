@@ -1,5 +1,7 @@
 require "thor"
 
+require "java"
+require "hot_bunnies"
 require "multi_json"
 require 'travis/worker'
 
@@ -14,22 +16,9 @@ module Travis
 
 
 
-        desc "receiver", "Start progress reports receiver tool"
-        def receiver
-          AMQP.start(:vhost => "travis") do |connection|
-            ch       = AMQP::Channel.new(connection)
-            ch.queue("reporting.progress", :auto_delete => true).subscribe do |metadata, payload|
-              puts "[#{metadata.type}] #{payload}"
-            end
-          end
-        end
-
-
-
-
         desc "build_ruby", "Publish a sample Ruby build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
-        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
+        method_option :commit, :default => "bc0a938c19d18e2e6973debe2b5bc4a1bd8ea469"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_ruby
@@ -42,6 +31,7 @@ module Travis
               :commit => self.options[:commit],
               :branch => self.options[:branch],
               :config => {
+                :language     => "ruby",
                 :rvm          => "1.8.7",
                 :script       => "bundle exec rspec spec",
                 :bundler_args => "--without development"
@@ -50,15 +40,15 @@ module Travis
           }
           puts payload.inspect
 
-          publish(payload, "builds", self.options[:n].to_i)
+          publish(payload, "builds.common", self.options[:n].to_i)
         end
 
 
 
 
         desc "build_clojure", "Publish a sample Clojure build job"
-        method_option :slug,   :default => "michaelklishin/langohr"
-        method_option :commit, :default => "e32b1daf33b691625129"
+        method_option :slug,   :default => "michaelklishin/urly"
+        method_option :commit, :default => "d487ca890f6e7c358274a32f722506bd5568fdfc"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_clojure
@@ -71,13 +61,13 @@ module Travis
               :commit => self.options[:commit],
               :branch => self.options[:branch],
               :config => {
-                :language => "Clojure"
+                :language => "clojure"
               }
             }
           }
           puts payload.inspect
 
-          publish(payload, "builds", self.options[:n].to_i)
+          publish(payload, "builds.common", self.options[:n].to_i)
         end
 
 
@@ -128,7 +118,7 @@ module Travis
           }
           puts payload.inspect
 
-          publish(payload, "config", self.options[:n].to_i)
+          publish(payload, "builds.configure", self.options[:n].to_i)
         end
 
 
@@ -136,12 +126,17 @@ module Travis
         protected
 
         def publish(payload, routing_key, n = 1)
-          AMQP.start(:vhost => "travis") do |connection|
-            exchange = AMQP.channel.default_exchange
-            n.times { exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) }
+          connection = HotBunnies.connect(:vhost => "travisci.development", :username => "travisci_worker", :password => "travisci_worker_password")
+          channel    = connection.create_channel
+          exchange   = channel.default_exchange
 
-            EventMachine.add_timer(1) { AMQP.connection.disconnect { puts("Disconnecting..."); EventMachine.stop } }
-          end
+          n.times { exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) }
+
+          sleep(1.0)
+          channel.close
+          connection.close
+
+          java.lang.System.exit(0)
         end
 
       end # Development
