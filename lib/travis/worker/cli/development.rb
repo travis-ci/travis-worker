@@ -29,16 +29,15 @@ module Travis
             :build => {
               :id     => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :language     => "ruby",
-                :rvm          => "1.8.7",
-                :script       => "bundle exec rspec spec",
-                :bundler_args => "--without development"
-              }
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language     => "ruby",
+              :rvm          => "1.8.7",
+              :script       => "bundle exec rspec spec",
+              :bundler_args => "--without development"
             }
           }
-          puts payload.inspect
 
           publish(payload, "builds.common", self.options[:n].to_i)
         end
@@ -59,13 +58,13 @@ module Travis
             :build => {
               :id       => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :language => "clojure"
-              }
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :script   => "lein javac, test"
             }
           }
-          puts payload.inspect
 
           publish(payload, "builds.common", self.options[:n].to_i)
         end
@@ -73,8 +72,8 @@ module Travis
 
 
         desc "build_node", "Publish a sample Node build job"
-        method_option :slug,   :default => "Shopify/batman"
-        method_option :commit, :default => "06b3b093a7137311"
+        method_option :slug,   :default => "mmalecki/node-functions"
+        method_option :commit, :default => "103362faa086fb8646bd67343d363cf3f1baafeb"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_node
@@ -85,40 +84,15 @@ module Travis
             :build => {
               :id       => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :language => "javascript_with_nodejs",
-                :node_js => "0.5.5",
-                :script => "cake test"
-              }
-            }
-          }
-          puts payload.inspect
-
-          publish(payload, "builds", self.options[:n].to_i)
-        end
-
-
-
-        desc "config", "Publish a sample config job"
-        method_option :slug,   :default => "ruby-amqp/amq-protocol"
-        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
-        method_option :branch, :default => "master"
-        method_option :n,      :default => 1
-        def config
-          payload = {
-            :repository => {
-              :slug => self.options[:slug]
-            },
-            :build => {
-              :id     => 1,
-              :commit => self.options[:commit],
               :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "node_js",
+              :node_js => "0.4"
             }
           }
-          puts payload.inspect
 
-          publish(payload, "builds.configure", self.options[:n].to_i)
+          publish(payload, "builds.node_js", self.options[:n].to_i)
         end
 
 
@@ -126,6 +100,8 @@ module Travis
         protected
 
         def publish(payload, routing_key, n = 1)
+          puts payload.inspect
+
           connection = HotBunnies.connect(:vhost => "travisci.development", :username => "travisci_worker", :password => "travisci_worker_password")
           channel    = connection.create_channel
           exchange   = channel.default_exchange
