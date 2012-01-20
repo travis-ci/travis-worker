@@ -44,6 +44,34 @@ module Travis
 
 
 
+        desc "test_log_trimming", "Run a sample Ruby build that goes way over allowed build log output length"
+        method_option :slug,   :default => "travis-repos/noise_maker"
+        method_option :commit, :default => "677e2c2b34b46cee9e0607506b7d7ad67898138a"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def test_log_trimming
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id     => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language     => "ruby",
+              :rvm          => "1.9.3",
+              :script       => "bundle exec rspec -c spec",
+              :bundler_args => "--without development"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+
 
         desc "build_clojure", "Publish a sample Clojure build job"
         method_option :slug,   :default => "michaelklishin/urly"
