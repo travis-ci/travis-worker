@@ -122,6 +122,31 @@ module Travis
         end
 
 
+        desc "build_java_with_ant", "Publish a sample Java build job that will use Ant"
+        method_option :slug,   :default => "jruby/jruby"
+        method_option :commit, :default => "90995615bc776d6d4b3ea25e2a45f7e8423e33a8"
+        method_option :branch, :default => "jruby-1_6"
+        method_option :n,      :default => 1
+        def build_java_with_ant
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "java",
+              :script   => "ant test"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
 
         desc "build_node", "Publish a sample Node build job"
         method_option :slug,   :default => "mmalecki/node-functions"
