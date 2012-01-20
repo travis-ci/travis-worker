@@ -1,3 +1,5 @@
+language: ruby
+before_script: cp config/worker.example.yml config/worker.yml
 script: rspec spec
 bundler_args: --without development debug
 rvm:
