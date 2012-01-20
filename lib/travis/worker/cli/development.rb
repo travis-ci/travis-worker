@@ -122,6 +122,31 @@ module Travis
         end
 
 
+        desc "build_java_with_maven", "Publish a sample Java build job that will use Maven"
+        method_option :slug,   :default => "clojure/clojure"
+        method_option :commit, :default => "7783f62afc5c113b1e013b8967acbdade58d0fb5"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_java_with_maven
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "java"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+
         desc "build_java_with_ant", "Publish a sample Java build job that will use Ant"
         method_option :slug,   :default => "jruby/jruby"
         method_option :commit, :default => "90995615bc776d6d4b3ea25e2a45f7e8423e33a8"
