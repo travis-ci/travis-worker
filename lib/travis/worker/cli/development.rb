@@ -98,6 +98,30 @@ module Travis
         end
 
 
+        desc "build_groovy", "Publish a sample Groovy build job"
+        method_option :slug,   :default => "gradle/gradle"
+        method_option :commit, :default => "c8c75360b859e9fab40dd0b6eb0cd8e925c2170c"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_groovy
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "groovy"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
 
         desc "build_node", "Publish a sample Node build job"
         method_option :slug,   :default => "mmalecki/node-functions"
