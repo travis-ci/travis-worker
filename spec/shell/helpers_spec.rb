@@ -1,7 +1,35 @@
 require 'spec_helper'
 
 describe Travis::Worker::Shell::Helpers do
-  let(:shell) { Class.new { include Travis::Worker::Shell::Helpers }.new }
+  let(:shell) do
+    class Shell
+      include Travis::Worker::Shell::Helpers
+      attr_accessor :config
+    end
+    Shell.new
+  end
+
+  describe 'execute' do
+    it "echoizes the command by default" do
+      shell.expects(:timeout).with(nil).returns(0)
+      shell.expects(:exec).with("echo \\$\\ ./super_command\n./super_command").returns(true)
+      shell.execute('./super_command')
+    end
+
+    it "does not echoize if :echo => false" do
+      shell.expects(:timeout).with(nil).returns(0)
+      shell.expects(:exec).with("./super_command").returns(true)
+      shell.execute('./super_command', :echo => false)
+    end
+
+    describe 'timeouts' do
+      it "raises a Timeout::Error if the execution takes too long" do
+        shell.expects(:timeout).with(1).returns(1)
+        shell.expects(:exec).with("./super_command").returns{ sleep 2 }
+        shell.execute('./super_command', :echo => false, :timeout => 1)
+      end
+    end
+  end
 
   describe 'export' do
     it 'exports a shell variable (no options given)' do
@@ -63,35 +91,6 @@ describe Travis::Worker::Shell::Helpers do
     it 'echo the command before executing it (2)' do
       shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']).should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=bar\\ rake\\ ci\nFOO=bar rake ci"
     end
-
-    it 'removes a prefix from the echo command' do
-      shell.echoize('timetrap -t 900 rake').should == "echo \\$\\ rake\ntimetrap -t 900 rake"
-    end
-  end
-
-  describe 'timetrap' do
-    it 'wraps a command without env vars into a command without a timeout' do
-      shell.timetrap('rake').should == 'timetrap rake'
-    end
-
-    it 'wraps a command without env vars into a command with a timeout' do
-      shell.timetrap('rake', :timeout => 900).should == 'timetrap -t 900 rake'
-    end
-
-    it 'wraps a command with env vars into a command without a timeout' do
-      shell.timetrap('FOO=bar rake').should == 'FOO=bar timetrap rake'
-    end
-
-    it 'wraps a command with env vars into a command with a timeout' do
-      shell.timetrap('FOO=bar rake', :timeout => 900).should == 'FOO=bar timetrap -t 900 rake'
-    end
-
-    # This breaks scripts that contain SQL statements with a ;, e.g. 'mysql -e "create database foo;"'.
-    # Would need a more sophisticated parser :/
-    #
-    # it 'wraps multiple commands with env vars into a command with a timeout' do
-    #   shell.timetrap('FOO=bar rake ci:prepare; rake', :timeout => 900) 'FOO=bar timetrap -t 900 rake ci:prepare; -t 900 rake'
-    # end
   end
 
   describe 'parse_cmd' do

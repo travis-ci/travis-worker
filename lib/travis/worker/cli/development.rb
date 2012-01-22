@@ -1,5 +1,7 @@
 require "thor"
 
+require "java"
+require "hot_bunnies"
 require "multi_json"
 require 'travis/worker'
 
@@ -14,22 +16,9 @@ module Travis
 
 
 
-        desc "receiver", "Start progress reports receiver tool"
-        def receiver
-          AMQP.start(:vhost => "travis") do |connection|
-            ch       = AMQP::Channel.new(connection)
-            ch.queue("reporting.progress", :auto_delete => true).subscribe do |metadata, payload|
-              puts "[#{metadata.type}] #{payload}"
-            end
-          end
-        end
-
-
-
-
         desc "build_ruby", "Publish a sample Ruby build job"
         method_option :slug,   :default => "ruby-amqp/amq-protocol"
-        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
+        method_option :commit, :default => "bc0a938c19d18e2e6973debe2b5bc4a1bd8ea469"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_ruby
@@ -40,25 +29,53 @@ module Travis
             :build => {
               :id     => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :rvm          => "1.8.7",
-                :script       => "bundle exec rspec spec",
-                :bundler_args => "--without development"
-              }
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language     => "ruby",
+              :rvm          => "1.8.7",
+              :script       => "bundle exec rspec spec",
+              :bundler_args => "--without development"
             }
           }
-          puts payload.inspect
 
-          publish(payload, "builds", self.options[:n].to_i)
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+
+        desc "test_log_trimming", "Run a sample Ruby build that goes way over allowed build log output length"
+        method_option :slug,   :default => "travis-repos/noise_maker"
+        method_option :commit, :default => "677e2c2b34b46cee9e0607506b7d7ad67898138a"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def test_log_trimming
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id     => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language     => "ruby",
+              :rvm          => "1.9.3",
+              :script       => "bundle exec rspec -c spec",
+              :bundler_args => "--without development"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
         end
 
 
 
 
         desc "build_clojure", "Publish a sample Clojure build job"
-        method_option :slug,   :default => "michaelklishin/langohr"
-        method_option :commit, :default => "e32b1daf33b691625129"
+        method_option :slug,   :default => "michaelklishin/urly"
+        method_option :commit, :default => "d487ca890f6e7c358274a32f722506bd5568fdfc"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_clojure
@@ -69,22 +86,96 @@ module Travis
             :build => {
               :id       => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :language => "Clojure"
-              }
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :script   => "lein javac, test"
             }
           }
-          puts payload.inspect
 
-          publish(payload, "builds", self.options[:n].to_i)
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+        desc "build_groovy", "Publish a sample Groovy build job"
+        method_option :slug,   :default => "gradle/gradle"
+        method_option :commit, :default => "c8c75360b859e9fab40dd0b6eb0cd8e925c2170c"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_groovy
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "groovy"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+        desc "build_java_with_maven", "Publish a sample Java build job that will use Maven"
+        method_option :slug,   :default => "clojure/clojure"
+        method_option :commit, :default => "7783f62afc5c113b1e013b8967acbdade58d0fb5"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_java_with_maven
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "java"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
+        end
+
+
+
+        desc "build_java_with_ant", "Publish a sample Java build job that will use Ant"
+        method_option :slug,   :default => "jruby/jruby"
+        method_option :commit, :default => "90995615bc776d6d4b3ea25e2a45f7e8423e33a8"
+        method_option :branch, :default => "jruby-1_6"
+        method_option :n,      :default => 1
+        def build_java_with_ant
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "java",
+              :script   => "ant test"
+            }
+          }
+
+          publish(payload, "builds.common", self.options[:n].to_i)
         end
 
 
 
         desc "build_node", "Publish a sample Node build job"
-        method_option :slug,   :default => "Shopify/batman"
-        method_option :commit, :default => "06b3b093a7137311"
+        method_option :slug,   :default => "mmalecki/node-functions"
+        method_option :commit, :default => "103362faa086fb8646bd67343d363cf3f1baafeb"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
         def build_node
@@ -95,40 +186,15 @@ module Travis
             :build => {
               :id       => 1,
               :commit => self.options[:commit],
-              :branch => self.options[:branch],
-              :config => {
-                :language => "javascript_with_nodejs",
-                :node_js => "0.5.5",
-                :script => "cake test"
-              }
-            }
-          }
-          puts payload.inspect
-
-          publish(payload, "builds", self.options[:n].to_i)
-        end
-
-
-
-        desc "config", "Publish a sample config job"
-        method_option :slug,   :default => "ruby-amqp/amq-protocol"
-        method_option :commit, :default => "e54c27a8d1c0f4df0fc9"
-        method_option :branch, :default => "master"
-        method_option :n,      :default => 1
-        def config
-          payload = {
-            :repository => {
-              :slug => self.options[:slug]
-            },
-            :build => {
-              :id     => 1,
-              :commit => self.options[:commit],
               :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "node_js",
+              :node_js => "0.4"
             }
           }
-          puts payload.inspect
 
-          publish(payload, "config", self.options[:n].to_i)
+          publish(payload, "builds.node_js", self.options[:n].to_i)
         end
 
 
@@ -136,12 +202,19 @@ module Travis
         protected
 
         def publish(payload, routing_key, n = 1)
-          AMQP.start(:vhost => "travis") do |connection|
-            exchange = AMQP.channel.default_exchange
-            n.times { exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) }
+          puts payload.inspect
 
-            EventMachine.add_timer(1) { AMQP.connection.disconnect { puts("Disconnecting..."); EventMachine.stop } }
-          end
+          connection = HotBunnies.connect(:vhost => "travisci.development", :username => "travisci_worker", :password => "travisci_worker_password")
+          channel    = connection.create_channel
+          exchange   = channel.default_exchange
+
+          n.times { exchange.publish(MultiJson.encode(payload), :routing_key => routing_key) }
+
+          sleep(1.0)
+          channel.close
+          connection.close
+
+          java.lang.System.exit(0)
         end
 
       end # Development

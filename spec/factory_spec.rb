@@ -35,7 +35,7 @@ describe Travis::Worker::Factory do
       end
 
       it 'the jobs exchange has the reporting key "reporting.jobs"' do
-        worker.reporter.jobs.routing_key.should == 'reporting.jobs'
+        worker.reporter.jobs.routing_key.should == 'reporting.jobs.builds.common'
       end
 
       it 'has a jobs exchange exchange' do

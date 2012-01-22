@@ -4,9 +4,9 @@ config/worker.yml
 config/worker.development.yml
 log/*
 tmp/*
-vendor/amq-protocol
-vendor/amq-client
-vendor/amqp
+vendor/hot_bunnies
+vendor/travis-support
+vendor/travis-build
 *.box
 *.class
 *.rbc
@@ -16,3 +16,4 @@ vendor/amqp
 .yardoc/*
 coverage/*
 play/*
+.DS_Store

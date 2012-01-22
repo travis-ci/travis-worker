@@ -1,7 +1,7 @@
 queue: builds.common
 shell:
-  buffer: 1.0
+  buffer: 0.5
 timeouts:
-  install: 300
+  install: 600
   before_script: 300
   script: 1500

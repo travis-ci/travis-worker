@@ -1,6 +1,6 @@
 queue: builds.erlang
 shell:
-  buffer: 1.0
+  buffer: 0.5
 timeouts:
   before_install: 240
   install: 240

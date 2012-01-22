@@ -42,7 +42,6 @@ module Travis
 
         # Closes the Shell and flushes the buffer
         def close
-          shell.wait!
           shell.close!
           buffer.flush
         end
@@ -89,7 +88,7 @@ module Travis
               process.on_error_output(&on_output)
               process.on_finish { |p| status = p.exit_status }
             end
-            shell.session.loop { status.nil? }
+            shell.session.loop(1) { status.nil? }
             status
           end
       end

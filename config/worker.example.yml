@@ -1,15 +1,16 @@
-env: staging
-production:
-  shell:
-    buffer: 0.75
-staging:
-  shell:
-    buffer: 1
+env: ruby
+ruby:
+  log_level: info
   amqp:
-    host: [host]
-    port: [port]
-    username: [username]
-    password: [password]
-    virtual_host: [virtual_host]
-
-
+    host: localhost
+    port: 5672
+    username: travis_worker
+    password: travis_worker_password
+    virtual_host: travis.development
+  vms:
+    count: 1
+    vbox_home: '/usr/lib/virtualbox'
+timeouts:
+  install: 600
+  before_script: 480
+  script: 1500
