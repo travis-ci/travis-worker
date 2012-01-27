@@ -26,6 +26,10 @@ module Travis
           execute("test -f #{filename}", :echo => false)
         end
 
+        def directory_exists?(dirname)
+          execute("test -d #{dirname}", :echo => false)
+        end
+
         # Executes a command within the ssh shell, returning true or false depending
         # if the command succeded.
         #

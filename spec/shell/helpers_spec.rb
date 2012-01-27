@@ -83,6 +83,13 @@ describe Travis::Worker::Shell::Helpers do
     end
   end
 
+  describe 'directory_exists?' do
+    it 'looks for a directory using test -d' do
+      shell.expects(:execute).with('test -d project', :echo => false)
+      shell.directory_exists?('project')
+    end
+  end
+
   describe 'echoize' do
     it 'echo the command before executing it (1)' do
       shell.echoize('rake').should == "echo \\$\\ rake\nrake"
