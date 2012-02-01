@@ -5,3 +5,4 @@ bundler_args: --without development debug
 rvm:
   - jruby-18mode
   - jruby-19mode
+  - jruby-head
