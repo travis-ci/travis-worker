@@ -4,9 +4,9 @@ ruby:
   amqp:
     host: localhost
     port: 5672
-    username: travis_worker
-    password: travis_worker_password
-    virtual_host: travis.development
+    username: travisci_worker
+    password: travisci_worker_password
+    virtual_host: travisci.development
   vms:
     count: 1
     vbox_home: '/usr/lib/virtualbox'
