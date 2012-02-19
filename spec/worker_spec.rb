@@ -4,10 +4,10 @@ require 'stringio'
 
 describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:queue)        { stub('queue', :subscribe => nil, :unsubscribe => nil) }
   let(:reporter)     { stub('reporter', :notify => nil) }
-  let(:config)       { Hashr.new }
-  let(:worker)       { Travis::Worker.new('worker-1', vm, [queue], reporter, config) }
+  let(:queue_names)  { %w(builds.php builds.python builds.perl) }
+  let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names) }
+  let(:worker)       { Travis::Worker.new('worker-1', vm, queue_names, reporter, config) }
 
   let(:message)      { stub('message', :ack => nil) }
   let(:payload)      { '{ "id": 1 }' }
@@ -19,6 +19,14 @@ describe Travis::Worker do
     Socket.stubs(:gethostname).returns('host')
     Travis.logger = Logger.new(io)
     Travis::Build.stubs(:create).returns(build)
+  end
+
+  after :each do
+    worker.disconnect
+  end
+
+  after :all do
+    worker.disconnect
   end
 
   describe 'start' do
@@ -39,11 +47,6 @@ describe Travis::Worker do
       worker.start
     end
 
-    it 'subscribes to the builds queue' do
-      queue.expects(:subscribe)
-      worker.start
-    end
-
     it 'sets the current state to :ready' do
       worker.start
       worker.should be_ready
@@ -56,11 +59,6 @@ describe Travis::Worker do
   end
 
   describe 'stop' do
-    it 'unsubscribes from the builds queue' do
-      queue.expects(:unsubscribe)
-      worker.stop
-    end
-
     describe 'if the worker is still working' do
       before :each do
         worker.stubs(:working?).returns(true)
