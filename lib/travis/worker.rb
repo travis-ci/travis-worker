@@ -7,13 +7,14 @@ require 'travis/support'
 
 module Travis
   class Worker
-    autoload :Application,    'travis/worker/application'
-    autoload :Config,         'travis/worker/config'
-    autoload :Factory,        'travis/worker/factory'
-    autoload :Pool,           'travis/worker/pool'
-    autoload :Reporter,       'travis/worker/reporter'
-    autoload :Shell,          'travis/worker/shell'
-    autoload :VirtualMachine, 'travis/worker/virtual_machine'
+    autoload :Application,      'travis/worker/application'
+    autoload :BuildLogStreamer, 'travis/worker/build_log_streamer'
+    autoload :Config,           'travis/worker/config'
+    autoload :Factory,          'travis/worker/factory'
+    autoload :Pool,             'travis/worker/pool'
+    autoload :StateReporter,    'travis/worker/state_reporter'
+    autoload :Shell,            'travis/worker/shell'
+    autoload :VirtualMachine,   'travis/worker/virtual_machine'
 
     class << self
       def config
@@ -25,21 +26,28 @@ module Travis
 
     log_header { "#{name}:worker" }
 
-    def self.create(name, config)
-      Factory.new(name, config).worker
+    def self.create(name, config, broker_connection)
+      Factory.new(name, config, broker_connection).worker
     end
 
     states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
     attr_accessor :state
-    attr_reader :name, :vm, :queues, :queue_names, :reporter, :config, :payload, :last_error
+    attr_reader :name, :vm, :broker_connection, :queues, :queue_names, :config, :payload, :last_error
 
-    def initialize(name, vm, queue_names, reporter, config)
-      @name        = name
-      @vm          = vm
-      @queue_names = queue_names
-      @reporter    = reporter
-      @config      = config
+    def initialize(name, vm, broker_connection, queue_names, config)
+      raise ArgumentError, "worker name cannot be nil!" if name.nil?
+      raise ArgumentError, "VM cannot be nil!" if vm.nil?
+      raise ArgumentError, "broker connection cannot be nil!" if broker_connection.nil?
+      raise ArgumentError, "config cannot be nil!" if config.nil?
+
+      @name              = name
+      @vm                = vm
+      @queue_names       = queue_names
+      @broker_connection = broker_connection
+      @config            = config
+
+      initialize_state_reporter
     end
 
     def start
@@ -47,7 +55,6 @@ module Travis
       vm.prepare
       set :ready
 
-      connect
       open_channels
       declare_queues
       subscribe
@@ -56,7 +63,7 @@ module Travis
 
     def stop(options = {})
       set :stopping
-      disconnect
+      shutdown_consumers
       kill if options[:force]
       set :stopped unless working?
     end
@@ -71,22 +78,13 @@ module Travis
     end
 
 
-    def disconnect
-      if @connection
-        shutdown_consumers
-        close_channels
-
-        @connection.close if @connection.open?
-        @connection = nil
-      end
+    def shutdown
+      shutdown_consumers
+      close_channels
     end
 
 
     protected
-
-    def connect
-      @connection = HotBunnies.connect(config.fetch(:amqp, {}))
-    end
 
     def open_channels
       # error handling happens on the per-channel basis, so using
@@ -96,22 +94,30 @@ module Travis
     end
 
     def close_channels
-      @build_consumer_channel.close if @build_consumer_channel.open?
-      @reporting_channel.close      if @reporting_channel.open?
+      # channels may be nil in some tests that mock out #start and #stop. MK.
+      @build_consumer_channel.close if @build_consumer_channel && @build_consumer_channel.open?
+      @reporting_channel.close      if @reporting_channel && @reporting_channel.open?
     end
 
     def open_builds_consumer_channel
-      @build_consumer_channel = @config[:build_consumer_channel] = @connection.create_channel
+      @build_consumer_channel = @config[:build_consumer_channel] = @broker_connection.create_channel
       @build_consumer_channel.prefetch = 1
     end
 
     def open_reporting_channel
-      @reporting_channel      = @config[:reporting_channel]      = @connection.create_channel
+      @reporting_channel      = @config[:reporting_channel]      = @broker_connection.create_channel
     end
 
     def declare_queues
       # the list of queues is passed on from Travis::Worker::Factory. MK.
       @queues = @queue_names.map { |name| @build_consumer_channel.queue(name, :durable => true) }
+
+      # these are declared here mostly to aid development purposes. Hub is just as involved
+      # in build log streaming so it may seem more logical to move these declarations to Hub. We may
+      # do it in the future. MK.
+      @queue_names.
+        reject { |name| name =~ /configure$/ }.
+        map { |name| @reporting_channel.queue("reporting.jobs.#{name}", :durable => true) }
     end
 
     def subscribe
@@ -130,9 +136,16 @@ module Travis
       @consumers.each { |c| c.cancel }
     end
 
+    def initialize_state_reporter
+      # reports worker states, for example, whether worker is
+      # ready, occupied or has issues. Build log streaming is done
+      # using a separate class that is instantiated on the per-request basis. MK.
+      @state_reporter    = StateReporter.new(name, @broker_connection.create_channel)
+    end
+
     def set(state)
       self.state = state
-      reporter.notify('worker:status', [report])
+      @state_reporter.notify('worker:status', [report])
     end
 
     def process(message, payload)
@@ -145,10 +158,16 @@ module Travis
 
     def work(message, payload)
       prepare(payload)
-      Build.create(vm, vm.shell, reporter, self.payload, config).run
+
+      build_log_streamer = BuildLogStreamer.new(name, @broker_connection.create_channel, log_streamer_routing_key_for(message, payload))
+      Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
       finish(message)
     end
     log :work, :as => :debug
+
+    def log_streamer_routing_key_for(metadata, payload)
+      "reporting.jobs.#{metadata.routing_key}"
+    end
 
     def prepare(payload)
       @last_error = nil

@@ -1,13 +1,16 @@
 require 'spec_helper'
 require 'hashr'
 require 'stringio'
+require "hot_bunnies"
 
 describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:reporter)     { stub('reporter', :notify => nil) }
   let(:queue_names)  { %w(builds.php builds.python builds.perl) }
   let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names) }
-  let(:worker)       { Travis::Worker.new('worker-1', vm, queue_names, reporter, config) }
+
+  let(:connection)   { HotBunnies.connect }
+  let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
   let(:message)      { stub('message', :ack => nil) }
   let(:payload)      { '{ "id": 1 }' }
@@ -22,11 +25,11 @@ describe Travis::Worker do
   end
 
   after :each do
-    worker.disconnect
+    worker.shutdown
   end
 
   after :all do
-    worker.disconnect
+    worker.shutdown
   end
 
   describe 'start' do

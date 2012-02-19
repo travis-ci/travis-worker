@@ -1,4 +1,5 @@
-require 'hot_bunnies'
+require "java"
+require "hot_bunnies"
 
 module Travis
   class Worker
@@ -24,7 +25,7 @@ module Travis
         install_signal_traps
         start(options)
         heart.beat
-        Command.subscribe(self)
+        Command.subscribe(self, config, broker_connection.create_channel)
       end
       log :boot
 
@@ -57,56 +58,64 @@ module Travis
 
       protected
 
-        def config
-          Travis::Worker.config
-        end
+      def config
+        Travis::Worker.config
+      end
 
-        def workers
-          @workers ||= Pool.create
-        end
+      def workers
+        @workers ||= Pool.create(broker_connection)
+      end
 
-        def heart
-          @heart ||= Heart.new { workers.status }
-        end
+      def broker_connection
+        @broker_connection ||= HotBunnies.connect(config.fetch(:amqp, Hashr.new))
+      end
 
-        def update
-          execute <<-sh
+      def heartbeat_channel
+        @heartbeat_channel ||= broker_connection.create_channel
+      end
+
+      def heart
+        @heart ||= Heart.new(heartbeat_channel) { workers.status }
+      end
+
+      def update
+        execute <<-sh
             git reset --hard
             git pull
             bundle install
           sh
-        end
-        log :update
+      end
+      log :update
 
-        def reboot
-          # unfortunately fork is not available on jruby
-          # system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
-          system('echo "thor travis:worker:boot >> log/worker.log 2>&1" | at now')
-          info "reboot scheduled"
-        end
+      def reboot
+        # unfortunately fork is not available on jruby
+        # system('nohup thor travis:worker:boot > log/worker.log &') if fork.nil?
+        system('echo "thor travis:worker:boot >> log/worker.log 2>&1" | at now')
+        info "reboot scheduled"
+      end
 
-        def execute(commands)
-          commands.split("\n").each do |command|
-            info(command.strip)
-            system("#{command.strip} >> log/worker.log 2>&1")
-          end
+      def execute(commands)
+        commands.split("\n").each do |command|
+          info(command.strip)
+          system("#{command.strip} >> log/worker.log 2>&1")
         end
+      end
 
-        def disconnect
-          heart.stop
-          Amqp.disconnect
-          sleep(0.5)
-        end
-        log :disconnect
+      def disconnect
+        heart.stop
+        Amqp.disconnect
+        sleep(0.5)
+      end
+      log :disconnect
 
-        def quit
-          java.lang.System.exit(0)
-        end
+      def quit
+        java.lang.System.exit(0)
+      end
 
-        def install_signal_traps
-          Signal.trap('INT')  { quit }
-          Signal.trap('TERM') { quit }
-        end
+      def install_signal_traps
+        Signal.trap('INT')  { quit }
+        Signal.trap('TERM') { quit }
+      end
     end
   end
 end

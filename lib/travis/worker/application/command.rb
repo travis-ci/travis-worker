@@ -6,8 +6,8 @@ module Travis
     class Application
       class Command < Hashr
         class << self
-          def subscribe(subscriber)
-            Amqp::Consumer.commands.subscribe do |message, payload|
+          def subscribe(subscriber, config, channel)
+            channel.queue("worker.commands.#{config.name}", :durable => true).subscribe do |message, payload|
               new(subscriber, message, payload).process
             end
           end

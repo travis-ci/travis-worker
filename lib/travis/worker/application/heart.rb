@@ -1,13 +1,20 @@
+require "multi_json"
+
 module Travis
   class Worker
     class Application
       class Heart
         attr_reader :exchange, :thread, :interval, :status
 
-        def initialize(&block)
-          @status = block
+        def initialize(channel, &block)
+          @status   = block
           @interval = Travis::Worker.config.heartbeat.interval
-          @exchange = Travis::Amqp::Publisher.workers
+          @channel  = channel
+          @exchange = @channel.default_exchange
+
+          @target_queue_name = 'reporting.workers'
+
+          declare_queues
         end
 
         def beat
@@ -25,11 +32,19 @@ module Travis
         end
 
         def pump!
-          exchange.publish(status.call, :properties => { :type => 'worker:status' })
+          exchange.publish(encode(status.call), :properties => { :type => 'worker:status' }, :routing_key => @target_queue_name)
         end
 
         def stop
           thread.terminate if thread
+        end
+
+        def encode(data)
+          MultiJson.encode(data)
+        end
+
+        def declare_queues
+          @channel.queue(@target_queue_name, :durable => true)
         end
       end
     end

@@ -3,8 +3,10 @@ require 'stringio'
 
 describe Travis::Worker::Pool do
   let(:names)   { %w(worker-1 worker-2)}
-  let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config) }
-  let(:queues)  { %w(builds reporting.jobs) }
+  let(:connection)   { HotBunnies.connect }
+
+
+  let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config, connection) }
   let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
