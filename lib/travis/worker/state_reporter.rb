@@ -3,7 +3,7 @@ require "multi_json"
 module Travis
   class Worker
     class StateReporter
-      include Logging
+      include Logging, Travis::Serialization
 
       log_header { "reporter:#{name}" }
 
@@ -27,10 +27,6 @@ module Travis
         @exchange.publish(encode(data), :properties => { :type => event })
       end
       log :message, :as => :debug
-
-      def encode(data)
-        MultiJson.encode(data)
-      end
 
       def declare_queues
         @channel.queue(@target_queue_name, :durable => true)

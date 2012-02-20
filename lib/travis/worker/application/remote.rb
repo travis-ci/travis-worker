@@ -2,7 +2,7 @@ module Travis
   class Worker
     class Application
       class Remote
-        include Logging
+        include Logging, Travis::Serialization
 
         def initialize
           Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...
@@ -58,7 +58,8 @@ module Travis
             replies.subscribe(:blocking => true) do |message, payload|
               @timeout.kill
               disconnect
-              return MultiJson.decode(payload)
+
+              decode(payload)
             end
           end
 
@@ -85,13 +86,3 @@ module Travis
     end
   end
 end
-
-# TODO why does this not work? throws https://gist.github.com/f5c2c338cab1eeb6c59b
-# Amqp::Consumer.replies.subscribe(:blocking => true, &method(:handle_reply)) if options[:reply]
-#
-# def handle_reply(message, payload)
-#   @timeout.kill
-#   Amqp.disconnect
-#   MultiJson.decode(payload)
-# end
-

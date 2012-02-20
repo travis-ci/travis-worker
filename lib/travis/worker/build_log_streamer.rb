@@ -1,7 +1,7 @@
 module Travis
   class Worker
     class BuildLogStreamer
-      include Logging
+      include Logging, Travis::Serialization
 
       log_header { "reporter:#{name}" }
 
@@ -23,10 +23,6 @@ module Travis
         @exchange.publish(encode(data), :properties => { :type => event }, :routing_key => @routing_key)
       end
       log :message, :as => :debug
-
-      def encode(data)
-        MultiJson.encode(data)
-      end
     end
   end
 end

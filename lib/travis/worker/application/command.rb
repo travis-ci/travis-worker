@@ -5,6 +5,8 @@ module Travis
   class Worker
     class Application
       class Command < Hashr
+        include Serialization
+
         class << self
           def subscribe(subscriber, config, channel)
             channel.queue("worker.commands.#{config.name}", :durable => true).subscribe do |message, payload|
@@ -16,7 +18,7 @@ module Travis
         attr_reader :target, :command, :message
 
         def initialize(target, message, payload)
-          super(MultiJson.decode(payload))
+          super(decode(payload))
           @target  = target
           @message = message
           @command = delete(:command)

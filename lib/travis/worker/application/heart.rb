@@ -4,6 +4,18 @@ module Travis
   class Worker
     class Application
       class Heart
+
+        #
+        # Behaviors
+        #
+
+        include Serialization
+
+
+        #
+        # API
+        #
+
         attr_reader :exchange, :thread, :interval, :status
 
         def initialize(channel, &block)
@@ -40,7 +52,7 @@ module Travis
         end
 
         def encode(data)
-          MultiJson.encode(data)
+          encode(data)
         end
 
         def declare_queues

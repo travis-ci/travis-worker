@@ -6,14 +6,16 @@ require 'travis/build'
 require 'travis/support'
 
 module Travis
+  autoload :Serialization,      'travis/serialization'
+
   class Worker
     autoload :Application,      'travis/worker/application'
     autoload :BuildLogStreamer, 'travis/worker/build_log_streamer'
     autoload :Config,           'travis/worker/config'
     autoload :Factory,          'travis/worker/factory'
     autoload :Pool,             'travis/worker/pool'
-    autoload :StateReporter,    'travis/worker/state_reporter'
     autoload :Shell,            'travis/worker/shell'
+    autoload :StateReporter,    'travis/worker/state_reporter'
     autoload :VirtualMachine,   'travis/worker/virtual_machine'
 
     class << self
