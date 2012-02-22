@@ -34,3 +34,4 @@ On Ruby 1.9.2:
 See LICENSE file.
 
 Copyright (c) 2011 [Travis CI development team](https://github.com/travis-ci).
+
