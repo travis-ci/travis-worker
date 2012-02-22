@@ -1,16 +1,23 @@
 require 'spec_helper'
 
 describe Travis::Worker::Shell::Buffer do
-  it 'buffers' do
-    result = []
-    buffer = Travis::Worker::Shell::Buffer.new { |data| result << data }
+  let(:result) { [] }
+  let(:buffer) { Travis::Worker::Shell::Buffer.new(nil, :limit => 10) { |data| result << data } }
 
+  it 'buffers' do
     buffer << 'foo'
     buffer << 'bar'
-    buffer.flush
+    buffer.send(:flush)
+
     buffer << 'baz'
-    buffer.flush
+    buffer.send(:flush)
 
     result.should == ['foobar', 'baz']
+  end
+
+  it 'raises a OutputLimitExceeded exception when the log gets too long' do
+    buffer << '12345'
+    buffer << '12345'
+    lambda { buffer << '12345' }.should raise_error(Travis::Build::OutputLimitExceeded)
   end
 end
