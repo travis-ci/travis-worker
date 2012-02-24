@@ -198,6 +198,33 @@ module Travis
         end
 
 
+        desc "build_python", "Publish a sample Python build job"
+        method_option :slug,   :default => "dstufft/slumber"
+        method_option :commit, :default => "8fb2a1a9c100e90c4586e8ca31d2122bfef2cfe8"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_python
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "python",
+              :python   => "2.7",
+              :script   => "python setup.py test",
+              :install  => "pip install -r requirements.txt && pip install -r requirements-test.txt"
+            }
+          }
+
+          publish(payload, "builds.php", self.options[:n].to_i)
+        end
+
+
 
         protected
 
