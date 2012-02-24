@@ -19,17 +19,17 @@ module Travis
           end
         end
 
+        def flush
+          read.tap do |string|
+            callback.call(string) if callback
+          end if !empty?
+        end
+
+        def empty?
+          pos == length
+        end
+
         protected
-
-          def flush
-            read.tap do |string|
-              callback.call(string) if callback
-            end if !empty?
-          end
-
-          def empty?
-            pos == length
-          end
 
           def read
             string = self[pos, length - pos]
