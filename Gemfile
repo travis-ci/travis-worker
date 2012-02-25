@@ -11,7 +11,7 @@ def local_or_remote_gem(name, options = Hash.new)
   end
 end
 
-local_or_remote_gem 'travis-build',     :git => 'git://github.com/travis-ci/travis-build.git'
+local_or_remote_gem 'travis-build',     :git => 'git://github.com/travis-ci/travis-build.git', :ref => 'refactor-length-limit'
 local_or_remote_gem 'travis-support',   :git => 'git://github.com/travis-ci/travis-support.git'
 
 gem 'vagrant',          '~> 0.8.10'
