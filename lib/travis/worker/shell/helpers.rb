@@ -65,8 +65,8 @@ module Travis
           result
         end
 
-        def echo(output)
-          buffer << output
+        def echo(output, options = {})
+          options[:force] ? buffer.send(:concat, output) : buffer << output
         end
 
         def terminate(message)
