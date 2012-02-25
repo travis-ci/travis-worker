@@ -35,16 +35,13 @@ module Travis
         #
         # command - The command to be executed.
         # options - Optional Hash options (default: {}):
-        #           :timeout - The max amount of second to wait before aborting the command.
-        #           :echo    - true or false if the command should be echod to the log
+        #           :stage - The command stage, used to evaluate the timeout.
+        #           :echo  - true or false if the command should be echod to the log
         #
         # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
-          seconds = timeout(options[:timeout])
-
-          command = echoize(command) unless options[:echo] == false
-
-          Timeout.timeout(seconds) do
+          with_timeout(command, options[:stage]) do
+            command = echoize(command) unless options[:echo] == false
             exec(command) { |p, data| buffer << data } == 0
           end
         end
@@ -68,8 +65,8 @@ module Travis
           result
         end
 
-        def echo(output)
-          buffer << output
+        def echo(output, options = {})
+          options[:force] ? buffer.send(:concat, output) : buffer << output
         end
 
         def terminate(message)
@@ -96,14 +93,22 @@ module Travis
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
 
-        def timeout(category)
-          if category.is_a?(Numeric)
-            category
-          else
-            key = category || :default
-            config.timeouts[key]
+        def with_timeout(command, stage, &block)
+          seconds = timeout(stage)
+          begin
+            Timeout.timeout(seconds, &block)
+          rescue Timeout::Error => e
+            raise Travis::Build::CommandTimeout.new(stage, command, seconds)
           end
         end
+
+       def timeout(stage)
+         if stage.is_a?(Numeric)
+           stage
+         else
+           config.timeouts[stage || :default]
+         end
+       end
       end
     end
   end
