@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/travis-ci/travis-build.git
-  revision: 5cb71eb4a256687c423c7150259efbbdc0ff8641
+  revision: a0f36b0710f90e3cd07f961b3f02b58e507396aa
   ref: refactor-length-limit
   specs:
     travis-build (0.2.0)
