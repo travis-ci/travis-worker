@@ -40,8 +40,8 @@ module Travis
         #
         # Returns true if the command completed successfully, false if it failed.
         def execute(command, options = {})
-          command = echoize(command) unless options[:echo] == false
           with_timeout(command, options[:stage]) do
+            command = echoize(command) unless options[:echo] == false
             exec(command) { |p, data| buffer << data } == 0
           end
         end
@@ -93,14 +93,12 @@ module Travis
           cmd.match(/^(\S+=\S+ )*(.*)/).to_a[1..-1].map { |token| token.strip if token }
         end
 
-        def with_timeout(command, stage)
+        def with_timeout(command, stage, &block)
           seconds = timeout(stage)
-          Timeout.timeout(seconds) do
-            begin
-              yield
-            rescue Timeout::Error => e
-              raise Travis::Build::CommandTimeout.new(stage, command, seconds)
-            end
+          begin
+            Timeout.timeout(seconds, &block)
+          rescue Timeout::Error => e
+            raise Travis::Build::CommandTimeout.new(stage, command, seconds)
           end
         end
 
