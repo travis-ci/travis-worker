@@ -2,6 +2,7 @@ require 'thor'
 require 'yaml'
 require 'json'
 require 'travis/worker'
+require 'vagrant'
 
 module Travis
   class Worker
@@ -12,8 +13,6 @@ module Travis
         include Cli
 
         desc 'update [BOX]', 'Update the worker vms from a base box (BOX defaults to Travis::Worker.config.env)'
-        method_option :immute,   :aliases => '-i', :type => :boolean, :default => false, :desc => 'Make all disks in the current vagrant environment immutable'
-        method_option :snapshot, :aliases => '-s', :type => :boolean, :default => true,  :desc => 'Take online snapshots of all vms'
         method_option :reset,    :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         method_option :download, :aliases => '-d', :type => :string,  :default => false, :desc => 'Copy/download the base box from the given path, storage or URL (will use file.travis.org if -d is given without a string)'
 
@@ -71,23 +70,21 @@ module Travis
           end
 
           def add_box
-            run "vagrant box add travis-#{box} #{base_box}"
+            vagrant.cli("box", "add", "travis-#{box}", base_box)
+            vagrant.boxes.reload!
+            vagrant.reload!
           end
 
           def up
-            run "vagrant up"
+            vagrant.cli("up")
           end
 
           def halt
-            run 'vagrant halt'
+            vagrant.cli("halt")
           end
 
-          def remove_box(name)
-            run "vagrant box remove #{name}"
-          end
-
-          def destroy(name)
-            run "vagrant destroy #{name}"
+          def vagrant
+            @vagrant ||= ::Vagrant::Environment.new(:ui_class => ::Vagrant::UI::Colored)
           end
       end
     end
