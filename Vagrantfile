@@ -9,11 +9,14 @@ Vagrant::Config.run do |c|
   config.names.each_with_index do |name, num|
     c.vm.define(name) do |box|
       box.vm.box = config.name_prefix
-      box.vm.forward_port('ssh', 22, 2220 + num + 1)
 
-      box.vm.customize do |vm|
-        vm.name = name
-      end
+      box.vm.forward_port(22, 2220 + num + 1, :name => 'ssh')
+
+      box.vm.customize [
+        "modifyvm",   :id,
+        "--name",     name,
+        "--nictype1", "Am79C973"
+      ]
     end
   end
 end
