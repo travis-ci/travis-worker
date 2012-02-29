@@ -7,13 +7,13 @@ GIT
 
 GIT
   remote: git://github.com/travis-ci/travis-build.git
-  revision: 291c69f8e1ad6db88207a12f8b39fde4555b5e3f
+  revision: c818c0c5d90cf1b49c74d16551bff334c48ded99
   specs:
     travis-build (0.2.0)
 
 GIT
   remote: git://github.com/travis-ci/travis-support.git
-  revision: b952e1aa2a9ea6f8e07db6a6cbe9f2245fb8a55b
+  revision: 5cc93a703ddf9275bbcfa66c808a7afdd55b9ab0
   specs:
     travis-support (0.0.1)
 
@@ -34,16 +34,18 @@ GEM
       addressable (~> 2.2)
       multipart-post (~> 1.1)
       rack (~> 1.1)
+    ffi (1.0.11)
     ffi (1.0.11-java)
     hashr (0.0.19)
     hot_bunnies (1.3.5-java)
     i18n (0.6.0)
     jruby-openssl (0.7.6.1)
       bouncy-castle-java (>= 1.5.0146.1)
+    json (1.5.4)
     json (1.5.4-java)
     log4r (1.1.10)
     metaclass (0.0.1)
-    mocha (0.10.4)
+    mocha (0.10.5)
       metaclass (~> 0.0.1)
     multi_json (1.0.4)
     multipart-post (1.1.5)
@@ -80,6 +82,7 @@ GEM
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   faraday (~> 0.7.5)
