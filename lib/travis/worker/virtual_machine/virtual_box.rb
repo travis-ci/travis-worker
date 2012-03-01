@@ -120,9 +120,9 @@ module Travis
         # Returns the result of the block.
         def sandboxed
           start_sandbox
-          result = yield
+          yield
+        ensure
           close_sandbox
-          result
         end
 
         # Sets up the VM with a snapshot for sandboxing if one does not already exist.

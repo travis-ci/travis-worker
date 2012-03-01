@@ -18,6 +18,13 @@ module Travis
         method_option :reset,    :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
         method_option :local,    :aliases => '-l', :type => :boolean, :default => true,  :desc => 'Copy the packaged base box from ../travis-boxes/boxes to ./boxes otherwise upload them to s3'
 
+        # TODO i think the options should work slightly different here:
+        #
+        # I think it should just use whatever ./boxes/[...].box is there. Then there
+        # should be an option --download (which defaults to false) to indicate that
+        # we want to download/overwrite to ./boxes. It can default to ../travis-boxes/boxes
+        # but also be overwritten with either a local path or a url.
+
         def update
           vbox.reset if options[:reset]
           remove_base_box
