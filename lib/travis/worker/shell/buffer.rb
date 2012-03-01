@@ -43,7 +43,7 @@ module Travis
           def read
             string = self[pos, length - pos]
             # This Update do not happen atomically but it has no practical difference: in case
-            # total length was updated between local assignment above, we will just read and flush this
+            # total length was updated between local assignment above and increment below, we will just read and flush this
             # extra output during next loop tick.
             @pos += string.length
             string
