@@ -15,7 +15,13 @@ module Travis
 
         def <<(other)
           super.tap do
-            limit_exeeded! if length > limit
+            # make sure limit is initialized and > 0. Appending here happens
+            # asynchronously and #initialize may or may not have finished running
+            # by then. In addition, #length here is a regular method which is not
+            # synchronized. All this leads to #limit_exeeded! being called
+            # too early (and this explains build logs w/o any output but this length limit
+            # system message). MK.
+            limit_exeeded! if @limit && (@limit > 0) && length > @limit
           end
         end
 
