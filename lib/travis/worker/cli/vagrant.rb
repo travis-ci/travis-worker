@@ -49,6 +49,9 @@ module Travis
           end
 
           def download
+            # make sure we remove old boxes before downloading new ones. Otherwise wget will append .1, .2 and so on
+            # to the name of the file and import operation will import the old box. MK.
+            run "rm -rf #{base_box}"
             download_failed! unless run(download_command)
           end
 
