@@ -8,6 +8,9 @@ module Travis
           @interval = interval
           @callback = callback
           @limit = options[:limit] || Travis::Worker.config.limits.log_length
+          # mark from which next read operation will start. In other words,
+          # we read [mark, total length] substring every time we need to flush
+          # the buffer and update the position.
           @pos = 0
 
           start if interval
@@ -39,6 +42,9 @@ module Travis
 
           def read
             string = self[pos, length - pos]
+            # This Update do not happen atomically but it has no practical difference: in case
+            # total length was updated between local assignment above, we will just read and flush this
+            # extra output during next loop tick.
             @pos += string.length
             string
           end
