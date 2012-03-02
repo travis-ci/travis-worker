@@ -2,6 +2,10 @@ module Travis
   class Worker
     module Shell
       class Buffer < String
+        include Logging
+
+        log_header { "#{name}:shell:buffer" }
+
         attr_reader :pos, :interval, :limit, :callback
 
         def initialize(interval = nil, options = {}, &callback)
@@ -24,7 +28,10 @@ module Travis
             # synchronized. All this leads to #limit_exeeded! being called
             # too early (and this explains build logs w/o any output but this length limit
             # system message). MK.
-            limit_exeeded! if @limit && (@limit > 0) && length > @limit
+            if @limit && (@limit > 0) && length > @limit
+              warn "Log limit exceeped: @limit = #{@limit}, length = #{self.length}"
+              limit_exeeded!
+            end
           end
         end
 
