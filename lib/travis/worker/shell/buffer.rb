@@ -2,12 +2,19 @@ module Travis
   class Worker
     module Shell
       class Buffer < String
+        include Logging
+
+        log_header { "#{name}:shell:buffer" }
+
         attr_reader :pos, :interval, :limit, :callback
 
         def initialize(interval = nil, options = {}, &callback)
           @interval = interval
           @callback = callback
           @limit = options[:limit] || Travis::Worker.config.limits.log_length
+          # mark from which next read operation will start. In other words,
+          # we read [mark, total length] substring every time we need to flush
+          # the buffer and update the position.
           @pos = 0
 
           start if interval
@@ -15,7 +22,16 @@ module Travis
 
         def <<(other)
           super.tap do
-            limit_exeeded! if length > limit
+            # make sure limit is initialized and > 0. Appending here happens
+            # asynchronously and #initialize may or may not have finished running
+            # by then. In addition, #length here is a regular method which is not
+            # synchronized. All this leads to #limit_exeeded! being called
+            # too early (and this explains build logs w/o any output but this length limit
+            # system message). MK.
+            if @limit && (@limit > 0) && length > @limit
+              warn "Log limit exceeded: @limit = #{@limit}, length = #{self.length}"
+              limit_exeeded!
+            end
           end
         end
 
@@ -33,6 +49,9 @@ module Travis
 
           def read
             string = self[pos, length - pos]
+            # This Update do not happen atomically but it has no practical difference: in case
+            # total length was updated between local assignment above and increment below, we will just read and flush this
+            # extra output during next loop tick.
             @pos += string.length
             string
           end

@@ -1,9 +1,7 @@
 require 'bundler/setup'
 require 'travis/worker/cli/app'
 require 'travis/worker/cli/console'
-if defined?(JRUBY_VERSION)
-  require 'travis/worker/cli/development'
-end
+require 'travis/worker/cli/development' if defined?(JRUBY_VERSION)
 require 'travis/worker/cli/vagrant'
 require 'travis/worker/cli/virtualbox'
 
@@ -15,8 +13,9 @@ module Travis
       def run(*commands)
         normalize_commands(commands).each do |command|
           puts "$ #{command}"
-          system command
+          return false unless system(command)
         end
+        true
       end
 
       def wait(seconds)

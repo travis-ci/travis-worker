@@ -2,6 +2,7 @@ require 'thor'
 require 'yaml'
 require 'json'
 require 'travis/worker'
+require 'vagrant'
 
 module Travis
   class Worker
@@ -11,38 +12,25 @@ module Travis
 
         include Cli
 
-        desc 'update', 'Update the worker vms from a base box'
-        method_option :env
-        method_option :immute,   :aliases => '-i', :type => :boolean, :default => false, :desc => 'Make all disks in the current vagrant environment immutable'
-        method_option :snapshot, :aliases => '-s', :type => :boolean, :default => true,  :desc => 'Take online snapshots of all vms'
+        desc 'update [BOX]', 'Update the worker vms from a base box (BOX defaults to Travis::Worker.config.env)'
         method_option :reset,    :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
-        method_option :local,    :aliases => '-l', :type => :boolean, :default => true,  :desc => 'Copy the packaged base box from ../travis-boxes/boxes to ./boxes otherwise upload them to s3'
+        method_option :download, :aliases => '-d', :type => :string,  :default => false, :desc => 'Copy/download the base box from the given path, storage or URL (will use file.travis.org if -d is given without a string)'
 
-        # TODO i think the options should work slightly different here:
-        #
-        # I think it should just use whatever ./boxes/[...].box is there. Then there
-        # should be an option --download (which defaults to false) to indicate that
-        # we want to download/overwrite to ./boxes. It can default to ../travis-boxes/boxes
-        # but also be overwritten with either a local path or a url.
+        def update(box = Travis::Worker.config.env)
+          self.box = box
 
-        def update
           vbox.reset if options[:reset]
-          remove_base_box
-          options[:local] ? local : download
+          download if download?
           add_box
           exit unless up
           halt
+        rescue => e
+          puts e.message
         end
 
-        # desc 'remove', 'Remove the worker boxes'
-        # def remove
-        #   1.upto(config.count) do |num|
-        #     destroy "worker-#{num}"
-        #     remove_box "worker-#{num}"
-        #   end
-        # end
-
         protected
+
+          attr_accessor :box
 
           def vbox
             @vbox ||= Vbox.new('', options)
@@ -52,46 +40,54 @@ module Travis
             self.class.config
           end
 
-          def env
-            options['env'] || Travis::Worker.config.env
+          def base_box
+            "boxes/travis-#{box}.box"
           end
 
-          def base
-            "boxes/travis-#{env}.box"
-          end
-
-          def remove_base_box
-            run "rm -rf boxes/travis-#{env}.box"
-          end
-
-          def local
-            run "cp ../travis-boxes/boxes/travis-#{env}.box boxes" # TODOdon't copy if files are identical
+          def download?
+            !!options[:download] || !File.exists?(base_box)
           end
 
           def download
-            unless File.exists?("boxes/travis-#{env}.box")
-              run "wget http://files.travis-ci.org/boxes/provisioned/travis-#{env}.box -P boxes"
+            # make sure we remove old boxes before downloading new ones. Otherwise wget will append .1, .2 and so on
+            # to the name of the file and import operation will import the old box. MK.
+            run "rm -rf #{base_box}"
+            download_failed! unless run(download_command)
+          end
+
+          def download_command
+            source =~ /^http:/ ? "wget #{source} -P boxes" : "cp #{source} boxes"
+          end
+
+          def download_failed!
+            raise "The download command #{download_command} failed, terminating ..."
+          end
+
+          def source
+            case options[:download]
+            when 'download', NilClass
+              "http://files.travis-ci.org/boxes/provisioned/travis-#{box}.box"
+            else
+              options[:download]
             end
           end
 
           def add_box
-            run "vagrant box add travis-#{env} #{base}"
+            vagrant.cli("box", "add", "travis-#{box}", base_box)
+            vagrant.boxes.reload!
+            vagrant.reload!
           end
 
           def up
-            run "vagrant up"
+            vagrant.cli("up")
           end
 
           def halt
-            run 'vagrant halt'
+            vagrant.cli("halt")
           end
 
-          def remove_box(name)
-            run "vagrant box remove #{name}"
-          end
-
-          def destroy(name)
-            run "vagrant destroy #{name}"
+          def vagrant
+            @vagrant ||= ::Vagrant::Environment.new(:ui_class => ::Vagrant::UI::Colored)
           end
       end
     end

@@ -11,10 +11,10 @@ def local_or_remote_gem(name, options = Hash.new)
   end
 end
 
-local_or_remote_gem 'travis-build',     :git => 'git://github.com/travis-ci/travis-build.git', :ref => 'refactor-length-limit'
+local_or_remote_gem 'travis-build',     :git => 'git://github.com/travis-ci/travis-build.git'
 local_or_remote_gem 'travis-support',   :git => 'git://github.com/travis-ci/travis-support.git'
 
-gem 'vagrant',          '~> 0.8.10'
+gem 'vagrant',          '~> 0.9.0'
 gem 'thor',             '~> 0.14.6'
 
 gem 'faraday',          '~> 0.7.5'
@@ -25,7 +25,7 @@ gem 'json'
 
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.3.3'
-  gem 'net-ssh-shell',  '~> 0.2.0'
+  gem 'net-ssh-shell',  :git => 'git://github.com/joshk/net-ssh-shell.git'
   gem 'jruby-openssl',  '~> 0.7.4'
 end
 
