@@ -29,7 +29,7 @@ module Travis
             # too early (and this explains build logs w/o any output but this length limit
             # system message). MK.
             if @limit && (@limit > 0) && length > @limit
-              warn "Log limit exceeped: @limit = #{@limit}, length = #{self.length}"
+              warn "Log limit exceeded: @limit = #{@limit}, length = #{self.length}"
               limit_exeeded!
             end
           end
