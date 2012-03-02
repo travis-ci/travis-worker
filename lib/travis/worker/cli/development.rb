@@ -94,7 +94,32 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
+        end
+
+
+        desc "build_with_missing_repo", "Publish a sample Clojure build job that tries to clone a repo that does not exist"
+        method_option :slug,   :default => "michaelklishin/urly8277"
+        method_option :commit, :default => "d487ca890f6e7c358274a32f722506bd5568fdfc"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_with_missing_repo
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :script   => "lein javac, test"
+            }
+          }
+
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -118,7 +143,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -142,7 +167,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -168,7 +193,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -195,6 +220,33 @@ module Travis
           }
 
           publish(payload, "builds.node_js", self.options[:n].to_i)
+        end
+
+
+        desc "build_python", "Publish a sample Python build job"
+        method_option :slug,   :default => "dstufft/slumber"
+        method_option :commit, :default => "8fb2a1a9c100e90c4586e8ca31d2122bfef2cfe8"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_python
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "python",
+              :python   => "2.7",
+              :script   => "python setup.py test",
+              :install  => "pip install -r requirements.txt && pip install -r requirements-test.txt"
+            }
+          }
+
+          publish(payload, "builds.php", self.options[:n].to_i)
         end
 
 
