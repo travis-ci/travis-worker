@@ -40,10 +40,11 @@ module Travis
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
-        # Closes the Shell and flushes the buffer
+        # Closes the Shell, flushes and resets the buffer
         def close
           shell.close!
           buffer.flush
+          buffer.reset
         end
 
         # Allows you to set a callback when output is received from the ssh shell.

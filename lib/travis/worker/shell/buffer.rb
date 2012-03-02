@@ -4,7 +4,7 @@ module Travis
       class Buffer < String
         include Logging
 
-        log_header { "#{name}:shell:buffer" }
+        log_header { 'travis:worker:shell:buffer' }
 
         attr_reader :pos, :interval, :limit, :callback
 
@@ -22,23 +22,19 @@ module Travis
 
         def <<(other)
           super.tap do
-            # make sure limit is initialized and > 0. Appending here happens
-            # asynchronously and #initialize may or may not have finished running
-            # by then. In addition, #length here is a regular method which is not
-            # synchronized. All this leads to #limit_exeeded! being called
-            # too early (and this explains build logs w/o any output but this length limit
-            # system message). MK.
-            if @limit && (@limit > 0) && length > @limit
-              warn "Log limit exceeded: @limit = #{@limit}, length = #{self.length}"
-              limit_exeeded!
-            end
+            limit_exeeded! if length > limit
           end
         end
 
         def flush
           read.tap do |string|
             callback.call(string) if callback
-          end if !empty?
+          end unless empty?
+        end
+
+        def reset
+          replace ''
+          @pos = 0
         end
 
         def empty?
@@ -49,9 +45,10 @@ module Travis
 
           def read
             string = self[pos, length - pos]
-            # This Update do not happen atomically but it has no practical difference: in case
-            # total length was updated between local assignment above and increment below, we will just read and flush this
-            # extra output during next loop tick.
+            # This update do not happen atomically but it has no practical
+            # difference: in case total length was updated between local
+            # assignment above and increment below, we will just read and flush
+            # this extra output during next loop tick.
             @pos += string.length
             string
           end
@@ -66,6 +63,7 @@ module Travis
           end
 
           def limit_exeeded!
+            warn "Log limit exceeded: @limit = #{@limit.inspect}, length = #{self.length.inspect}"
             raise Travis::Build::OutputLimitExceeded.new(limit.to_s)
           end
       end

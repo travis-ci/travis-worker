@@ -94,7 +94,32 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
+        end
+
+
+        desc "build_with_missing_repo", "Publish a sample Clojure build job that tries to clone a repo that does not exist"
+        method_option :slug,   :default => "michaelklishin/urly8277"
+        method_option :commit, :default => "d487ca890f6e7c358274a32f722506bd5568fdfc"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_with_missing_repo
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :script   => "lein javac, test"
+            }
+          }
+
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -144,7 +169,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -168,7 +193,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
@@ -194,7 +219,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
