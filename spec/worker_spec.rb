@@ -33,12 +33,6 @@ describe Travis::Worker do
       connection.close if connection.open?
     end
 
-    after :all do
-      worker.shutdown
-      sleep 1.0
-      connection.close if connection.open?
-    end
-
     it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
