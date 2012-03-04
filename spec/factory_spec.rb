@@ -1,15 +1,19 @@
 require 'spec_helper'
 
 describe Travis::Worker::Factory do
+  let(:connection)   { HotBunnies.connect }
   let(:config) { Hashr.new({ :queues => %w(builds.php builds.python builds.perl) }) }
   let(:factory) do
-    Travis::Worker::Factory.new('worker-name', config)
+    Travis::Worker::Factory.new('worker-name', config, connection)
   end
   let(:worker)  { factory.worker }
 
-  before(:each) { Travis::Amqp.stubs(:connection).returns(stub('amqp')) }
-
   describe 'worker' do
+    after :each do
+      worker.shutdown
+      connection.close if connection.open?
+    end
+
     it 'returns a worker' do
       worker.should be_a(Travis::Worker)
     end
@@ -19,6 +23,11 @@ describe Travis::Worker::Factory do
     end
 
     describe 'queues' do
+      after :each do
+        worker.shutdown
+        connection.close
+      end
+
       it 'includes builds.configure' do
         worker.queue_names.first.should == 'builds.configure'
       end

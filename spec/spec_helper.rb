@@ -5,6 +5,8 @@ require "bundler/setup"
 
 require 'rspec'
 require 'mocha'
+require 'hashr'
+require 'hot_bunnies'
 
 require 'travis/worker'
 require 'logger'

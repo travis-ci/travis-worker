@@ -12,7 +12,7 @@ describe Travis::Worker do
   let(:connection)   { HotBunnies.connect }
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
-  let(:message)      { stub('message', :ack => nil) }
+  let(:metadata)      { stub('metadata', :ack => nil, :routing_key => "builds.common") }
   let(:payload)      { '{ "id": 1 }' }
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
   let(:build)        { stub('build', :run => nil) }
@@ -22,17 +22,21 @@ describe Travis::Worker do
     Socket.stubs(:gethostname).returns('host')
     Travis.logger = Logger.new(io)
     Travis::Build.stubs(:create).returns(build)
-  end
 
-  after :each do
-    worker.shutdown
-  end
-
-  after :all do
-    worker.shutdown
+    worker.state_reporter = reporter
   end
 
   describe 'start' do
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
     it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
@@ -42,6 +46,7 @@ describe Travis::Worker do
 
     it 'notifies the reporter about the :starting state' do
       reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
+
       worker.start
     end
 
@@ -61,7 +66,19 @@ describe Travis::Worker do
     end
   end
 
+
+
   describe 'stop' do
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
     describe 'if the worker is still working' do
       before :each do
         worker.stubs(:working?).returns(true)
@@ -95,15 +112,22 @@ describe Travis::Worker do
     end
   end
 
+
+
   describe 'process' do
     describe 'without any exception rescued' do
       before :each do
         worker.state = :ready
       end
 
+      after :each do
+        worker.shutdown
+        connection.close
+      end
+
       it 'works' do
         worker.expects(:work)
-        worker.send(:process, message, payload)
+        worker.send(:process, metadata, payload)
       end
     end
 
@@ -115,40 +139,69 @@ describe Travis::Worker do
         worker.stubs(:work).raises(exception)
       end
 
+      after :each do
+        worker.shutdown
+        connection.close
+      end
+
+
       it 'responds to the error' do
-        worker.expects(:error).with(exception, message)
-        worker.send(:process, message, payload)
+        worker.expects(:error).with(exception, metadata)
+        worker.send(:process, metadata, payload)
       end
     end
   end
+
+
 
   describe 'work' do
     before :each do
       worker.state = :ready
     end
 
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
+
     it 'prepares work' do
       worker.expects(:prepare)
-      worker.send(:work, message, payload)
+      worker.send(:work, metadata, payload)
     end
 
     it 'creates a new build job' do
       Travis::Build.expects(:create).returns(build)
-      worker.send(:work, message, payload)
+      worker.send(:work, metadata, payload)
     end
 
     it 'runs the build' do
       build.expects(:run)
-      worker.send(:work, message, payload)
+      worker.send(:work, metadata, payload)
     end
 
     it 'finishes' do
       worker.expects(:finish)
-      worker.send(:work, message, payload)
+      worker.send(:work, metadata, payload)
     end
   end
 
   describe 'prepare' do
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
     it 'sets the current payload' do
       worker.send(:prepare, payload)
       worker.payload.should == { :id => 1 }
@@ -161,39 +214,64 @@ describe Travis::Worker do
   end
 
   describe 'finish' do
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
-      worker.send(:finish, message)
+      worker.send(:finish, metadata)
       worker.payload.should be_nil
     end
 
     it 'acknowledges the message' do
-      message.expects(:ack)
-      worker.send(:finish, message)
+      metadata.expects(:ack)
+      worker.send(:finish, metadata)
     end
 
-    it 'sets the current state to :read if the worker is working'
-    it 'sets the current state to :stopped if the worker is stopping'
+    context "if the worker is working" do
+      it 'sets the current state to :ready'
+    end
+
+    context "if the worker is stopping" do
+      it 'sets the current state to :stopped'
+    end
   end
 
   describe 'error' do
+    after :each do
+      worker.shutdown
+      connection.close
+    end
+
+    after :all do
+      worker.shutdown
+      connection.close
+    end
+
     it 'requeues the message' do
-      message.expects(:ack).with(:requeue => true)
-      worker.send(:error, exception, message)
+      metadata.expects(:ack).with(:requeue => true)
+      worker.send(:error, exception, metadata)
     end
 
     it 'stores the error' do
-      worker.send(:error, exception, message)
+      worker.send(:error, exception, metadata)
       worker.last_error.should == "broken\nkaputt.rb"
     end
 
     it 'stops itself' do
       worker.expects(:stop)
-      worker.send(:error, exception, message)
+      worker.send(:error, exception, metadata)
     end
 
     it 'sets the current state to :errored' do
-      worker.send(:error, exception, message)
+      worker.send(:error, exception, metadata)
       worker.should be_errored
     end
   end
