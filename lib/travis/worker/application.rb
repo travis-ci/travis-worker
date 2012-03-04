@@ -11,7 +11,7 @@ module Travis
       include Logging
 
       def initialize
-        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase) # TODO hrmm ...
+        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
         Travis::Amqp.config = config.amqp
 
         # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
@@ -49,12 +49,17 @@ module Travis
 
       def terminate(options = {})
         stop(options)
+        Command.shutdown
         disconnect
         update if options[:update]
         reboot if options[:reboot]
         quit
       end
       log :terminate
+
+      def broker_connection
+        @broker_connection ||= HotBunnies.connect(config.fetch(:amqp, Hashr.new))
+      end
 
       protected
 
@@ -64,10 +69,6 @@ module Travis
 
       def workers
         @workers ||= Pool.create(broker_connection)
-      end
-
-      def broker_connection
-        @broker_connection ||= HotBunnies.connect(config.fetch(:amqp, Hashr.new))
       end
 
       def heartbeat_channel
@@ -103,7 +104,7 @@ module Travis
 
       def disconnect
         heart.stop
-        Amqp.disconnect
+        broker_connection.close if broker_connection.open?
         sleep(0.5)
       end
       log :disconnect

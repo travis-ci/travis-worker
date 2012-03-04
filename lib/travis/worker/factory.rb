@@ -1,7 +1,7 @@
 module Travis
   class Worker
     class Factory
-      attr_reader :name
+      attr_reader :name, :config, :broker_connection
 
       def initialize(name, config = nil, broker_connection = nil)
         @name              = name

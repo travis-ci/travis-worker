@@ -10,13 +10,17 @@ module Travis
 
   class Worker
     autoload :Application,      'travis/worker/application'
-    autoload :BuildLogStreamer, 'travis/worker/build_log_streamer'
     autoload :Config,           'travis/worker/config'
     autoload :Factory,          'travis/worker/factory'
     autoload :Pool,             'travis/worker/pool'
     autoload :Shell,            'travis/worker/shell'
-    autoload :StateReporter,    'travis/worker/state_reporter'
     autoload :VirtualMachine,   'travis/worker/virtual_machine'
+
+    module Reporters
+      autoload :LogStreamer,    'travis/worker/reporters/log_streamer'
+      autoload :StateReporter,  'travis/worker/reporters/state_reporter'
+    end
+
 
     class << self
       def config
@@ -34,8 +38,8 @@ module Travis
 
     states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
-    attr_accessor :state
-    attr_reader :name, :vm, :broker_connection, :queues, :queue_names, :config, :payload, :last_error
+    attr_accessor :state, :state_reporter
+    attr_reader :name, :vm, :broker_connection, :queues, :queue_names, :consumers, :config, :payload, :last_error
 
     def initialize(name, vm, broker_connection, queue_names, config)
       raise ArgumentError, "worker name cannot be nil!" if name.nil?
@@ -142,7 +146,7 @@ module Travis
       # reports worker states, for example, whether worker is
       # ready, occupied or has issues. Build log streaming is done
       # using a separate class that is instantiated on the per-request basis. MK.
-      @state_reporter    = StateReporter.new(name, @broker_connection.create_channel)
+      @state_reporter    = Reporters::StateReporter.new(name, @broker_connection.create_channel)
     end
 
     def set(state)
@@ -161,7 +165,7 @@ module Travis
     def work(message, payload)
       prepare(payload)
 
-      build_log_streamer = BuildLogStreamer.new(name, @broker_connection.create_channel, log_streamer_routing_key_for(message, payload))
+      build_log_streamer = Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_streamer_routing_key_for(message, payload))
       Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
       finish(message)
     end
