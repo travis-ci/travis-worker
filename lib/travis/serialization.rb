@@ -8,7 +8,7 @@ module Travis
     end
 
     def decode(data)
-      MultiJson.decode(data)
+      Hashr.new(MultiJson.decode(data))
     end
   end
 end
