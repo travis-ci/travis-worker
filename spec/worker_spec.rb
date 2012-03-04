@@ -29,12 +29,12 @@ describe Travis::Worker do
   describe 'start' do
     after :each do
       worker.shutdown
-      connection.close
+      connection.close if connection.open?
     end
 
     after :all do
       worker.shutdown
-      connection.close
+      connection.close if connection.open?
     end
 
     it 'sets the current state to :starting while it prepares the vm' do
@@ -46,7 +46,6 @@ describe Travis::Worker do
 
     it 'notifies the reporter about the :starting state' do
       reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
-
       worker.start
     end
 
