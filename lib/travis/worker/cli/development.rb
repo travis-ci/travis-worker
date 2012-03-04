@@ -145,7 +145,7 @@ module Travis
             }
           }
 
-          publish(payload, "builds.common", self.options[:n].to_i)
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
 
 
