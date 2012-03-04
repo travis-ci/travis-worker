@@ -25,11 +25,11 @@ describe Travis::Worker::Reporters::StateReporter do
     end
 
     it "publishes notifications of given type" do
-      reporter.notify('build:started', :log => "...")
+      reporter.notify('build:started', :hostname => "giove.local")
       sleep 0.5
       meta, payload = queue.get
 
-      decode(payload).should == { :log => "..." }
+      decode(payload).should == { :hostname => "giove.local" }
       meta.properties.type.should == "build:started"
     end
   end
