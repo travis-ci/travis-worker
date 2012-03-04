@@ -29,11 +29,13 @@ describe Travis::Worker do
   describe 'start' do
     after :each do
       worker.shutdown
+      sleep 1.0
       connection.close if connection.open?
     end
 
     after :all do
       worker.shutdown
+      sleep 1.0
       connection.close if connection.open?
     end
 
