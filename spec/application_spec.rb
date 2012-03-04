@@ -10,40 +10,8 @@ describe Travis::Worker::Application do
     app.stubs(:heart).returns(heart)
     app.stubs(:workers).returns(workers)
     app.stubs(:logger).returns(Logger.new(StringIO.new))
-    Travis::Worker::Application::Command.stubs(:subscribe)
   end
 
-  describe 'boot' do
-    before :each do
-      Signal.stub(:trap)
-    end
-
-    it 'configures the log level' do
-      Logger.stubs(:const_get).returns(Logger::INFO)
-      app.boot
-      Travis.logger.level.should == Logger::INFO
-    end
-
-    it 'installs signal traps' do
-      Signal.expects(:trap).twice
-      app.boot
-    end
-
-    it 'starts the given workers' do
-      workers.expects(:start).with(['worker-1'])
-      app.boot(:workers => ['worker-1'])
-    end
-
-    it 'starts the heartbeat' do
-      heart.expects(:beat)
-      app.boot
-    end
-
-    it 'subscribes to the command queue' do
-      Travis::Worker::Application::Command.expects(:subscribe).with(app)
-      app.boot
-    end
-  end
 
   describe 'start' do
     it 'starts the workers with the given names' do
@@ -74,59 +42,6 @@ describe Travis::Worker::Application do
     it 'sets the given configuration to Travis.config' do
       app.set('foo.bar.baz' => 1)
       Travis::Worker.config.foo.bar.baz.should == 1
-    end
-  end
-
-  describe 'terminate' do
-    before :each do
-      java.lang.System.stubs(:exit)
-      Travis::Amqp.stubs(:disconnect)
-      app.stubs(:sleep)
-      app.stubs(:system)
-    end
-
-    it 'stops the given workers' do
-      workers.expects(:stop).with(['worker-1'], :force => true)
-      app.terminate(:workers => ['worker-1'], :force => true)
-    end
-
-    it 'disconnects from amqp' do
-      Travis::Amqp.expects(:disconnect)
-      app.terminate
-    end
-
-    it 'stops the heartbeat' do
-      heart.expects(:stop)
-      app.terminate
-    end
-
-    describe 'given :update => true' do
-      it 'resets the current git working directory' do
-        app.expects(:system).with('git reset --hard >> log/worker.log 2>&1')
-        app.terminate(:update => true)
-      end
-
-      it 'updates the code base' do
-        app.expects(:system).with('git pull >> log/worker.log 2>&1')
-        app.terminate(:update => true)
-      end
-
-      it 'installs the bundle' do
-        app.expects(:system).with('bundle install >> log/worker.log 2>&1')
-        app.terminate(:update => true)
-      end
-    end
-
-    describe 'given :reboot => true' do
-      it 'schedules a system job for restarting the application' do
-        app.expects(:system).with('echo "thor travis:worker:boot >> log/worker.log 2>&1" | at now')
-        app.terminate(:reboot => true)
-      end
-    end
-
-    it 'quits' do
-      java.lang.System.expects(:exit)
-      app.terminate
     end
   end
 

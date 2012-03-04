@@ -123,6 +123,32 @@ module Travis
         end
 
 
+        desc "build_clojure2", "Publish a sample Clojure build job"
+        method_option :slug,   :default => "michaelklishin/monger"
+        method_option :commit, :default => "a75e0dbd7c79f30b148b0e3c765550530e89a7cc"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_clojure
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :script   => "lein multi test",
+              :before_install => "lein plugin install lein-multi 1.1.0"
+            }
+          }
+
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
+        end
+
+
         desc "build_groovy", "Publish a sample Groovy build job"
         method_option :slug,   :default => "gradle/gradle"
         method_option :commit, :default => "c8c75360b859e9fab40dd0b6eb0cd8e925c2170c"

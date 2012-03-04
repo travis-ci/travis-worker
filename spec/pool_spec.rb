@@ -3,8 +3,10 @@ require 'stringio'
 
 describe Travis::Worker::Pool do
   let(:names)   { %w(worker-1 worker-2)}
-  let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config) }
-  let(:queues)  { %w(builds reporting.jobs) }
+  let(:connection)   { HotBunnies.connect }
+
+
+  let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config, connection) }
   let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
@@ -13,6 +15,10 @@ describe Travis::Worker::Pool do
   end
 
   describe 'start' do
+    after :each do
+      connection.close
+    end
+
     describe 'with no worker names given' do
       it 'starts the workers' do
         workers.each { |worker| worker.expects(:start) }
@@ -39,6 +45,10 @@ describe Travis::Worker::Pool do
 
   describe 'stop' do
     describe 'with no worker names given' do
+      after :each do
+        connection.close
+      end
+
       it 'stops the workers' do
         workers.each { |worker| worker.expects(:stop) }
         pool.stop([])
@@ -46,6 +56,10 @@ describe Travis::Worker::Pool do
     end
 
     describe 'with a worker name given' do
+      after :each do
+        connection.close
+      end
+
       it 'stops the worker' do
         workers.first.expects(:stop)
         pool.stop(['worker-1'])
@@ -62,13 +76,14 @@ describe Travis::Worker::Pool do
     end
 
     describe 'with an option :force => true given' do
+      after :each do
+        connection.close
+      end
+
       it 'stops the worker with that option' do
         workers.first.expects(:stop).with(:force => true)
         pool.stop(['worker-1'], :force => true)
       end
-    end
-
-    describe 'logging' do
     end
   end
 end

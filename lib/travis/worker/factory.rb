@@ -1,27 +1,24 @@
 module Travis
   class Worker
     class Factory
-      attr_reader :name
+      attr_reader :name, :config, :broker_connection
 
-      def initialize(name, config = nil)
-        @name = name
-        @config = config
+      def initialize(name, config = nil, broker_connection = nil)
+        @name              = name
+        @config            = config
+        @broker_connection = broker_connection
       end
 
       def worker
-        Worker.new(name, vm, queues, reporter, config)
+        Worker.new(name, vm, @broker_connection, queue_names, config)
       end
 
       def vm
         VirtualMachine::VirtualBox.new("travis-#{name}")
       end
 
-      def queues
-        [Amqp::Consumer.configure, Amqp::Consumer.builds]
-      end
-
-      def reporter
-        Reporter.new(name, Amqp::Publisher.jobs(config.queue), Amqp::Publisher.workers)
+      def queue_names
+        %w(builds.configure) + Array(@config[:queues] || @config[:queue] || [])
       end
 
       def config

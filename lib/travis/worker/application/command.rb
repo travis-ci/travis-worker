@@ -5,39 +5,48 @@ module Travis
   class Worker
     class Application
       class Command < Hashr
+        include Serialization
+
         class << self
-          def subscribe(subscriber)
-            Amqp::Consumer.commands.subscribe do |message, payload|
-              new(subscriber, message, payload).process
+          def subscribe(subscriber, config, channel)
+            queue     = channel.queue("worker.commands.#{config.name}", :durable => true)
+            @consumer = queue.subscribe do |message, payload|
+              new(subscriber, channel, message, payload).process
+            end
+          end
+
+          def shutdown
+            # may be nil in some scenarios with mocks
+            if @consumer
+              @consumer.cancel
+              @consumer.shutdown!
             end
           end
         end
 
         attr_reader :target, :command, :message
 
-        def initialize(target, message, payload)
-          super(MultiJson.decode(payload))
+        def initialize(target, channel, message, payload)
+          super(decode(payload))
           @target  = target
+          @channel = channel
           @message = message
           @command = delete(:command)
         end
 
         def process
-          reply(target.send(command, *args)) # , &method(:reply)
+          reply(target.send(command, *args))
         rescue Exception => e
           puts e.message, e.backtrace
         end
 
         def output(output)
-           reply(output)
+          reply(output)
         end
 
         def reply(result)
-          replies.publish(result, :correlation_id => correlation_id)
-        end
-
-        def replies
-          Amqp::Publisher.replies
+          # TODO: switch to server-named queues for replies. MK.
+          @channel.default_exchange.publish(result, :correlation_id => correlation_id, :routing_key => "replies")
         end
 
         def args
