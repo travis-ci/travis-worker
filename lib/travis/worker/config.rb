@@ -59,8 +59,8 @@ module Travis
           read_yml(path('base')).deep_merge(read_yml(path(env)).deep_merge(local.merge('env' => env)))
         end
 
-        def read_yml(path)
-          YAML.load_file(File.expand_path(path)) || {}
+        def read_yml(file_path)
+          YAML.load_file(File.expand_path(file_path)) || {}
         end
 
         def config_filename(environment)
