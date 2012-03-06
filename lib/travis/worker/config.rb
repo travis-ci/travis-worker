@@ -69,10 +69,10 @@ module Travis
 
         def path(environment = nil)
           filename = config_path(environment)
-          paths    = LOCATIONS.map { |path| "#{path}#{filename}" }
+          paths    = LOCATIONS.map { |p| "#{p}#{filename}" }
 
-          if path = paths.detect { |p| File.exists?(p) }
-            path
+          if existing_path = paths.detect { |p| File.exists?(p) }
+            existing_path
           else
             raise "Could not find a configuration file. Valid paths are: #{paths.join(', ')}"
           end
