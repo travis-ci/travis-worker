@@ -23,12 +23,18 @@ describe Travis::Worker::Config do
   it "reads ./config/worker.yml first, ./config/worker.[env].yml second and merges them" do
     File.stubs(:exists?).with('./config/worker.yml').returns(true)
 
-    Travis::Worker::Config.any_instance.stubs(:read_yml).with('./config/worker.yml').returns('env' => 'staging', 'staging' => { 'foo' => 'foo' })
-    Travis::Worker::Config.any_instance.stubs(:read_yml).with('./config/worker.staging.yml').returns('bar' => 'bar')
+    Travis::Worker::Config.any_instance.stubs(:read_yml).
+      with('./config/worker.yml').
+      returns('env' => 'staging', 'staging' => { 'foo' => 'local', 'bar' => 'local' })
+    Travis::Worker::Config.any_instance.stubs(:read_yml).
+      with('./config/worker.staging.yml').
+      returns('bar' => 'env', "baz" => "env")
 
-    config.read['env'].should eql 'staging'
-    config.read['foo'].should eql 'foo'
-    config.read['bar'].should eql 'bar'
+    merged = config.read
+    merged['env'].should eql 'staging'
+    merged['foo'].should eql 'local'
+    merged['bar'].should eql 'local'
+    merged['baz'].should eql 'env'
   end
 
   it 'name returns the first part of the host name' do
