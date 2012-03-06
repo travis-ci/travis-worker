@@ -63,12 +63,12 @@ module Travis
           YAML.load_file(File.expand_path(path)) || {}
         end
 
-        def config_path(environment)
+        def config_filename(environment)
           ['worker', environment, 'yml'].compact.join('.')
         end
 
         def path(environment = nil)
-          filename = config_path(environment)
+          filename = config_filename(environment)
           paths    = LOCATIONS.map { |p| "#{p}#{filename}" }
 
           if existing_path = paths.detect { |p| File.exists?(p) }
