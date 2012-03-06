@@ -63,11 +63,19 @@ module Travis
           YAML.load_file(File.expand_path(path)) || {}
         end
 
+        def config_path(environment)
+          ['worker', environment, 'yml'].compact.join('.')
+        end
+
         def path(environment = nil)
-          filename = ['worker', environment, 'yml'].compact.join('.')
-          paths = LOCATIONS.map { |path| "#{path}#{filename}" }
-          paths.each { |path| return path if File.exists?(path) }
-          raise "Could not find a configuration file. Valid paths are: #{paths.join(', ')}"
+          filename = config_path(environment)
+          paths    = LOCATIONS.map { |path| "#{path}#{filename}"
+ }
+          if path = paths.detect { |p| File.exists?(p) }
+            path
+          else
+            raise "Could not find a configuration file. Valid paths are: #{paths.join(', ')}"
+          end
         end
     end
   end
