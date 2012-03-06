@@ -69,8 +69,8 @@ module Travis
 
         def path(environment = nil)
           filename = config_path(environment)
-          paths    = LOCATIONS.map { |path| "#{path}#{filename}"
- }
+          paths    = LOCATIONS.map { |path| "#{path}#{filename}" }
+
           if path = paths.detect { |p| File.exists?(p) }
             path
           else
