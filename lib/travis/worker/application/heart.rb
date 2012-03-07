@@ -51,10 +51,6 @@ module Travis
           thread.terminate if thread
         end
 
-        def encode(data)
-          encode(data)
-        end
-
         def declare_queues
           @channel.queue(@target_queue_name, :durable => true)
         end
