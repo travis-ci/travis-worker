@@ -95,28 +95,40 @@ module Travis
     def open_channels
       # error handling happens on the per-channel basis, so using
       # one channel for one type of operation is a highly recommended practice. MK.
-      open_builds_consumer_channel
+      open_builds_consumer_channels
       open_reporting_channel
     end
 
     def close_channels
       # channels may be nil in some tests that mock out #start and #stop. MK.
-      @build_consumer_channel.close if @build_consumer_channel && @build_consumer_channel.open?
+      @build_consumer_channels.each do |_, ch|
+        ch.close if ch.open?
+      end if @build_consumer_channels
       @reporting_channel.close      if @reporting_channel && @reporting_channel.open?
     end
 
-    def open_builds_consumer_channel
-      @build_consumer_channel = @config[:build_consumer_channel] = @broker_connection.create_channel
-      @build_consumer_channel.prefetch = 1
+    def open_builds_consumer_channels
+      # technically there is no need to use one channel per consumer but with RabbitMQ version on
+      # Heroku (2.5) this is the only way to go :/ 2.6 and 2.7 on my local network work just fine.
+      # But hey, Heroku gods, we must obey to. For now. MK.
+      @build_consumer_channels = @queue_names.reduce({}) do |acc, q|
+        acc[q]          = @broker_connection.create_channel
+        acc[q].prefetch = 1
+        acc
+      end
     end
 
     def open_reporting_channel
-      @reporting_channel      = @config[:reporting_channel]      = @broker_connection.create_channel
+      @reporting_channel      = @broker_connection.create_channel
     end
 
     def declare_queues
       # the list of queues is passed on from Travis::Worker::Factory. MK.
-      @queues = @queue_names.map { |name| @build_consumer_channel.queue(name, :durable => true) }
+      @queues = @queue_names.map do |name|
+        # see comments in open_builds_consumer_channels about why we are using
+        # one channel per queue. MK.
+        @build_consumer_channels[name].queue(name, :durable => true)
+      end
 
       # these are declared here mostly to aid development purposes. Hub is just as involved
       # in build log streaming so it may seem more logical to move these declarations to Hub. We may
@@ -127,7 +139,7 @@ module Travis
     end
 
     def subscribe
-      @consumers = @queues.map { |queue| queue.subscribe(:ack => true, :blocking => false, &method(:process)) }
+      @consumers = @queues.map { |q| q.subscribe(:ack => true, :blocking => false, &method(:process)) }
     end
 
     def shutdown_consumers
