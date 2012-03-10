@@ -149,6 +149,31 @@ module Travis
         end
 
 
+        desc "build_clojure_with_lein2", "Publish a sample Clojure build job that uses Leiningen 2"
+        method_option :slug,   :default => "travis-ci/travis-ci-clojure-leiningen-2-example"
+        method_option :commit, :default => "1583e820218a399e89db2362fe1c99f95c4a6a63"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_clojure_with_lein2
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "clojure",
+              :lein     => "lein2"
+            }
+          }
+
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
+        end
+
+
         desc "build_groovy", "Publish a sample Groovy build job"
         method_option :slug,   :default => "gradle/gradle"
         method_option :commit, :default => "c8c75360b859e9fab40dd0b6eb0cd8e925c2170c"
