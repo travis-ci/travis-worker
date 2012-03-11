@@ -128,7 +128,7 @@ module Travis
         method_option :commit, :default => "a75e0dbd7c79f30b148b0e3c765550530e89a7cc"
         method_option :branch, :default => "master"
         method_option :n,      :default => 1
-        def build_clojure
+        def build_clojure2
           payload = {
             :repository => {
               :slug => self.options[:slug]
@@ -147,6 +147,7 @@ module Travis
 
           publish(payload, "builds.jvmotp", self.options[:n].to_i)
         end
+
 
 
         desc "build_clojure_with_lein2", "Publish a sample Clojure build job that uses Leiningen 2"
@@ -300,6 +301,29 @@ module Travis
           publish(payload, "builds.php", self.options[:n].to_i)
         end
 
+
+        desc "build_haskell", "Publish a sample Haskell build job"
+        method_option :slug,   :default => "travis-repos/TravisHSTest"
+        method_option :commit, :default => "ca256b982dd8af09a66b72cf22be376c46b8edfb"
+        method_option :branch, :default => "master"
+        method_option :n,      :default => 1
+        def build_haskell
+          payload = {
+            :repository => {
+              :slug => self.options[:slug]
+            },
+            :build => {
+              :id       => 1,
+              :commit => self.options[:commit],
+              :branch => self.options[:branch]
+            },
+            :config => {
+              :language => "haskell"
+            }
+          }
+
+          publish(payload, "builds.jvmotp", self.options[:n].to_i)
+        end
 
 
         protected
