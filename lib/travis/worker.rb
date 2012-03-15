@@ -177,15 +177,13 @@ module Travis
     def work(message, payload)
       prepare(payload)
 
-      build_log_streamer = Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_streamer_routing_key_for(message, payload))
+      build_log_streamer = log_streamer(message, payload)
+
       Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
+
       finish(message)
     end
     log :work, :as => :debug
-
-    def log_streamer_routing_key_for(metadata, payload)
-      "reporting.jobs.#{metadata.routing_key}"
-    end
 
     def prepare(payload)
       @last_error = nil
@@ -213,6 +211,15 @@ module Travis
       set :errored
     end
     log :error
+
+    def log_streamer(message, payload)
+      log_routing_key = log_streamer_routing_key_for(message, payload)
+      Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_routing_key)
+    end
+
+    def log_streamer_routing_key_for(metadata, payload)
+      "reporting.jobs.#{metadata.routing_key}"
+    end
 
     def host
       Travis::Worker.config.host
