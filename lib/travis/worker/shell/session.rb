@@ -42,7 +42,7 @@ module Travis
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          shell.close!
+          shell.close! if open?
           buffer.flush
           buffer.reset
         end
