@@ -14,7 +14,7 @@ end
 local_or_remote_gem 'travis-build',     :git => 'git://github.com/travis-ci/travis-build.git'
 local_or_remote_gem 'travis-support',   :git => 'git://github.com/travis-ci/travis-support.git'
 
-gem 'vagrant',          '~> 0.9.0'
+gem 'vagrant',          '~> 1.0.0'
 gem 'thor',             '~> 0.14.6'
 
 gem 'faraday',          '~> 0.7.5'
