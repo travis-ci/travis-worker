@@ -184,7 +184,7 @@ module Travis
           end
 
           def close_sandbox
-            power_off
+            power_off unless powered_off?
           end
 
           def requires_snapshot?
