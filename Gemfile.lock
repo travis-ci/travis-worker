@@ -6,14 +6,14 @@ GIT
       net-ssh (~> 2.1)
 
 GIT
-  remote: git://github.com/travis-ci/travis-build.git
-  revision: cee9da4c7a11e27422f6558c5d5308a458b298df
+  remote: https://github.com/travis-ci/travis-build.git
+  revision: 3027b713cb8a5b6a7b28aa52558741d0da4bbff3
   specs:
     travis-build (0.2.0)
 
 GIT
-  remote: git://github.com/travis-ci/travis-support.git
-  revision: a073badfd7018e532e502792a065924cf68539b0
+  remote: https://github.com/travis-ci/travis-support.git
+  revision: 6023cb08b40d334804c06702293e7c74e0adf4d4
   specs:
     travis-support (0.0.1)
 
