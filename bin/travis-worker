@@ -1,0 +1,15 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.dirname(__FILE__) + "/../lib")
+
+require "forkrage"
+
+class TravisWorker
+  def run(config)
+    `rvm do jruby bundle exec thor travis:worker:boot`
+  end
+end
+
+Forkrage.run(:travis_worker) {
+  TravisWorker.new
+}
