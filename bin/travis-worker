@@ -7,7 +7,7 @@ require "forkrage"
 
 class TravisWorker
   def run(config)
-    `bash -c 'source /usr/local/rvm/scripts/rvm && rvm jruby do bundle exec thor travis:worker:boot'`
+    system("bash -c 'source /usr/local/rvm/scripts/rvm && rvm jruby do bundle exec thor travis:worker:boot'")
   end
 end
 
