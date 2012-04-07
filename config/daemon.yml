@@ -1,0 +1,2 @@
+daemonize: true
+pid_dir: log

@@ -1,3 +1,5 @@
 $: << 'lib'
-require 'bundler/setup'
+require 'bundler'
+Bundler.require
+
 require 'travis/worker/cli'

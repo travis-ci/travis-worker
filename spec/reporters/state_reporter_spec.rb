@@ -14,6 +14,7 @@ describe Travis::Worker::Reporters::StateReporter do
 
   before :each do
     Travis.logger = Logger.new(io)
+    Travis.logger.level = Logger::DEBUG
   end
 
   describe 'notify' do
