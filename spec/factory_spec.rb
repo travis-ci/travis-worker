@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Worker::Factory do
-  let(:connection)   { HotBunnies.connect }
+  let(:connection)   { HotBunnies.connect(:hostname => "127.0.0.1") }
   let(:config) { Hashr.new({ :queues => %w(builds.php builds.python builds.perl) }) }
   let(:factory) do
     Travis::Worker::Factory.new('worker-name', config, connection)

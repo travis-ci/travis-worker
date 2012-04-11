@@ -3,7 +3,7 @@ require 'stringio'
 
 describe Travis::Worker::Pool do
   let(:names)   { %w(worker-1 worker-2)}
-  let(:connection)   { HotBunnies.connect }
+  let(:connection)   { HotBunnies.connect(:hostname => "127.0.0.1") }
 
 
   let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config, connection) }

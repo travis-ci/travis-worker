@@ -9,7 +9,7 @@ describe Travis::Worker do
   let(:queue_names)  { %w(builds.php builds.python builds.perl) }
   let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names) }
 
-  let(:connection)   { HotBunnies.connect }
+  let(:connection)   { HotBunnies.connect(:hostname => "127.0.0.1") }
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
   let(:metadata)      { stub('metadata', :ack => nil, :routing_key => "builds.common") }

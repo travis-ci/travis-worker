@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Worker::Reporters::LogStreamer do
-  let(:connection) { HotBunnies.connect }
+  let(:connection) { HotBunnies.connect(:hostname => "127.0.0.1") }
   let(:channel) { connection.create_channel }
   let(:routing_key) do
     "reporting.jobs.builds.jvmotp"

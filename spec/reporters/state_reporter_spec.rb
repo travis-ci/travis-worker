@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Worker::Reporters::StateReporter do
-  let(:connection) { HotBunnies.connect }
+  let(:connection) { HotBunnies.connect(:hostname => "127.0.0.1") }
   let(:reporter)   { described_class.new('staging-1', connection.create_channel) }
   let(:logger)     { stub('logger', :before => nil, :after => nil) }
   let(:io)         { StringIO.new }
