@@ -41,7 +41,7 @@ module Travis
         desc 'create [BOX]', 'Creates the VirtualBox boxes from a base box (BOX defaults to Travis::Worker.config.env)'
         method_option :reset,    :aliases => '-r', :type => :boolean, :default => false, :desc => 'Force reset on virtualbox settings and boxes'
 
-        def update(box = Travis::Worker.config.env)
+        def create(box = Travis::Worker.config.env)
           self.box = box
 
           vbox.reset if options[:reset]
