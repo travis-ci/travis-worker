@@ -17,10 +17,6 @@ describe Travis::Worker::Reporters::LogStreamer do
       queue.bind(reporting_exchange, :routing_key => routing_key)
     end
 
-    after :each do
-      connection.close
-    end
-
     it "publishes log chunks" do
       reporter.notify('build:log', :log => "...")
       sleep 0.5

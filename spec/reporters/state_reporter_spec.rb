@@ -12,7 +12,6 @@ describe Travis::Worker::Reporters::StateReporter do
 
   include Travis::Serialization
 
-
   before :each do
     Travis.logger = Logger.new(io)
     Travis.logger.level = Logger::DEBUG
@@ -21,9 +20,6 @@ describe Travis::Worker::Reporters::StateReporter do
   describe 'notify' do
     before :each do
       queue.purge
-    end
-    after :each do
-      connection.close
     end
 
     it "publishes notifications of given type" do
@@ -37,10 +33,6 @@ describe Travis::Worker::Reporters::StateReporter do
   end
 
   describe 'logging' do
-    after :each do
-      connection.close
-    end
-
     it 'logs before :message is being called' do
       reporter.notify('build:started', :foo => "bar")
       io.string.should include('about to message')

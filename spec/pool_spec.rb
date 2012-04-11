@@ -14,10 +14,6 @@ describe Travis::Worker::Pool do
   end
 
   describe 'start' do
-    after :each do
-      connection.close
-    end
-
     describe 'with no worker names given' do
       it 'starts the workers' do
         workers.each { |worker| worker.expects(:start) }
@@ -44,10 +40,6 @@ describe Travis::Worker::Pool do
 
   describe 'stop' do
     describe 'with no worker names given' do
-      after :each do
-        connection.close
-      end
-
       it 'stops the workers' do
         workers.each { |worker| worker.expects(:stop) }
         pool.stop([])
@@ -55,10 +47,6 @@ describe Travis::Worker::Pool do
     end
 
     describe 'with a worker name given' do
-      after :each do
-        connection.close
-      end
-
       it 'stops the worker' do
         workers.first.expects(:stop)
         pool.stop(['worker-1'])
@@ -75,10 +63,6 @@ describe Travis::Worker::Pool do
     end
 
     describe 'with an option :force => true given' do
-      after :each do
-        connection.close
-      end
-
       it 'stops the worker with that option' do
         workers.first.expects(:stop).with(:force => true)
         pool.stop(['worker-1'], :force => true)
