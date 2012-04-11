@@ -2,10 +2,9 @@ require 'spec_helper'
 require 'stringio'
 
 describe Travis::Worker::Pool do
+  include_context "hot_bunnies connection"
+
   let(:names)   { %w(worker-1 worker-2)}
-  let(:connection)   { HotBunnies.connect(:hostname => "127.0.0.1") }
-
-
   let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config, connection) }
   let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
