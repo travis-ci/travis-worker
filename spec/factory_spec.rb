@@ -28,10 +28,6 @@ describe Travis::Worker::Factory do
         connection.close
       end
 
-      it 'includes builds.configure' do
-        worker.queue_names.first.should == 'builds.configure'
-      end
-
       it 'includes individual build queues that were listed in the configuration' do
         worker.queue_names.should include("builds.php")
         worker.queue_names.should include("builds.python")
