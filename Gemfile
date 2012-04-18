@@ -11,21 +11,21 @@ def local_or_remote_gem(name, options = Hash.new)
   end
 end
 
-local_or_remote_gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build.git'
-local_or_remote_gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support.git'
+local_or_remote_gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
+local_or_remote_gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
-gem 'vagrant',          '~> 1.0.0'
+gem 'vagrant',          '~> 1.0.2'
 gem 'thor',             '~> 0.14.6'
 
 gem 'faraday',          '~> 0.7.5'
 gem 'simple_states',    '~> 0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
-gem 'multi_json',       '~> 1.0.4'
+gem 'multi_json',       '~> 1.3'
 gem 'json'
 
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.3.3'
-  gem 'net-ssh-shell',  :git => 'git://github.com/joshk/net-ssh-shell.git'
+  gem 'net-ssh-shell',  :git => 'git://github.com/joshk/net-ssh-shell'
   gem 'jruby-openssl',  '~> 0.7.4'
 end
 
