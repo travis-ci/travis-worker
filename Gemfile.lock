@@ -77,6 +77,8 @@ GEM
       log4r (~> 1.1.9)
       net-scp (~> 1.0.4)
       net-ssh (~> 2.2.2)
+    vagrant-vbguest (0.3.0)
+      vagrant (>= 0.9.4)
 
 PLATFORMS
   java
@@ -98,3 +100,4 @@ DEPENDENCIES
   travis-build!
   travis-support!
   vagrant (~> 1.0.2)
+  vagrant-vbguest
