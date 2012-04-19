@@ -22,7 +22,7 @@ gem 'thor',             '~> 0.14.6'
 gem 'faraday',          '~> 0.7.5'
 gem 'simple_states',    '~> 0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
-gem 'multi_json',       '~> 1.3'
+gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 
 platform :jruby do
