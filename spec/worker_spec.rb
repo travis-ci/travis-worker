@@ -4,12 +4,13 @@ require 'stringio'
 require "hot_bunnies"
 
 describe Travis::Worker do
+  include_context "hot_bunnies connection"
+
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:reporter)     { stub('reporter', :notify => nil) }
   let(:queue_names)  { %w(builds.php builds.python builds.perl) }
   let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names) }
 
-  let(:connection)   { HotBunnies.connect }
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
   let(:metadata)      { stub('metadata', :ack => nil, :routing_key => "builds.common") }
@@ -27,10 +28,6 @@ describe Travis::Worker do
   end
 
   describe 'start' do
-    after :each do
-      connection.close if connection.open?
-    end
-
     it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
@@ -59,17 +56,9 @@ describe Travis::Worker do
     end
   end
 
-
-
   describe 'stop' do
     after :each do
       worker.shutdown
-      connection.close
-    end
-
-    after :all do
-      worker.shutdown
-      connection.close
     end
 
     describe 'if the worker is still working' do
@@ -105,18 +94,10 @@ describe Travis::Worker do
     end
   end
 
-
-
   describe 'process' do
     describe 'without any exception rescued' do
-      before :each do
-        worker.state = :ready
-      end
-
-      after :each do
-        worker.shutdown
-        connection.close
-      end
+      before(:each) { worker.state = :ready }
+      after(:each)  { worker.shutdown }
 
       it 'works' do
         worker.expects(:work)
@@ -134,9 +115,7 @@ describe Travis::Worker do
 
       after :each do
         worker.shutdown
-        connection.close
       end
-
 
       it 'responds to the error' do
         worker.expects(:error).with(exception, metadata)
@@ -145,23 +124,9 @@ describe Travis::Worker do
     end
   end
 
-
-
   describe 'work' do
-    before :each do
-      worker.state = :ready
-    end
-
-    after :each do
-      worker.shutdown
-      connection.close
-    end
-
-    after :all do
-      worker.shutdown
-      connection.close
-    end
-
+    before(:each) { worker.state = :ready }
+    after(:each)  { worker.shutdown }
 
     it 'prepares work' do
       worker.expects(:prepare)
@@ -185,15 +150,7 @@ describe Travis::Worker do
   end
 
   describe 'prepare' do
-    after :each do
-      worker.shutdown
-      connection.close
-    end
-
-    after :all do
-      worker.shutdown
-      connection.close
-    end
+    after(:each) { worker.shutdown }
 
     it 'sets the current payload' do
       worker.send(:prepare, payload)
@@ -207,15 +164,7 @@ describe Travis::Worker do
   end
 
   describe 'finish' do
-    after :each do
-      worker.shutdown
-      connection.close
-    end
-
-    after :all do
-      worker.shutdown
-      connection.close
-    end
+    after(:each) { worker.shutdown }
 
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
@@ -238,15 +187,7 @@ describe Travis::Worker do
   end
 
   describe 'error' do
-    after :each do
-      worker.shutdown
-      connection.close
-    end
-
-    after :all do
-      worker.shutdown
-      connection.close
-    end
+    after(:each) { worker.shutdown }
 
     it 'requeues the message' do
       metadata.expects(:ack).with(:requeue => true)

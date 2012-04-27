@@ -18,7 +18,7 @@ module Travis
       end
 
       def queue_names
-        %w(builds.configure) + Array(@config[:queues] || @config[:queue] || [])
+        Array(@config[:queues] || @config[:queue] || [])
       end
 
       def config
