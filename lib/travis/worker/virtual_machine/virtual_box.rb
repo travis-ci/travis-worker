@@ -14,6 +14,7 @@
 # or by adding the user to the group assigned to the file.
 #
 $: << File.expand_path('../../../../../vendor/virtualbox-4.1.12', __FILE__)
+
 require 'java'
 require 'travis/support'
 

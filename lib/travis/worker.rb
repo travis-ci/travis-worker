@@ -119,7 +119,7 @@ module Travis
     end
 
     def open_reporting_channel
-      @reporting_channel      = @broker_connection.create_channel
+      @reporting_channel = @broker_connection.create_channel
     end
 
     def declare_queues
@@ -133,9 +133,9 @@ module Travis
       # these are declared here mostly to aid development purposes. Hub is just as involved
       # in build log streaming so it may seem more logical to move these declarations to Hub. We may
       # do it in the future. MK.
-      @queue_names.
-        reject { |name| name =~ /configure$/ }.
-        map { |name| @reporting_channel.queue("reporting.jobs.#{name}", :durable => true) }
+      @queue_names.map do |name|
+        @reporting_channel.queue("reporting.jobs.#{name}", :durable => true)
+      end
     end
 
     def subscribe
