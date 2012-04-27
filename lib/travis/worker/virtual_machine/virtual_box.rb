@@ -13,11 +13,8 @@
 # You may need to make /dev/vboxdrv accessible by the current user, either by chmoding the file
 # or by adding the user to the group assigned to the file.
 #
-<<<<<<< HEAD
 $: << File.expand_path('../../../../../vendor/virtualbox-4.1.12', __FILE__)
-=======
-$: << File.expand_path('../../../../../vendor/virtualbox-4.1.8', __FILE__)
->>>>>>> Revert "update to using virtualbox 4.1.10"
+
 require 'java'
 require 'travis/support'
 
