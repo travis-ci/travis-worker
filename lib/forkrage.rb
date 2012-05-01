@@ -5,6 +5,7 @@
 
 require 'yaml'
 require 'logger'
+require 'fileutils'
 
 class Forkrage
   attr_accessor :worker
@@ -40,6 +41,7 @@ class Forkrage
         Process.kill(:TERM, pid)
       rescue Errno::ESRCH
         puts "Didn't find a running process for #{@name} with pid #{pid}"
+      ensure
         FileUtils.rm_f(pid_file)
       end
     end
