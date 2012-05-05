@@ -13,7 +13,7 @@ require 'logger'
 require 'stringio'
 
 FIXTURES = {}
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| load f}
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| load f }
 
 include Mocha::API
 

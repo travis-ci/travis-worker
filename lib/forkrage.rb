@@ -24,6 +24,7 @@ class Forkrage
       return
     end
 
+    check_pid_file
     @worker = blk.call
     daemonize if config['daemonize']
     write_pid_file
@@ -65,7 +66,18 @@ class Forkrage
     STDERR.reopen STDOUT
   end
 
-  def write_pid_file()
+  def check_pid_file
+    if File.exists?(pid_file)
+      pid = File.read(pid_file).to_i
+      begin
+        Process.kill(0, File.read(pid_file).to_i)
+        raise "Process with pid #{pid} is still running."
+      rescue Errno::ESRCH
+      end
+    end
+  end
+
+  def write_pid_file
     File.open(pid_file, "w") do |f|
       f.write($$)
     end

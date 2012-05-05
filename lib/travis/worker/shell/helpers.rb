@@ -6,11 +6,17 @@ module Travis
     module Shell
       module Helpers
         def export(name, value, options = nil)
-          execute(*["export #{name}=#{value}", options].compact) if name
+          return unless name
+          with_timeout("export #{name}=#{value}", 3) do
+            execute(*["export #{name}=#{value}", options].compact) if name
+          end
         end
 
         def export_line(line, options = nil)
-          execute(*["export #{line}", options].compact) if line
+          return unless line
+          with_timeout("export #{line}", 3) do
+            execute(*["export #{line}", options].compact) if line
+          end
         end
 
         def chdir(dir)
