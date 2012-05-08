@@ -59,6 +59,12 @@ describe Travis::Worker::Shell::Helpers do
       shell.expects(:execute).with('export FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
       shell.export_line('FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
     end
+
+    it 'echos obfuscated shell variables when secure' do
+      shell.config = stub(:timeouts => {:default => 1})
+      shell.expects(:exec).with(%(echo \\$\\ export\\ FOO\\=XXX\\ TEST_WITH\\=XXXXXXXXXXXXXXXXXX\nexport FOO=bar TEST_WITH="ruby -I. test/ci"))
+      shell.export_line('SECURE FOO=bar TEST_WITH="ruby -I. test/ci"')
+    end
   end
 
   describe 'chdir' do
