@@ -14,8 +14,15 @@ module Travis
 
         def export_line(line, options = nil)
           return unless line
+
+          secure = line.sub!(/^SECURE /, '')
+          block = secure && Proc.new do |cmd|
+            regex = /(?<=\=)(?:[^'"\=\s]+|(?<q>['"]).*?\k<q>)/
+            cmd.gsub(regex) { |val| ['X'] * val.length }
+          end
+
           with_timeout("export #{line}", 3) do
-            execute(*["export #{line}", options].compact)
+            execute(*["export #{line}", options].compact, &block)
           end
         end
 
@@ -45,9 +52,9 @@ module Travis
         #           :echo  - true or false if the command should be echod to the log
         #
         # Returns true if the command completed successfully, false if it failed.
-        def execute(command, options = {})
+        def execute(command, options = {}, &block)
           with_timeout(command, options[:stage]) do
-            command = echoize(command) unless options[:echo] == false
+            command = echoize(command, &block) unless options[:echo] == false
             exec(command) { |p, data| buffer << data } == 0
           end
         end
