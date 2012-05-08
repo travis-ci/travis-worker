@@ -8,14 +8,14 @@ module Travis
         def export(name, value, options = nil)
           return unless name
           with_timeout("export #{name}=#{value}", 3) do
-            execute(*["export #{name}=#{value}", options].compact) if name
+            execute(*["export #{name}=#{value}", options].compact)
           end
         end
 
         def export_line(line, options = nil)
           return unless line
           with_timeout("export #{line}", 3) do
-            execute(*["export #{line}", options].compact) if line
+            execute(*["export #{line}", options].compact)
           end
         end
 
