@@ -104,6 +104,14 @@ describe Travis::Worker::Shell::Helpers do
     it 'echo the command before executing it (2)' do
       shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']).should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=bar\\ rake\\ ci\nFOO=bar rake ci"
     end
+
+    it 'echo a modified command before executing the original (1)' do
+      shell.echoize('rake') { |cmd| cmd.tr('ae', '43') }.should == "echo \\$\\ r4k3\nrake"
+    end
+
+    it 'echo a modified command before executing the original (2)' do
+      shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']) { |cmd| cmd.sub(/bar/, 'baz') }.should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=baz\\ rake\\ ci\nFOO=bar rake ci"
+    end
   end
 
   describe 'parse_cmd' do

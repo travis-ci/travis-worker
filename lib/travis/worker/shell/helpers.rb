@@ -86,7 +86,8 @@ module Travis
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
           [cmd].flatten.join("\n").split("\n").map do |cmd|
-            "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}"
+            echo = block_given? ? yield(cmd) : cmd
+            "echo #{Shellwords.escape("$ #{echo}")}\n#{cmd}"
           end.join("\n")
         end
 
