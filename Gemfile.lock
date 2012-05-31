@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 27068b9e9f04b6bdc21409366d0e3f8664271079
+  revision: 3ee8103211a28b4fa4e99039780ab98c13abf35d
   specs:
     travis-build (0.2.0)
 
