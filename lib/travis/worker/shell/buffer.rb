@@ -32,9 +32,9 @@ module Travis
           end unless empty?
         end
 
-        def reset
-          replace ''
-          @pos = 0
+        def stop
+          flush
+          @thread.terminate
         end
 
         def empty?
