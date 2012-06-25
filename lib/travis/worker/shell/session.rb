@@ -44,6 +44,7 @@ module Travis
         def close
           shell.close! if open?
           buffer.flush
+          buffer.stop_auto_flushing
           buffer.reset
         end
 
