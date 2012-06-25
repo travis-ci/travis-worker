@@ -1,3 +1,5 @@
+require 'thread'
+
 module Travis
   class Worker
     module Shell
@@ -6,7 +8,7 @@ module Travis
 
         log_header { 'travis:worker:shell:buffer' }
 
-        attr_reader :pos, :interval, :limit, :callback
+        attr_reader :interval, :limit, :callback
 
         def initialize(interval = nil, options = {}, &callback)
           @interval = interval
@@ -16,8 +18,9 @@ module Travis
           # we read [mark, total length] substring every time we need to flush
           # the buffer and update the position.
           @pos = 0
+          @pos_mutex = Mutex.new
 
-          start if interval
+          start_auto_flushing if interval
         end
 
         def <<(other)
@@ -34,11 +37,28 @@ module Travis
 
         def reset
           replace ''
-          @pos = 0
+          @pos_mutex.synchronize { @pos = 0 }
         end
 
         def empty?
           pos == length
+        end
+
+        def pos
+          @pos_mutex.synchronize { @pos }
+        end
+
+        def start_auto_flushing
+          @thread = Thread.new do
+            loop do
+              flush
+              sleep(interval) if interval
+            end
+          end
+        end
+
+        def stop_auto_flushing
+          @thread.terminate
         end
 
         protected
@@ -49,17 +69,8 @@ module Travis
             # difference: in case total length was updated between local
             # assignment above and increment below, we will just read and flush
             # this extra output during next loop tick.
-            @pos += string.length
+            @pos_mutex.synchronize { @pos += string.length }
             string
-          end
-
-          def start
-            @thread = Thread.new do
-              loop do
-                flush
-                sleep(interval) if interval
-              end
-            end
           end
 
           def limit_exeeded!
