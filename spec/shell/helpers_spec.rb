@@ -59,6 +59,12 @@ describe Travis::Worker::Shell::Helpers do
       shell.expects(:execute).with('export FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
       shell.export_line('FOO=bar TEST_WITH="ruby -I. test/ci"', :echo => true)
     end
+
+    it 'echos obfuscated shell variables when secure' do
+      shell.config = stub(:timeouts => {:default => 1})
+      shell.expects(:exec).with(%(echo \\$\\ export\\ FOO\\=XXX\\ TEST_WITH\\=XXXXXXXXXXXXXXXXXX\nexport FOO=bar TEST_WITH="ruby -I. test/ci"))
+      shell.export_line('SECURE FOO=bar TEST_WITH="ruby -I. test/ci"')
+    end
   end
 
   describe 'chdir' do
@@ -103,6 +109,14 @@ describe Travis::Worker::Shell::Helpers do
 
     it 'echo the command before executing it (2)' do
       shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']).should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=bar\\ rake\\ ci\nFOO=bar rake ci"
+    end
+
+    it 'echo a modified command before executing the original (1)' do
+      shell.echoize('rake') { |cmd| cmd.tr('ae', '43') }.should == "echo \\$\\ r4k3\nrake"
+    end
+
+    it 'echo a modified command before executing the original (2)' do
+      shell.echoize(['rvm use 1.9.2', 'FOO=bar rake ci']) { |cmd| cmd.sub(/bar/, 'baz') }.should == "echo \\$\\ rvm\\ use\\ 1.9.2\nrvm use 1.9.2\necho \\$\\ FOO\\=baz\\ rake\\ ci\nFOO=bar rake ci"
     end
   end
 
