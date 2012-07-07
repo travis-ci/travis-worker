@@ -17,8 +17,7 @@ module Travis
 
           secure = line.sub!(/^SECURE /, '')
           block = secure && Proc.new do |cmd|
-            regex = /(?<=\=)(?:[^'"\=\s]+|(?<q>['"]).*?\k<q>)/
-            cmd.gsub(regex) { |val| 'X' * val.length }
+            ::Travis::Helpers.obfuscate_env_vars(cmd)
           end
 
           with_timeout("export #{line}", 3) do

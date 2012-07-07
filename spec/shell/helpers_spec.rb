@@ -62,7 +62,7 @@ describe Travis::Worker::Shell::Helpers do
 
     it 'echos obfuscated shell variables when secure' do
       shell.config = stub(:timeouts => {:default => 1})
-      shell.expects(:exec).with(%(echo \\$\\ export\\ FOO\\=XXX\\ TEST_WITH\\=XXXXXXXXXXXXXXXXXX\nexport FOO=bar TEST_WITH="ruby -I. test/ci"))
+      shell.expects(:exec).with(%(echo \\$\\ export\\ FOO\\=\\[secure\\]\\ TEST_WITH\\=\\[secure\\]\nexport FOO=bar TEST_WITH="ruby -I. test/ci"))
       shell.export_line('SECURE FOO=bar TEST_WITH="ruby -I. test/ci"')
     end
   end
