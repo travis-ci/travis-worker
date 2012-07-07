@@ -8,14 +8,20 @@ module Travis
         def export(name, value, options = nil)
           return unless name
           with_timeout("export #{name}=#{value}", 3) do
-            execute(*["export #{name}=#{value}", options].compact) if name
+            execute(*["export #{name}=#{value}", options].compact)
           end
         end
 
         def export_line(line, options = nil)
           return unless line
+
+          secure = line.sub!(/^SECURE /, '')
+          block = secure && Proc.new do |cmd|
+            ::Travis::Helpers.obfuscate_env_vars(cmd)
+          end
+
           with_timeout("export #{line}", 3) do
-            execute(*["export #{line}", options].compact) if line
+            execute(*["export #{line}", options].compact, &block)
           end
         end
 
@@ -45,9 +51,9 @@ module Travis
         #           :echo  - true or false if the command should be echod to the log
         #
         # Returns true if the command completed successfully, false if it failed.
-        def execute(command, options = {})
+        def execute(command, options = {}, &block)
           with_timeout(command, options[:stage]) do
-            command = echoize(command) unless options[:echo] == false
+            command = echoize(command, &block) unless options[:echo] == false
             exec(command) { |p, data| buffer << data } == 0
           end
         end
@@ -86,7 +92,8 @@ module Travis
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
           [cmd].flatten.join("\n").split("\n").map do |cmd|
-            "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}"
+            echo = block_given? ? yield(cmd) : cmd
+            "echo #{Shellwords.escape("$ #{echo}")}\n#{cmd}"
           end.join("\n")
         end
 
