@@ -103,6 +103,14 @@ describe Travis::Worker::Shell::Helpers do
   end
 
   describe 'echoize' do
+    it 'works with multiple lines and array as argument' do
+      expected = "echo \\$\\ foo\nfoo\n" +
+                 "echo \\$\\ bar\nbar\n" +
+                 "echo \\$\\ baz\nbaz\n" +
+                 "echo \\$\\ qux\nqux"
+      shell.echoize(["foo", "bar\nbaz", ["qux"]]).should == expected
+    end
+
     it 'echo the command before executing it (1)' do
       shell.echoize('rake').should == "echo \\$\\ rake\nrake"
     end
