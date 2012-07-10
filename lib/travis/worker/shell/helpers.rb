@@ -1,5 +1,6 @@
 require 'shellwords'
 require 'timeout'
+require 'filtered_string'
 
 module Travis
   class Worker
@@ -16,12 +17,18 @@ module Travis
           return unless line
 
           secure = line.sub!(/^SECURE /, '')
-          block = secure && Proc.new do |cmd|
-            ::Travis::Helpers.obfuscate_env_vars(cmd)
+          filtered = if secure
+            ::Travis::Helpers.obfuscate_env_vars(line)
+          else
+            line
           end
 
-          with_timeout("export #{line}", 3) do
-            execute(*["export #{line}", options].compact, &block)
+          line = FilteredString.new(line, filtered)
+          line = line.mutate("export %s", line)
+          line = line.to_s unless secure
+
+          with_timeout(line, 3) do
+            execute(*[line, options].compact)
           end
         end
 
@@ -54,7 +61,7 @@ module Travis
         def execute(command, options = {}, &block)
           with_timeout(command, options[:stage]) do
             command = echoize(command, &block) unless options[:echo] == false
-            exec(command) { |p, data| buffer << data } == 0
+            exec(_unfiltered(command)) { |p, data| buffer << data } == 0
           end
         end
 
@@ -91,9 +98,9 @@ module Travis
         #
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
-          [cmd].flatten.join("\n").split("\n").map do |cmd|
+          [cmd].flatten.map { |cmd| cmd.split("\n") }.flatten.map do |cmd|
             echo = block_given? ? yield(cmd) : cmd
-            "echo #{Shellwords.escape("$ #{echo}")}\n#{cmd}"
+            "echo #{Shellwords.escape("$ #{echo}")}\n#{_unfiltered(cmd)}"
           end.join("\n")
         end
 
@@ -115,13 +122,18 @@ module Travis
           end
         end
 
-       def timeout(stage)
-         if stage.is_a?(Numeric)
-           stage
-         else
-           config.timeouts[stage || :default]
-         end
-       end
+        def timeout(stage)
+          if stage.is_a?(Numeric)
+            stage
+          else
+            config.timeouts[stage || :default]
+          end
+        end
+
+        def _unfiltered(str)
+          str = str.respond_to?(:unfiltered) ? str.unfiltered : str.to_s
+        end
+        private :_unfiltered
       end
     end
   end
