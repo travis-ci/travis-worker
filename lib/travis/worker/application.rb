@@ -79,7 +79,7 @@ module Travis
       end
 
       def heart
-        @heart ||= Heart.new(heartbeat_channel) { workers.status }
+        @heart ||= Heart.new(heartbeat_channel) { { :workers => workers.status } }
       end
 
       def update
