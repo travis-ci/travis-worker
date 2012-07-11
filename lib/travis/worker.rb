@@ -163,7 +163,7 @@ module Travis
 
     def set(state)
       self.state = state
-      @state_reporter.notify('worker:status', [report])
+      @state_reporter.notify('worker:status', :workers => [report])
     end
 
     def process(message, payload)
