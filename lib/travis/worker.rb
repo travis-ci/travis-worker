@@ -188,6 +188,7 @@ module Travis
     def prepare(payload)
       @last_error = nil
       @payload = decode(payload)
+      Travis.uuid = @payload.delete(:uuid)
       set :working
     end
     log :prepare
