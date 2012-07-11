@@ -51,9 +51,9 @@ module Travis
         #
         # on_output - The block to be called.
         def on_output(&on_output)
-          uuid = Thread.uuid
+          uuid = Travis.uuid
           @on_output = lambda do |*args, &block|
-            Thread.uuid = uuid
+            Travis.uuid = uuid
             on_output.call(*args, &block)
           end
         end
