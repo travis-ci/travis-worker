@@ -103,6 +103,10 @@ describe Travis::Worker::Shell::Helpers do
   end
 
   describe 'echoize' do
+    it 'makes sure all commands to echo are to_s ified' do
+      shell.echoize(true).should == "echo \\$\\ true\ntrue"
+    end
+
     it 'works with multiple lines and array as argument' do
       expected = "echo \\$\\ foo\nfoo\n" +
                  "echo \\$\\ bar\nbar\n" +
