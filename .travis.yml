@@ -6,3 +6,7 @@ rvm:
   - jruby-18mode
   - jruby-19mode
   - jruby-head
+jdk:
+  - openjdk7
+  - openjdk6
+  - oraclejdk7
