@@ -13,7 +13,7 @@ describe Travis::Worker do
 
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
-  let(:metadata)      { stub('metadata', :ack => nil, :routing_key => "builds.common") }
+  let(:metadata)     { stub('metadata', :ack => nil, :routing_key => "builds.common") }
   let(:payload)      { '{ "id": 1 }' }
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
   let(:build)        { stub('build', :run => nil) }
@@ -36,7 +36,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :starting state' do
-      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
+      reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
       worker.start
     end
 
@@ -51,7 +51,7 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :ready state' do
-      reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil }])
+      reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil }])
       worker.start
     end
   end
@@ -72,7 +72,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopping state' do
-        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil }])
+        reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil }])
         worker.stop
       end
     end
@@ -88,7 +88,7 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopped state' do
-        reporter.expects(:notify).with('worker:status', [{ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil }])
+        reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil }])
         worker.stop
       end
     end
