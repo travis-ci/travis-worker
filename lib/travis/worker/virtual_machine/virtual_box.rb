@@ -122,6 +122,8 @@ module Travis
         def sandboxed
           start_sandbox
           yield
+        rescue Exception => e
+          log_exception(e)
         ensure
           close_sandbox
         end
