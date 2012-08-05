@@ -286,12 +286,21 @@ module Travis
           def with_session(lock = true)
             session = manager.session_object
 
-            machine.lock_machine(session, LockType::Shared) if lock
+            lock_machine(session) if lock
 
             progress = yield(session)
             progress.wait_for_completion(-1) if progress
             sleep(0.5)
           ensure
+            unlock_machine(session)
+          end
+
+          def lock_machine(session)
+            unlock_machine(session)
+            machine.lock_machine(session, LockType::Shared)
+          end
+
+          def unlock_machine(session)
             session.unlock_machine if session && session.state == SessionState::Locked
           end
       end
