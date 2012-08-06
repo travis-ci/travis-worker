@@ -15,7 +15,7 @@ local_or_remote_gem 'travis-build',     :git => 'https://github.com/travis-ci/tr
 local_or_remote_gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant'
-gem 'vagrant-vbguest'
+# gem 'vagrant-vbguest'
 
 gem 'thor',             '~> 0.14.6'
 

@@ -82,7 +82,6 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     thor (0.14.6)
-    vagrant-vbguest (0.3.5)
 
 PLATFORMS
   java
@@ -104,4 +103,3 @@ DEPENDENCIES
   travis-build!
   travis-support!
   vagrant!
-  vagrant-vbguest
