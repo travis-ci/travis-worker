@@ -174,6 +174,15 @@ module Travis
           name
         end
 
+        def vm_pid
+          ps_lines = `ps aux | grep #{name}`.split("\n")
+          if ps_lines.size == 3
+            ps_lines.first.split[1]
+          else
+            nil
+          end
+        end
+
         protected
 
           def manager
@@ -208,6 +217,7 @@ module Travis
             with_session(false) do |session|
               machine.launch_vm_process(session, 'headless', '')
             end
+            info "#{name} started with process id : #{vm_pid}"
           end
 
           def power_off
