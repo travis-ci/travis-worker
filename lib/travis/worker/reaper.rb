@@ -5,6 +5,10 @@ module Travis
     class Reaper
       extend Logging
 
+      def self.log_header
+        "reaper"
+      end
+
       def self.live_or_let_die(vm)
         info "monitoring #{vm.name} (pid #{vm.vm_pid}) so that it doesn't exceed 45mins"
         Timeout.timeout(45 * 60) do
