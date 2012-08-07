@@ -3,7 +3,7 @@ require 'travis/support'
 module Travis
   class Worker
     class Reaper
-      include Logging
+      extend Logging
 
       def self.live_or_let_die(vm)
         info "monitoring #{vm.name} (pid #{vm.vm_pid}) so that it doesn't exceed 45mins"
