@@ -13,6 +13,7 @@ module Travis
     autoload :Config,           'travis/worker/config'
     autoload :Factory,          'travis/worker/factory'
     autoload :Pool,             'travis/worker/pool'
+    autoload :Reaper,           'travis/worker/reaper'
     autoload :Shell,            'travis/worker/shell'
     autoload :VirtualMachine,   'travis/worker/virtual_machine'
 
@@ -179,7 +180,9 @@ module Travis
 
       build_log_streamer = log_streamer(message, payload)
 
-      Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
+      Reaper.live_or_let_die(vm) do
+        Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
+      end
 
       finish(message)
     end
