@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 6411bcea6c583de2bca8fddab02aa9ef65d2a085
+  revision: c142f8d3a322fa80ebf3fda898a04a6e2ed8d27b
   specs:
     travis-build (0.2.0)
 
@@ -34,12 +34,14 @@ GEM
       addressable (~> 2.2)
       multipart-post (~> 1.1)
       rack (~> 1.1)
+    ffi (1.0.11)
     ffi (1.0.11-java)
     hashr (0.0.21)
     hot_bunnies (1.3.7-java)
     i18n (0.6.0)
     jruby-openssl (0.7.6.1)
       bouncy-castle-java (>= 1.5.0146.1)
+    json (1.5.4)
     json (1.5.4-java)
     log4r (1.1.10)
     metaclass (0.0.1)
