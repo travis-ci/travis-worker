@@ -3,27 +3,43 @@ require 'travis/support'
 module Travis
   class Worker
     class Reaper
-      extend Logging
+      include Logging
 
-      def self.log_header
-        "reaper"
+      log_header { "reaper" }
+
+      def self.live_or_let_die(vm, timeout = 2400)
+        reaper = self.new(vm, timeout)
+        reaper.work { yield }
       end
 
-      def self.live_or_let_die(vm)
+      attr_accessor :vm, :timeout, :completed
+
+      def initialize(vm)
+        @vm = vm
+        @timeout = timeout
+        @completed = false
+      end
+
+      def work
+        monitor
+        result = yield
+        @completed = true
+        @monitor.kill rescue nil
+        result
+      end
+
+      private
+
+      def monitor
         info "monitoring #{vm.name} so that it doesn't exceed 45mins"
-        done = false
-        stupid_timeout = Thread.new do
-          sleep 45 * 60
-          unless done
+        @monitor = Thread.new do
+          sleep timeout
+          unless completed
             `kill #{vm.vm_pid}`
             info "#{vm.name} (pid #{vm.vm_pid}) forcefully killed"
             sleep 5
           end
         end
-        result = yield
-        done = true
-        stupid_timeout.kill rescue nil
-        result
       end
     end
   end
