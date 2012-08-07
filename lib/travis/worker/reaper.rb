@@ -14,7 +14,7 @@ module Travis
 
       attr_accessor :vm, :timeout, :completed
 
-      def initialize(vm)
+      def initialize(vm, timeout)
         @vm = vm
         @timeout = timeout
         @completed = false
