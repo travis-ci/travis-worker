@@ -4,6 +4,7 @@ require 'thread'
 require 'core_ext/hash/compact'
 require 'travis/build'
 require 'travis/support'
+require 'safe_timeout'
 
 module Travis
   autoload :Serialization,      'travis/serialization'
@@ -180,7 +181,7 @@ module Travis
 
       build_log_streamer = log_streamer(message, payload)
 
-      Reaper.live_or_let_die(vm) do
+      safe_timeout do
         Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
       end
 
@@ -231,6 +232,12 @@ module Travis
 
     def decode(payload)
       Hashr.new(MultiJson.decode(payload))
+    end
+
+    def safe_timeout
+      SafeTimeout.timeout(1200) { yield }
+    rescue Timeout::Error => e
+      raise Timeout::Error, 'Build stalled and exceeded 20mins'
     end
   end
 end
