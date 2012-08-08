@@ -31,7 +31,7 @@ module Travis
       private
 
       def monitor
-        info "monitoring #{vm.name} so that it doesn't exceed 45mins"
+        info "monitoring #{vm.name} so that it doesn't exceed #{mins}mins"
         @monitor = Thread.new do
           sleep timeout
           unless completed
@@ -40,6 +40,10 @@ module Travis
             sleep 5
           end
         end
+      end
+
+      def mins
+        timeout / 60
       end
     end
   end
