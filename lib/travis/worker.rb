@@ -181,9 +181,8 @@ module Travis
 
       build_log_streamer = log_streamer(message, payload)
 
-      safe_timeout do
-        Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
-      end
+      build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
+      safe_timeout(build)
 
       finish(message)
     end
@@ -234,10 +233,10 @@ module Travis
       Hashr.new(MultiJson.decode(payload))
     end
 
-    def safe_timeout
-      SafeTimeout.timeout(1200) { yield }
+    def safe_timeout(build)
+      SafeTimeout.timeout(1200) { build.run }
     rescue Timeout::Error => e
-      raise Timeout::Error, 'Build stalled and exceeded 20mins'
+      build.vm_stall
     end
   end
 end
