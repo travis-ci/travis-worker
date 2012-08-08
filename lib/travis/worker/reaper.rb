@@ -35,8 +35,9 @@ module Travis
         @monitor = Thread.new do
           sleep timeout
           unless completed
-            `kill #{vm.vm_pid}`
-            info "#{vm.name} (pid #{vm.vm_pid}) forcefully killed"
+            pid = vm.vm_pid
+            `kill #{pid}`
+            info "#{vm.name} (pid #{pid}) forcefully killed"
             sleep 5
           end
         end
