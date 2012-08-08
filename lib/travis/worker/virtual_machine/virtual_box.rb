@@ -311,7 +311,10 @@ module Travis
           end
 
           def unlock_machine(session)
-            session.unlock_machine if session && session.state == SessionState::Locked
+            if session
+              debug "#{name} session in #{session.state} state"
+              session.unlock_machine if session.state == SessionState::Locked
+            end
           end
       end
     end
