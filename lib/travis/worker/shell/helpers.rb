@@ -16,6 +16,11 @@ module Travis
         def export_line(line, options = nil)
           return unless line
 
+          if line =~ /^TRAVIS_/
+            options ||= {}
+            options[:echo] = false
+          end
+
           secure = line.sub!(/^SECURE /, '')
           filtered = if secure
             ::Travis::Helpers.obfuscate_env_vars(line)
