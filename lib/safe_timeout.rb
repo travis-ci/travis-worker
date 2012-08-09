@@ -8,8 +8,7 @@ module SafeTimeout
 
     if thread.join(sec).nil?
       java_thread = JRuby.reference(thread)
-      thread.kill
-      java_thread.native_thread.interrupt
+      thread.raise
       thread.join(0.15)
       raise (klass || Timeout::Error), 'execution expired'
     else
