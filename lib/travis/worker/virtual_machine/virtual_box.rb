@@ -174,6 +174,15 @@ module Travis
           name
         end
 
+        def vm_pid
+          ps_lines = `ps aux | grep #{name}`.split("\n")
+          if ps_lines.size == 3
+            ps_lines.first.split[1]
+          else
+            nil
+          end
+        end
+
         protected
 
           def manager
@@ -208,6 +217,7 @@ module Travis
             with_session(false) do |session|
               machine.launch_vm_process(session, 'headless', '')
             end
+            info "#{name} started with process id : #{vm_pid}"
           end
 
           def power_off
@@ -286,13 +296,25 @@ module Travis
           def with_session(lock = true)
             session = manager.session_object
 
-            machine.lock_machine(session, LockType::Shared) if lock
+            lock_machine(session) if lock
 
             progress = yield(session)
             progress.wait_for_completion(-1) if progress
             sleep(0.5)
           ensure
-            session.unlock_machine if session && session.state == SessionState::Locked
+            unlock_machine(session)
+          end
+
+          def lock_machine(session)
+            unlock_machine(session)
+            machine.lock_machine(session, LockType::Shared)
+          end
+
+          def unlock_machine(session)
+            if session
+              debug "#{name} session in #{session.state} state"
+              session.unlock_machine if session.state == SessionState::Locked
+            end
           end
       end
     end
