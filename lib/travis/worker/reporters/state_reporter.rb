@@ -15,8 +15,7 @@ module Travis
         def initialize(name, channel)
           @name     = name
           @channel  = channel
-
-          @exchange = @channel.default_exchange
+          @exchange = channel.default_exchange
           @target_queue_name = 'reporting.workers'
 
           declare_queues
@@ -27,7 +26,12 @@ module Travis
         end
 
         def message(event, data)
-          @exchange.publish(encode(data), :properties => { :type => event }, :routing_key => @target_queue_name)
+          data = encode(data.merge(:uuid => Travis.uuid))
+          options = {
+            :properties => { :type => event },
+            :routing_key => @target_queue_name
+          }
+          @exchange.publish(data, options)
         end
         log :message, :as => :debug
 

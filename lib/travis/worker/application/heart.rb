@@ -4,17 +4,7 @@ module Travis
   class Worker
     class Application
       class Heart
-
-        #
-        # Behaviors
-        #
-
         include Serialization
-
-
-        #
-        # API
-        #
 
         attr_reader :exchange, :thread, :interval, :status
 
@@ -44,7 +34,13 @@ module Travis
         end
 
         def pump!
-          exchange.publish(encode(status.call), :properties => { :type => 'worker:status' }, :routing_key => @target_queue_name)
+          data = encode(status.call)
+          options = {
+            :properties => { :type => 'worker:status' },
+            :routing_key => @target_queue_name,
+            :uuid => Travis.uuid
+          }
+          exchange.publish(data, options)
         end
 
         def stop

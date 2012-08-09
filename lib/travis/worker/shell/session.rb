@@ -49,9 +49,13 @@ module Travis
 
         # Allows you to set a callback when output is received from the ssh shell.
         #
-        # block - The block to be called.
-        def on_output(&block)
-          @on_output = block
+        # on_output - The block to be called.
+        def on_output(&on_output)
+          uuid = Travis.uuid
+          @on_output = lambda do |*args, &block|
+            Travis.uuid = uuid
+            on_output.call(*args, &block)
+          end
         end
 
         # Checks is the current shell is open.

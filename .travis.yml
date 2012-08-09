@@ -6,3 +6,9 @@ rvm:
   - jruby-18mode
   - jruby-19mode
   - jruby-head
+env:
+  - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"
+jdk:
+  - openjdk7
+  - openjdk6
+  - oraclejdk7

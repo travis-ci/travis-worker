@@ -1,16 +1,40 @@
 require 'shellwords'
 require 'timeout'
+require 'filtered_string'
 
 module Travis
   class Worker
     module Shell
       module Helpers
         def export(name, value, options = nil)
-          execute(*["export #{name}=#{value}", options].compact) if name
+          return unless name
+          with_timeout("export #{name}=#{value}", 3) do
+            execute(*["export #{name}=#{value}", options].compact)
+          end
         end
 
         def export_line(line, options = nil)
-          execute(*["export #{line}", options].compact) if line
+          return unless line
+
+          if line =~ /^TRAVIS_/
+            options ||= {}
+            options[:echo] = false
+          end
+
+          secure = line.sub!(/^SECURE /, '')
+          filtered = if secure
+            ::Travis::Helpers.obfuscate_env_vars(line)
+          else
+            line
+          end
+
+          line = FilteredString.new(line, filtered)
+          line = line.mutate("export %s", line)
+          line = line.to_s unless secure
+
+          with_timeout(line, 3) do
+            execute(*[line, options].compact)
+          end
         end
 
         def chdir(dir)
@@ -39,10 +63,10 @@ module Travis
         #           :echo  - true or false if the command should be echod to the log
         #
         # Returns true if the command completed successfully, false if it failed.
-        def execute(command, options = {})
+        def execute(command, options = {}, &block)
           with_timeout(command, options[:stage]) do
-            command = echoize(command) unless options[:echo] == false
-            exec(command) { |p, data| buffer << data } == 0
+            command = echoize(command, &block) unless options[:echo] == false
+            exec(_unfiltered(command)) { |p, data| buffer << data } == 0
           end
         end
 
@@ -79,8 +103,10 @@ module Travis
         #
         # Returns the cmd formatted.
         def echoize(cmd, options = {})
-          [cmd].flatten.join("\n").split("\n").map do |cmd|
-            "echo #{Shellwords.escape("$ #{cmd}")}\n#{cmd}"
+          commands = [cmd].flatten.map { |cmd| cmd.respond_to?(:split) ? cmd.split("\n") : cmd }
+          commands.flatten.map do |cmd|
+            echo = block_given? ? yield(cmd) : cmd
+            "echo #{Shellwords.escape("$ #{echo}")}\n#{_unfiltered(cmd)}"
           end.join("\n")
         end
 
@@ -102,13 +128,18 @@ module Travis
           end
         end
 
-       def timeout(stage)
-         if stage.is_a?(Numeric)
-           stage
-         else
-           config.timeouts[stage || :default]
-         end
-       end
+        def timeout(stage)
+          if stage.is_a?(Numeric)
+            stage
+          else
+            config.timeouts[stage || :default]
+          end
+        end
+
+        def _unfiltered(str)
+          str = str.respond_to?(:unfiltered) ? str.unfiltered : str.to_s
+        end
+        private :_unfiltered
       end
     end
   end

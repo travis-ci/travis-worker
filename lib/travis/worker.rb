@@ -4,6 +4,7 @@ require 'thread'
 require 'core_ext/hash/compact'
 require 'travis/build'
 require 'travis/support'
+require 'hard_timeout'
 
 module Travis
   autoload :Serialization,      'travis/serialization'
@@ -119,7 +120,7 @@ module Travis
     end
 
     def open_reporting_channel
-      @reporting_channel      = @broker_connection.create_channel
+      @reporting_channel = @broker_connection.create_channel
     end
 
     def declare_queues
@@ -133,9 +134,9 @@ module Travis
       # these are declared here mostly to aid development purposes. Hub is just as involved
       # in build log streaming so it may seem more logical to move these declarations to Hub. We may
       # do it in the future. MK.
-      @queue_names.
-        reject { |name| name =~ /configure$/ }.
-        map { |name| @reporting_channel.queue("reporting.jobs.#{name}", :durable => true) }
+      @queue_names.map do |name|
+        @reporting_channel.queue("reporting.jobs.#{name}", :durable => true)
+      end
     end
 
     def subscribe
@@ -163,7 +164,7 @@ module Travis
 
     def set(state)
       self.state = state
-      @state_reporter.notify('worker:status', [report])
+      @state_reporter.notify('worker:status', :workers => [report])
     end
 
     def process(message, payload)
@@ -179,7 +180,8 @@ module Travis
 
       build_log_streamer = log_streamer(message, payload)
 
-      Build.create(vm, vm.shell, build_log_streamer, self.payload, config).run
+      build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
+      hard_timeout(build)
 
       finish(message)
     end
@@ -188,6 +190,7 @@ module Travis
     def prepare(payload)
       @last_error = nil
       @payload = decode(payload)
+      Travis.uuid = @payload.delete(:uuid)
       set :working
     end
     log :prepare
@@ -227,6 +230,13 @@ module Travis
 
     def decode(payload)
       Hashr.new(MultiJson.decode(payload))
+    end
+
+    def hard_timeout(build)
+      info "running a HardTimeout (40mins) around #{build.inspect}"
+      HardTimeout.timeout(2400) { build.run }
+    rescue Timeout::Error => e
+      build.vm_stall
     end
   end
 end

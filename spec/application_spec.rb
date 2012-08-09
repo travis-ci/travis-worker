@@ -12,7 +12,6 @@ describe Travis::Worker::Application do
     app.stubs(:logger).returns(Logger.new(StringIO.new))
   end
 
-
   describe 'start' do
     it 'starts the workers with the given names' do
       workers.expects(:start).with(['worker-1'])
