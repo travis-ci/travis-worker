@@ -233,8 +233,8 @@ module Travis
     end
 
     def hard_timeout(build)
-      info "running a HardTimeout (20mins) around #{build.inspect}"
-      HardTimeout.timeout(1200) { build.run }
+      info "running a HardTimeout (40mins) around #{build.inspect}"
+      HardTimeout.timeout(2400) { build.run }
     rescue Timeout::Error => e
       build.vm_stall
     end
