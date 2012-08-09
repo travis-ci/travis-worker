@@ -4,7 +4,7 @@ require 'thread'
 require 'core_ext/hash/compact'
 require 'travis/build'
 require 'travis/support'
-require 'safe_timeout'
+require 'hard_timeout'
 
 module Travis
   autoload :Serialization,      'travis/serialization'
@@ -182,7 +182,7 @@ module Travis
       build_log_streamer = log_streamer(message, payload)
 
       build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
-      safe_timeout(build)
+      hard_timeout(build)
 
       finish(message)
     end
@@ -233,8 +233,9 @@ module Travis
       Hashr.new(MultiJson.decode(payload))
     end
 
-    def safe_timeout(build)
-      SafeTimeout.timeout(1200) { build.run }
+    def hard_timeout(build)
+      info "running a HardTimeout (20mins) around #{build.inspect}"
+      HardTimeout.timeout(1200) { build.run }
     rescue Timeout::Error => e
       build.vm_stall
     end
