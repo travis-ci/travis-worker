@@ -124,6 +124,7 @@ module Travis
           yield
         rescue Exception => e
           log_exception(e)
+          { :result => 1 }
         ensure
           close_sandbox
         end
