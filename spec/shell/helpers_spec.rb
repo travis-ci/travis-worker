@@ -65,6 +65,11 @@ describe Travis::Worker::Shell::Helpers do
       shell.expects(:exec).with(%(echo \\$\\ export\\ FOO\\=\\[secure\\]\\ TEST_WITH\\=\\[secure\\]\nexport FOO=bar TEST_WITH="ruby -I. test/ci"))
       shell.export_line('SECURE FOO=bar TEST_WITH="ruby -I. test/ci"')
     end
+
+    it 'silently exports shell variables which start with TRAVIS_' do
+      shell.expects(:execute).with('export TRAVIS_PULL_REQUEST=true', :echo => false)
+      shell.export_line('TRAVIS_PULL_REQUEST=true')
+    end
   end
 
   describe 'chdir' do

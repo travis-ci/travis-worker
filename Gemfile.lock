@@ -6,8 +6,23 @@ GIT
       net-ssh (~> 2.1)
 
 GIT
+  remote: https://github.com/joshk/vagrant
+  revision: d16043f691bea347f9615dfa966008bbc34dab2e
+  branch: 1-0-stable
+  specs:
+    vagrant (1.0.3)
+      archive-tar-minitar (= 0.5.2)
+      childprocess (~> 0.3.1)
+      erubis (~> 2.7.0)
+      i18n (~> 0.6.0)
+      json (~> 1.5)
+      log4r (~> 1.1.9)
+      net-scp (~> 1.0)
+      net-ssh (~> 2.2)
+
+GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: c142f8d3a322fa80ebf3fda898a04a6e2ed8d27b
+  revision: c5b3b0c68778b3160e5b196ba535f71f1c244f34
   specs:
     travis-build (0.2.0)
 
@@ -34,15 +49,13 @@ GEM
       addressable (~> 2.2)
       multipart-post (~> 1.1)
       rack (~> 1.1)
-    ffi (1.1.4)
     ffi (1.1.4-java)
     hashr (0.0.21)
     hot_bunnies (1.4.0.pre4-java)
     i18n (0.6.0)
     jruby-openssl (0.7.7)
       bouncy-castle-java (>= 1.5.0146.1)
-    json (1.5.4)
-    json (1.5.4-java)
+    json (1.7.4-java)
     log4r (1.1.10)
     metaclass (0.0.1)
     mocha (0.11.4)
@@ -51,7 +64,7 @@ GEM
     multipart-post (1.1.5)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
-    net-ssh (2.2.2)
+    net-ssh (2.5.2)
     rack (1.4.1)
     rake (0.9.2.2)
     rspec (2.11.0)
@@ -70,15 +83,6 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     thor (0.14.6)
-    vagrant (1.0.3)
-      archive-tar-minitar (= 0.5.2)
-      childprocess (~> 0.3.1)
-      erubis (~> 2.7.0)
-      i18n (~> 0.6.0)
-      json (~> 1.5.1)
-      log4r (~> 1.1.9)
-      net-scp (~> 1.0.4)
-      net-ssh (~> 2.2.2)
     vagrant-vbguest (0.3.5)
 
 PLATFORMS
@@ -100,5 +104,5 @@ DEPENDENCIES
   thor (~> 0.14.6)
   travis-build!
   travis-support!
-  vagrant (~> 1.0.2)
+  vagrant!
   vagrant-vbguest
