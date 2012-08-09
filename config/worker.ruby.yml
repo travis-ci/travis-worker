@@ -5,4 +5,5 @@ timeouts:
   before_install: 900
   install: 900
   before_script: 900
-  script: 1500
+  script: 1800
+  after_script: 600
