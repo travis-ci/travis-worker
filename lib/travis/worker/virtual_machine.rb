@@ -5,6 +5,7 @@ module Travis
       class VmFatalError < StandardError; end
 
       autoload :VirtualBox, 'travis/worker/virtual_machine/virtual_box'
+      autoload :BlueBox,    'travis/worker/virtual_machine/blue_box'
     end
   end
 end
