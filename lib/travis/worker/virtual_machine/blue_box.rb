@@ -21,7 +21,7 @@ module Travis
           end
         end
 
-        attr_reader :name, :password
+        attr_reader :name, :password, :server
 
         def initialize(name)
           @name = name
