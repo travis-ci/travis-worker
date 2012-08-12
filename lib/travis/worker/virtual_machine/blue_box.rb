@@ -37,6 +37,10 @@ module Travis
         end
 
         def create_server(opts = {})
+          return @server if server
+
+          info "provisioning a VM on BlueBox"
+
           defaults = {
             :username  => 'travis',
             :image_id  => Travis::Worker.config.blue_box.image_id,
@@ -53,6 +57,7 @@ module Travis
         end
 
         def shell
+          create_server unless server
           @shell ||= Shell::Session.new(name,
             :host => ip_address,
             :port => 22,
@@ -86,7 +91,10 @@ module Travis
         end
 
         def destroy_server
-          server.destroy if server_destroyable?
+          if server_destroyable?
+            info "destroying the VM"
+            server.destroy
+          end
         end
 
         def prepare
