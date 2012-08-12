@@ -24,6 +24,7 @@ gem 'simple_states',    '0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
+gem 'fog'
 
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.4.0.pre4'
