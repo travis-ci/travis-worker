@@ -95,6 +95,8 @@ module Travis
             info "destroying the VM"
             server.destroy
           end
+        rescue Fog::Compute::Bluebox::NotFound => e
+          info "went to destroy the VM but it didn't exist :/"
         end
 
         def prepare
