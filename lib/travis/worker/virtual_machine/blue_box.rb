@@ -23,7 +23,7 @@ module Travis
 
         attr_reader :name, :password
 
-        def initialize(name, image_id)
+        def initialize(name)
           @name = name
         end
 
