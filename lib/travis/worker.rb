@@ -193,7 +193,7 @@ module Travis
       Travis.uuid = @payload.delete(:uuid)
       set :working
     end
-    log :prepare
+    log :prepare, :as => :debug
 
     def finish(message)
       message.ack
