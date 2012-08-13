@@ -11,6 +11,13 @@ module Travis
       class BlueBox
         include Retryable, Logging
 
+        BLUE_BOX_VM_DEFAULTS = {
+          :username  => 'travis',
+          :image_id  => Travis::Worker.config.blue_box.image_id,
+          :flavor_id => Travis::Worker.config.blue_box.flavor_id,
+          :location_id => Travis::Worker.config.blue_box.location_id
+        }
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -20,6 +27,8 @@ module Travis
             vm_count.times.map { |num| "#{Travis::Worker.config.vms.name_prefix}-#{num + 1}" }
           end
         end
+
+        log_header { "#{name}:worker:virtual_machine:blue_box" }
 
         attr_reader :name, :password, :server
 
@@ -41,18 +50,22 @@ module Travis
 
           info "provisioning a VM on BlueBox"
 
-          defaults = {
-            :username  => 'travis',
-            :image_id  => Travis::Worker.config.blue_box.image_id,
-            :flavor_id => Travis::Worker.config.blue_box.flavor_id,
-            :location_id => Travis::Worker.config.blue_box.location_id
-          }
-          opts = defaults.merge(opts)
+          opts = defaults.merge(BLUE_BOX_VM_DEFAULTS)
 
-          @password = (opts[:password] ||= generate_password)
+          retryable(:tries => 3) do
+            Timeout.timeout(65) do
+              begin
+                @password = (opts[:password] ||= generate_password)
 
-          @server = connection.servers.create(defaults.merge(opts))
-          @server.wait_for { ready? }
+                @server = connection.servers.create(defaults.merge(opts))
+                @server.wait_for { ready? }
+              rescue Exception => e
+                info "BlueBox VM would not boot"
+                raise
+              end
+            end
+          end
+
           @server
         end
 
@@ -79,11 +92,7 @@ module Travis
         end
 
         def full_name
-          "#{Travis::Worker.config.host}:#{name}"
-        end
-
-        def logging_header
-          name
+          "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
         def ip_address
@@ -91,12 +100,18 @@ module Travis
         end
 
         def destroy_server
+          debug "vm is in #{server.state} state"
           if server_destroyable?
             info "destroying the VM"
             server.destroy
+            @server = nil
+            @shell = nil
           end
         rescue Fog::Compute::Bluebox::NotFound => e
           info "went to destroy the VM but it didn't exist :/"
+        rescue Excon::Errors::InternalServerError => e
+          info "went to destroy the VM but there was an internal server error"
+          log_exception(e)
         end
 
         def prepare
@@ -114,7 +129,12 @@ module Travis
           end
 
           def generate_password
-            '!%@$#' + Digest::SHA1.hexdigest("travis-#{Time.now.to_i}")[0..20] + '!%@$#'
+            "#{random_string}:travis:#{random_string}"
+          end
+
+          def random_string
+            chars = ('A'...'z').to_a.select { |c| c =~ /\w+/ }
+            (0...10).map{ chars[rand(chars.size)] }.join
           end
 
       end
