@@ -28,8 +28,8 @@ module Travis
              :log_level => :info,
              :queue     => 'builds.common',
              :shell     => { :buffer => 0 },
-             :timeouts  => { :hard_limit => 2400, :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 300 },
-             :vms       => { :count => 1, :_include => Vms },
+             :timeouts  => { :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 120 },
+             :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4 * 1024 * 1024 }
 
       def name
@@ -41,7 +41,7 @@ module Travis
       end
 
       def names
-        @names ||= VirtualMachine::VirtualBox.vm_names.map { |name| name.gsub(/^travis-/, '') }
+        @names ||= VirtualMachine.provider.vm_names.map { |name| name.gsub(/^travis-/, '') }
       end
 
       def initialize

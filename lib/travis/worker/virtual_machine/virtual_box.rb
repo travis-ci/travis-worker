@@ -88,7 +88,7 @@ module Travis
         #
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
-          @name = name
+          @name = "travis-#{name}"
         end
 
         # The virtual box machine bound to this instance.
