@@ -14,7 +14,7 @@ module Travis
       end
 
       def vm
-        VirtualMachine::BlueBox.new("travis-#{name}")
+        VirtualMachine.provider.new(name)
       end
 
       def queue_names
