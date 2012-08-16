@@ -36,7 +36,9 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          options = { :port => config.port, :keys => [config.private_key_path] }
+          options = { :port => config.port, :paranoid => false }
+          options[:password] = config.password if config.password?
+          options[:keys] = [config.private_key_path] if config.private_key_path?
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
