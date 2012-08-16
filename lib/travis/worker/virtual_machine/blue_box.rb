@@ -1,6 +1,7 @@
 require 'fog'
 require 'shellwords'
 require 'digest/sha1'
+require 'benchmark'
 require 'travis/support'
 
 module Travis
@@ -13,7 +14,6 @@ module Travis
 
         BLUE_BOX_VM_DEFAULTS = {
           :username  => 'travis',
-          :image_id  => Travis::Worker.config.blue_box.image_id,
           :flavor_id => Travis::Worker.config.blue_box.flavor_id,
           :location_id => Travis::Worker.config.blue_box.location_id
         }
@@ -50,17 +50,18 @@ module Travis
 
           info "provisioning a VM on BlueBox"
 
-          opts = defaults.merge(BLUE_BOX_VM_DEFAULTS)
+          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id']))
 
           retryable(:tries => 3) do
-            Timeout.timeout(65) do
+            Timeout.timeout(90) do
               begin
                 @password = (opts[:password] ||= generate_password)
 
-                @server = connection.servers.create(defaults.merge(opts))
-                @server.wait_for { ready? }
+                @server = connection.servers.create(opts)
+                time = Benchmark.realtime { @server.wait_for { ready? } }
+                info "Blue VM provisioned in #{time.round(2)} seconds"
               rescue Exception => e
-                info "BlueBox VM would not boot"
+                info "BlueBox VM would not boot within 90 seconds"
                 raise
               end
             end
@@ -99,6 +100,18 @@ module Travis
           server.ips.first['address']
         end
 
+        def latest_template
+          @latest_template ||= begin
+            templates = connection.get_templates.body
+            templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-#{image_type}/ }
+            templates.sort { |a, b| b['created'] <=> a['created'] }.first
+          end
+        end
+
+        def image_type
+          Travis::Worker.config.blue_box.image_type
+        end
+
         def destroy_server
           debug "vm is in #{server.state} state"
           if server_destroyable?
@@ -115,7 +128,7 @@ module Travis
         end
 
         def prepare
-          true
+          info "using latest template '#{latest_template['description']}' (#{latest_template['id']})"
         end
 
         private
