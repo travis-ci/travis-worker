@@ -22,13 +22,13 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: c5b3b0c68778b3160e5b196ba535f71f1c244f34
+  revision: b9b3861a3b9b03821cc23837b508b03e8c3da611
   specs:
     travis-build (0.2.0)
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: 7b98636b18fa84487b568478ad364aea23e4c2ed
+  revision: 27857bb4f5425b8aacc9b26e4661688dca962fb0
   specs:
     travis-support (0.0.1)
 
@@ -46,7 +46,7 @@ GEM
       ffi (~> 1.0, >= 1.0.6)
     diff-lcs (1.1.3)
     erubis (2.7.0)
-    excon (0.15.5)
+    excon (0.16.1)
     faraday (0.7.6)
       addressable (~> 2.2)
       multipart-post (~> 1.1)
@@ -66,8 +66,8 @@ GEM
     hashr (0.0.21)
     hot_bunnies (1.4.0.pre4-java)
     i18n (0.6.0)
-    jruby-openssl (0.7.7)
-      bouncy-castle-java (>= 1.5.0146.1)
+    jruby-openssl (0.7.4)
+      bouncy-castle-java
     json (1.7.4-java)
     log4r (1.1.10)
     metaclass (0.0.1)
@@ -109,7 +109,7 @@ DEPENDENCIES
   fog
   hashr (~> 0.0.18)
   hot_bunnies (~> 1.4.0.pre4)
-  jruby-openssl (~> 0.7.4)
+  jruby-openssl (= 0.7.4)
   json
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)

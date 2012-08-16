@@ -58,10 +58,11 @@ module Travis
                 @password = (opts[:password] ||= generate_password)
 
                 @server = connection.servers.create(opts)
+                info "Provisioning a BlueBox VM"
                 time = Benchmark.realtime { @server.wait_for { ready? } }
-                info "Blue VM provisioned in #{time.round(2)} seconds"
+                info "BlueBox VM provisioned in #{time.round(2)} seconds"
               rescue Exception => e
-                info "BlueBox VM would not boot within 90 seconds"
+                error "BlueBox VM would not boot within 90 seconds"
                 raise
               end
             end
