@@ -12,8 +12,7 @@ module HardTimeout
     thread = Thread.new { yield(sec) }
 
     if thread.join(sec).nil?
-      java_thread = JRuby.reference(thread)
-      thread.raise
+      thread.kill
       raise (klass || Timeout::Error), 'execution expired'
     else
       thread.value
