@@ -200,8 +200,11 @@ module Travis
     log :prepare
 
     def finish(message, opts = {})
-      requeue = opts[:requeue] || false
-      message.ack(:requeue => requeue)
+      unless opts[:requeue]
+        message.ack
+      else
+        message.reject(:requeue => true)
+      end
       @payload = nil
       if working?
         set :ready
@@ -214,7 +217,7 @@ module Travis
     def error(error, message)
       @last_error = [error.message, error.backtrace].flatten.join("\n")
       log_exception(error)
-      message.ack(:requeue => true)
+      message.reject(:requeue => true)
       stop
       set :errored
     end
