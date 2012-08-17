@@ -22,6 +22,7 @@ module Travis
       autoload :StateReporter,  'travis/worker/reporters/state_reporter'
     end
 
+    class BuildStallTimeoutError < StandardException;
 
     class << self
       def config
@@ -184,6 +185,9 @@ module Travis
       hard_timeout(build)
 
       finish(message)
+    rescue BuildStallTimeoutError => e
+      error "The test (id:#{payload['id']}) stalled and was requeued"
+      finish(message, :requeue => true)
     end
     log :work, :as => :debug
 
@@ -195,8 +199,9 @@ module Travis
     end
     log :prepare
 
-    def finish(message)
-      message.ack
+    def finish(message, opts = {})
+      requeue = opts[:requeue] || false
+      message.ack(:requeue => requeue)
       @payload = nil
       if working?
         set :ready
@@ -237,6 +242,7 @@ module Travis
       HardTimeout.timeout(2400) { build.run }
     rescue Timeout::Error => e
       build.vm_stall
+      raise BuildStallTimeoutError
     end
   end
 end
