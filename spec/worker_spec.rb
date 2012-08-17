@@ -187,10 +187,11 @@ describe Travis::Worker do
   end
 
   describe 'error' do
-    after(:each) { worker.shutdown }
+    before(:each) { metadata.stubs(:reject) }
+    after(:each)  { worker.shutdown }
 
     it 'requeues the message' do
-      metadata.expects(:ack).with(:requeue => true)
+      metadata.expects(:reject).with(:requeue => true)
       worker.send(:error, exception, metadata)
     end
 

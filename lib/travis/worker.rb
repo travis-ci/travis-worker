@@ -22,7 +22,7 @@ module Travis
       autoload :StateReporter,  'travis/worker/reporters/state_reporter'
     end
 
-    class BuildStallTimeoutError < StandardException;
+    class BuildStallTimeoutError < StandardError; end
 
     class << self
       def config
@@ -245,7 +245,7 @@ module Travis
       HardTimeout.timeout(2400) { build.run }
     rescue Timeout::Error => e
       build.vm_stall
-      raise BuildStallTimeoutError
+      raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
     end
   end
 end
