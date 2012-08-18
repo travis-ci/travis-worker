@@ -173,7 +173,7 @@ module Travis
       work(message, payload)
     rescue Errno::ECONNREFUSED, Exception => error
       # puts error.message, error.backtrace
-      error(error, message)
+      error_build(error, message)
     end
 
     def work(message, payload)
@@ -214,7 +214,7 @@ module Travis
     end
     log :finish, :params => false
 
-    def error(error, message)
+    def error_build(error, message)
       @last_error = [error.message, error.backtrace].flatten.join("\n")
       log_exception(error)
       message.reject(:requeue => true)
