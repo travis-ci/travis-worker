@@ -118,7 +118,7 @@ describe Travis::Worker do
       end
 
       it 'responds to the error' do
-        worker.expects(:error).with(exception, metadata)
+        worker.expects(:error_build).with(exception, metadata)
         worker.send(:process, metadata, payload)
       end
     end
@@ -192,21 +192,21 @@ describe Travis::Worker do
 
     it 'requeues the message' do
       metadata.expects(:reject).with(:requeue => true)
-      worker.send(:error, exception, metadata)
+      worker.send(:error_build, exception, metadata)
     end
 
     it 'stores the error' do
-      worker.send(:error, exception, metadata)
+      worker.send(:error_build, exception, metadata)
       worker.last_error.should == "broken\nkaputt.rb"
     end
 
     it 'stops itself' do
       worker.expects(:stop)
-      worker.send(:error, exception, metadata)
+      worker.send(:error_build, exception, metadata)
     end
 
     it 'sets the current state to :errored' do
-      worker.send(:error, exception, metadata)
+      worker.send(:error_build, exception, metadata)
       worker.should be_errored
     end
   end
