@@ -186,7 +186,7 @@ module Travis
 
       finish(message)
     rescue BuildStallTimeoutError => e
-      error "The job (slug:#{payload['repository']['slug']} id:#{payload['job']['id']}) stalled and was requeued"
+      error "The job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
       finish(message, :requeue => true)
     end
     log :work, :as => :debug
