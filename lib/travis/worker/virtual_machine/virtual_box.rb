@@ -33,6 +33,8 @@ module Travis
       class VirtualBox
         include Retryable, Logging
 
+        log_header { "#{name}:worker:virtual_box" }
+
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
           def manager

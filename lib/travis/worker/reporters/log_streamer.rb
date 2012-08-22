@@ -30,7 +30,7 @@ module Travis
           }
           @exchange.publish(data, options)
         end
-        log :message, :as => :debug
+        log :message, :as => :debug, :only => :before
       end
     end
   end
