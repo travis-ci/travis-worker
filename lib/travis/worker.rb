@@ -197,7 +197,7 @@ module Travis
       Travis.uuid = @payload.delete(:uuid)
       set :working
     end
-    log :prepare
+    log :prepare, :as => :debug
 
     def finish(message, opts = {})
       unless opts[:requeue]
@@ -221,7 +221,7 @@ module Travis
       stop
       set :errored
     end
-    log :error
+    log :error, :as => :debug
 
     def log_streamer(message, payload)
       log_routing_key = log_streamer_routing_key_for(message, payload)
