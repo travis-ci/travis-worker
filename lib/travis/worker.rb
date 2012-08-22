@@ -169,7 +169,6 @@ module Travis
     end
 
     def process(message, payload)
-      Thread.current[:log_header] = name
       work(message, payload)
     rescue Errno::ECONNREFUSED, Exception => error
       # puts error.message, error.backtrace
@@ -242,7 +241,10 @@ module Travis
 
     def hard_timeout(build)
       info "running a HardTimeout (40mins) around #{build.inspect}"
-      HardTimeout.timeout(2400) { build.run }
+      HardTimeout.timeout(2400) do
+        Thread.current[:log_header] = name
+        build.run
+      end
     rescue Timeout::Error => e
       build.vm_stall
       raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'

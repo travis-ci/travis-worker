@@ -7,7 +7,7 @@ module Travis
       class LogStreamer
         include Logging, Travis::Serialization
 
-        log_header { "reporter:#{name}" }
+        log_header { "#{name}:log_streamer" }
 
         attr_reader :name
 
