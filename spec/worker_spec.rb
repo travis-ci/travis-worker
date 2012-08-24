@@ -13,8 +13,10 @@ describe Travis::Worker do
 
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
-  let(:metadata)     { stub('metadata', :ack => nil, :routing_key => "builds.common") }
-  let(:payload)      { '{ "id": 1 }' }
+  let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
+  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 } } }
+  let(:payload)         { MultiJson.encode(decoded_payload) }
+
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
   let(:build)        { stub('build', :run => nil) }
   let(:io)           { StringIO.new }
@@ -129,6 +131,7 @@ describe Travis::Worker do
     after(:each)  { worker.shutdown }
 
     it 'prepares work' do
+      worker.stubs(:payload => decoded_payload)
       worker.expects(:prepare)
       worker.send(:work, metadata, payload)
     end
@@ -154,7 +157,7 @@ describe Travis::Worker do
 
     it 'sets the current payload' do
       worker.send(:prepare, payload)
-      worker.payload.should == { :id => 1 }
+      worker.payload.should == { :id => 1, :repository => { :slug => 'joshk/fun_times' }, :job => { :id => 123 } }
     end
 
     it 'sets the current state to :working' do
