@@ -30,7 +30,9 @@ module Travis
           }
           @exchange.publish(data, options)
         end
-        log :message, :as => :debug, :only => :before
+        # log :message, :as => :debug, :only => :before
+        # this has been disabled as logging is also logged as debug, making the
+        # logs super verbose, this can be turned on as needed
       end
     end
   end

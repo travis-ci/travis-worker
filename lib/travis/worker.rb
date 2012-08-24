@@ -178,6 +178,8 @@ module Travis
     def work(message, payload)
       prepare(payload)
 
+      info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
+
       build_log_streamer = log_streamer(message, payload)
 
       build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
@@ -185,7 +187,7 @@ module Travis
 
       finish(message)
     rescue BuildStallTimeoutError => e
-      error "The job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
+      error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
       finish(message, :requeue => true)
     end
     log :work, :as => :debug
@@ -240,7 +242,6 @@ module Travis
     end
 
     def hard_timeout(build)
-      info "running a HardTimeout (40mins) around #{build.inspect}"
       HardTimeout.timeout(2400) do
         Thread.current[:log_header] = name
         build.run
