@@ -245,7 +245,7 @@ module Travis
     end
 
     def hard_timeout(build)
-      HardTimeout.timeout(2400) do
+      HardTimeout.timeout(config.timeouts.hard_limit) do
         Thread.current[:log_header] = name
         build.run
       end
