@@ -9,7 +9,7 @@ module Travis
         include Shell::Helpers
         include Logging
 
-        log_header { "#{name}:session" }
+        log_header { "#{name}:shell:session" }
 
         attr_reader :name, :config, :shell
 

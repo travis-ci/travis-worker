@@ -33,6 +33,8 @@ module Travis
       class VirtualBox
         include Retryable, Logging
 
+        log_header { "#{name}:worker:virtual_box" }
+
         class << self
           # Instantiates and caches the Singleton VirtualBoxManager.
           def manager
@@ -94,7 +96,7 @@ module Travis
         # The virtual box machine bound to this instance.
         def machine
           @machine = begin
-            machine = manager.vbox.machines.detect { |machine| machine.name == name }
+            machine = manager.vbox.machines.detect { |machine| machine.name == "travis-#{name}" }
             raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
             machine
           end
