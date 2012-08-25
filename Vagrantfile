@@ -6,6 +6,8 @@ require 'travis/worker'
 config = Travis::Worker.config.vms
 
 Vagrant::Config.run do |c|
+  c.ssh.username = "travis"
+
   config.names.each_with_index do |name, num|
     c.vm.define(name) do |box|
       box.vm.box = config.name_prefix
