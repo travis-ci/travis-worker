@@ -109,7 +109,7 @@ module Travis
           @shell ||= Shell::Session.new(name,
             :host => '127.0.0.1',
             :port => ssh_port,
-            :username => 'travis',
+            :username => ENV.fetch("TRAVIS_CI_ENV_USERNAME", 'travis'),
             :private_key_path => File.expand_path('keys/vagrant'),
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts
