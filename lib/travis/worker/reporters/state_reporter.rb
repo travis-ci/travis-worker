@@ -8,7 +8,7 @@ module Travis
       class StateReporter
         include Logging, Travis::Serialization
 
-        log_header { "reporter:#{name}" }
+        log_header { "#{name}:state_reporter" }
 
         attr_reader :name, :exchange
 

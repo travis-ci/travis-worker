@@ -169,15 +169,17 @@ module Travis
     end
 
     def process(message, payload)
-      Thread.current[:log_header] = name
       work(message, payload)
     rescue Errno::ECONNREFUSED, Exception => error
       # puts error.message, error.backtrace
-      error(error, message)
+      error_build(error, message)
     end
 
     def work(message, payload)
       prepare(payload)
+
+      info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
+      info "this is a requeued message" if message.redelivered?
 
       build_log_streamer = log_streamer(message, payload)
 
@@ -186,7 +188,7 @@ module Travis
 
       finish(message)
     rescue BuildStallTimeoutError => e
-      error "The test (id:#{payload['id']}) stalled and was requeued"
+      error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
       finish(message, :requeue => true)
     end
     log :work, :as => :debug
@@ -197,7 +199,7 @@ module Travis
       Travis.uuid = @payload.delete(:uuid)
       set :working
     end
-    log :prepare
+    log :prepare, :as => :debug
 
     def finish(message, opts = {})
       unless opts[:requeue]
@@ -214,14 +216,14 @@ module Travis
     end
     log :finish, :params => false
 
-    def error(error, message)
+    def error_build(error, message)
       @last_error = [error.message, error.backtrace].flatten.join("\n")
       log_exception(error)
       message.reject(:requeue => true)
       stop
       set :errored
     end
-    log :error
+    log :error, :as => :debug
 
     def log_streamer(message, payload)
       log_routing_key = log_streamer_routing_key_for(message, payload)
@@ -229,7 +231,9 @@ module Travis
     end
 
     def log_streamer_routing_key_for(metadata, payload)
-      "reporting.jobs.#{metadata.routing_key}"
+      key = "reporting.jobs.#{metadata.routing_key}"
+      info "using the log streaming routing key : #{key}"
+      key
     end
 
     def host
@@ -241,8 +245,10 @@ module Travis
     end
 
     def hard_timeout(build)
-      info "running a HardTimeout (40mins) around #{build.inspect}"
-      HardTimeout.timeout(2400) { build.run }
+      HardTimeout.timeout(config.timeouts.hard_limit) do
+        Thread.current[:log_header] = name
+        build.run
+      end
     rescue Timeout::Error => e
       build.vm_stall
       raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
