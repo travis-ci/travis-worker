@@ -22,6 +22,7 @@ module Travis
       autoload :StateReporter,  'travis/worker/reporters/state_reporter'
     end
 
+    class BuildStallTimeoutError < StandardError; end
 
     class << self
       def config
@@ -171,11 +172,14 @@ module Travis
       work(message, payload)
     rescue Errno::ECONNREFUSED, Exception => error
       # puts error.message, error.backtrace
-      error(error, message)
+      error_build(error, message)
     end
 
     def work(message, payload)
       prepare(payload)
+
+      info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
+      info "this is a requeued message" if message.redelivered?
 
       build_log_streamer = log_streamer(message, payload)
 
@@ -183,6 +187,9 @@ module Travis
       hard_timeout(build)
 
       finish(message)
+    rescue BuildStallTimeoutError => e
+      error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
+      finish(message, :requeue => true)
     end
     log :work, :as => :debug
 
@@ -194,8 +201,12 @@ module Travis
     end
     log :prepare, :as => :debug
 
-    def finish(message)
-      message.ack
+    def finish(message, opts = {})
+      unless opts[:requeue]
+        message.ack
+      else
+        message.reject(:requeue => true)
+      end
       @payload = nil
       if working?
         set :ready
@@ -205,14 +216,14 @@ module Travis
     end
     log :finish, :params => false
 
-    def error(error, message)
+    def error_build(error, message)
       @last_error = [error.message, error.backtrace].flatten.join("\n")
       log_exception(error)
-      message.ack(:requeue => true)
+      message.reject(:requeue => true)
       stop
       set :errored
     end
-    log :error
+    log :error, :as => :debug
 
     def log_streamer(message, payload)
       log_routing_key = log_streamer_routing_key_for(message, payload)
@@ -220,7 +231,9 @@ module Travis
     end
 
     def log_streamer_routing_key_for(metadata, payload)
-      "reporting.jobs.#{metadata.routing_key}"
+      key = "reporting.jobs.#{metadata.routing_key}"
+      info "using the log streaming routing key : #{key}"
+      key
     end
 
     def host
@@ -232,12 +245,13 @@ module Travis
     end
 
     def hard_timeout(build)
-      HardTimeout.timeout(2400) do
+      HardTimeout.timeout(config.timeouts.hard_limit) do
         Thread.current[:log_header] = name
         build.run
       end
     rescue Timeout::Error => e
       build.vm_stall
+      raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
     end
   end
 end
