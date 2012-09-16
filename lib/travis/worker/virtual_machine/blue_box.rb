@@ -53,7 +53,7 @@ module Travis
           opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id']))
 
           retryable(:tries => 3) do
-            Timeout.timeout(90) do
+            Timeout.timeout(180) do
               begin
                 @password = (opts[:password] ||= generate_password)
 
@@ -62,7 +62,7 @@ module Travis
                 time = Benchmark.realtime { @server.wait_for { ready? } }
                 info "BlueBox VM provisioned in #{time.round(2)} seconds"
               rescue Exception => e
-                error "BlueBox VM would not boot within 90 seconds"
+                error "BlueBox VM would not boot within 180 seconds"
                 raise
               end
             end
