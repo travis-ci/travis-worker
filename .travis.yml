@@ -1,7 +1,7 @@
 language: ruby
 before_script: cp config/worker.example.yml config/worker.yml
-script: rspec spec
-bundler_args: --deployment --without development debug
+script: bin/rspec spec
+bundler_args: --deployment --binstubs
 services:
   - rabbitmq
 rvm:
