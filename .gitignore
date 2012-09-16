@@ -18,3 +18,4 @@ coverage/*
 play/*
 .DS_Store
 bin/*
+.rvmrc
