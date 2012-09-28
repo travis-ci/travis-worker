@@ -41,9 +41,9 @@ module Travis
     states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
     attr_accessor :state, :state_reporter
-    attr_reader :name, :vm, :broker_connection, :queues, :queue_names, :consumers, :config, :payload, :last_error
+    attr_reader :name, :vm, :broker_connection, :queue, :queue_name, :consumer, :config, :payload, :last_error
 
-    def initialize(name, vm, broker_connection, queue_names, config)
+    def initialize(name, vm, broker_connection, queue_name, config)
       raise ArgumentError, "worker name cannot be nil!" if name.nil?
       raise ArgumentError, "VM cannot be nil!" if vm.nil?
       raise ArgumentError, "broker connection cannot be nil!" if broker_connection.nil?
@@ -51,7 +51,7 @@ module Travis
 
       @name              = name
       @vm                = vm
-      @queue_names       = queue_names
+      @queue_name        = queue_name
       @broker_connection = broker_connection
       @config            = config
 
@@ -71,7 +71,7 @@ module Travis
 
     def stop(options = {})
       set :stopping
-      shutdown_consumers
+      shutdown_consumer
       kill if options[:force]
       set :stopped unless working?
     end
@@ -87,7 +87,7 @@ module Travis
 
 
     def shutdown
-      shutdown_consumers
+      shutdown_consumer
       close_channels
     end
 
@@ -97,75 +97,67 @@ module Travis
     def open_channels
       # error handling happens on the per-channel basis, so using
       # one channel for one type of operation is a highly recommended practice. MK.
-      open_builds_consumer_channels
-      open_reporting_channel
+      build_channel
+      reporting_channel
     end
 
     def close_channels
       # channels may be nil in some tests that mock out #start and #stop. MK.
-      @build_consumer_channels.each do |_, ch|
-        ch.close if ch.open?
-      end if @build_consumer_channels
-      @reporting_channel.close      if @reporting_channel && @reporting_channel.open?
+      build_channel.close if build_channel.open?
+      reporting_channel.close if reporting_channel && reporting_channel.open?
     end
 
-    def open_builds_consumer_channels
+    def build_channel
       # technically there is no need to use one channel per consumer but with RabbitMQ version on
       # Heroku (2.5) this is the only way to go :/ 2.6 and 2.7 on my local network work just fine.
       # But hey, Heroku gods, we must obey to. For now. MK.
-      @build_consumer_channels = @queue_names.reduce({}) do |acc, q|
-        acc[q]          = @broker_connection.create_channel
-        acc[q].prefetch = 1
-        acc
+      @build_channel ||= begin
+        channel = broker_connection.create_channel
+        channel.prefetch = 1
+        channel
       end
     end
 
-    def open_reporting_channel
-      @reporting_channel = @broker_connection.create_channel
+    def reporting_channel
+      @reporting_channel ||= broker_connection.create_channel
     end
 
     def declare_queues
-      # the list of queues is passed on from Travis::Worker::Factory. MK.
-      @queues = @queue_names.map do |name|
-        # see comments in open_builds_consumer_channels about why we are using
-        # one channel per queue. MK.
-        @build_consumer_channels[name].queue(name, :durable => true)
-      end
+      @queue = build_channel.queue(queue_name, :durable => true)
 
       # these are declared here mostly to aid development purposes. Hub is just as involved
       # in build log streaming so it may seem more logical to move these declarations to Hub. We may
       # do it in the future. MK.
-      @queue_names.map do |name|
-        @reporting_channel.queue("reporting.jobs.#{name}", :durable => true)
-      end
+      reporting_channel.queue("reporting.jobs.#{queue_name}", :durable => true)
     end
 
     def subscribe
-      @consumers = @queues.map { |q| q.subscribe(:ack => true, :blocking => false, &method(:process)) }
+      @consumer = queue.subscribe(:ack => true, :blocking => false, &method(:process))
     end
 
-    def shutdown_consumers
+    def shutdown_consumer
       # due to some aspects of how RabbitMQ Java client works and HotBunnies consumer
       # implementation that uses thread pools (JDK executor services), we need to shut down
       # consumers manually to guarantee that after disconnect we leave no active non-daemon
       # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
-      @consumers.each { |c| c.shutdown! } if @consumers
+      consumer.shutdown! if consumer
     end
 
     def unsubscribe
-      @consumers.each { |c| c.cancel }
+      consumer.cancel
     end
 
-    def initialize_state_reporter
+    def state_reporter
       # reports worker states, for example, whether worker is
       # ready, occupied or has issues. Build log streaming is done
       # using a separate class that is instantiated on the per-request basis. MK.
-      @state_reporter    = Reporters::StateReporter.new(name, @broker_connection.create_channel)
+      @state_reporter ||= Reporters::StateReporter.new(name, broker_connection.create_channel)
     end
+    alias_method :initialize_state_reporter, :state_reporter
 
     def set(state)
       self.state = state
-      @state_reporter.notify('worker:status', :workers => [report])
+      state_reporter.notify('worker:status', :workers => [report])
     end
 
     def process(message, payload)
@@ -227,7 +219,7 @@ module Travis
 
     def log_streamer(message, payload)
       log_routing_key = log_streamer_routing_key_for(message, payload)
-      Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_routing_key)
+      Reporters::LogStreamer.new(name, broker_connection.create_channel, log_routing_key)
     end
 
     def log_streamer_routing_key_for(metadata, payload)
