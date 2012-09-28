@@ -26,9 +26,6 @@ java_import 'java.io.InputStreamReader'
 module Travis
   class Worker
     module VirtualMachine
-      class VmNotFound   < StandardError; end
-      class VmFatalError < StandardError; end
-
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
       class VirtualBox
