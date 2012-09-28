@@ -190,6 +190,9 @@ module Travis
     rescue BuildStallTimeoutError => e
       error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
       finish(message, :requeue => true)
+    rescue VmFatalError => e
+      error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
+      finish(message, :requeue => true)
     end
     log :work, :as => :debug
 

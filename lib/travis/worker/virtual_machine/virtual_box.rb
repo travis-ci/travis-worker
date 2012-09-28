@@ -26,7 +26,8 @@ java_import 'java.io.InputStreamReader'
 module Travis
   class Worker
     module VirtualMachine
-      class VmNotFound < StandardError; end
+      class VmNotFound   < StandardError; end
+      class VmFatalError < StandardError; end
 
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
@@ -200,6 +201,9 @@ module Travis
 
           def close_sandbox
             power_off unless powered_off?
+          rescue org.virtualbox_4_1.VBoxException
+            `kill -9 #{vm_pid}`
+            raise VmFatalError, 'The VM had trouble shutting down and has now been told off (forcefully killed), your build will be requeued shortly.'
           end
 
           def requires_snapshot?
