@@ -10,15 +10,15 @@ module Travis
       end
 
       def worker
-        Worker.new(name, vm, @broker_connection, queue_names, config)
+        Worker.new(name, vm, broker_connection, queue_name, config)
       end
 
       def vm
         VirtualMachine.provider.new(name)
       end
 
-      def queue_names
-        Array(@config[:queues] || @config[:queue] || [])
+      def queue_name
+        config[:queue]
       end
 
       def config
