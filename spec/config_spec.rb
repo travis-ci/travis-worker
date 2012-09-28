@@ -64,7 +64,7 @@ describe Travis::Worker::Config do
     end
 
     it 'after_script timeout defaults to 120' do
-      config.timeouts.after_script.should == 120
+      config.timeouts.after_script.should == 300
     end
 
     it 'script timeout defaults to 600' do
