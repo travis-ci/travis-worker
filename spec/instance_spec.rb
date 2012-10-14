@@ -1,17 +1,17 @@
 require 'spec_helper'
 require 'hashr'
 require 'stringio'
-require "hot_bunnies"
+require 'hot_bunnies'
 
-describe Travis::Worker do
+describe Travis::Worker::Instance do
   include_context "hot_bunnies connection"
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:reporter)     { stub('reporter', :notify => nil) }
-  let(:queue_names)  { %w(builds.php builds.python builds.perl) }
-  let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names, :timeouts => { :hard_timeout => 5 }) }
+  let(:queue_name)   { "builds.php" }
+  let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
 
-  let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
+  let(:worker)       { Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config) }
 
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
   let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 } } }

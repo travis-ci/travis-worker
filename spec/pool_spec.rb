@@ -9,7 +9,7 @@ describe Travis::Worker::Pool do
   let(:workers) { names.map { |name| stub(name, :name => name, :boot => nil, :start => nil, :stop => nil) } }
 
   before :each do
-    Travis::Worker.stubs(:create).returns(*workers)
+    Travis::Worker::Instance.stubs(:create).returns(*workers)
     pool.stubs(:quit)
   end
 
@@ -33,7 +33,7 @@ describe Travis::Worker::Pool do
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { pool.start(['worker-3']) }.should raise_error(Travis::WorkerNotFound)
+        lambda { pool.start(['worker-3']) }.should raise_error(Travis::Worker::WorkerNotFound)
       end
     end
   end
@@ -58,7 +58,7 @@ describe Travis::Worker::Pool do
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { pool.stop(['worker-3']) }.should raise_error(Travis::WorkerNotFound)
+        lambda { pool.stop(['worker-3']) }.should raise_error(Travis::Worker::WorkerNotFound)
       end
     end
 
