@@ -1,5 +1,3 @@
-require 'java'
-require "hot_bunnies"
 require 'travis/worker/instance'
 
 module Travis
