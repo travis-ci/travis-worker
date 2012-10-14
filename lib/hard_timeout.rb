@@ -1,4 +1,3 @@
-require 'jruby'
 require 'timeout'
 
 # inspired by https://gist.github.com/1356797

@@ -13,7 +13,7 @@
 # You may need to make /dev/vboxdrv accessible by the current user, either by chmoding the file
 # or by adding the user to the group assigned to the file.
 #
-$: << File.expand_path('../../../../../vendor/virtualbox-4.1.18', __FILE__)
+$: << File.expand_path('../../../../../vendor/virtualbox-4.1.22', __FILE__)
 
 require 'java'
 require 'travis/support'
@@ -26,8 +26,6 @@ java_import 'java.io.InputStreamReader'
 module Travis
   class Worker
     module VirtualMachine
-      class VmNotFound < StandardError; end
-
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
       class VirtualBox
@@ -200,6 +198,9 @@ module Travis
 
           def close_sandbox
             power_off unless powered_off?
+          rescue org.virtualbox_4_1.VBoxException
+            `kill -9 #{vm_pid}`
+            raise VmFatalError, 'The VM had trouble shutting down and has now been told off (forcefully killed), your build will be requeued shortly.'
           end
 
           def requires_snapshot?

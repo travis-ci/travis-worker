@@ -13,3 +13,6 @@ jdk:
   - openjdk7
   - openjdk6
   - oraclejdk7
+matrix:
+  allow_failures:
+    - rvm: jruby-head
