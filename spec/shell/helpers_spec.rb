@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'travis/worker/shell/helpers'
 
 describe Travis::Worker::Shell::Helpers do
   let(:shell) do
