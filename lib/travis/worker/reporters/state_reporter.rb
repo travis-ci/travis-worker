@@ -1,7 +1,8 @@
-require "multi_json"
+require 'travis/support/logging'
+require 'travis/serialization'
 
 module Travis
-  class Worker
+  module Worker
     module Reporters
       # Reporter that reports worker state. Each worker has one instance throughout
       # application lifetime.

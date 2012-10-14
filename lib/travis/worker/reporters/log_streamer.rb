@@ -1,5 +1,8 @@
+require 'travis/support/logging'
+require 'travis/serialization'
+
 module Travis
-  class Worker
+  module Worker
     module Reporters
       # Reporter that streams build logs. Because workers now support multiple types of
       # projects (e.g. Ruby, Clojure) as long as VMs provide all the necessary, log streaming

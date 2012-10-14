@@ -5,7 +5,7 @@ require 'travis/worker'
 require 'vagrant'
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       class Vagrant < Thor
         namespace "travis:vms"

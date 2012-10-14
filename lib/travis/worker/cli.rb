@@ -7,7 +7,7 @@ require 'travis/worker/cli/virtualbox'
 $stdout.sync = true
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       def run(*commands)
         normalize_commands(commands).each do |command|

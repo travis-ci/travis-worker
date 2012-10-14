@@ -1,8 +1,10 @@
 require 'net/ssh'
 require 'net/ssh/shell'
+require 'travis/worker/shell/helpers'
+require 'travis/support/logging'
 
 module Travis
-  class Worker
+  module Worker
     module Shell
       # Encapsulates an SSH connection to a remote host.
       class Session

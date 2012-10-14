@@ -1,13 +1,14 @@
-require "java"
-require "hot_bunnies"
+require 'java'
+require 'hot_bunnies'
+
+require 'travis/worker/pool'
+require 'travis/worker/application/command'
+require 'travis/worker/application/heart'
+require 'travis/worker/application/remote'
 
 module Travis
-  class Worker
+  module Worker
     class Application
-      autoload :Command, 'travis/worker/application/command'
-      autoload :Heart,   'travis/worker/application/heart'
-      autoload :Remote,  'travis/worker/application/remote'
-
       include Logging
 
       def initialize

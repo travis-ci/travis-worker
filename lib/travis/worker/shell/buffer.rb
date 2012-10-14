@@ -1,5 +1,8 @@
+require 'travis/support/logging'
+require 'travis/build/exceptions'
+
 module Travis
-  class Worker
+  module Worker
     module Shell
       class Buffer < String
         include Logging

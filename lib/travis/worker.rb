@@ -1,27 +1,7 @@
-require 'simple_states'
-require 'multi_json'
-require 'thread'
-require 'core_ext/hash/compact'
-require 'travis/build'
-require 'travis/support'
-require 'hard_timeout'
+require 'travis/worker/config'
 
 module Travis
-  autoload :Serialization,      'travis/serialization'
-
-  class Worker
-    autoload :Application,      'travis/worker/application'
-    autoload :Config,           'travis/worker/config'
-    autoload :Factory,          'travis/worker/factory'
-    autoload :Pool,             'travis/worker/pool'
-    autoload :Shell,            'travis/worker/shell'
-    autoload :VirtualMachine,   'travis/worker/virtual_machine'
-
-    module Reporters
-      autoload :LogStreamer,    'travis/worker/reporters/log_streamer'
-      autoload :StateReporter,  'travis/worker/reporters/state_reporter'
-    end
-
+  module Worker
     class BuildStallTimeoutError < StandardError; end
 
     class << self
@@ -29,6 +9,7 @@ module Travis
         @config ||= Config.new
       end
     end
+<<<<<<< HEAD
 
     include SimpleStates, Logging
 
@@ -250,5 +231,7 @@ module Travis
       build.vm_stall
       raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
     end
+=======
+>>>>>>> change from using autoload in the worker to using declarative requires
   end
 end

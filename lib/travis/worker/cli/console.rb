@@ -3,7 +3,7 @@ require 'thor/console'
 require 'travis/worker'
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       class Console < Thor
         namespace 'travis'

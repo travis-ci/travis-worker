@@ -1,5 +1,5 @@
 module Travis
-  class Worker
+  module Worker
     class Application
       class Remote
         include Logging, Travis::Serialization
