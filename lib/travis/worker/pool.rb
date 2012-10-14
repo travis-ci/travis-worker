@@ -1,14 +1,15 @@
 require 'java'
 require "hot_bunnies"
+require 'travis/worker/instance'
 
 module Travis
-  class WorkerNotFound < Exception
-    def initialize(name)
-      super "Unknown worker #{name}"
+  module Worker
+    class WorkerNotFound < Exception
+      def initialize(name)
+        super "Unknown worker #{name}"
+      end
     end
-  end
 
-  class Worker
     class Pool
       def self.create(broker_connection)
         new(Travis::Worker.config.names, Travis::Worker.config, broker_connection)
@@ -42,7 +43,7 @@ module Travis
       end
 
       def workers
-        @workers ||= names.map { |name| Worker.create(name, config, broker_connection) }
+        @workers ||= names.map { |name| Worker::Instance.create(name, config, broker_connection) }
       end
 
       def worker(name)

@@ -6,7 +6,7 @@ require "multi_json"
 require 'travis/worker'
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       # These tasks are used for development and only for development.
       # They have many limitations and SHOULD NOT be considered good

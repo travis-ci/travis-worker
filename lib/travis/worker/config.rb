@@ -1,9 +1,10 @@
 require 'yaml'
 require 'hashr'
 require 'socket'
+require 'travis/worker/virtual_machine'
 
 module Travis
-  class Worker
+  module Worker
     class Config < Hashr
       module Vms
         def count

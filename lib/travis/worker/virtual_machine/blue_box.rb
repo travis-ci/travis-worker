@@ -3,9 +3,10 @@ require 'shellwords'
 require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
+require 'travis/worker/shell'
 
 module Travis
-  class Worker
+  module Worker
     module VirtualMachine
       # A simple encapsulation of the BlueBox commands used in the
       # Travis Virtual Machine lifecycle.

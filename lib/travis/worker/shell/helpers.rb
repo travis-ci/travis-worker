@@ -1,9 +1,10 @@
 require 'shellwords'
 require 'timeout'
 require 'filtered_string'
+require 'travis/build/exceptions'
 
 module Travis
-  class Worker
+  module Worker
     module Shell
       module Helpers
         def export(name, value, options = nil)

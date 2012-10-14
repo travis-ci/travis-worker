@@ -1,8 +1,9 @@
 require 'hashr'
 require 'json'
+require 'travis/serialization'
 
 module Travis
-  class Worker
+  module Worker
     class Application
       class Command < Hashr
         include Serialization

@@ -1,7 +1,7 @@
 require "multi_json"
 
 module Travis
-  class Worker
+  module Worker
     class Application
       class Heart
         include Serialization

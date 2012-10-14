@@ -17,6 +17,7 @@ $: << File.expand_path('../../../../../vendor/virtualbox-4.1.22', __FILE__)
 
 require 'java'
 require 'travis/support'
+require 'travis/worker/shell'
 
 java_import 'java.util.List'
 java_import 'java.util.Arrays'
@@ -24,7 +25,7 @@ java_import 'java.io.BufferedReader'
 java_import 'java.io.InputStreamReader'
 
 module Travis
-  class Worker
+  module Worker
     module VirtualMachine
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
