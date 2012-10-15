@@ -29,6 +29,7 @@ module Travis
         end
 
         desc 'download [BOX]', 'Download the box image for a base box (BOX defaults to Travis::Worker.config.env)'
+        method_option :download, :aliases => '-d', :type => :string,  :default => false, :desc => 'Copy/download the base box from the given path, storage or URL (will use file.travis.org if -d is given without a string)'
 
         def download(box = Travis::Worker.config.env)
           self.box = box
