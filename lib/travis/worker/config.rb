@@ -25,7 +25,7 @@ module Travis
       end
 
       define :amqp      => { :username => 'guest', :password => 'guest', :host => 'localhost' },
-             :heartbeat => { :interval => 30 },
+             :heartbeat => { :interval => 10 },
              :log_level => :info,
              :queue     => 'builds.common',
              :shell     => { :buffer => 0 },
