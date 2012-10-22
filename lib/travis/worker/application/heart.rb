@@ -4,9 +4,11 @@ module Travis
   module Worker
     class Application
       class Heart
+        include Celluloid
+        include Logging
         include Serialization
 
-        attr_reader :exchange, :thread, :interval, :status
+        attr_reader :exchange, :interval, :application
 
         def initialize(channel, &block)
           @status   = block
@@ -19,22 +21,15 @@ module Travis
           declare_queues
         end
 
-        def beat
-          @thread ||= Thread.new do
-            loop do
-              begin
-                sleep(interval)
-                pump!
-              rescue Exception => e
-                puts e.message, e.backtrace
-                break
-              end
-            end
-          end
+        def start
+          beat
+          @timer = every(interval) { beat }
         end
 
-        def pump!
-          data = encode(status.call)
+        def beat
+          current = status
+          debug current.inspect
+          data = encode(current)
           options = {
             :properties => { :type => 'worker:status' },
             :routing_key => @target_queue_name,
@@ -43,8 +38,12 @@ module Travis
           exchange.publish(data, options)
         end
 
+        def status
+          @status.call
+        end
+
         def stop
-          thread.terminate if thread
+          @timer.cancel if @timer
         end
 
         def declare_queues
