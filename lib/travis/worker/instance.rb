@@ -27,10 +27,10 @@ module Travis
 
       states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
-      attr_accessor :state, :state_reporter
-      attr_reader :name, :vm, :broker_connection, :queue, :queue_name, :consumer, :config, :payload, :last_error
+      attr_accessor :state
+      attr_reader :name, :vm, :broker_connection, :queue, :queue_name, :consumer, :config, :payload, :last_error, :observers
 
-      def initialize(name, vm, broker_connection, queue_name, config)
+      def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
         raise ArgumentError, "VM cannot be nil!" if vm.nil?
         raise ArgumentError, "broker connection cannot be nil!" if broker_connection.nil?
@@ -41,8 +41,7 @@ module Travis
         @queue_name        = queue_name
         @broker_connection = broker_connection
         @config            = config
-
-        initialize_state_reporter
+        @observers         = Array(observers)
       end
 
       def start
@@ -68,14 +67,41 @@ module Travis
         vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
-      def report
-        { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }
-      end
-
-
       def shutdown
         shutdown_consumer
         close_channels
+      end
+
+      def process(message, payload)
+        work(message, payload)
+      rescue Errno::ECONNREFUSED, Exception => error
+        # puts error.message, error.backtrace
+        error_build(error, message)
+      end
+
+      def work(message, payload)
+        prepare(payload)
+
+        info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
+        info "this is a requeued message" if message.redelivered?
+
+        build_log_streamer = log_streamer(message, payload)
+
+        build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
+        hard_timeout(build)
+
+        finish(message)
+      rescue BuildStallTimeoutError => e
+        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
+        finish(message, :requeue => true)
+      rescue VirtualMachine::VmFatalError => e
+        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
+        finish(message, :requeue => true)
+      end
+      log :work, :as => :debug
+
+      def report
+        { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }
       end
 
 
@@ -134,46 +160,11 @@ module Travis
         consumer.cancel
       end
 
-      def state_reporter
-        # reports worker states, for example, whether worker is
-        # ready, occupied or has issues. Build log streaming is done
-        # using a separate class that is instantiated on the per-request basis. MK.
-        @state_reporter ||= Reporters::StateReporter.new(name, broker_connection.create_channel)
-      end
-      alias_method :initialize_state_reporter, :state_reporter
-
       def set(state)
         self.state = state
-        state_reporter.notify('worker:status', :workers => [report])
+        observers.each { |observer| observer.notify(report) }
+        state
       end
-
-      def process(message, payload)
-        work(message, payload)
-      rescue Errno::ECONNREFUSED, Exception => error
-        # puts error.message, error.backtrace
-        error_build(error, message)
-      end
-
-      def work(message, payload)
-        prepare(payload)
-
-        info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
-        info "this is a requeued message" if message.redelivered?
-
-        build_log_streamer = log_streamer(message, payload)
-
-        build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
-        hard_timeout(build)
-
-        finish(message)
-      rescue BuildStallTimeoutError => e
-        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
-        finish(message, :requeue => true)
-      rescue VirtualMachine::VmFatalError => e
-        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
-        finish(message, :requeue => true)
-      end
-      log :work, :as => :debug
 
       def prepare(payload)
         @last_error = nil
