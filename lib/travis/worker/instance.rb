@@ -1,6 +1,7 @@
 require 'simple_states'
 require 'multi_json'
 require 'thread'
+require 'celluloid'
 require 'core_ext/hash/compact'
 require 'hard_timeout'
 require 'travis/build'
@@ -15,6 +16,7 @@ module Travis
     class Instance
       class BuildStallTimeoutError < StandardError; end
 
+      include Celluloid
       include SimpleStates, Logging
 
       log_header { "#{name}:worker" }

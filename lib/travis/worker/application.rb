@@ -28,6 +28,7 @@ module Travis
         install_signal_traps
         start(options)
         heart.beat
+        sleep
         # remove this for now, there seem to be bugs with this and it can leave vms in an unusable state
         # Command.subscribe(self, config, broker_connection.create_channel)
       end
