@@ -10,15 +10,16 @@ Kill the worker and VBox processes
 
 Run the worker and sending stdout to log/worker.log (without wiping the old log):
 
-    nohup thor travis:worker:boot >> log/worker.log 2>&1 &
+    nohup bin/thor travis:worker:boot >> log/worker.log 2>&1 &
 
-Run the worker in 1.9 mode:
+Run the worker with the Jolokia JMX web agent
 
-    JRUBY_OPTS=--1.9 nohup thor travis:worker:boot >> log/worker.log 2>&1 &
+    JAVA_OPTS=-javaagent:vendor/jolokia-1.0.5/jolokia-jvm-1.0.5-agent.jar=port=8088,host=localhost bin/thor travis:worker:boot
+
 
 Run the worker with VisualVM support on a remote machine:
 
-    JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup thor travis:worker:boot >> log/worker.log 2>&1 &
+    JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup bin/thor travis:worker:boot >> log/worker.log 2>&1 &
 
 
 
@@ -35,11 +36,11 @@ Install Bundler:
 
 Pull down dependencies:
 
-    bundle install
+    bundle install --deployment --binstubs
 
 ## Running tests ##
 
-On Ruby 1.9.2:
+On JRuby:
 
     bundle exec rake test
 
