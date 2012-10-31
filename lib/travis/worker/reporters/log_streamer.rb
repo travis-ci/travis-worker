@@ -11,11 +11,11 @@ module Travis
 
         attr_reader :name
 
-        def initialize(name, channel, routing_key)
+        def initialize(name, state_channel, log_channel, routing_key)
           @name        = name
-          @channel     = channel
           @routing_key = routing_key
-          @exchange    = @channel.exchange('reporting', :type => :topic, :durable => true)
+          @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
+          @log_exchange = log_channel.exchange('reporting', :type => :topic, :durable => true)
         end
 
         def notify(event, data)
@@ -26,13 +26,21 @@ module Travis
           data = encode(data.merge(:uuid => Travis.uuid))
           options = {
             :properties => { :type => event },
-            :routing_key => @routing_key
+            :routing_key => routing_key_for(event)
           }
-          @exchange.publish(data, options)
+          exchange_for(event).publish(data, options)
         end
         # log :message, :as => :debug, :only => :before
         # this has been disabled as logging is also logged as debug, making the
         # logs super verbose, this can be turned on as needed
+
+        def routing_key_for(event)
+          event.to_s =~ /log/ ? 'reporting.jobs.logs' : @routing_key
+        end
+
+        def exchange_for(event)
+          event.to_s =~ /log/ ? @log_exchange : @state_exchange
+        end
       end
     end
   end
