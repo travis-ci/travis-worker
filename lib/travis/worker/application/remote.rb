@@ -2,7 +2,7 @@ module Travis
   module Worker
     class Application
       class Remote
-        include Logging, Travis::Serialization
+        include Logging, Travis::Worker::Utils::Serialization
 
         def initialize
           Travis.logger.level = Logger.const_get(Travis::Worker.config.log_level.to_s.upcase) # TODO hrmm ...

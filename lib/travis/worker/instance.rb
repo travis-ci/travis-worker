@@ -3,13 +3,13 @@ require 'multi_json'
 require 'thread'
 require 'celluloid'
 require 'core_ext/hash/compact'
-require 'hard_timeout'
 require 'travis/build'
 require 'travis/support'
 require 'travis/serialization'
 require 'travis/worker/factory'
 require 'travis/worker/virtual_machine'
 require 'travis/worker/reporters'
+require 'travis/worker/utils/hard_timeout'
 
 module Travis
   module Worker

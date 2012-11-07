@@ -8,7 +8,7 @@ module Travis
       # projects (e.g. Ruby, Clojure) as long as VMs provide all the necessary, log streaming
       # picks routing key dynamically for each build.
       class LogStreamer
-        include Logging, Travis::Serialization
+        include Logging, Travis::Worker::Utils::Serialization
 
         log_header { "#{name}:log_streamer" }
 
