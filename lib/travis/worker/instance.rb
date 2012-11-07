@@ -48,11 +48,10 @@ module Travis
       def start
         set :starting
         vm.prepare
-        set :ready
-
         open_channels
         declare_queues
         subscribe
+        set :ready
       end
       log :start
 
