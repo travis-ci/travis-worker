@@ -28,7 +28,8 @@ module Travis
       states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
       attr_accessor :state
-      attr_reader :name, :vm, :broker_connection, :queue, :queue_name, :consumer, :config, :payload, :last_error, :observers
+      attr_reader   :name, :vm, :broker_connection, :queue, :queue_name,
+                    :consumer, :config, :payload, :last_error, :observers
 
       def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
