@@ -51,7 +51,7 @@ module Travis
 
           info "provisioning a VM on BlueBox"
 
-          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id']))
+          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
 
           retryable(:tries => 3) do
             Timeout.timeout(180) do
