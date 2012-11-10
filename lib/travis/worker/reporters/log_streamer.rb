@@ -1,5 +1,5 @@
 require 'travis/support/logging'
-require 'travis/serialization'
+require 'travis/worker/utils/serialization'
 
 module Travis
   module Worker

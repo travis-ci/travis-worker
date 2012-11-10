@@ -1,4 +1,5 @@
-require "multi_json"
+require 'multi_json'
+require 'travis/worker/utils/serialization'
 
 module Travis
   module Worker
@@ -6,7 +7,7 @@ module Travis
       class Heart
         include Celluloid
         include Logging
-        include Serialization
+        include Utils::Serialization
 
         attr_reader :exchange, :interval, :application
 

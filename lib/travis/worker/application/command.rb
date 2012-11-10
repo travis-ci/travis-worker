@@ -1,12 +1,12 @@
 require 'hashr'
 require 'json'
-require 'travis/serialization'
+require 'travis/worker/utils/serialization'
 
 module Travis
   module Worker
     class Application
       class Command < Hashr
-        include Serialization
+        include Utils::Serialization
 
         class << self
           def subscribe(subscriber, config, channel)

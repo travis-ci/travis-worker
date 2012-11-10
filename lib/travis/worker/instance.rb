@@ -5,11 +5,11 @@ require 'celluloid'
 require 'core_ext/hash/compact'
 require 'travis/build'
 require 'travis/support'
-require 'travis/serialization'
 require 'travis/worker/factory'
 require 'travis/worker/virtual_machine'
 require 'travis/worker/reporters'
 require 'travis/worker/utils/hard_timeout'
+require 'travis/worker/utils/serialization'
 
 module Travis
   module Worker
@@ -220,7 +220,7 @@ module Travis
       end
 
       def hard_timeout(build)
-        HardTimeout.timeout(config.timeouts.hard_limit) do
+        Utils::HardTimeout.timeout(config.timeouts.hard_limit) do
           Thread.current[:log_header] = name
           build.run
         end
