@@ -230,11 +230,12 @@ module Travis
 
     def log_streamer(message, payload)
       log_routing_key = log_streamer_routing_key_for(message, payload)
-      Reporters::LogStreamer.new(name, @broker_connection.create_channel, @broker_connection.create_channel, log_routing_key)
+      Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_routing_key)
     end
 
     def log_streamer_routing_key_for(metadata, payload)
-      key = "reporting.jobs.#{metadata.routing_key}"
+      # key = "reporting.jobs.#{metadata.routing_key}"
+      key = 'reporting.jobs'
       info "using the log streaming routing key : #{key}"
       key
     end
