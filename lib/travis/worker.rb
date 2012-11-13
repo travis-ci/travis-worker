@@ -236,8 +236,7 @@ module Travis
     end
 
     def log_streamer_routing_key_for(metadata, payload)
-      # key = "reporting.jobs.#{metadata.routing_key}"
-      key = "reporting.jobs.logs"
+      key = "reporting.jobs.#{metadata.routing_key}"
       info "using the log streaming routing key : #{key}"
       key
     end
