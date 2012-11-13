@@ -33,6 +33,10 @@ module Travis
         # log :message, :as => :debug, :only => :before
         # this has been disabled as logging is also logged as debug, making the
         # logs super verbose, this can be turned on as needed
+        
+        def close
+          @exchange.channel.close
+        end
       end
     end
   end
