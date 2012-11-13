@@ -41,6 +41,11 @@ module Travis
         def exchange_for(event)
           event.to_s =~ /log/ ? @log_exchange : @state_exchange
         end
+        
+        def close
+          @state_exchange.channel.close
+          @log_exchange.channel.close
+        end
       end
     end
   end
