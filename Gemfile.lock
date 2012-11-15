@@ -68,7 +68,7 @@ GEM
       ruby-hmac
     formatador (0.2.4)
     hashr (0.0.22)
-    hot_bunnies (1.4.0.pre4-java)
+    hot_bunnies (1.4.0-java)
     i18n (0.6.1)
     jruby-openssl (0.7.4)
       bouncy-castle-java
@@ -85,7 +85,7 @@ GEM
     net-ssh (2.6.1)
     nokogiri (1.5.5-java)
     rack (1.4.1)
-    rake (0.9.3)
+    rake (0.9.4)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
@@ -114,7 +114,7 @@ DEPENDENCIES
   faraday (~> 0.7.5)
   fog
   hashr (~> 0.0.18)
-  hot_bunnies (~> 1.4.0.pre4)
+  hot_bunnies (~> 1.4.0)
   jruby-openssl (= 0.7.4)
   json
   mocha (~> 0.11.0)
