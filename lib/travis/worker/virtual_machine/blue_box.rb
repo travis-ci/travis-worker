@@ -54,11 +54,13 @@ module Travis
           opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
 
           retryable(:tries => 3) do
+            destroy_vm(opts[:hostname])
             Timeout.timeout(180) do
               begin
                 @password = (opts[:password] ||= generate_password)
 
                 @server = connection.servers.create(opts)
+                
                 info "Provisioning a BlueBox VM"
                 time = Benchmark.realtime { @server.wait_for { ready? } }
                 info "BlueBox VM provisioned in #{time.round(2)} seconds"
