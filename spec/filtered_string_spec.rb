@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'filtered_string'
+require 'travis/worker/utils/filtered_string'
 
 describe Travis::Worker::Utils::FilteredString do
   it 'displays filtered string by default' do
