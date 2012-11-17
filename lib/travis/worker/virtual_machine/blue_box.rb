@@ -54,7 +54,7 @@ module Travis
           opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
 
           retryable(:tries => 3) do
-            # destroy_vm(opts[:hostname])
+            destroy_duplicate_server(opts[:hostname])
             Timeout.timeout(180) do
               begin
                 @password = (opts[:password] ||= generate_password)
@@ -117,18 +117,17 @@ module Travis
         end
 
         def destroy_server(opts = {})
-          debug "vm is in #{server.state} state"
-          if server_destroyable?
-            info "destroying the VM"
-            server.destroy
-            @server = nil
-            @shell = nil
+          destroy_vm(server)
+          @server = nil
+          @shell = nil
+        end
+        
+        def destroy_duplicate_server(hostname)
+          server = connection.servers.detect do |server|
+            name = server.hostname.split('.').first
+            name == hostname
           end
-        rescue Fog::Compute::Bluebox::NotFound => e
-          info "went to destroy the VM but it didn't exist :/"
-        rescue Excon::Errors::InternalServerError => e
-          info "went to destroy the VM but there was an internal server error"
-          log_exception(e)
+          destroy_vm(server) if server
         end
 
         def prepare
@@ -136,13 +135,16 @@ module Travis
         end
 
         private
-
-          def server_destroyable?
-            if server
-              ['running', 'error'].include?(server.state)
-            else
-              false
-            end
+        
+          def destroy_vm(vm)
+            debug "vm is in #{vm.state} state"
+            info "destroying the VM"
+            vm.destroy
+          rescue Fog::Compute::Bluebox::NotFound => e
+            info "went to destroy the VM but it didn't exist :/"
+          rescue Excon::Errors::InternalServerError => e
+            info "went to destroy the VM but there was an internal server error"
+            log_exception(e)
           end
 
           def generate_password
