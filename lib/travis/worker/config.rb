@@ -31,8 +31,7 @@ module Travis
              :shell     => { :buffer => 0 },
              :timeouts  => { :hard_limit => 2400, :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 300 },
              :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
-             :limits    => { :log_length => 4 * 1024 * 1024 },
-             :host      => Socket.gethostname
+             :limits    => { :log_length => 4 * 1024 * 1024 }
 
       def name
         @name ||= host.split('.').first
@@ -40,6 +39,10 @@ module Travis
 
       def names
         @names ||= VirtualMachine.provider.vm_names.map { |name| name.gsub(/^travis-/, '') }
+      end
+      
+      def host
+        @host ||= self[:host] || Socket.gethostname
       end
 
       def initialize
