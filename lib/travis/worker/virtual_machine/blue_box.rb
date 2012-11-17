@@ -54,7 +54,7 @@ module Travis
           opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
 
           retryable(:tries => 3) do
-            destroy_vm(opts[:hostname])
+            # destroy_vm(opts[:hostname])
             Timeout.timeout(180) do
               begin
                 @password = (opts[:password] ||= generate_password)
@@ -116,7 +116,7 @@ module Travis
           Travis::Worker.config.blue_box.image_type
         end
 
-        def destroy_server
+        def destroy_server(opts = {})
           debug "vm is in #{server.state} state"
           if server_destroyable?
             info "destroying the VM"
