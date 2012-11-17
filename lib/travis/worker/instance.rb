@@ -143,7 +143,8 @@ module Travis
         # these are declared here mostly to aid development purposes. Hub is just as involved
         # in build log streaming so it may seem more logical to move these declarations to Hub. We may
         # do it in the future. MK.
-        reporting_channel.queue("reporting.jobs.#{queue_name}", :durable => true)
+        reporting_channel.queue("reporting.jobs.builds", :durable => true)
+        reporting_channel.queue("reporting.jobs.logs",   :durable => true)
       end
 
       def subscribe
@@ -201,14 +202,7 @@ module Travis
       log :error, :as => :debug
 
       def log_streamer(message, payload)
-        log_routing_key = log_streamer_routing_key_for(message, payload)
-        Reporters::LogStreamer.new(name, broker_connection.create_channel, broker_connection.create_channel, log_routing_key)
-      end
-
-      def log_streamer_routing_key_for(metadata, payload)
-        key = "reporting.jobs.#{metadata.routing_key}"
-        info "using the log streaming routing key : #{key}"
-        key
+        Reporters::LogStreamer.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
 
       def host
