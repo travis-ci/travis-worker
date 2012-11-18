@@ -11,7 +11,7 @@ module Travis
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
           preload_constants!
-          $0 = "travis-worker #{Travis.config.name}:#{Travis.config.queue}:#{Travis.config.env}"
+          $0 = "travis-worker #{Worker.config.name}:#{Worker.config.queue}:#{Worker.config.env}"
           app.boot(:workers => workers)
         end
 
