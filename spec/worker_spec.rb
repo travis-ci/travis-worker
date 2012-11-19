@@ -9,7 +9,7 @@ describe Travis::Worker do
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:reporter)     { stub('reporter', :notify => nil) }
   let(:queue_names)  { %w(builds.php builds.python builds.perl) }
-  let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names) }
+  let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names, :timeouts => { :hard_timeout => 5 }) }
 
   let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
 
@@ -127,8 +127,13 @@ describe Travis::Worker do
   end
 
   describe 'work' do
-    before(:each) { worker.state = :ready }
-    after(:each)  { worker.shutdown }
+    before(:each) do
+      worker.state = :ready
+      metadata.stubs(:redelivered?).returns(false)
+    end
+    after(:each) do
+      worker.shutdown
+    end
 
     it 'prepares work' do
       worker.stubs(:payload => decoded_payload)

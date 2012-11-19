@@ -190,6 +190,11 @@ module Travis
     rescue BuildStallTimeoutError => e
       error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
       finish(message, :requeue => true)
+    rescue VirtualMachine::VmFatalError => e
+      error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
+      finish(message, :requeue => true)
+    ensure
+      build_log_streamer.close if build_log_streamer
     end
     log :work, :as => :debug
 
@@ -226,14 +231,7 @@ module Travis
     log :error, :as => :debug
 
     def log_streamer(message, payload)
-      log_routing_key = log_streamer_routing_key_for(message, payload)
-      Reporters::LogStreamer.new(name, @broker_connection.create_channel, log_routing_key)
-    end
-
-    def log_streamer_routing_key_for(metadata, payload)
-      key = "reporting.jobs.#{metadata.routing_key}"
-      info "using the log streaming routing key : #{key}"
-      key
+      Reporters::LogStreamer.new(name, @broker_connection.create_channel, @broker_connection.create_channel)
     end
 
     def host
