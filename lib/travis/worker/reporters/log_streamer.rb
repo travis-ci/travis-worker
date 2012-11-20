@@ -11,11 +11,11 @@ module Travis
 
         attr_reader :name
 
-        def initialize(name, state_channel, log_channel, routing_key)
+        def initialize(name, state_channel, log_channel)
           @name        = name
           @routing_key = routing_key
           @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
-          @log_exchange = log_channel.exchange('reporting', :type => :topic, :durable => true)
+          @log_exchange   = log_channel.exchange('reporting',   :type => :topic, :durable => true)
         end
 
         def notify(event, data)
@@ -35,7 +35,7 @@ module Travis
         # logs super verbose, this can be turned on as needed
 
         def routing_key_for(event)
-          event.to_s =~ /log/ ? 'reporting.jobs.logs' : @routing_key
+          event.to_s =~ /log/ ? 'reporting.jobs.logs' : 'reporting.jobs.builds'
         end
 
         def exchange_for(event)
