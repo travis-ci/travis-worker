@@ -13,7 +13,6 @@ module Travis
 
         def initialize(name, state_channel, log_channel)
           @name        = name
-          @routing_key = routing_key
           @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
           @log_exchange   = log_channel.exchange('reporting',   :type => :topic, :durable => true)
         end
