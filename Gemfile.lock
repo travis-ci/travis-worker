@@ -22,7 +22,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 5b6be1fa4397c82948bb858221812050149bba0f
+  revision: 5b76c21a48f34f339274b34a85c1905b225662f7
   specs:
     travis-build (0.2.0)
 
