@@ -4,10 +4,10 @@ describe Travis::Worker::Reporters::LogStreamer do
   include_context 'hot_bunnies connection'
 
   let(:channel)     { connection.create_channel }
-  let(:routing_key) { 'reporting.jobs.builds.jvmotp' }
+  let(:routing_key) { 'reporting.jobs.logs' }
   let(:queue)       { channel.queue(routing_key, :durable => true) }
   let(:reporting_exchange) { channel.exchange('reporting', :type => :topic, :durable => true) }
-  let(:reporter)    { described_class.new('staging-1', connection.create_channel, routing_key) }
+  let(:reporter)    { described_class.new('staging-1', connection.create_channel, connection.create_channel) }
 
   include Travis::Serialization
 
