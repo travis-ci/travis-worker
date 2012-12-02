@@ -7,7 +7,7 @@ describe Travis::Worker::Reporters::LogStreamer do
   let(:routing_key) { 'reporting.jobs.builds.jvmotp' }
   let(:queue)       { channel.queue(routing_key, :durable => true) }
   let(:reporting_exchange) { channel.exchange('reporting', :type => :topic, :durable => true) }
-  let(:reporter)    { described_class.new('staging-1', connection.create_channel, routing_key) }
+  let(:reporter)    { described_class.new('staging-1', connection.create_channel, connection.create_channel) }
 
   include Travis::Serialization
 
