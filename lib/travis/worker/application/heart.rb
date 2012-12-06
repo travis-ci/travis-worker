@@ -29,7 +29,9 @@ module Travis
 
         def beat
           current = status
-          debug current.inspect
+          
+          log_status(current)
+          
           data = encode(current)
           options = {
             :properties => { :type => 'worker:status' },
@@ -45,6 +47,11 @@ module Travis
 
         def stop
           @timer.cancel if @timer
+        end
+        
+        def log_status(current)
+          debug current.inspect
+          info current[:workers].map { |w| "#{w[:name]} : #{w[:state]}" }.inspect
         end
 
         def declare_queues
