@@ -104,11 +104,11 @@ module Travis
           server.ips.first['address']
         end
 
-        def latest_templates
-          @latest_templates ||= begin
-            latest = {}
-            grouped_templates.keys.each { |k| latest[k] = grouped[k].first }
-            latest
+        def latest_template
+          @latest_template ||= begin
+            templates = connection.get_templates.body
+            templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-#{image_type}/ }
+            templates.sort { |a, b| b['created'] <=> a['created'] }.first
           end
         end
 
@@ -147,29 +147,8 @@ module Travis
             log_exception(e)
           end
 
-          def grouped_templates
-            grouped = Hash.new { |h, k| h[k] = [] }
-            
-            travis_templates.each do |t| 
-              /^(?<name>travis-\w+)/ =~ t['description']
-              grouped[name] << t
-            end
-            
-            grouped.values.each do |templates|
-              templates.sort! { |a, b| b['created'] <=> a['created'] }
-            end
-            
-            grouped
-          end
-
-          def travis_templates
-            connection.get_templates.body.find_all do |t| 
-              t['public'] == false && /^travis-\w+/ =~ t['description']
-            end
-          end
-
           def generate_password
-            SecureRandom.urlsafe_base64(30)
+            SecureRandom.urlsafe_base64(40)
           end
 
       end
