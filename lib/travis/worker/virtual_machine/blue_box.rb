@@ -148,12 +148,7 @@ module Travis
           end
 
           def generate_password
-            "#{random_string}:travis:#{random_string}"
-          end
-
-          def random_string
-            chars = ('A'...'z').to_a.select { |c| c =~ /\w+/ }
-            (0...10).map{ chars[rand(chars.size)] }.join
+            SecureRandom.urlsafe_base64(40)
           end
 
       end
