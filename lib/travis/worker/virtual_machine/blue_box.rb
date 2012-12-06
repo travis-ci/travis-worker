@@ -148,7 +148,7 @@ module Travis
           end
 
           def generate_password
-            SecureRandom.urlsafe_base64(40)
+            SecureRandom.urlsafe_base64(30)
           end
 
       end
