@@ -57,7 +57,7 @@ module Travis
             destroy_duplicate_server(opts[:hostname])
             Timeout.timeout(240) do
               begin
-                @password = (opts[:password] ||= generate_password)
+                @password = (opts[:password] = generate_password)
 
                 @server = connection.servers.create(opts)
                 
