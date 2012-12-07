@@ -148,7 +148,7 @@ module Travis
           end
 
           def generate_password
-            SecureRandom.urlsafe_base64(30)
+            Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30))[0..19]
           end
 
       end
