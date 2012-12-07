@@ -148,7 +148,7 @@ module Travis
           end
 
           def generate_password
-            Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30))[0..19]
+            Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
           end
 
       end
