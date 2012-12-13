@@ -22,7 +22,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 46efb6d5b20e8c069d2762cf95c2903d6c662de9
+  revision: 45cb583d055abb2183315e9652dac52c297c2e2f
   specs:
     travis-build (0.2.0)
 
@@ -85,7 +85,7 @@ GEM
     net-ssh (2.6.2)
     nokogiri (1.5.5-java)
     rack (1.4.1)
-    rake (0.9.5)
+    rake (0.9.6)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
@@ -103,7 +103,7 @@ GEM
       simplecov-html (~> 0.7.1)
     simplecov-html (0.7.1)
     thor (0.14.6)
-    timers (1.0.1)
+    timers (1.0.2)
     vagrant-vbguest (0.5.1)
 
 PLATFORMS
