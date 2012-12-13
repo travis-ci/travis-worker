@@ -42,7 +42,7 @@ GEM
     archive-tar-minitar (0.5.2)
     bouncy-castle-java (1.5.0146.1)
     builder (3.1.4)
-    celluloid (0.12.4.pre2)
+    celluloid (0.12.4)
       facter (>= 1.6.12)
       timers (>= 1.0.0)
     childprocess (0.3.6)
@@ -110,7 +110,7 @@ PLATFORMS
   java
 
 DEPENDENCIES
-  celluloid (= 0.12.4.pre2)
+  celluloid (~> 0.12.4)
   faraday (~> 0.7.5)
   fog
   hashr (~> 0.0.18)

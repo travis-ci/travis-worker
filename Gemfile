@@ -14,7 +14,7 @@ end
 local_or_remote_gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
 local_or_remote_gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
-gem 'celluloid',        '0.12.4.pre2'
+gem 'celluloid',        '~> 0.12.4'
 
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
 gem 'vagrant-vbguest'
