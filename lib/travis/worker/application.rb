@@ -1,6 +1,7 @@
 require 'java'
 require 'hot_bunnies'
 require 'metriks'
+require 'metriks/reporter/librato_metrics'
 require 'travis/worker/pool'
 require 'travis/worker/application/command'
 require 'travis/worker/application/heart'
