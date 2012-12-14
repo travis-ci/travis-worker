@@ -61,9 +61,7 @@ module Travis
 
                 @server = connection.servers.create(opts)
                 
-                info "Provisioning a BlueBox VM"
-                time = Benchmark.realtime { @server.wait_for { ready? } }
-                info "BlueBox VM provisioned in #{time.round(2)} seconds"
+                instrument { @server.wait_for { ready? } }
               rescue Exception => e
                 error "BlueBox VM would not boot within 180 seconds"
                 raise
@@ -135,7 +133,14 @@ module Travis
         end
 
         private
-        
+
+          def instrument
+            info "Provisioning a BlueBox VM"
+            time = Benchmark.realtime { yield }
+            info "BlueBox VM provisioned in #{time.round(2)} seconds"
+            Metriks.timer('worker.vm.boot').update(time)
+          end
+
           def destroy_vm(vm)
             debug "vm is in #{vm.state} state"
             info "destroying the VM"

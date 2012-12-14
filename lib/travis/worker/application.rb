@@ -26,6 +26,7 @@ module Travis
 
       def boot(options = {})
         install_signal_traps
+        start_metriks
         start(options)
         heart.start
         sleep
@@ -121,6 +122,14 @@ module Travis
       def install_signal_traps
         Signal.trap('INT')  { quit }
         Signal.trap('TERM') { quit }
+      end
+      
+      def start_metriks
+        librato = Travis::Worker.config.librato
+        if librato
+          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'])
+          @reporter.start
+        end
       end
     end
   end

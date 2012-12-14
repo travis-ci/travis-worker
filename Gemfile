@@ -28,6 +28,8 @@ gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 gem 'fog'
 
+gem 'metriks'
+
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.4.0'
   gem 'net-ssh-shell',  :git => 'git://github.com/joshk/net-ssh-shell'
