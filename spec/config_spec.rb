@@ -83,6 +83,10 @@ describe Travis::Worker::Config do
       config.timeouts.install.should == 300
     end
 
+    it 'default timeout is 180' do
+      config.timeouts.default.should == 180
+    end
+
     it 'queue defaults to builds' do
       config.queue.should == 'builds.common'
     end
