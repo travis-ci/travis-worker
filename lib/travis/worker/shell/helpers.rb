@@ -132,7 +132,7 @@ module Travis
           if stage.is_a?(Numeric)
             stage
           else
-            config.timeouts[stage || :default]
+            config.timeouts[stage || :default] || config.timeouts[:default]
           end
         end
 
