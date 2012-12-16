@@ -160,7 +160,6 @@ module Travis
         unless working?
           info "Unsubscribing from #{queue_name} right now"
           subscription.cancel
-          close_channels
           set :stopped
         else
           info "Unsubscribing from #{queue_name} once the current job has finished"
