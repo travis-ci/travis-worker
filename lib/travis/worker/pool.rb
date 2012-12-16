@@ -33,9 +33,7 @@ module Travis
         workers.map { |worker| worker.report }
       end
 
-      protected
-
-      def each_worker(names)
+      def each_worker(names = [])
         names = self.names if names.empty?
         names.each { |name| yield worker(name) }
       end

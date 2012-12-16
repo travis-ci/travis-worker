@@ -29,7 +29,7 @@ module Travis
 
       attr_accessor :state
       attr_reader   :name, :vm, :broker_connection, :queue, :queue_name,
-                    :consumer, :config, :payload, :last_error, :observers
+                    :subscription, :config, :payload, :last_error, :observers
 
       def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
@@ -55,9 +55,11 @@ module Travis
       end
       log :start
 
+      # need to relook at this method as it feels wrong to
+      # report a worker at stopping while it is also working
       def stop(options = {})
         set :stopping
-        shutdown_consumer
+        unsubscribe
         kill if options[:force]
         set :stopped unless working?
       end
@@ -65,11 +67,6 @@ module Travis
 
       def kill
         vm.shell.terminate("Worker #{name} was stopped forcefully.")
-      end
-
-      def shutdown
-        shutdown_consumer
-        close_channels
       end
 
       def process(message, payload)
@@ -106,6 +103,9 @@ module Travis
         { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }
       end
 
+      def shutdown
+        unsubscribe
+      end
 
       protected
 
@@ -148,19 +148,24 @@ module Travis
       end
 
       def subscribe
-        @consumer = queue.subscribe(:ack => true, :blocking => false, &method(:process))
+        @subscription = queue.subscribe(:ack => true, :blocking => false, &method(:process))
       end
 
-      def shutdown_consumer
+      def unsubscribe
         # due to some aspects of how RabbitMQ Java client works and HotBunnies consumer
         # implementation that uses thread pools (JDK executor services), we need to shut down
         # consumers manually to guarantee that after disconnect we leave no active non-daemon
         # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
-        consumer.shutdown! if consumer
-      end
-
-      def unsubscribe
-        consumer.cancel
+        return unless subscription
+        unless working?
+          info "Unsubscribing from #{queue_name} right now"
+          subscription.cancel
+          close_channels
+          set :stopped
+        else
+          info "Unsubscribing from #{queue_name} once the current job has finished"
+          @shutdown = true
+        end
       end
 
       def set(state)
@@ -184,7 +189,10 @@ module Travis
           message.reject(:requeue => true)
         end
         @payload = nil
-        if working?
+        if @shutdown
+          set :stopping
+          unsubscribe
+        elsif working?
           set :ready
         elsif stopping?
           set :stopped

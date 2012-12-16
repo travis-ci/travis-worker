@@ -121,16 +121,35 @@ module Travis
       end
 
       def install_signal_traps
-        Signal.trap('INT')  { quit }
+        Signal.trap('INT')  { graceful_shutdown }
         Signal.trap('TERM') { quit }
       end
-      
+
+      def graceful_shutdown
+        return if @graceful_shutdown
+        @graceful_shutdown = true
+
+        info "Gracefully shutting down all workers"
+
+        workers.each_worker { |worker| worker.shutdown }
+
+        loop do
+          sleep 3
+          quit if workers_stopped?
+          info "Waiting for all workers to finish their current jobs"
+        end
+      end
+
       def start_metriks
         librato = Travis::Worker.config.librato
         if librato
           @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'])
           @reporter.start
         end
+      end
+
+      def workers_stopped?
+        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped }
       end
     end
   end
