@@ -91,6 +91,7 @@ module Travis
           log_exception(e)
           { :result => 1 }
         ensure
+          shell.close
           destroy_server
         end
 

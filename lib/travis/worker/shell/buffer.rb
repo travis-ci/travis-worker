@@ -44,6 +44,12 @@ module Travis
           pos == length
         end
 
+        def stop
+          flush
+          reset
+          @thread.exit if @thread
+        end
+
         protected
 
           def read

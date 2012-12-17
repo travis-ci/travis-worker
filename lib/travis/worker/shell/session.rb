@@ -47,8 +47,7 @@ module Travis
         # Closes the Shell, flushes and resets the buffer
         def close
           shell.close! if open?
-          buffer.flush
-          buffer.reset
+          buffer.stop
         end
 
         # Allows you to set a callback when output is received from the ssh shell.
