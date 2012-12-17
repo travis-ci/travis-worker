@@ -183,16 +183,20 @@ module Travis
       log :prepare, :as => :debug
 
       def finish(message, opts = {})
+        if @shutdown
+          set :stopping
+          unsubscribe
+        end
+
         unless opts[:requeue]
           message.ack
         else
           message.reject(:requeue => true)
         end
+
         @payload = nil
-        if @shutdown
-          set :stopping
-          unsubscribe
-        elsif working?
+
+        if working?
           set :ready
         elsif stopping?
           set :stopped
