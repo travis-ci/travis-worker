@@ -139,12 +139,6 @@ module Travis
 
       def declare_queues
         @queue = build_channel.queue(queue_name, :durable => true)
-
-        # these are declared here mostly to aid development purposes. Hub is just as involved
-        # in build log streaming so it may seem more logical to move these declarations to Hub. We may
-        # do it in the future. MK.
-        reporting_channel.queue("reporting.jobs.builds", :durable => true)
-        reporting_channel.queue("reporting.jobs.logs",   :durable => true)
       end
 
       def subscribe
