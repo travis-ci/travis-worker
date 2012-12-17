@@ -9,7 +9,7 @@ module Travis
 
         log_header { 'travis:worker:shell:buffer' }
 
-        attr_reader :pos, :interval, :limit, :callback
+        attr_reader :pos, :interval, :limit, :callback, :stopped
 
         def initialize(interval = nil, options = {}, &callback)
           @interval = interval
@@ -47,7 +47,7 @@ module Travis
         def stop
           flush
           reset
-          @thread.exit if @thread
+          @stopped = true
         end
 
         protected
@@ -67,6 +67,7 @@ module Travis
               loop do
                 flush
                 sleep(interval) if interval
+                break if stopped
               end
             end
           end
