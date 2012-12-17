@@ -122,7 +122,7 @@ module Travis
 
       def install_signal_traps
         Signal.trap('INT')  { graceful_shutdown }
-        Signal.trap('TERM') { quit }
+        Signal.trap('TERM') { graceful_shutdown }
       end
 
       def graceful_shutdown

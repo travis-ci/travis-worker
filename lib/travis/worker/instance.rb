@@ -162,9 +162,16 @@ module Travis
           subscription.cancel
           set :stopped
         else
-          info "Unsubscribing from #{queue_name} once the current job has finished"
-          @shutdown = true
+          graceful_shutdown
         end
+      rescue StandardError => e
+        info "Subscription is still active"
+        graceful_shutdown
+      end
+
+      def graceful_shutdown
+        info "Unsubscribing from #{queue_name} once the current job has finished"
+        @shutdown = true
       end
 
       def set(state)
