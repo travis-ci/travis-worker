@@ -15,7 +15,15 @@ module Travis
         attr_reader :name
 
         def initialize(name, state_channel, log_channel)
-          @name           = name
+          @name = name
+
+          # these are declared here mostly to aid development purposes. MK
+          # it also seems that if we don't declare the queues on each use then
+          # we lose the first line of log output sent.
+          # this fixes it for the time being, need to investigate this futher. JK
+          state_channel.queue("reporting.jobs.builds", :durable => true)
+          log_channel.queue("reporting.jobs.logs",     :durable => true)
+
           @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
           @log_exchange   = log_channel.exchange('reporting',   :type => :topic, :durable => true)
         end
