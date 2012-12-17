@@ -22,7 +22,7 @@ module Travis
       end
 
       def start(names)
-        each_worker(names) { |worker| worker.start }
+        each_worker(names) { |worker| worker.start; sleep 3 }
       end
 
       def stop(names, options = {})
