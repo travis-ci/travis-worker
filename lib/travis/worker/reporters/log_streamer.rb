@@ -32,7 +32,7 @@ module Travis
         # log :message, :as => :debug, :only => :before
         # this has been disabled as logging is also logged as debug, making the
         # logs super verbose, this can be turned on as needed
-
+        
         def routing_key_for(event)
           event.to_s =~ /log/ ? 'reporting.jobs.logs' : 'reporting.jobs.builds'
         end
