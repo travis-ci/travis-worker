@@ -1,13 +1,15 @@
-require "java"
-require "hot_bunnies"
+require 'java'
+require 'hot_bunnies'
+require 'metriks'
+require 'metriks/reporter/librato_metrics'
+require 'travis/worker/pool'
+require 'travis/worker/application/command'
+require 'travis/worker/application/heart'
+require 'travis/worker/application/remote'
 
 module Travis
-  class Worker
+  module Worker
     class Application
-      autoload :Command, 'travis/worker/application/command'
-      autoload :Heart,   'travis/worker/application/heart'
-      autoload :Remote,  'travis/worker/application/remote'
-
       include Logging
 
       def initialize
@@ -25,8 +27,10 @@ module Travis
 
       def boot(options = {})
         install_signal_traps
+        start_metriks
         start(options)
-        heart.beat
+        heart.start
+        sleep
         # remove this for now, there seem to be bugs with this and it can leave vms in an unusable state
         # Command.subscribe(self, config, broker_connection.create_channel)
       end
@@ -117,8 +121,35 @@ module Travis
       end
 
       def install_signal_traps
-        Signal.trap('INT')  { quit }
-        Signal.trap('TERM') { quit }
+        Signal.trap('INT')  { graceful_shutdown }
+        Signal.trap('TERM') { graceful_shutdown }
+      end
+
+      def graceful_shutdown
+        return if @graceful_shutdown
+        @graceful_shutdown = true
+
+        info "Gracefully shutting down all workers"
+
+        workers.each_worker { |worker| worker.shutdown }
+
+        loop do
+          sleep 3
+          quit if workers_stopped?
+          info "Waiting for all workers to finish their current jobs"
+        end
+      end
+
+      def start_metriks
+        librato = Travis::Worker.config.librato
+        if librato
+          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'])
+          @reporter.start
+        end
+      end
+
+      def workers_stopped?
+        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped }
       end
     end
   end

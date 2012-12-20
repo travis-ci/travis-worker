@@ -1,4 +1,3 @@
-require 'bundler/setup'
 require 'travis/worker/cli/app'
 require 'travis/worker/cli/console'
 require 'travis/worker/cli/development' if defined?(JRUBY_VERSION)
@@ -8,7 +7,7 @@ require 'travis/worker/cli/virtualbox'
 $stdout.sync = true
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       def run(*commands)
         normalize_commands(commands).each do |command|

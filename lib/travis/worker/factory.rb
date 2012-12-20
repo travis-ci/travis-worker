@@ -1,5 +1,8 @@
+require 'travis/worker/instance'
+require 'travis/worker/virtual_machine'
+
 module Travis
-  class Worker
+  module Worker
     class Factory
       attr_reader :name, :config, :broker_connection
 
@@ -10,15 +13,15 @@ module Travis
       end
 
       def worker
-        Worker.new(name, vm, @broker_connection, queue_names, config)
+        Instance.new(name, vm, broker_connection, queue_name, config)
       end
 
       def vm
-        VirtualMachine::VirtualBox.new(name)
+        VirtualMachine.provider.new(name)
       end
 
-      def queue_names
-        Array(@config[:queues] || @config[:queue] || [])
+      def queue_name
+        config[:queue]
       end
 
       def config

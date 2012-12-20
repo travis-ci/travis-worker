@@ -14,6 +14,8 @@ end
 local_or_remote_gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
 local_or_remote_gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
+gem 'celluloid',        '~> 0.12.4'
+
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
 gem 'vagrant-vbguest'
 
@@ -24,11 +26,14 @@ gem 'simple_states',    '0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
+gem 'fog'
+
+gem 'metriks'
 
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.4.0'
   gem 'net-ssh-shell',  :git => 'git://github.com/joshk/net-ssh-shell'
-  gem 'jruby-openssl',  '~> 0.7.4'
+  gem 'jruby-openssl',  '0.7.4'
 end
 
 group :test do

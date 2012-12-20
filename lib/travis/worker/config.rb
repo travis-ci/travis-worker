@@ -1,9 +1,10 @@
 require 'yaml'
 require 'hashr'
 require 'socket'
+require 'travis/worker/virtual_machine'
 
 module Travis
-  class Worker
+  module Worker
     class Config < Hashr
       module Vms
         def count
@@ -30,19 +31,19 @@ module Travis
              :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0 },
              :timeouts  => { :hard_limit => 3000, :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 300, :after_success => 300, :after_failure => 300, :default => 180 },
-             :vms       => { :count => 1, :_include => Vms },
+             :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4 * 1024 * 1024 }
 
       def name
         @name ||= host.split('.').first
       end
 
-      def host
-        @host ||= Socket.gethostname
-      end
-
       def names
-        @names ||= VirtualMachine::VirtualBox.vm_names.map { |name| name.gsub(/^travis-/, '') }
+        @names ||= VirtualMachine.provider.vm_names.map { |name| name.gsub(/^travis-/, '') }
+      end
+      
+      def host
+        @host ||= self[:host] || Socket.gethostname
       end
 
       def initialize

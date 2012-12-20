@@ -1,12 +1,15 @@
+require 'travis/support/logging'
+require 'travis/build/exceptions'
+
 module Travis
-  class Worker
+  module Worker
     module Shell
       class Buffer < String
         include Logging
 
         log_header { 'travis:worker:shell:buffer' }
 
-        attr_reader :pos, :interval, :limit, :callback
+        attr_reader :pos, :interval, :limit, :callback, :stopped
 
         def initialize(interval = nil, options = {}, &callback)
           @interval = interval
@@ -41,6 +44,12 @@ module Travis
           pos == length
         end
 
+        def stop
+          flush
+          reset
+          @stopped = true
+        end
+
         protected
 
           def read
@@ -58,6 +67,7 @@ module Travis
               loop do
                 flush
                 sleep(interval) if interval
+                break if stopped
               end
             end
           end

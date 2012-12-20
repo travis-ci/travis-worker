@@ -1,17 +1,30 @@
 require 'spec_helper'
 require 'hashr'
 require 'stringio'
-require "hot_bunnies"
+require 'hot_bunnies'
+require 'travis/worker/instance'
 
-describe Travis::Worker do
+class DummyObserver
+  attr_reader :events
+
+  def initialize
+    @events = []
+  end
+
+  def notify(event)
+    @events << event
+  end
+end
+
+describe Travis::Worker::Instance do
   include_context "hot_bunnies connection"
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:reporter)     { stub('reporter', :notify => nil) }
-  let(:queue_names)  { %w(builds.php builds.python builds.perl) }
-  let(:config)       { Hashr.new(:amqp => {}, :queues => queue_names, :timeouts => { :hard_timeout => 5 }) }
+  let(:observer)     { DummyObserver.new }
+  let(:queue_name)   { "builds.php" }
+  let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
 
-  let(:worker)       { Travis::Worker.new('worker-1', vm, connection, queue_names, config) }
+  let(:worker)       { Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, observer).wrapped_object }
 
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
   let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 } } }
@@ -25,8 +38,6 @@ describe Travis::Worker do
     Socket.stubs(:gethostname).returns('host')
     Travis.logger = Logger.new(io)
     Travis::Build.stubs(:create).returns(build)
-
-    worker.state_reporter = reporter
   end
 
   describe 'start' do
@@ -38,8 +49,8 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :starting state' do
-      reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil }])
       worker.start
+      observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil })
     end
 
     it 'prepares the vm' do
@@ -53,8 +64,8 @@ describe Travis::Worker do
     end
 
     it 'notifies the reporter about the :ready state' do
-      reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil }])
       worker.start
+      observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil })
     end
   end
 
@@ -74,8 +85,8 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopping state' do
-        reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil }])
         worker.stop
+        observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil })
       end
     end
 
@@ -90,8 +101,8 @@ describe Travis::Worker do
       end
 
       it 'notifies the reporter about the :stopped state' do
-        reporter.expects(:notify).with('worker:status', :workers => [{ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil }])
         worker.stop
+        observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil })
       end
     end
   end
@@ -103,7 +114,7 @@ describe Travis::Worker do
 
       it 'works' do
         worker.expects(:work)
-        worker.send(:process, metadata, payload)
+        worker.process(metadata, payload)
       end
     end
 
@@ -121,7 +132,7 @@ describe Travis::Worker do
 
       it 'responds to the error' do
         worker.expects(:error_build).with(exception, metadata)
-        worker.send(:process, metadata, payload)
+        worker.process(metadata, payload)
       end
     end
   end
@@ -138,36 +149,22 @@ describe Travis::Worker do
     it 'prepares work' do
       worker.stubs(:payload => decoded_payload)
       worker.expects(:prepare)
-      worker.send(:work, metadata, payload)
+      worker.work(metadata, payload)
     end
 
     it 'creates a new build job' do
       Travis::Build.expects(:create).returns(build)
-      worker.send(:work, metadata, payload)
+      worker.work(metadata, payload)
     end
 
     it 'runs the build' do
       build.expects(:run)
-      worker.send(:work, metadata, payload)
+      worker.work(metadata, payload)
     end
 
     it 'finishes' do
       worker.expects(:finish)
-      worker.send(:work, metadata, payload)
-    end
-  end
-
-  describe 'prepare' do
-    after(:each) { worker.shutdown }
-
-    it 'sets the current payload' do
-      worker.send(:prepare, payload)
-      worker.payload.should == { :id => 1, :repository => { :slug => 'joshk/fun_times' }, :job => { :id => 123 } }
-    end
-
-    it 'sets the current state to :working' do
-      worker.send(:prepare, payload)
-      worker.should be_working
+      worker.work(metadata, payload)
     end
   end
 

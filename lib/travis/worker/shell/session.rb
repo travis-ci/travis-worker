@@ -1,8 +1,10 @@
 require 'net/ssh'
 require 'net/ssh/shell'
+require 'travis/worker/shell/helpers'
+require 'travis/support/logging'
 
 module Travis
-  class Worker
+  module Worker
     module Shell
       # Encapsulates an SSH connection to a remote host.
       class Session
@@ -36,15 +38,16 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          options = { :port => config.port, :keys => [config.private_key_path] }
+          options = { :port => config.port, :paranoid => false }
+          options[:password] = config.password if config.password?
+          options[:keys] = [config.private_key_path] if config.private_key_path?
           @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
         # Closes the Shell, flushes and resets the buffer
         def close
           shell.close! if open?
-          buffer.flush
-          buffer.reset
+          buffer.stop
         end
 
         # Allows you to set a callback when output is received from the ssh shell.

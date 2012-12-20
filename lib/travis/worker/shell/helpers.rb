@@ -1,9 +1,10 @@
 require 'shellwords'
 require 'timeout'
-require 'filtered_string'
+require 'travis/worker/utils/filtered_string'
+require 'travis/build/exceptions'
 
 module Travis
-  class Worker
+  module Worker
     module Shell
       module Helpers
         def export(name, value, options = nil)
@@ -28,7 +29,7 @@ module Travis
             line
           end
 
-          line = FilteredString.new(line, filtered)
+          line = Utils::FilteredString.new(line, filtered)
           line = line.mutate("export %s", line)
           line = line.to_s unless secure
 

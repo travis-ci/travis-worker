@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'stringio'
+require 'travis/worker/application'
 
 describe Travis::Worker::Application do
   let(:app)     { Travis::Worker::Application.new }

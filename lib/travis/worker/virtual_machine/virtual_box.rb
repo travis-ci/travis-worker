@@ -17,6 +17,7 @@ $: << File.expand_path('../../../../../vendor/virtualbox-4.1.22', __FILE__)
 
 require 'java'
 require 'travis/support'
+require 'travis/worker/shell'
 
 java_import 'java.util.List'
 java_import 'java.util.Arrays'
@@ -24,7 +25,7 @@ java_import 'java.io.BufferedReader'
 java_import 'java.io.InputStreamReader'
 
 module Travis
-  class Worker
+  module Worker
     module VirtualMachine
       # A simple encapsulation of the VirtualBox commands used in the
       # Travis Virtual Machine lifecycle.
@@ -88,13 +89,13 @@ module Travis
         #
         # Raises VmNotFound if the virtual machine can not be found based on the name provided.
         def initialize(name)
-          @name = name
+          @name = "travis-#{name}"
         end
 
         # The virtual box machine bound to this instance.
         def machine
           @machine = begin
-            machine = manager.vbox.machines.detect { |machine| machine.name == "travis-#{name}" }
+            machine = manager.vbox.machines.detect { |machine| machine.name == name }
             raise VmNotFound, "#{name} VirtualBox VM could not be found" unless machine
             machine
           end

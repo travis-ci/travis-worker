@@ -48,7 +48,7 @@ describe Travis::Worker::Config do
   end
 
   it 'names returns the vm names' do
-    Travis::Worker::VirtualMachine::VirtualBox.stubs(:vm_names).returns(%w(worker-1))
+    Travis::Worker::VirtualMachine.stubs(:provider => stub(:vm_names => %w(worker-1)))
     config.names.should == %w(worker-1)
   end
 

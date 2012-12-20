@@ -3,7 +3,7 @@ require 'travis/worker'
 require 'hashr'
 
 module Travis
-  class Worker
+  module Worker
     module Cli
       class App < Thor
         namespace 'travis:worker'
@@ -11,6 +11,7 @@ module Travis
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
           preload_constants!
+          $0 = "travis-worker #{Worker.config.name}:#{Worker.config.queue}:#{Worker.config.env}"
           app.boot(:workers => workers)
         end
 
@@ -71,11 +72,17 @@ module Travis
         protected
 
           def app
-            @app ||= Travis::Worker::Application.new
+            @app ||= begin
+              require 'travis/worker/application'
+              Travis::Worker::Application.new
+            end
           end
 
           def remote
-            @remote ||= Travis::Worker::Application::Remote.new
+            @remote ||= begin
+              require 'travis/worker/application'
+              Travis::Worker::Application::Remote.new
+            end
           end
 
           def preload_constants!

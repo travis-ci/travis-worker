@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'travis/worker/shell/buffer'
 
 describe Travis::Worker::Shell::Buffer do
   let(:result) { [] }

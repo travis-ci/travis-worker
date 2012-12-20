@@ -9,7 +9,7 @@ describe Travis::Worker::Reporters::LogStreamer do
   let(:reporting_exchange) { channel.exchange('reporting', :type => :topic, :durable => true) }
   let(:reporter)    { described_class.new('staging-1', connection.create_channel, connection.create_channel) }
 
-  include Travis::Serialization
+  include Travis::Worker::Utils::Serialization
 
   describe 'notify' do
     before :each do

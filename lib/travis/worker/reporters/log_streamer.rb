@@ -1,18 +1,22 @@
+require 'travis/support/logging'
+require 'travis/worker/utils/serialization'
+
 module Travis
-  class Worker
+  module Worker
     module Reporters
       # Reporter that streams build logs. Because workers now support multiple types of
       # projects (e.g. Ruby, Clojure) as long as VMs provide all the necessary, log streaming
       # picks routing key dynamically for each build.
       class LogStreamer
-        include Logging, Travis::Serialization
+        include Logging, Travis::Worker::Utils::Serialization
 
         log_header { "#{name}:log_streamer" }
 
         attr_reader :name
 
         def initialize(name, state_channel, log_channel)
-          @name        = name
+          @name = name
+
           @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
           @log_exchange   = log_channel.exchange('reporting',   :type => :topic, :durable => true)
         end

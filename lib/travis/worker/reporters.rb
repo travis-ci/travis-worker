@@ -1,0 +1,1 @@
+require 'travis/worker/reporters/log_streamer'
