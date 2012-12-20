@@ -9,6 +9,6 @@ module Travis
         @config ||= Config.new
       end
     end
-    
+
   end
 end

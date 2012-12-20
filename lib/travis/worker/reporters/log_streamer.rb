@@ -17,13 +17,6 @@ module Travis
         def initialize(name, state_channel, log_channel)
           @name = name
 
-          # these are declared here mostly to aid development purposes. MK
-          # it also seems that if we don't declare the queues on each use then
-          # we lose the first line of log output sent.
-          # this fixes it for the time being, need to investigate this futher. JK
-          state_channel.queue("reporting.jobs.builds", :durable => true)
-          log_channel.queue("reporting.jobs.logs",     :durable => true)
-
           @state_exchange = state_channel.exchange('reporting', :type => :topic, :durable => true)
           @log_exchange   = log_channel.exchange('reporting',   :type => :topic, :durable => true)
         end
@@ -45,7 +38,7 @@ module Travis
         # logs super verbose, this can be turned on as needed
         
         def routing_key_for(event)
-          event.to_s =~ /log/ ? 'reporting.jobs.logs' : 'reporting.jobs.builds'
+          event.to_s =~ /log/ ? Travis::Worker.config.logging_channel : 'reporting.jobs.builds'
         end
 
         def exchange_for(event)

@@ -28,6 +28,7 @@ module Travis
              :heartbeat => { :interval => 10 },
              :log_level => :info,
              :queue     => 'builds.common',
+             :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0 },
              :timeouts  => { :hard_limit => 3000, :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 300, :after_success => 300, :after_failure => 300, :default => 180 },
              :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
