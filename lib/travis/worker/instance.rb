@@ -19,7 +19,7 @@ module Travis
       include Celluloid
       include SimpleStates, Logging
 
-      log_header { "#{name}:worker" }
+      log_header { "#{name}:worker:instance" }
 
       def self.create(name, config, broker_connection)
         Factory.new(name, config, broker_connection).worker
