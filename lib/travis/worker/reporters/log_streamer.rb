@@ -34,7 +34,7 @@ module Travis
         # logs super verbose, this can be turned on as needed
         
         def routing_key_for(event)
-          event.to_s =~ /log/ ? 'reporting.jobs.logs' : 'reporting.jobs.builds'
+          event.to_s =~ /log/ ? Travis::Worker.config.logging_channel : 'reporting.jobs.builds'
         end
 
         def exchange_for(event)
