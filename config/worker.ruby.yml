@@ -3,6 +3,6 @@ shell:
   buffer: 0.5
 timeouts:
   before_install: 600
-  install: 600
+  install: 2000
   before_script: 600
   script: 1500
