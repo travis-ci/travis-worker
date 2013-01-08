@@ -21,21 +21,24 @@ module Travis
             options[:echo] = false
           end
 
-          secure = line.sub!(/^SECURE /, '')
-          filtered = if secure
-            ::Travis::Helpers.obfuscate_env_vars(line)
-          else
-            line
-          end
-
-          line = FilteredString.new(line, filtered)
-          line = line.mutate("export %s", line)
-          line = line.to_s unless secure
+          line = filtered_line_if_secure(line)
 
           with_timeout(line, 3) do
             execute(*[line, options].compact)
           end
         end
+
+        def filtered_line_if_secure(line)
+          secure = line.sub!(/^SECURE /, '')
+          filtered = secure ? ::Travis::Helpers.obfuscate_env_vars(line) : line
+
+          line = FilteredString.new(line, filtered)
+          line = line.mutate("export %s", line)
+          line = line.to_s unless secure
+
+          line
+        end
+        private :filtered_line_if_secure
 
         def chdir(dir)
           execute("mkdir -p #{dir}", :echo => false)
@@ -86,6 +89,7 @@ module Travis
             buffer << data if options[:echo]
           end
           raise("command '#{command}' failed: '#{result}'") unless status == 0
+
           result
         end
 
@@ -120,24 +124,21 @@ module Travis
         end
 
         def with_timeout(command, stage, &block)
-          seconds = timeout(stage)
-          begin
-            Timeout.timeout(seconds, &block)
-          rescue Timeout::Error => e
-            raise Travis::Build::CommandTimeout.new(stage, command, seconds)
-          end
+          Timeout.timeout(timeout(stage), &block)
+        rescue Timeout::Error
+          raise Travis::Build::CommandTimeout.new(stage, command, timeout(stage))
         end
 
         def timeout(stage)
           if stage.is_a?(Numeric)
             stage
           else
-            config.timeouts[stage || :default] || config.timeouts[:default]
+            config.timeouts[stage] || config.timeouts[:default]
           end
         end
 
         def _unfiltered(str)
-          str = str.respond_to?(:unfiltered) ? str.unfiltered : str.to_s
+          str.respond_to?(:unfiltered) ? str.unfiltered : str.to_s
         end
         private :_unfiltered
       end
