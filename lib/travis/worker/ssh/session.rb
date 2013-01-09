@@ -1,19 +1,18 @@
 require 'net/ssh'
-require 'net/ssh/shell'
-require 'travis/worker/shell/helpers'
+require 'shellwords'
+require 'travis/worker/utils/buffer'
 require 'travis/support/logging'
 
 module Travis
   module Worker
-    module Shell
+    module Ssh
       # Encapsulates an SSH connection to a remote host.
       class Session
-        include Shell::Helpers
         include Logging
 
         log_header { "#{name}:shell:session" }
 
-        attr_reader :name, :config, :shell
+        attr_reader :name, :config, :ssh_session
 
         # Initialize a shell Session
         #
@@ -24,13 +23,6 @@ module Travis
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
-          @shell = nil
-
-          if block_given?
-            connect
-            yield(self) if block_given?
-            close
-          end
         end
 
         # Connects to the remote host.
@@ -41,12 +33,13 @@ module Travis
           options = { :port => config.port, :paranoid => false }
           options[:password] = config.password if config.password?
           options[:keys] = [config.private_key_path] if config.private_key_path?
-          @shell = Net::SSH.start(config.host, config.username, options).shell
+          @ssh_session = Net::SSH.start(config.host, config.username, options)
+          true
         end
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          shell.close! if open?
+          ssh_session.close if open?
           buffer.stop
         end
 
@@ -65,7 +58,56 @@ module Travis
         #
         # Returns true if the shell has been setup and is open, otherwise false.
         def open?
-          shell ? shell.open? : false
+          ssh_session && !ssh_session.closed?
+        end
+
+        # This is where the real SSH shell work is done. The command is run along with
+        # callbacks setup for when data is returned. The exit status is also captured
+        # when the command has finished running.
+        #
+        # command - The command to be executed.
+        # block   - A block which will be called when output or error output is received
+        #           from the shell command.
+        #
+        # Returns the exit status (0 or 1)
+        def exec(command, &on_output)
+          connect unless open?
+
+          exit_code = nil
+          
+          ssh_session.open_channel do |channel|
+            channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
+              unless success
+                abort "FAILED: couldn't execute command (ssh.channel.exec)"
+              end
+                
+              channel.on_data do |ch, data|
+                buffer << data
+              end
+
+              # channel.on_extended_data do |ch,type,data|
+              #   stderr_data += data
+              # end
+
+              channel.on_request("exit-status") do |ch,data|
+                exit_code = data.read_long
+              end
+
+              # channel.on_request("exit-signal") do |ch, data|
+              #   exit_signal = data.read_long
+              # end
+            end
+          end
+          
+          ssh_session.loop(1)
+              
+          exit_code
+        end
+
+        def upload_file(path_and_name, content)
+          encoded = Base64.encode64(content).gsub("\n", "")
+          command = "(echo #{encoded} | base64 -d) >> #{path_and_name}"
+          exec(command)
         end
 
         protected
@@ -73,31 +115,9 @@ module Travis
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
           # is executed.
           def buffer
-            @buffer ||= Buffer.new(config.buffer) do |string|
+            @buffer ||= Utils::Buffer.new(config.buffer) do |string|
               @on_output.call(string, :header => log_header) if @on_output
             end
-          end
-
-          # Internal: Executes a command using the SSH Shell.
-          #
-          # This is where the real SSH shell work is done. The command is run along with
-          # callbacks setup for when data is returned. The exit status is also captured
-          # when the command has finished running.
-          #
-          # command - The command to be executed.
-          # block   - A block which will be called when output or error output is received
-          #           from the shell command.
-          #
-          # Returns the exit status (0 or 1)
-          def exec(command, &on_output)
-            status = nil
-            shell.execute(command) do |process|
-              process.on_output(&on_output)
-              process.on_error_output(&on_output)
-              process.on_finish { |p| status = p.exit_status }
-            end
-            shell.session.loop(1) { status.nil? }
-            status
           end
       end
     end

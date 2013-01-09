@@ -58,7 +58,7 @@ module Travis
                 @password = (opts[:password] = generate_password)
 
                 @server = connection.servers.create(opts)
-                
+
                 instrument { @server.wait_for { ready? } }
               rescue Exception => e
                 error "BlueBox VM would not boot within 180 seconds"
@@ -70,9 +70,9 @@ module Travis
           @server
         end
 
-        def shell
+        def session
           create_server unless server
-          @shell ||= Shell::Session.new(name,
+          @session ||= Ssh::Session.new(name,
             :host => ip_address,
             :port => 22,
             :username => 'travis',
@@ -89,7 +89,7 @@ module Travis
           log_exception(e)
           { :result => 1 }
         ensure
-          shell.close
+          session.close
           destroy_server
         end
 
@@ -116,9 +116,9 @@ module Travis
         def destroy_server(opts = {})
           destroy_vm(server)
           @server = nil
-          @shell = nil
+          @session = nil
         end
-        
+
         def destroy_duplicate_server(hostname)
           server = connection.servers.detect do |server|
             name = server.hostname.split('.').first

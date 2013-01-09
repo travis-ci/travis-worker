@@ -66,7 +66,7 @@ module Travis
       log :stop
 
       def kill
-        vm.shell.terminate("Worker #{name} was stopped forcefully.")
+        # vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
       def process(message, payload)
@@ -84,8 +84,7 @@ module Travis
 
         build_log_streamer = log_streamer(message, payload)
 
-        build = Build.create(vm, vm.shell, build_log_streamer, self.payload, config)
-        hard_timeout(build)
+        hard_timeout { run_build(build_log_streamer) }
 
         finish(message)
       rescue BuildStallTimeoutError => e
@@ -230,13 +229,54 @@ module Travis
         Hashr.new(MultiJson.decode(payload))
       end
 
-      def hard_timeout(build)
+      def run_build(streamer)
+        script = Build.script(self.payload, logs: { build: false, state: true })
+
+        result = nil
+
+        vm.sandboxed do
+          setup_log_streaming(streamer)
+
+          notify_job_start(streamer)
+
+          info "uploading build.sh"
+          vm.session.upload_file("~/build.sh", script.compile)
+
+          info "setting +x permission on build.sh"
+          vm.session.exec("chmod +x ~/build.sh")
+
+          info "running the build"
+          result = vm.session.exec("~/build.sh")
+
+          notify_job_finish(streamer, result)
+        end
+      end
+
+      def notify_job_start(streamer)
+        message = { id: self.payload['job']['id'], state: 'started', started_at: Time.now.utc }
+        streamer.notify('job:test:start', message)
+      end
+
+      def notify_job_finish(streamer, result)
+        state = (result == 0 ? 'passed' : 'failed')
+        message = { id: self.payload['job']['id'], state: state, started_at: Time.now.utc }
+        streamer.notify('job:test:finish', message)
+      end
+
+      def setup_log_streaming(streamer)
+        vm.session.on_output do |output|
+          message = { id: self.payload['job']['id'], log: output }
+          streamer.notify('job:test:log', message)
+        end
+      end
+
+      def hard_timeout
         Utils::HardTimeout.timeout(config.timeouts.hard_limit) do
           Thread.current[:log_header] = name
-          build.run
+          yield
         end
       rescue Timeout::Error => e
-        build.vm_stall
+        # build.vm_stall
         raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
       end
     end
