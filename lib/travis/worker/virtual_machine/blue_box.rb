@@ -11,7 +11,8 @@ module Travis
       # A simple encapsulation of the BlueBox commands used in the
       # Travis Virtual Machine lifecycle.
       class BlueBox
-        include Retryable, Logging
+        include Retryable
+        include Logging
 
         BLUE_BOX_VM_DEFAULTS = {
           :username  => 'travis',

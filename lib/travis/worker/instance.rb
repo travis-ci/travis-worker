@@ -7,7 +7,7 @@ require 'travis/build'
 require 'travis/support'
 require 'travis/worker/factory'
 require 'travis/worker/virtual_machine'
-require 'travis/worker/reporters'
+require 'travis/worker/reporter'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/utils/serialization'
 
@@ -17,7 +17,8 @@ module Travis
       class BuildStallTimeoutError < StandardError; end
 
       include Celluloid
-      include SimpleStates, Logging
+      include SimpleStates
+      include Logging
 
       log_header { "#{name}:worker:instance" }
 
@@ -218,7 +219,7 @@ module Travis
       log :error, :as => :debug
 
       def log_streamer(message, payload)
-        Reporters::LogStreamer.new(name, broker_connection.create_channel, broker_connection.create_channel)
+        Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
 
       def host
