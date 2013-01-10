@@ -85,9 +85,9 @@ module Travis
                 buffer << data
               end
 
-              # channel.on_extended_data do |ch,type,data|
-              #   stderr_data += data
-              # end
+              channel.on_extended_data do |ch,type,data|
+                buffer << data
+              end
 
               channel.on_request("exit-status") do |ch,data|
                 exit_code = data.read_long
