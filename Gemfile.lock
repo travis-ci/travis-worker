@@ -15,7 +15,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: ae29a8d0b383291306c672a061d3116d42174e9c
+  revision: 12a5bcd80bf13122c5d7da5e03012a84186ad8da
   branch: sf-compile-sh
   specs:
     travis-build (0.0.1)
