@@ -15,7 +15,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: a84c580a8c38a7e7d90a395a7d8e4b63b9c19732
+  revision: ae29a8d0b383291306c672a061d3116d42174e9c
   branch: sf-compile-sh
   specs:
     travis-build (0.0.1)
@@ -83,7 +83,7 @@ GEM
     multipart-post (1.1.5)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
-    net-ssh (2.6.2)
+    net-ssh (2.6.3)
     nokogiri (1.5.6-java)
     rack (1.4.3)
     rake (0.9.6)
