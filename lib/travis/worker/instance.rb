@@ -231,7 +231,7 @@ module Travis
       end
 
       def run_build(streamer)
-        script = Build.script(self.payload, logs: { build: false, state: true })
+        script = Build.script(self.payload.merge(timeouts: false), logs: { build: false, state: true })
 
         result = nil
 
