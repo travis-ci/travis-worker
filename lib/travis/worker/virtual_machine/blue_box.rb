@@ -3,7 +3,7 @@ require 'shellwords'
 require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
-require 'travis/worker/shell'
+require 'travis/worker/ssh/session'
 
 module Travis
   module Worker
