@@ -10,6 +10,7 @@ require 'travis/worker/virtual_machine'
 require 'travis/worker/reporter'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/utils/serialization'
+require 'travis/worker/job/runner'
 
 module Travis
   module Worker
@@ -85,12 +86,13 @@ module Travis
 
         build_log_streamer = log_streamer(message, payload)
 
-        hard_timeout { run_build(build_log_streamer) }
+        runner = nil
+
+        runner = Job::Runner.new(self.payload, vm.session, build_log_streamer, vm.full_name, config.timeouts.hard_limit, name)
+
+        run_job(runner)
 
         finish(message)
-      rescue BuildStallTimeoutError => e
-        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) stalled and was requeued"
-        finish(message, :requeue => true)
       rescue VirtualMachine::VmFatalError => e
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
         finish(message, :requeue => true)
@@ -230,56 +232,14 @@ module Travis
         Hashr.new(MultiJson.decode(payload))
       end
 
-      def run_build(streamer)
-        script = Build.script(self.payload.merge(timeouts: false), logs: { build: false, state: true })
-
-        result = nil
-
+      def run_job(runner)
         vm.sandboxed do
-          setup_log_streaming(streamer)
-
-          notify_job_start(streamer)
-
-          info "uploading build.sh"
-          vm.session.upload_file("~/build.sh", script.compile)
-
-          info "setting +x permission on build.sh"
-          vm.session.exec("chmod +x ~/build.sh")
-
-          info "running the build"
-          result = vm.session.exec("~/build.sh")
-
-          notify_job_finish(streamer, result)
+          runner.setup
+          runner.start
+          runner.stop
         end
       end
 
-      def notify_job_start(streamer)
-        message = { id: self.payload['job']['id'], state: 'started', started_at: Time.now.utc }
-        streamer.notify('job:test:start', message)
-      end
-
-      def notify_job_finish(streamer, result)
-        state = (result == 0 ? 'passed' : 'failed')
-        message = { id: self.payload['job']['id'], state: state, started_at: Time.now.utc }
-        streamer.notify('job:test:finish', message)
-      end
-
-      def setup_log_streaming(streamer)
-        vm.session.on_output do |output|
-          message = { id: self.payload['job']['id'], log: output }
-          streamer.notify('job:test:log', message)
-        end
-      end
-
-      def hard_timeout
-        Utils::HardTimeout.timeout(config.timeouts.hard_limit) do
-          Thread.current[:log_header] = name
-          yield
-        end
-      rescue Timeout::Error => e
-        # build.vm_stall
-        raise BuildStallTimeoutError, 'The VM stalled and the hardtimeout fired'
-      end
     end
   end
 end

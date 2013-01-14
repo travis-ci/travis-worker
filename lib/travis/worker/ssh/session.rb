@@ -10,6 +10,13 @@ module Travis
       class Session
         include Logging
 
+        class NoOutputReceivedError < StandardError
+          attr_reader :minutes
+          def initialize(minutes)
+            super("No output has been received in the last #{minutes} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
+          end
+        end
+
         log_header { "#{name}:shell:session" }
 
         attr_reader :name, :config, :ssh_session
@@ -41,6 +48,7 @@ module Travis
         def close
           ssh_session.close if open?
           buffer.stop
+          @buffer = nil
         end
 
         # Allows you to set a callback when output is received from the ssh shell.
@@ -70,26 +78,26 @@ module Travis
         #           from the shell command.
         #
         # Returns the exit status (0 or 1)
-        def exec(command, &on_output)
+        def exec(command)
           connect unless open?
 
           exit_code = nil
-          
+
           ssh_session.open_channel do |channel|
             channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
               unless success
                 abort "FAILED: couldn't execute command (ssh.channel.exec)"
               end
-                
+
               channel.on_data do |ch, data|
                 buffer << data
               end
 
-              channel.on_extended_data do |ch,type,data|
+              channel.on_extended_data do |ch, type, data|
                 buffer << data
               end
 
-              channel.on_request("exit-status") do |ch,data|
+              channel.on_request("exit-status") do |ch, data|
                 exit_code = data.read_long
               end
 
@@ -98,9 +106,17 @@ module Travis
               # end
             end
           end
-          
-          ssh_session.loop(1)
-              
+
+          if block_given?
+            ssh_session.loop(0.5) do
+              buffer_flush_exceeded?
+              early_exit = yield
+              !(early_exit || exit_code)
+            end
+          else
+            ssh_session.loop(1)
+          end
+
           exit_code
         end
 
@@ -115,8 +131,18 @@ module Travis
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
           # is executed.
           def buffer
-            @buffer ||= Utils::Buffer.new(config.buffer) do |string|
+            @buffer ||= Utils::Buffer.new(config.buffer, log_header: name) do |string|
               @on_output.call(string, :header => log_header) if @on_output
+            end
+          end
+
+          def buffer_flush_exceeded?
+            flushed_limit = Travis::Worker.config.limits.last_flushed
+
+            if (Time.now.to_i - buffer.last_flushed) > (flushed_limit * 60)
+              warn "Flushed limit exceeded: @flushed_limit = #{flushed_limit}, now = #{Time.now.to_i}"
+              buffer.stop
+              raise NoOutputReceivedError.new(flushed_limit.to_s)
             end
           end
       end
