@@ -73,7 +73,7 @@ module Travis
         rescue Timeout::Error => e
           timedout
         ensure
-          notify_job_finished(!!result)
+          notify_job_finished(result)
         end
 
         def stop
