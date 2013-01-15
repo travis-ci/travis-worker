@@ -3,7 +3,7 @@ source :rubygems
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build', branch: 'sf-compile-sh'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support'
 
-gem 'celluloid',        '~> 0.12.4'
+gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid'
 
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
 gem 'vagrant-vbguest'

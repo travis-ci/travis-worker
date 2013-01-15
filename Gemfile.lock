@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/celluloid/celluloid
+  revision: d2dfb0072f3341b11ca5cf874ecffea293aac6cb
+  specs:
+    celluloid (0.13.0)
+      facter (>= 1.6.12)
+      timers (>= 1.0.0)
+
+GIT
   remote: https://github.com/joshk/vagrant
   revision: d16043f691bea347f9615dfa966008bbc34dab2e
   branch: 1-0-stable
@@ -38,9 +46,6 @@ GEM
     avl_tree (1.1.3)
     bouncy-castle-java (1.5.0146.1)
     builder (3.1.4)
-    celluloid (0.12.4)
-      facter (>= 1.6.12)
-      timers (>= 1.0.0)
     childprocess (0.3.6)
       ffi (~> 1.0, >= 1.0.6)
     diff-lcs (1.1.3)
@@ -115,7 +120,7 @@ PLATFORMS
   java
 
 DEPENDENCIES
-  celluloid (~> 0.12.4)
+  celluloid!
   faraday (~> 0.7.5)
   fog
   hashr (~> 0.0.18)
