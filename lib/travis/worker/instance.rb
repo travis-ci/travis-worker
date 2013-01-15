@@ -84,13 +84,9 @@ module Travis
         info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
         info "this is a requeued message" if message.redelivered?
 
-        build_log_streamer = log_streamer(message, payload)
+        reporter = log_streamer(message, payload)
 
-        runner = nil
-
-        runner = Job::Runner.new(self.payload, vm.session, build_log_streamer, vm.full_name, config.timeouts.hard_limit, name)
-
-        run_job(runner)
+        run_job(reporter)
 
         finish(message)
       rescue VirtualMachine::VmFatalError => e
@@ -100,7 +96,7 @@ module Travis
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a conneciton error"
         finish(message, :requeue => true)
       ensure
-        build_log_streamer.close if build_log_streamer
+        reporter.close if reporter
       end
       log :work, :as => :debug
 
@@ -235,12 +231,16 @@ module Travis
         Hashr.new(MultiJson.decode(payload))
       end
 
-      def run_job(runner)
+      def run_job(reporter)
+        runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
+
         vm.sandboxed do
           runner.setup
           runner.start
           runner.stop
         end
+
+        runner.terminate
       end
 
     end
