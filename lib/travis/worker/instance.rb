@@ -96,6 +96,9 @@ module Travis
       rescue VirtualMachine::VmFatalError => e
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
         finish(message, :requeue => true)
+      rescue Runner::ConnectionError => e
+        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a conneciton error"
+        finish(message, :requeue => true)
       ensure
         build_log_streamer.close if build_log_streamer
       end

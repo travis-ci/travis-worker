@@ -27,6 +27,8 @@ module Travis
       class Runner
         include Logging
         include Celluloid
+        
+        class ConnectionError < StandardError; end
 
         attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
 
@@ -72,6 +74,9 @@ module Travis
           announce("\n\n#{e.message}\n\n")
         rescue Timeout::Error => e
           timedout
+        rescue Errno::ECONNREFUSED => e
+          announce("I'm sorry but there was an error connection to the VM.\n\nYour job will be requeued shortly.")
+          raise ConnectionError
         ensure
           notify_job_finished(result)
         end
