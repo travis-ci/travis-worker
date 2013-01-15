@@ -65,14 +65,20 @@ module Travis
       end
 
       def notify_job_started(job_id)
-        message = { id: job_id, state: 'started', started_at: Time.now.utc }
-        notify('job:test:start', message)
+        notify('job:test:start',  id: job_id, state: 'started', started_at: Time.now.utc)
       end
 
       def notify_job_finished(job_id, result)
-        state = (result == 0 ? 'passed' : 'failed')
-        message = { id: job_id, state: state, finished_at: Time.now.utc }
-        notify('job:test:finish', message)
+        notify('job:test:finish', id: job_id, state: normalized_state(result), finished_at: Time.now.utc)
+      end
+      
+      def normalized_state(result)
+        case result
+        when 0; 'passed'
+        when 1; 'failed'
+        when 2; 'errored'
+        else    'failed'
+        end
       end
     end
   end
