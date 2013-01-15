@@ -46,7 +46,10 @@ module Travis
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          ssh_session.close if open?
+          Timeout::timeout(15) { ssh_session.close if open? }
+        rescue
+          warn "ssh connection could not be closed gracefully"
+        ensure
           buffer.stop
           @buffer = nil
         end
@@ -111,7 +114,8 @@ module Travis
             ssh_session.loop(0.5) do
               buffer_flush_exceeded?
               early_exit = yield
-              !(early_exit || exit_code)
+              # puts "!(early_exit || !!exit_code) : !(#{early_exit} || #{!!exit_code}) == #{!(early_exit || !!exit_code)}"
+              !(early_exit || !!exit_code)
             end
           else
             ssh_session.loop(1)
