@@ -56,6 +56,8 @@ module Travis
         def setup
           setup_log_streaming
           start_session
+        rescue Errno::ECONNREFUSED => e
+          connection_error
         end
 
         def start
@@ -75,8 +77,7 @@ module Travis
         rescue Timeout::Error => e
           timedout
         rescue Errno::ECONNREFUSED => e
-          announce("I'm sorry but there was an error connection to the VM.\n\nYour job will be requeued shortly.")
-          raise ConnectionError
+          connection_error
         ensure
           notify_job_finished(result)
         end
@@ -135,6 +136,11 @@ module Travis
         def notify_job_finished(result)
           reporter.send_last_log(job_id)
           reporter.notify_job_finished(job_id, result)
+        end
+        
+        def connection_error
+          announce("I'm sorry but there was an error connection to the VM.\n\nYour job will be requeued shortly.")
+          raise ConnectionError
         end
       end
     end
