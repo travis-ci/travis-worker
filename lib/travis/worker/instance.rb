@@ -15,8 +15,6 @@ require 'travis/worker/job/runner'
 module Travis
   module Worker
     class Instance
-      class BuildStallTimeoutError < StandardError; end
-
       include Celluloid
       include SimpleStates
       include Logging

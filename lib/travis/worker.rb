@@ -2,7 +2,6 @@ require 'travis/worker/config'
 
 module Travis
   module Worker
-    class BuildStallTimeoutError < StandardError; end
 
     class << self
       def config
