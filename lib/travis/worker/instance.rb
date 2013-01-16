@@ -238,6 +238,7 @@ module Travis
           runner.stop
         end
 
+      ensure
         runner.terminate if runner.alive?
       end
 
