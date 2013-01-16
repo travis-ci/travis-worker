@@ -144,9 +144,9 @@ module Travis
             info "destroying the VM"
             vm.destroy
           rescue Fog::Compute::Bluebox::NotFound => e
-            info "went to destroy the VM but it didn't exist :/"
+            warn "went to destroy the VM but it didn't exist :/"
           rescue Excon::Errors::InternalServerError => e
-            info "went to destroy the VM but there was an internal server error"
+            warn "went to destroy the VM but there was an internal server error"
             log_exception(e)
           end
 
