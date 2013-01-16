@@ -85,11 +85,9 @@ module Travis
 
         def sandboxed
           create_server
+
           yield
-        rescue Exception => e
-          log_exception(e)
-          { :result => 1 }
-        ensure
+
           session.close
           destroy_server
         end
