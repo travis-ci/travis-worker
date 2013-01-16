@@ -77,7 +77,7 @@ module Travis
         when 0; 'passed'
         when 1; 'failed'
         when 2; 'errored'
-        else    'failed'
+        else    'errored'
         end
       end
     end
