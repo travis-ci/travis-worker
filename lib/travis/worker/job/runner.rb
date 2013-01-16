@@ -57,6 +57,7 @@ module Travis
           setup_log_streaming
           start_session
         rescue Errno::ECONNREFUSED => e
+          log_exception(e)
           connection_error
         end
 
