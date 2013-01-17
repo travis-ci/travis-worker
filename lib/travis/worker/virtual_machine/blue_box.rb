@@ -85,9 +85,8 @@ module Travis
 
         def sandboxed
           create_server
-
           yield
-
+        ensure
           session.close
           destroy_server
         end
