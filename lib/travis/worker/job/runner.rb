@@ -27,6 +27,7 @@ module Travis
       class Runner
         include Logging
         include Celluloid
+        include Retryable
         
         class ConnectionError < StandardError; end
 
@@ -102,7 +103,9 @@ module Travis
 
         def start_session
           announce("Using worker: #{host_name}\n\n")
-          session.connect
+          retryable(:tries => 3) do
+            session.connect
+          end
         end
 
         def job_id
