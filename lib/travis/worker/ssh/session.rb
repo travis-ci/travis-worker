@@ -46,7 +46,7 @@ module Travis
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          Timeout::timeout(15) { ssh_session.close if open? }
+          Timeout::timeout(5) { ssh_session.close if open? }
         rescue
           warn "ssh connection could not be closed gracefully"
         ensure
