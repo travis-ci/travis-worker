@@ -71,7 +71,11 @@ module Travis
       def notify_job_finished(job_id, result)
         notify('job:test:finish', id: job_id, state: normalized_state(result), finished_at: Time.now.utc)
       end
-      
+
+      def restart(job_id)
+        notify('job:test:reset', id: job_id, state: 'reset')
+      end
+
       def normalized_state(result)
         case result
         when 0; 'passed'
