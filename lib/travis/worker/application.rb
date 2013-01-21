@@ -149,7 +149,7 @@ module Travis
       end
 
       def workers_stopped?
-        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped }
+        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped || state == :errored }
       end
     end
   end
