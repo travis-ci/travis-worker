@@ -74,6 +74,8 @@ module Travis
       rescue Errno::ECONNREFUSED, Exception => error
         # puts error.message, error.backtrace
         error_build(error, message)
+      ensure
+        reset_reporter
       end
 
       def work(message, payload)
@@ -82,19 +84,15 @@ module Travis
         info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
         info "this is a requeued message" if message.redelivered?
 
-        reporter = log_streamer(message, payload)
-
-        run_job(reporter)
+        run_job
 
         finish(message)
       rescue VirtualMachine::VmFatalError => e
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
-        finish(message, :requeue => true)
+        finish(message, :restart => true)
       rescue Job::Runner::ConnectionError => e
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a conneciton error"
-        finish(message, :requeue => true)
-      ensure
-        reporter.close if reporter
+        finish(message, :restart => true)
       end
       log :work, :as => :debug
 
@@ -192,11 +190,9 @@ module Travis
           unsubscribe
         end
 
-        unless opts[:requeue]
-          message.ack
-        else
-          message.reject(:requeue => true)
-        end
+        restart_job if opts[:restart]
+
+        message.ack
 
         @payload = nil
 
@@ -211,14 +207,19 @@ module Travis
       def error_build(error, message)
         @last_error = [error.message, error.backtrace].flatten.join("\n")
         log_exception(error)
-        message.reject(:requeue => true)
+        restart_job
         stop
         set :errored
       end
       log :error, :as => :debug
 
-      def log_streamer(message, payload)
-        Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
+      def reporter
+        @reporter ||= Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
+      end
+      
+      def reset_reporter
+        reporter.close if @reporter
+        @reporter = nil
       end
 
       def host
@@ -229,7 +230,7 @@ module Travis
         Hashr.new(MultiJson.decode(payload))
       end
 
-      def run_job(reporter)
+      def run_job
         runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
 
         vm.sandboxed do
@@ -241,6 +242,11 @@ module Travis
         runner.terminate if runner && runner.alive?
       end
 
+      def restart_job
+        if reporter && payload['job']['id']
+          reporter.restart(payload['job']['id'])
+        end
+      end
     end
   end
 end
