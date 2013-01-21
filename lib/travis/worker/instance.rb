@@ -58,10 +58,9 @@ module Travis
       # need to relook at this method as it feels wrong to
       # report a worker at stopping while it is also working
       def stop(options = {})
-        set :stopping
+        # set :stopping
         unsubscribe
         kill if options[:force]
-        set :stopped unless working?
       end
       log :stop
 
@@ -101,7 +100,8 @@ module Travis
       end
 
       def shutdown
-        unsubscribe
+        info "shutting down"
+        stop
       end
 
       protected
@@ -152,21 +152,23 @@ module Travis
         # implementation that uses thread pools (JDK executor services), we need to shut down
         # consumers manually to guarantee that after disconnect we leave no active non-daemon
         # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
-        return unless subscription
-        unless working?
-          info "Unsubscribing from #{queue_name} right now"
-          subscription.cancel
-          set :stopped
-        else
+        return if subscription.cancelled?
+        if working?
           graceful_shutdown
+        else
+          info "unsubscribing from #{queue_name} right now"
+          subscription.cancel
+          sleep 2
+          set :stopped
         end
       rescue StandardError => e
-        info "Subscription is still active"
+        puts e.inspect
+        info "subscription is still active"
         graceful_shutdown
       end
 
       def graceful_shutdown
-        info "Unsubscribing from #{queue_name} once the current job has finished"
+        info "unsubscribing from #{queue_name} once the current job has finished"
         @shutdown = true
       end
 
@@ -185,10 +187,7 @@ module Travis
       log :prepare, :as => :debug
 
       def finish(message, opts = {})
-        if @shutdown
-          set :stopping
-          unsubscribe
-        end
+        stop if @shutdown
 
         restart_job if opts[:restart]
 
@@ -207,7 +206,7 @@ module Travis
       def error_build(error, message)
         @last_error = [error.message, error.backtrace].flatten.join("\n")
         log_exception(error)
-        restart_job
+        finish(message, restart: true)
         stop
         set :errored
       end
@@ -244,6 +243,7 @@ module Travis
 
       def restart_job
         if reporter && payload['job']['id']
+          info "requeuing job"
           reporter.restart(payload['job']['id'])
         end
       end
