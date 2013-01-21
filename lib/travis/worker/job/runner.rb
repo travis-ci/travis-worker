@@ -57,7 +57,7 @@ module Travis
         def setup
           setup_log_streaming
           start_session
-        rescue Errno::ECONNREFUSED => e
+        rescue Net::SSH::AuthenticationFailed, Errno::ECONNREFUSED => e
           log_exception(e)
           connection_error
         end
