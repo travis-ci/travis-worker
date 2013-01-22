@@ -16,6 +16,7 @@ gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 gem 'fog',              '~> 1.9.0'
+gem 'travis-saucelabs-api', git: 'https://github.com/henrikhodne/travis-saucelabs-api.git'
 
 gem 'metriks'
 
