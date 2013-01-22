@@ -21,7 +21,7 @@ gem 'metriks'
 
 platform :jruby do
   gem 'hot_bunnies',    '~> 1.4.0'
-  gem 'jruby-openssl',  '0.7.4'
+  gem 'jruby-openssl',  '~> 0.8.0'
 end
 
 group :test do
