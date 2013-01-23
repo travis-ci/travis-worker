@@ -187,7 +187,10 @@ module Travis
       log :prepare, :as => :debug
 
       def finish(message, opts = {})
-        stop if @shutdown
+        if @shutdown
+          set :stopping
+          stop
+        end
 
         restart_job if opts[:restart]
 
