@@ -87,26 +87,26 @@ module Travis
           exit_code = nil
 
           ssh_session.open_channel do |channel|
-            channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
-              unless success
-                abort "FAILED: couldn't execute command (ssh.channel.exec)"
-              end
+            channel.request_pty do |channel, success|
+              raise StandardError, "could not obtain pty" unless success
 
-              channel.on_data do |ch, data|
-                buffer << data
-              end
+              channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
+                unless success
+                  raise StandardError, "FAILED: couldn't execute command (ssh.channel.exec)"
+                end
 
-              channel.on_extended_data do |ch, type, data|
-                buffer << data
-              end
+                channel.on_data do |ch, data|
+                  buffer << data
+                end
 
-              channel.on_request("exit-status") do |ch, data|
-                exit_code = data.read_long
-              end
+                channel.on_extended_data do |ch, type, data|
+                  buffer << data
+                end
 
-              # channel.on_request("exit-signal") do |ch, data|
-              #   exit_signal = data.read_long
-              # end
+                channel.on_request("exit-status") do |ch, data|
+                  exit_code = data.read_long
+                end
+              end
             end
           end
 
