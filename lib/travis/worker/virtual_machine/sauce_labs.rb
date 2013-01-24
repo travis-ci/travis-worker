@@ -36,8 +36,8 @@ module Travis
             Timeout.timeout(180) do
               begin
                 @password = generate_password
-                instance_id = @connection.start_instance['instance_id']
-                @server = @connection.instance_info(instance_id)
+                instance_id = connection.start_instance['instance_id']
+                @server = connection.instance_info(instance_id)
 
                 instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
@@ -99,7 +99,7 @@ module Travis
 
         def destroy_vm(vm)
           info "destroying the VM"
-          @connection.kill_instance(vm['instance_info'])
+          connection.kill_instance(vm['instance_info'])
         end
 
         def generate_password
