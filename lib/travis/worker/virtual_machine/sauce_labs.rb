@@ -108,8 +108,12 @@ module Travis
         end
 
         def vm_ready?(vm)
-          # TODO: Actually implement this
+          socket = TCPSocket.new(vm['private_ip'], 3422)
           true
+        rescue Errno::ECONNREFUSED
+          false
+        ensure
+          socket.close if socket
         end
       end
     end
