@@ -121,7 +121,7 @@ module Travis
         def vm_ready?(vm)
           socket = TCPSocket.new(vm['private_ip'], 3422)
           true
-        rescue Errno::ECONNREFUSED
+        rescue StandardError
           false
         ensure
           socket.close if socket
