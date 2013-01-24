@@ -1,4 +1,9 @@
 require 'travis-saucelabs-api'
+require 'shellwords'
+require 'digest/sha1'
+require 'benchmark'
+require 'travis/support'
+require 'travis/worker/ssh/session'
 
 module Travis
   module Worker
@@ -34,6 +39,7 @@ module Travis
 
           retryable(:tries => 3) do
             Timeout.timeout(180) do
+              instance_id = nil
               begin
                 @password = generate_password
                 instance_id = connection.start_instance['instance_id']
@@ -41,6 +47,7 @@ module Travis
 
                 instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
+                connection.kill_instance(instance_id) if instance_id
                 error 'SauceLabs VM would not boot within 180 seconds'
                 raise
               end
@@ -85,7 +92,7 @@ module Travis
         end
 
         def prepare
-          info "Using image '#{Travis::SaucelabsAPI::DEFAULT_IMAGE}'"
+          info "Sauce Labs API adapter "
         end
 
         private
