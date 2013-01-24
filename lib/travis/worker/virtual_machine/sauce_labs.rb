@@ -92,7 +92,7 @@ module Travis
         end
 
         def prepare
-          info "Sauce Labs API adapter "
+          info "Sauce Labs API adapter prepared"
         end
 
         private
@@ -106,7 +106,7 @@ module Travis
 
         def destroy_vm(vm)
           info "destroying the VM"
-          connection.kill_instance(vm['instance_info'])
+          connection.kill_instance(vm['instance_id'])
         end
 
         def generate_password
