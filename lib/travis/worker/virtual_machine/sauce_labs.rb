@@ -84,6 +84,10 @@ module Travis
           @session = nil
         end
 
+        def prepare
+          info "Using image '#{Travis::SaucelabsAPI::DEFAULT_IMAGE}'"
+        end
+
         private
 
         def instrument
