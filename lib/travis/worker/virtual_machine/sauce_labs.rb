@@ -67,6 +67,7 @@ module Travis
             :password => password,
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts,
+            :platform => :osx,
           )
         end
 
