@@ -44,6 +44,7 @@ module Travis
                 @password = generate_password
                 instance_id = connection.start_instance['instance_id']
                 @server = connection.instance_info(instance_id)
+                connection.allow_outgoing(instance_id)
 
                 instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
