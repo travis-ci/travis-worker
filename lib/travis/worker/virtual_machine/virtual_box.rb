@@ -16,8 +16,9 @@
 $: << File.expand_path('../../../../../vendor/virtualbox-4.1.22', __FILE__)
 
 require 'java'
+require 'benchmark'
 require 'travis/support'
-require 'travis/worker/shell'
+require 'travis/worker/ssh/session'
 
 java_import 'java.util.List'
 java_import 'java.util.Arrays'
@@ -105,7 +106,7 @@ module Travis
         #
         # Returns a Shell::Session.
         def shell
-          @shell ||= Shell::Session.new(name,
+          @shell ||= Ssh::Session.new(name,
             :host => '127.0.0.1',
             :port => ssh_port,
             :username => ENV.fetch("TRAVIS_CI_ENV_USERNAME", 'travis'),
