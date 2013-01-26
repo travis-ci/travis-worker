@@ -293,8 +293,8 @@ module Travis
 
           def wait_for_boot
             retryable(:tries => 3) do
-              shell.connect(false)
-              shell.close
+              session.connect(false)
+              session.close
             end
             sleep(10) # make sure the vm has some time to start other services
           end
