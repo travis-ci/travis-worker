@@ -2,6 +2,7 @@ require 'net/ssh'
 require 'shellwords'
 require 'travis/worker/utils/buffer'
 require 'travis/support/logging'
+require 'base64'
 
 module Travis
   module Worker
