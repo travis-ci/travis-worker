@@ -29,10 +29,10 @@ module Travis
              :log_level => :info,
              :queue     => 'builds.common',
              :logging_channel => 'reporting.jobs.logs',
-             :shell     => { :buffer => 0 },
-             :timeouts  => { :hard_limit => 3000, :before_install => 300, :install => 300, :before_script => 300, :script => 600, :after_script => 300, :after_success => 300, :after_failure => 300, :default => 180 },
+             :shell     => { :buffer => 0.5 },
+             :timeouts  => { :hard_limit => 3000 },
              :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
-             :limits    => { :log_length => 4, :last_flushed => 5 }
+             :limits    => { :log_length => 4, :last_flushed => 10 }
 
       def name
         @name ||= host.split('.').first
