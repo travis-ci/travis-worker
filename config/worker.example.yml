@@ -7,10 +7,6 @@ ruby:
     username: travisci_worker
     password: travisci_worker_password
     virtual_host: travisci.development
-  timeouts:
-    install: 600
-    before_script: 480
-    script: 1500
   vms:
     count: 1
     vbox_home: '/usr/lib/virtualbox'

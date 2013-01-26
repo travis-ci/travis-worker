@@ -1,7 +1,1 @@
 queue: builds.spree
-shell:
-  buffer: 0.5
-timeouts:
-  install: 1200
-  before_script: 900
-  script: 3000

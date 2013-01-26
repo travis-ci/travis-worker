@@ -1,8 +1,1 @@
 queue: builds.jvmotp
-shell:
-  buffer: 0.5
-timeouts:
-  before_install: 480
-  install: 1800
-  before_script: 720
-  script: 1800
