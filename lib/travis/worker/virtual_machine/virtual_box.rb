@@ -105,8 +105,8 @@ module Travis
         # Prepares a ssh session bound to the virtual box vm.
         #
         # Returns a Shell::Session.
-        def shell
-          @shell ||= Ssh::Session.new(name,
+        def session
+          @session ||= Ssh::Session.new(name,
             :host => '127.0.0.1',
             :port => ssh_port,
             :username => ENV.fetch("TRAVIS_CI_ENV_USERNAME", 'travis'),
