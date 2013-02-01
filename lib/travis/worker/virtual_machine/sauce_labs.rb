@@ -42,7 +42,8 @@ module Travis
               instance_id = nil
               begin
                 @password = generate_password
-                instance_id = connection.start_instance['instance_id']
+                startup_info = { :password => @password, :hostname => "#{Travis::Worker.config.env}-#{name}" }
+                instance_id = connection.start_instance(Travis::SaucelabsAPI::DEFAULT_IMAGE, startup_info)['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
 
