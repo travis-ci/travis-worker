@@ -31,7 +31,7 @@ module Travis
         end
 
         def connection
-          @connection ||= Travis::SaucelabsAPI.new
+          @connection ||= Travis::SaucelabsAPI.new(Travis::Worker.config.sauce_labs.api_endpoint)
         end
 
         def create_server(opts = {})
@@ -43,7 +43,7 @@ module Travis
               begin
                 @password = generate_password
                 startup_info = { :password => @password, :hostname => "#{Travis::Worker.config.env}-#{name}" }
-                instance_id = connection.start_instance(Travis::SaucelabsAPI::DEFAULT_IMAGE, startup_info)['instance_id']
+                instance_id = connection.start_instance(startup_info)['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
 

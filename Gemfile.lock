@@ -7,11 +7,12 @@ GIT
 
 GIT
   remote: https://github.com/henrikhodne/travis-saucelabs-api.git
-  revision: d5626ffb6bbb9dc8afc56afde1ebaa88291ea4f7
+  revision: aafa42dff044b1a966d24306cb42928aa23e8b39
   specs:
     travis-saucelabs-api (0.0.1)
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
+      thor (~> 0.14)
 
 GIT
   remote: https://github.com/joshk/vagrant
