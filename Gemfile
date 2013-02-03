@@ -1,11 +1,11 @@
 source :rubygems
 
-gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
-gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
+gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
+gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support'
 
-gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid'
+gem 'celluloid',        git: 'https://github.com/celluloid/celluloid'
 
-gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
+gem 'vagrant',          git: 'https://github.com/joshk/vagrant', branch: '1-0-stable'
 gem 'vagrant-vbguest'
 
 gem 'thor',             '~> 0.14.6'
@@ -28,6 +28,6 @@ group :test do
   gem 'rake',           '~> 0.9.2'
   gem 'mocha',          '~> 0.11.0'
   gem 'rspec'
-  gem 'simplecov',      '>= 0.4.0', :require => false
+  gem 'simplecov',      '>= 0.4.0', require: false
 end
 
