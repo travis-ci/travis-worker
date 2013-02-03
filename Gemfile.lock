@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: 89de2222af662280919e5b76e69e3773d21a46f7
+  revision: 493df2a743164387d3ee84c6d2c6e1895d2c0ffb
   specs:
     celluloid (0.13.0)
       facter (>= 1.6.12)
@@ -23,7 +23,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: d46831298ddc9169e79e600296eeea8aff469c65
+  revision: 5b1d86947feb75ec272064923e69c7374e7a898a
   specs:
     travis-build (0.0.1)
 
