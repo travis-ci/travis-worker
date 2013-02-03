@@ -87,8 +87,8 @@ module Travis
           )
         end
 
-        def sandboxed
-          create_server
+        def sandboxed(opts = {})
+          create_server(opts)
           yield
         ensure
           session.close
