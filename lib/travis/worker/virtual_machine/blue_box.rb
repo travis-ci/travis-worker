@@ -50,11 +50,14 @@ module Travis
         def create_server(opts = {})
           return @server if server
 
-          template = template_for_language(opts['language'])
+          template = template_for_language(opts[:language])
           
-          info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts['language'] || '[nil]'}"
+          info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts[:language] || '[nil]'}"
           
-          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
+          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
+            :image_id => template['id'], 
+            :hostname => "#{Travis::Worker.config.env}-#{name}"
+          }))
 
           retryable(:tries => 3) do
             destroy_duplicate_server(opts[:hostname])
