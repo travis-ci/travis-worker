@@ -121,7 +121,7 @@ module Travis
         # block - A required block to be executed during the sandboxing.
         #
         # Returns the result of the block.
-        def sandboxed
+        def sandboxed(opts = {})
           start_sandbox
           yield
         rescue Exception => e
