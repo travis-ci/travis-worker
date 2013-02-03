@@ -32,7 +32,8 @@ module Travis
              :shell     => { :buffer => 0.5 },
              :timeouts  => { :hard_limit => 3000 },
              :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
-             :limits    => { :log_length => 4, :last_flushed => 10 }
+             :limits    => { :log_length => 4, :last_flushed => 10 },
+             :language_mappings => { }
 
       def name
         @name ||= host.split('.').first
