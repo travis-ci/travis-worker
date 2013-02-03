@@ -50,7 +50,11 @@ module Travis
         def create_server(opts = {})
           return @server if server
 
-          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
+          template = template_for_language(opts['language'])
+          
+          info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts['language'] || '[nil]'}"
+          
+          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
 
           retryable(:tries => 3) do
             destroy_duplicate_server(opts[:hostname])
@@ -99,16 +103,31 @@ module Travis
           server.ips.first['address']
         end
 
-        def latest_template
-          @latest_template ||= begin
-            templates = connection.get_templates.body
-            templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-#{image_type}/ }
-            templates.sort { |a, b| b['created'] <=> a['created'] }.first
+        def grouped_templates
+          templates = connection.get_templates.body
+          templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-/ }
+
+          grouping_regex = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+
+          templates.group_by { |t| grouping_regex.match(t['description'])[1] }
+        end
+
+        def latest_templates
+          @latest_templates ||= begin
+            latest_templates = {}
+
+            grouped_templates.each do |k,v|
+              latest_templates[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
+            end
+
+            latest_templates
           end
         end
 
-        def image_type
-          Travis::Worker.config.blue_box.image_type
+        def template_for_language(lang)
+          mapping = Travis::Worker.config.language_mappings(lang) || lang
+          
+          latest_templates[mapping] || latest_templates['ruby']
         end
 
         def destroy_server(opts = {})
@@ -126,7 +145,7 @@ module Travis
         end
 
         def prepare
-          info "using latest template '#{latest_template['description']}' (#{latest_template['id']})"
+          info "using latest templates : '#{latest_templates}'"
         end
 
         private
