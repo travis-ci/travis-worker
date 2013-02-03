@@ -128,7 +128,7 @@ module Travis
         end
 
         def template_for_language(lang)
-          mapping = Travis::Worker.config.language_mappings(lang) || lang
+          mapping = Travis::Worker.config.language_mappings[lang] || lang
           
           latest_templates[mapping] || latest_templates['ruby']
         end
