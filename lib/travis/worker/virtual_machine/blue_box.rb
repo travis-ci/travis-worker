@@ -128,7 +128,11 @@ module Travis
         end
 
         def template_for_language(lang)
-          mapping = Travis::Worker.config.language_mappings[lang] || lang.grep('_', '-')
+          mapping = if lang
+            language_mappings[lang] || lang.gsub('_', '-')
+          else
+            'ruby'
+          end
           
           latest_templates[mapping] || latest_templates['ruby']
         end
@@ -173,6 +177,10 @@ module Travis
 
           def generate_password
             Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
+          end
+
+          def language_mappings
+            @language_mappings ||= Travis::Worker.config.language_mappings
           end
 
       end
