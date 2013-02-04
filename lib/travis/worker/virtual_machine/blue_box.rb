@@ -53,10 +53,12 @@ module Travis
           template = template_for_language(opts[:language])
           
           info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts[:language] || '[nil]'}"
-          
+
+          prefix = Worker.config.host.split('.').first
+
           opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
             :image_id => template['id'], 
-            :hostname => "#{Travis::Worker.config.env}-#{name}"
+            :hostname => "testing-#{prefix}-#{Process.pid}-#{name}"
           }))
 
           retryable(:tries => 3) do
