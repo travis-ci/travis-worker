@@ -1,12 +1,18 @@
-env: ruby
-ruby:
-  log_level: info
+env: linux
+linux:
   amqp:
-    host: localhost
-    port: 5672
-    username: travisci_worker
-    password: travisci_worker_password
-    virtual_host: travisci.development
+    host: host
+    port: port
+    username: username
+    password: password
+    virtual_host: vhost
   vms:
-    count: 1
-    vbox_home: '/usr/lib/virtualbox'
+    provider: blue_box
+    count: 3
+  blue_box:
+    customer_id: cust_id
+    api_key: 'apikey'
+    flavor_id: '80be5b49-2d30-4188-bed8-38eebb21f5d1' # 3gig vm
+    location_id: 'locationid'
+  language_mappings:
+    haskell: jvm
