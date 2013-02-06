@@ -130,6 +130,7 @@ module Travis
         end
 
         def template_for_language(lang)
+          lang = Array(lang).first
           mapping = if lang
             language_mappings[lang] || lang.gsub('_', '-')
           else
