@@ -37,12 +37,16 @@ module Travis
         def create_server(opts = {})
           return @server if server
 
+          prefix = Worker.config.host.split('.').first
+          hostname = "testing-#{prefix}-#{Process.pid}-#{name}"
+
           retryable(:tries => 3) do
+            destroy_duplicate_server(hostname)
             Timeout.timeout(180) do
               instance_id = nil
               begin
                 @password = generate_password
-                startup_info = { :password => @password, :hostname => "#{Travis::Worker.config.env}-#{name}" }
+                startup_info = { :password => @password, :hostname => hostname }
                 instance_id = connection.start_instance(startup_info)['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
@@ -94,6 +98,17 @@ module Travis
           @session = nil
         end
 
+        def destroy_duplicate_server(hostname)
+          instance_ids = connection.list_instances['instances']
+          instances = instance_ids.map { |instance_id| connection.instance_info(instance_id) }
+          instance = instances.detect do |instance|
+            name = instance['extra_info']['hostname']
+            name == hostname
+          end
+
+          destroy_vm(instance) if instance
+        end
+
         def prepare
           info "Sauce Labs API adapter prepared"
         end
@@ -113,8 +128,7 @@ module Travis
         end
 
         def generate_password
-          # TODO: Update this when we can actually set the password for the VM
-          'x'
+          Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
         end
 
         def wait_for(&block)
