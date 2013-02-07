@@ -15,7 +15,7 @@ gem 'simple_states',    '0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
-gem 'fog'
+gem 'fog',              '~> 1.9.0'
 
 gem 'metriks'
 
