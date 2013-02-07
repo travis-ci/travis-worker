@@ -63,7 +63,7 @@ module Travis
 
           retryable(:tries => 3) do
             destroy_duplicate_server(opts[:hostname])
-            Timeout.timeout(180) do
+            Timeout.timeout(240) do
               begin
                 @password = (opts[:password] = generate_password)
 
@@ -71,7 +71,7 @@ module Travis
 
                 instrument { @server.wait_for { ready? } }
               rescue Exception => e
-                error "BlueBox VM would not boot within 180 seconds"
+                error "BlueBox VM would not boot within 240 seconds"
                 raise
               end
             end
