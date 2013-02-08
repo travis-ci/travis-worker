@@ -12,7 +12,7 @@ module Travis
         end
 
         def name_prefix
-          "travis-#{Travis::Worker.config.env}"
+          self[:name_prefix] || "travis-#{Travis::Worker.config.env}"
         end
 
         def names
