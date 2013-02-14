@@ -103,7 +103,7 @@ module Travis
 
         def start_session
           announce("Using worker: #{host_name}\n\n")
-          retryable(:tries => 3) do
+          retryable(:tries => 3, :sleep => 3) do
             session.connect
           end
         end
