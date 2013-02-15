@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'

@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: 568708d627d7bd1ece33c0b00a3f9ac6bf1e0c22
+  revision: 603f5f44dd99864cb3bb43f8be9f549a5a6f5a38
   specs:
-    celluloid (0.13.0)
+    celluloid (0.13.0.pre)
       timers (>= 1.0.0)
 
 GIT
@@ -22,7 +22,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 86bf91e1e5528c252fa1573aa0e7e8921cdd578b
+  revision: f37a026b4bde2fd4b0de331f3185f3b639b074d5
   specs:
     travis-build (0.0.1)
 
@@ -33,9 +33,9 @@ GIT
     travis-support (0.0.1)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
-    activesupport (3.2.11)
+    activesupport (3.2.12)
       i18n (~> 0.6)
       multi_json (~> 1.0)
     addressable (2.3.2)
@@ -71,7 +71,7 @@ GEM
     i18n (0.6.1)
     jruby-openssl (0.8.2)
       bouncy-castle-java (>= 1.5.0146.1)
-    json (1.7.6-java)
+    json (1.7.7-java)
     log4r (1.1.10)
     metaclass (0.0.1)
     metriks (0.9.9.2)
