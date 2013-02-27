@@ -233,9 +233,10 @@ module Travis
       end
 
       def run_job
-        runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
+        runner = nil
 
-        vm.sandboxed do
+        vm.sandboxed(language: job_language) do
+          runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
           runner.setup
           runner.start
           runner.stop
@@ -249,6 +250,10 @@ module Travis
           info "requeuing job"
           reporter.restart(payload['job']['id'])
         end
+      end
+
+      def job_language
+        payload['config']['language']
       end
     end
   end

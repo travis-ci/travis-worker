@@ -1,7 +1,7 @@
-source :rubygems
+source 'https://rubygems.org'
 
-gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build', branch: 'sf-compile-sh'
-gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support'
+gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
+gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
 gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid'
 
@@ -15,7 +15,8 @@ gem 'simple_states',    '0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
-gem 'fog'
+gem 'fog',              '~> 1.9.0'
+gem 'travis-saucelabs-api', git: 'https://github.com/henrikhodne/travis-saucelabs-api.git'
 
 gem 'metriks'
 

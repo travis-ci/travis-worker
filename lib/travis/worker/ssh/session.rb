@@ -127,11 +127,20 @@ module Travis
 
         def upload_file(path_and_name, content)
           encoded = Base64.encode64(content).gsub("\n", "")
-          command = "(echo #{encoded} | base64 -d) >> #{path_and_name}"
+          command = "(echo #{encoded} | #{decode_base64_command}) >> #{path_and_name}"
           exec(command)
         end
 
         protected
+
+          def decode_base64_command
+            case config.platform
+            when :osx
+              'base64 -D'
+            else
+              'base64 -d'
+            end
+          end
 
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
           # is executed.

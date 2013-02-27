@@ -28,7 +28,7 @@ module Travis
         include Logging
         include Celluloid
         include Retryable
-        
+
         class ConnectionError < StandardError; end
 
         attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
@@ -70,9 +70,9 @@ module Travis
           Timeout::timeout(hard_timeout) do
             result = upload_and_run_script
           end
-          
+
           result
-        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError => e
+        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, Travis::Build::Script::CompileError => e
           warn "build error : #{e.class}"
           stop
           announce("\n\n#{e.message}\n\n")
@@ -103,8 +103,10 @@ module Travis
 
         def start_session
           announce("Using worker: #{host_name}\n\n")
-          retryable(:tries => 3) do
-            session.connect
+          retryable(:tries => 3, :sleep => 3) do
+            Timeout.timeout(10) do
+              session.connect
+            end
           end
         end
 
@@ -115,7 +117,7 @@ module Travis
         def announce(message)
           reporter.send_log(job_id, message)
         end
-                
+
         def timedout
           stop
           minutes = hard_timeout / 60.0
@@ -124,11 +126,11 @@ module Travis
         end
 
         private
-        
+
         def exit_exec?
           @exit_exec || false
         end
-        
+
         def exit_exec!
           @exit_exec = true
         end
@@ -141,7 +143,7 @@ module Travis
           reporter.send_last_log(job_id)
           reporter.notify_job_finished(job_id, result)
         end
-        
+
         def connection_error
           announce("I'm sorry but there was an error connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError

@@ -50,11 +50,20 @@ module Travis
         def create_server(opts = {})
           return @server if server
 
-          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge(:image_id => latest_template['id'], :hostname => "#{Travis::Worker.config.env}-#{name}"))
+          template = template_for_language(opts[:language])
+          
+          info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts[:language] || '[nil]'}"
+
+          prefix = Worker.config.host.split('.').first
+
+          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
+            :image_id => template['id'], 
+            :hostname => "testing-#{prefix}-#{Process.pid}-#{name}"
+          }))
 
           retryable(:tries => 3) do
             destroy_duplicate_server(opts[:hostname])
-            Timeout.timeout(180) do
+            Timeout.timeout(240) do
               begin
                 @password = (opts[:password] = generate_password)
 
@@ -62,7 +71,7 @@ module Travis
 
                 instrument { @server.wait_for { ready? } }
               rescue Exception => e
-                error "BlueBox VM would not boot within 180 seconds"
+                error "BlueBox VM would not boot within 240 seconds"
                 raise
               end
             end
@@ -83,8 +92,8 @@ module Travis
           )
         end
 
-        def sandboxed
-          create_server
+        def sandboxed(opts = {})
+          create_server(opts)
           yield
         ensure
           session.close
@@ -99,16 +108,36 @@ module Travis
           server.ips.first['address']
         end
 
-        def latest_template
-          @latest_template ||= begin
-            templates = connection.get_templates.body
-            templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-#{image_type}/ }
-            templates.sort { |a, b| b['created'] <=> a['created'] }.first
+        def grouped_templates
+          templates = connection.get_templates.body
+          templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-/ }
+
+          grouping_regex = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+
+          templates.group_by { |t| grouping_regex.match(t['description'])[1] }
+        end
+
+        def latest_templates
+          @latest_templates ||= begin
+            latest_templates = {}
+
+            grouped_templates.each do |k,v|
+              latest_templates[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
+            end
+
+            latest_templates
           end
         end
 
-        def image_type
-          Travis::Worker.config.blue_box.image_type
+        def template_for_language(lang)
+          lang = Array(lang).first
+          mapping = if lang
+            language_mappings[lang] || lang.gsub('_', '-')
+          else
+            'ruby'
+          end
+          
+          latest_templates[mapping] || latest_templates['ruby']
         end
 
         def destroy_server(opts = {})
@@ -126,7 +155,7 @@ module Travis
         end
 
         def prepare
-          info "using latest template '#{latest_template['description']}' (#{latest_template['id']})"
+          info "using latest templates : '#{latest_templates}'"
         end
 
         private
@@ -151,6 +180,10 @@ module Travis
 
           def generate_password
             Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
+          end
+
+          def language_mappings
+            @language_mappings ||= Travis::Worker.config.language_mappings
           end
 
       end
