@@ -6,6 +6,15 @@ GIT
       timers (>= 1.0.0)
 
 GIT
+  remote: https://github.com/henrikhodne/travis-saucelabs-api.git
+  revision: 90a1f650f5e9e2d8b94a9f308fa3d726ce53fc8f
+  specs:
+    travis-saucelabs-api (0.0.1)
+      faraday (~> 0.7)
+      faraday_middleware (~> 0.9)
+      thor (~> 0.14)
+
+GIT
   remote: https://github.com/joshk/vagrant
   revision: 8ccf5a2ee1d563a6eca39dafaeb05fdcc3b72a98
   branch: 1-0-stable
@@ -133,6 +142,7 @@ DEPENDENCIES
   simplecov (>= 0.4.0)
   thor (~> 0.14.6)
   travis-build!
+  travis-saucelabs-api!
   travis-support!
   vagrant!
   vagrant-vbguest
