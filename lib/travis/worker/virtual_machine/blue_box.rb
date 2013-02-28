@@ -164,7 +164,7 @@ module Travis
             info "Provisioning a BlueBox VM"
             time = Benchmark.realtime { yield }
             info "BlueBox VM provisioned in #{time.round(2)} seconds"
-            Metriks.timer('worker.vm.boot').update(time)
+            Metriks.timer('worker.vm.provider.bluebox.boot').update(time)
           end
 
           def destroy_vm(vm)
