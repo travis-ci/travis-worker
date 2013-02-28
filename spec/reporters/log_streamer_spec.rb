@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Worker::Reporter do
+describe Travis::Worker::Reporters::LogStreamer do
   include_context 'hot_bunnies connection'
 
   let(:channel)     { connection.create_channel }

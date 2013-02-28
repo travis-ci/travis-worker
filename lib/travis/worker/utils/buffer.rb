@@ -3,14 +3,13 @@ require 'travis/support/logging'
 module Travis
   module Worker
     module Utils
-      class Buffer
+      class Buffer < String
         include Logging
 
         class OutputLimitExceededError < StandardError
           attr_reader :limit
           def initialize(limit)
             @limit = limit
-            @buffer = ""
             super("The log length has exceeded the limit of #{limit} Megabytes (this usually means that test suite is raising the same exception over and over).\n\nThe build has been terminated.")
           end
         end
@@ -18,12 +17,8 @@ module Travis
         log_header { "#{@log_header}:worker:utils:buffer" }
 
         attr_reader :pos, :interval, :limit, :callback, :stopped, :bytes_limit, :last_flushed
-        delegate :==, :===, :<=>, :=~, :"!~", :eql?, :to_s,
-                 :to_str, :replace, :length, :<<, :[], :to => :buffer
-
 
         def initialize(interval = nil, options = {}, &callback)
-          @buffer = ""
           @interval = interval
           @callback = callback
 
@@ -41,7 +36,7 @@ module Travis
         end
 
         def <<(other)
-          (buffer << other).tap do
+          super.tap do
             limit_exeeded! if length > bytes_limit
           end
         end
