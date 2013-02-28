@@ -1,6 +1,4 @@
 require 'travis/support/logging'
-require 'travis/support/chunkifier'
-require 'json'
 
 module Travis
   module Worker
@@ -19,10 +17,10 @@ module Travis
 
         log_header { "#{@log_header}:worker:utils:buffer" }
 
+        attr_reader :pos, :interval, :limit, :callback, :stopped, :bytes_limit, :last_flushed
         delegate :==, :===, :<=>, :=~, :"!~", :eql?, :to_s,
                  :to_str, :replace, :length, :<<, :[], :to => :buffer
 
-        attr_reader :pos, :interval, :limit, :callback, :stopped, :bytes_limit, :last_flushed, :chunk_size, :buffer
 
         def initialize(interval = nil, options = {}, &callback)
           @buffer = ""
@@ -32,7 +30,6 @@ module Travis
           @log_header = options[:log_header]
 
           @limit = options[:limit] || Travis::Worker.config.limits.log_length
-          @chunk_size = options[:chunk_size] || Travis::Worker.config.limits.log_chunk_size
           @bytes_limit = limit * 1024 * 1024
 
           # mark from which next read operation will start. In other words,
@@ -51,10 +48,7 @@ module Travis
 
         def flush
           read.tap do |string|
-            chunkifier = Travis::Chunkifier.new(string.dup, chunk_size, :json => true)
-            chunkifier.each_with_index.map do |part, i|
-              callback.call(part) if callback
-            end
+            callback.call(string) if callback
             @last_flushed = Time.now.to_i
           end unless empty?
         end
