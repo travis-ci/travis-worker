@@ -31,7 +31,7 @@ module Travis
 
         class ConnectionError < StandardError; end
 
-        class CompileError < StandardError
+        class ScriptCompileError < StandardError
           attr_reader :original
 
           def initialize(msg, original = $!)
