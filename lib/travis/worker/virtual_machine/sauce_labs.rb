@@ -102,7 +102,7 @@ module Travis
           instance_ids = connection.list_instances['instances']
           instances = instance_ids.map { |instance_id| connection.instance_info(instance_id) }
           instance = instances.detect do |instance|
-            name = instance['extra_info']['hostname']
+            name = instance['extra_info']['hostname'] if instance && instance['extra_info']
             name == hostname
           end
 
