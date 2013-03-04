@@ -12,6 +12,8 @@ require 'travis/worker'
 require 'logger'
 require 'stringio'
 
+require 'travis/support'
+
 FIXTURES = {}
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| load f }
 
