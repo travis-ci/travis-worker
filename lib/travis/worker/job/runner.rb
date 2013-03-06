@@ -31,6 +31,15 @@ module Travis
 
         class ConnectionError < StandardError; end
 
+        class ScriptCompileError < StandardError
+          attr_reader :original
+
+          def initialize(msg, original = $!)
+            super(msg)
+            @original = original
+          end
+        end
+
         attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
 
         log_header { "#{log_prefix}:worker:job:runner" }
@@ -44,8 +53,10 @@ module Travis
           @log_prefix   = log_prefix
         end
 
-        def generate_script
-          Build.script(payload.merge(timeouts: false), logs: { build: false, state: true })
+        def compile_script
+          Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
+        rescue StandardError => e
+          raise ScriptCompileError, "An error occured while compiling the build script"
         end
 
         def setup_log_streaming
@@ -72,7 +83,7 @@ module Travis
           end
 
           result
-        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, Travis::Build::Script::CompileError => e
+        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, Travis::ScriptCompileError => e
           warn "build error : #{e.class}"
           stop
           announce("\n\n#{e.message}\n\n")
@@ -92,7 +103,7 @@ module Travis
 
         def upload_and_run_script
           info "uploading build.sh"
-          session.upload_file("~/build.sh", generate_script.compile)
+          session.upload_file("~/build.sh", compile_script)
 
           info "setting +x permission on build.sh"
           session.exec("chmod +x ~/build.sh")
