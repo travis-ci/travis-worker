@@ -78,7 +78,7 @@ module Travis
           announce("\n\n#{e.message}\n\n")
         rescue Timeout::Error => e
           timedout
-        rescue Errno::ECONNREFUSED => e
+        rescue IOError, Errno::ECONNREFUSED => e
           connection_error
         ensure
           notify_job_finished(result)
