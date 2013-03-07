@@ -83,7 +83,7 @@ module Travis
           end
 
           result
-        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, Travis::ScriptCompileError => e
+        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, ScriptCompileError => e
           warn "build error : #{e.class}"
           stop
           announce("\n\n#{e.message}\n\n")
