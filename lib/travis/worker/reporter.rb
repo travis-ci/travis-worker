@@ -28,6 +28,9 @@ module Travis
       end
 
       def message(event, data)
+        unless exchange_for(event).channel.open?
+          warn "trying to publish '#{data}' to closed channel for '#{event}' event"
+        end
         data = encode(data.merge(uuid: Travis.uuid))
         options = {
           properties: { type: event },
