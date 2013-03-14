@@ -210,8 +210,10 @@ module Travis
         @last_error = [error.message, error.backtrace].flatten.join("\n")
         log_exception(error)
         finish(message, restart: true)
-        stop
+        # stop
         set :errored
+        sleep 120
+        set :ready
       end
       log :error, :as => :debug
 
