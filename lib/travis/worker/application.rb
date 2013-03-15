@@ -153,7 +153,7 @@ module Travis
       end
 
       def active_workers
-        workers.status.map { |status| status[:state] }.select { |state| state == :stopped || state == :errored }.count
+        workers.status.map { |status| status[:state] }.reject {|state| [:stopped, :errored].include?(state)}.count
       end
     end
   end
