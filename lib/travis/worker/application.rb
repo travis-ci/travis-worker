@@ -134,9 +134,9 @@ module Travis
         workers.each_worker { |worker| worker.shutdown }
 
         loop do
-          sleep 3
+          sleep 10
           quit if workers_stopped?
-          info "Waiting for all workers to finish their current jobs"
+          info "Waiting for #{active_workers} workers to finish their current jobs"
         end
       end
 
@@ -149,7 +149,11 @@ module Travis
       end
 
       def workers_stopped?
-        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped || state == :errored }
+        active_workers == 0
+      end
+
+      def active_workers
+        workers.status.map { |status| status[:state] }.select { |state| state == :stopped || state == :errored }.count
       end
     end
   end
