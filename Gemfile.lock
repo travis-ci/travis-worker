@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: d8c171f60561a59931be527912ed3eae8f93067a
+  revision: 76d78b62f474c323d35710b6dfb2c613f51c95f9
   specs:
     celluloid (0.13.0.pre)
       timers (>= 1.0.0)
@@ -31,7 +31,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: e34c0fbc3e09769217be45978ff3a7f40e2d11e1
+  revision: 0eccaf493f84269bb42e81c96e5a5257e886ca1e
   specs:
     travis-build (0.0.1)
 
