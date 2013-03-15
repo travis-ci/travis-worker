@@ -134,22 +134,26 @@ module Travis
         workers.each_worker { |worker| worker.shutdown }
 
         loop do
-          sleep 3
+          sleep 10
           quit if workers_stopped?
-          info "Waiting for all workers to finish their current jobs"
+          info "Waiting for #{active_workers} workers to finish their current jobs"
         end
       end
 
       def start_metriks
         librato = Travis::Worker.config.librato
         if librato
-          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'])
+          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'], :source => Travis::Worker.config.host)
           @reporter.start
         end
       end
 
       def workers_stopped?
-        workers.status.map { |status| status[:state] }.all? { |state| state == :stopped || state == :errored }
+        active_workers == 0
+      end
+
+      def active_workers
+        workers.status.map { |status| status[:state] }.reject {|state| [:stopped, :errored].include?(state)}.count
       end
     end
   end

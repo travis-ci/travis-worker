@@ -50,7 +50,7 @@ module Travis
         def create_server(opts = {})
           template = template_for_language(opts[:language])
           
-          info "using template '#{template['description']}' (#{template['id']}) for langauge #{opts[:language] || '[nil]'}"
+          info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
           prefix = Worker.config.host.split('.').first
 
