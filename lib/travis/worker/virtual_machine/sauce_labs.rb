@@ -35,8 +35,6 @@ module Travis
         end
 
         def create_server(opts = {})
-          return @server if server
-
           prefix = Worker.config.host.split('.').first
           hostname = "testing-#{prefix}-#{Process.pid}-#{name}"
 
