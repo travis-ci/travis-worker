@@ -143,7 +143,7 @@ module Travis
       def start_metriks
         librato = Travis::Worker.config.librato
         if librato
-          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'])
+          @reporter = Metriks::Reporter::LibratoMetrics.new(librato['email'], librato['token'], :source => Travis::Worker.config.host)
           @reporter.start
         end
       end
