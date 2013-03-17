@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: 76d78b62f474c323d35710b6dfb2c613f51c95f9
+  revision: a407d47141ba91071044ec309e2c70e039d87596
   specs:
     celluloid (0.13.0.pre)
       timers (>= 1.0.0)
@@ -31,7 +31,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 0eccaf493f84269bb42e81c96e5a5257e886ca1e
+  revision: 7cd5b546728b85f1c44044dd541f9ba71e41c906
   specs:
     travis-build (0.0.1)
 
@@ -80,7 +80,7 @@ GEM
     hitimes (1.2.1-java)
     hot_bunnies (1.4.0-java)
     i18n (0.6.4)
-    jruby-openssl (0.8.5)
+    jruby-openssl (0.8.6)
       bouncy-castle-java (>= 1.5.0147)
     json (1.7.7-java)
     log4r (1.1.10)
