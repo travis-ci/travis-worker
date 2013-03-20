@@ -41,7 +41,7 @@ module Travis
           options = { :port => config.port, :paranoid => false }
           options[:password] = config.password if config.password?
           options[:keys] = [config.private_key_path] if config.private_key_path?
-          @ssh_session = Net::SSH.start(config.host, configu.username, options)
+          @ssh_session = Net::SSH.start(config.host, config.username, options)
           true
         end
 
