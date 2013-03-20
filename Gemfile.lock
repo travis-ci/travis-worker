@@ -15,6 +15,12 @@ GIT
       thor (~> 0.14)
 
 GIT
+  remote: https://github.com/joshk/sshjr.git
+  revision: 9de22bf3224dd034be0e853c245c9eed916146fe
+  specs:
+    sshjr (0.1.0)
+
+GIT
   remote: https://github.com/joshk/vagrant
   revision: 8ccf5a2ee1d563a6eca39dafaeb05fdcc3b72a98
   branch: 1-0-stable
@@ -142,6 +148,7 @@ DEPENDENCIES
   rspec
   simple_states (= 0.1.0.pre2)
   simplecov (>= 0.4.0)
+  sshjr!
   thor (~> 0.14.6)
   travis-build!
   travis-saucelabs-api!

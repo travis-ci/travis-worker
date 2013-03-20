@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'sshjr'
 require 'shellwords'
 require 'travis/worker/utils/buffer'
 require 'travis/support/logging'
@@ -40,8 +41,8 @@ module Travis
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
           options = { :port => config.port, :paranoid => false }
           options[:password] = config.password if config.password?
-          options[:keys] = [config.private_key_path] if config.private_key_path?
-          @ssh_session = Net::SSH.start(config.host, config.username, options)
+          options[:private_key_paths] = [config.private_key_path] if config.private_key_path?
+          @ssh_session = SSHJr::Client.start(config.host, configu.username, options)
           true
         end
 
@@ -70,7 +71,7 @@ module Travis
         #
         # Returns true if the shell has been setup and is open, otherwise false.
         def open?
-          ssh_session && !ssh_session.closed?
+          ssh_session && ssh_session.connected?
         end
 
         # This is where the real SSH shell work is done. The command is run along with
@@ -87,39 +88,33 @@ module Travis
 
           exit_code = nil
 
-          ssh_session.open_channel do |channel|
-            channel.request_pty do |channel, success|
-              raise StandardError, "could not obtain pty" unless success
+          session = ssh_session.start_session
+          session.allocate_default_pty
+          command = session.exec("/bin/bash --login -c #{Shellwords.escape(command)}")
+          output = command.output_stream
+          error = command.error_stream
 
-              channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
-                unless success
-                  raise StandardError, "FAILED: couldn't execute command (ssh.channel.exec)"
-                end
-
-                channel.on_data do |ch, data|
-                  buffer << data
-                end
-
-                channel.on_extended_data do |ch, type, data|
-                  buffer << data
-                end
-
-                channel.on_request("exit-status") do |ch, data|
-                  exit_code = data.read_long
-                end
-              end
-            end
+          output.each_byte do |byte|
+            buffer << byte
           end
 
-          if block_given?
-            ssh_session.loop(0.5) do
+          error.each_byte do |byte|
+            buffer << byte
+          end
+
+          loop do
+            if block_given?
               buffer_flush_exceeded?
               early_exit = yield
-              # puts "!(early_exit || !!exit_code) : !(#{early_exit} || #{!!exit_code}) == #{!(early_exit || !!exit_code)}"
-              !(early_exit || !!exit_code)
+              exit_code = command.exit_status
+              if (early_exit || !!exit_code)
+                command.close
+                session.close
+              end
+              sleep(0.5)
+            else
+              sleep(1)
             end
-          else
-            ssh_session.loop(1)
           end
 
           exit_code
