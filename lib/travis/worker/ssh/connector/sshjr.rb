@@ -1,3 +1,6 @@
+require 'sshjr'
+require 'thread'
+
 module Travis
   module Worker
     module Ssh
@@ -29,12 +32,23 @@ module Travis
             output = command.output_stream
             error = command.error_stream
 
-            output.each_byte do |byte|
-              buffer << byte
+            data_threads = []
+            data_mutex = Mutex.new
+
+            data_threads << Thread.new(output, buffer) do |output, buffer|
+              output.each_byte do |byte|
+                data_mutex.synchronize do
+                  buffer << byte
+                end
+              end
             end
 
-            error.each_byte do |byte|
-              buffer << byte
+            data_threads << Thread.new(error, buffer) do |error, buffer|
+              error.each_byte do |byte|
+                data_mutex.synchronize do
+                  buffer << byte
+                end
+              end
             end
 
             loop do
@@ -50,6 +64,8 @@ module Travis
                 sleep(1)
               end
             end
+
+            data_threads.map(&:exit)
 
             exit_code
           end
