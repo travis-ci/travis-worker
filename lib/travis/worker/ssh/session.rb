@@ -1,6 +1,6 @@
-require 'net/ssh'
 require 'shellwords'
 require 'travis/worker/utils/buffer'
+require 'travis/worker/ssh/connector/net_ssh'
 require 'travis/support/logging'
 require 'base64'
 
@@ -20,7 +20,7 @@ module Travis
 
         log_header { "#{name}:shell:session" }
 
-        attr_reader :name, :config, :ssh_session
+        attr_reader :name, :config
 
         # Initialize a shell Session
         #
@@ -31,6 +31,7 @@ module Travis
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
+          @connector = Connector::NetSSH.new(config)
         end
 
         # Connects to the remote host.
@@ -38,16 +39,13 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          options = { :port => config.port, :paranoid => false }
-          options[:password] = config.password if config.password?
-          options[:keys] = [config.private_key_path] if config.private_key_path?
-          @ssh_session = Net::SSH.start(config.host, config.username, options)
+          @connector.connect
           true
         end
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          Timeout::timeout(5) { ssh_session.close if open? }
+          Timeout.timeout(5) { @connector.close }
         rescue
           warn "ssh connection could not be closed gracefully"
         ensure
@@ -66,13 +64,6 @@ module Travis
           end
         end
 
-        # Checks is the current shell is open.
-        #
-        # Returns true if the shell has been setup and is open, otherwise false.
-        def open?
-          ssh_session && !ssh_session.closed?
-        end
-
         # This is where the real SSH shell work is done. The command is run along with
         # callbacks setup for when data is returned. The exit status is also captured
         # when the command has finished running.
@@ -82,46 +73,14 @@ module Travis
         #           from the shell command.
         #
         # Returns the exit status (0 or 1)
-        def exec(command)
-          connect unless open?
-
-          exit_code = nil
-
-          ssh_session.open_channel do |channel|
-            channel.request_pty do |channel, success|
-              raise StandardError, "could not obtain pty" unless success
-
-              channel.exec("/bin/bash --login -c #{Shellwords.escape(command)}") do |ch, success|
-                unless success
-                  raise StandardError, "FAILED: couldn't execute command (ssh.channel.exec)"
-                end
-
-                channel.on_data do |ch, data|
-                  buffer << data
-                end
-
-                channel.on_extended_data do |ch, type, data|
-                  buffer << data
-                end
-
-                channel.on_request("exit-status") do |ch, data|
-                  exit_code = data.read_long
-                end
-              end
-            end
-          end
-
+        def exec(command, &block)
           if block_given?
-            ssh_session.loop(0.5) do
-              buffer_flush_exceeded?
-              early_exit = yield
-              !(early_exit || !!exit_code)
+            @connector.exec(command, buffer) do
+              block.call
             end
           else
-            ssh_session.loop(1)
+            @connector.exec(command, buffer)
           end
-
-          exit_code
         end
 
         def upload_file(path_and_name, content)
