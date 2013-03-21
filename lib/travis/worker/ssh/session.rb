@@ -1,6 +1,7 @@
 require 'shellwords'
 require 'travis/worker/utils/buffer'
 require 'travis/worker/ssh/connector/net_ssh'
+require 'travis/worker/ssh/connector/sshjr'
 require 'travis/support/logging'
 require 'base64'
 
@@ -18,6 +19,11 @@ module Travis
           end
         end
 
+        CONNECTORS = {
+          net_ssh: Connector::NetSSH,
+          sshjr:   Connector::SSHJr,
+        }
+
         log_header { "#{name}:shell:session" }
 
         attr_reader :name, :config
@@ -31,7 +37,8 @@ module Travis
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
-          @connector = Connector::NetSSH.new(config)
+          connector_class = CONNECTORS[config.connector || :net_ssh]
+          @connector = connector_class.new(config)
         end
 
         # Connects to the remote host.
