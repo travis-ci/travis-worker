@@ -1,3 +1,5 @@
+require 'net/ssh'
+
 module Travis
   module Worker
     module Ssh
@@ -8,10 +10,10 @@ module Travis
           end
 
           def connect
-            options = { port: config.port, paranoid: false }
-            options[:password] = config.password if config.password?
-            options[:keys] = [config.private_key_path] if config.private_key_path?
-            @session = Net::SSH.start(config.host, config.username, options)
+            options = { port: @config.port, paranoid: false }
+            options[:password] = @config.password if @config.password?
+            options[:keys] = [@config.private_key_path] if @config.private_key_path?
+            @session = Net::SSH.start(@config.host, @config.username, options)
           end
 
           def close
@@ -23,7 +25,7 @@ module Travis
 
             exit_code = nil
 
-            ssh_session.open_channel do |channel|
+            @session.open_channel do |channel|
               channel.request_pty do |channel, success|
                 raise StandardError, "could not obtain pty" unless success
 
@@ -48,12 +50,12 @@ module Travis
             end
 
             if block_given?
-              ssh_session.loop(0.5) do
+              @session.loop(0.5) do
                 early_exit = yield
                 !(early_exit || !!exit_code)
               end
             else
-              ssh_session.loop(1)
+              @session.loop(1)
             end
 
             exit_code
