@@ -11,14 +11,14 @@ module Travis
           end
 
           def connect
-            options = { :port => config.port }
-            options[:password] = config.password if config.password?
-            options[:private_key_paths] = [config.private_key_path] if config.private_key_path?
-            @session = SSHJr::Client.start(config.host, config.username, options)
+            options = { :port => @config.port }
+            options[:password] = @config.password if @config.password?
+            options[:private_key_paths] = [@config.private_key_path] if @config.private_key_path?
+            @client = SSHJr::Client.start(@config.host, @config.username, options)
           end
 
           def close
-            @session.close if open?
+            @client.close if open?
           end
 
           def exec(command, buffer)
@@ -26,27 +26,27 @@ module Travis
 
             exit_code = nil
 
-            session = ssh_session.start_session
+            session = @client.start_session
             session.allocate_default_pty
             command = session.exec("/bin/bash --login -c #{Shellwords.escape(command)}")
-            output = command.output_stream
-            error = command.error_stream
+            output = command.input_stream.to_io # In Java, input is output, apparently.
+            error = command.error_stream.to_io
 
             data_threads = []
             data_mutex = Mutex.new
 
             data_threads << Thread.new(output, buffer) do |output, buffer|
-              output.each_byte do |byte|
+              output.each_char do |char|
                 data_mutex.synchronize do
-                  buffer << byte
+                  buffer << char
                 end
               end
             end
 
             data_threads << Thread.new(error, buffer) do |error, buffer|
-              error.each_byte do |byte|
+              error.each_char do |char|
                 data_mutex.synchronize do
-                  buffer << byte
+                  buffer << char
                 end
               end
             end
@@ -62,6 +62,12 @@ module Travis
                 sleep(0.5)
               else
                 sleep(1)
+                exit_code = command.exit_status
+                if exit_code
+                  command.close
+                  session.close
+                  break
+                end
               end
             end
 
@@ -73,7 +79,7 @@ module Travis
           private
 
           def open?
-            @session && @session.connected?
+            @client && @client.connected?
           end
         end
       end
