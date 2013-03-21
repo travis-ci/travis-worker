@@ -4,6 +4,7 @@ require 'travis/worker/ssh/connector/net_ssh'
 require 'travis/worker/ssh/connector/sshjr'
 require 'travis/support/logging'
 require 'base64'
+require 'hashr'
 
 module Travis
   module Worker
@@ -37,8 +38,8 @@ module Travis
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
-          connector_class = CONNECTORS[config.connector || :net_ssh]
-          @connector = connector_class.new(config)
+          connector_class = CONNECTORS[@config.connector || :net_ssh]
+          @connector = connector_class.new(@config)
         end
 
         # Connects to the remote host.
