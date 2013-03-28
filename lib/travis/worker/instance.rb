@@ -90,7 +90,7 @@ module Travis
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the vm had a fatal error"
         finish(message, :restart => true)
       rescue Job::Runner::ConnectionError => e
-        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a conneciton error"
+        error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a connection error"
         finish(message, :restart => true)
       end
       log :work, :as => :debug
@@ -220,7 +220,7 @@ module Travis
       def reporter
         @reporter ||= Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
-      
+
       def reset_reporter
         reporter.close if @reporter
         @reporter = nil
