@@ -82,7 +82,14 @@ module Travis
         #
         # Returns the exit status (0 or 1)
         def exec(command, &block)
-          @connector.exec(command, buffer, &block)
+          if block
+            @connector.exec(command, buffer) do
+              buffer_flush_exceeded?
+              block.call
+            end
+          else
+            @connector.exec(command, buffer)
+          end
         end
 
         def upload_file(path_and_name, content)
