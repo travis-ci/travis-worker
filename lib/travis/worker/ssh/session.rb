@@ -47,7 +47,7 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          @connector.connect
+          Timeout.timeout(5) { @connector.connect }
           true
         end
 
@@ -82,13 +82,7 @@ module Travis
         #
         # Returns the exit status (0 or 1)
         def exec(command, &block)
-          if block_given?
-            @connector.exec(command, buffer) do
-              block.call
-            end
-          else
-            @connector.exec(command, buffer)
-          end
+          @connector.exec(command, buffer, &block)
         end
 
         def upload_file(path_and_name, content)
