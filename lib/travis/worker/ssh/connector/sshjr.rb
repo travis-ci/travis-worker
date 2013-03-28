@@ -14,7 +14,7 @@ module Travis
             options = { :port => @config.port }
             options[:password] = @config.password if @config.password?
             options[:private_key_paths] = [@config.private_key_path] if @config.private_key_path?
-            @client = SSHJr::Client.start(@config.host, @config.username, options)
+            @client = ::SSHJr::Client.start(@config.host, @config.username, options)
           end
 
           def close
