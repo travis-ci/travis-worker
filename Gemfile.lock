@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: https://github.com/joshk/sshjr.git
-  revision: 09503be074d9f2111d9a06740f1dd6a24b1eca7d
+  revision: 56c12d9300782cac52920419be817eb16ea8b313
   specs:
     sshjr (0.1.0)
 
