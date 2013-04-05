@@ -4,6 +4,7 @@ require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
+require 'celluloid'
 
 module Travis
   module Worker
@@ -11,6 +12,7 @@ module Travis
       class SauceLabs
         include Retryable
         include Logging
+        include Celluloid
 
         class << self
           def vm_count
@@ -24,10 +26,11 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:sauce_labs" }
 
-        attr_reader :name, :password, :server
+        attr_reader :name, :password, :server, :running
 
         def initialize(name)
           @name = name
+          @running = false
         end
 
         def connection
@@ -35,8 +38,10 @@ module Travis
         end
 
         def create_server(opts = {})
+          return if @running
           prefix = Worker.config.host.split('.').first
           hostname = "testing-#{prefix}-#{Process.pid}-#{name}"
+          @running = true
 
           retryable(:tries => 3) do
             destroy_duplicate_server(hostname)
@@ -48,8 +53,7 @@ module Travis
                 instance_id = connection.start_instance(startup_info)['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
-
-                instrument { wait_for { vm_ready?(@server) } }
+                async.instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
                 connection.kill_instance(instance_id) if instance_id
                 error 'SauceLabs VM would not boot within 180 seconds'
@@ -57,12 +61,11 @@ module Travis
               end
             end
           end
-
-          @server
         end
 
         def session
           create_server unless server
+          wait_for { vm_ready?(@server) }
           @session ||= Ssh::Session.new(name,
             :host => ip_address,
             :port => 3422,
@@ -75,7 +78,7 @@ module Travis
         end
 
         def sandboxed(opts={})
-          create_server(opts)
+          create_server(opts) unless server
           yield
         ensure
           session.close
@@ -94,6 +97,7 @@ module Travis
           destroy_vm(server)
           @server = nil
           @session = nil
+          @running = false
         end
 
         def destroy_duplicate_server(hostname)
@@ -114,7 +118,7 @@ module Travis
         private
 
         def instrument
-          info "Provisioning a BlueBox VM"
+          info "Provisioning a Sauce Labs VM"
           time = Benchmark.realtime { yield }
           info "SauceLabs VM provisioned in #{time.round(2)} seconds"
           Metriks.timer('worker.vm.provider.saucelabs.boot').update(time)

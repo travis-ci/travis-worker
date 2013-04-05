@@ -1,23 +1,20 @@
 require 'travis/worker/instance'
-require 'travis/worker/virtual_machine'
+require 'travis/worker/virtual_machine_pool'
 
 module Travis
   module Worker
     class Factory
-      attr_reader :name, :config, :broker_connection
+      attr_reader :name, :config, :vm_pool, :broker_connection
 
-      def initialize(name, config = nil, broker_connection = nil)
+      def initialize(name, vm_pool, config = nil, broker_connection = nil)
         @name              = name
+        @vm_pool           = vm_pool
         @config            = config
         @broker_connection = broker_connection
       end
 
       def worker
-        Instance.new(name, vm, broker_connection, queue_name, config)
-      end
-
-      def vm
-        VirtualMachine.provider.new(name)
+        Instance.new(name, vm_pool, broker_connection, queue_name, config)
       end
 
       def queue_name
