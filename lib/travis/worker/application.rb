@@ -131,11 +131,11 @@ module Travis
 
         info "Gracefully shutting down all workers"
 
-        workers.each_worker { |worker| worker.shutdown }
+        workers.shutdown
 
         loop do
           sleep 10
-          quit if workers_stopped?
+          quit if workers_stopped? && workers.vm_pool.stopped?
           info "Waiting for #{active_workers} workers to finish their current jobs"
         end
       end

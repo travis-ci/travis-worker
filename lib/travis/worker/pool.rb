@@ -29,7 +29,11 @@ module Travis
 
       def stop(names, options = {})
         each_worker(names) { |worker| worker.stop(options) }
-        vm_pool.stop
+      end
+
+      def shutdown(names = [])
+        each_worker(names) { |worker| worker.shutdown }
+        vm_pool.async.shutdown
       end
 
       def status
