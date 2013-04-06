@@ -114,7 +114,7 @@ module Travis
         private
 
         def instrument
-          info "Provisioning a BlueBox VM"
+          info "Provisioning a Sauce Labs VM"
           time = Benchmark.realtime { yield }
           info "SauceLabs VM provisioned in #{time.round(2)} seconds"
           Metriks.timer('worker.vm.provider.saucelabs.boot').update(time)
