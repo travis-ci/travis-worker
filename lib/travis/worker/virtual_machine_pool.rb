@@ -25,6 +25,13 @@ module Travis
         preboot_vms
       end
 
+      def stop
+        info "Stopping VM pool"
+        @pool.each(&:destroy_server)
+        @pool = []
+        info "Stopped VM pool"
+      end
+
       private
 
       def pool_size
