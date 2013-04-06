@@ -13,6 +13,7 @@ module Travis
 
         start_pool
         preboot_vms
+        @timer = every(10) { check_vms }
       end
 
       def get_session(opts={})
@@ -26,6 +27,7 @@ module Travis
       end
 
       def shutdown
+        @timer.cancel if @timer
         info "Stopping VM pool"
         @pool.each(&:destroy_server)
         @pool = []
@@ -73,6 +75,16 @@ module Travis
           @pool.delete_at(index)
         else
           @pool.pop
+        end
+      end
+
+      def check_vms
+        @pool.each do |vm|
+          if vm.ready && !vm.check_connection
+            info "Detected dead VM: #{vm.full_name}, restarting"
+            vm.destroy_server
+            preboot_vms
+          end
         end
       end
     end

@@ -26,11 +26,12 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:sauce_labs" }
 
-        attr_reader :name, :password, :server, :running
+        attr_reader :name, :password, :server, :running, :ready
 
         def initialize(name)
           @name = name
           @running = false
+          @ready = false
         end
 
         def connection
@@ -53,7 +54,7 @@ module Travis
                 instance_id = connection.start_instance(startup_info)['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
-                async.instrument { wait_for { vm_ready?(@server) } }
+                async.instrument { wait_for { vm_ready?(@server) }; @ready = true }
               rescue Exception => e
                 connection.kill_instance(instance_id) if instance_id
                 error 'SauceLabs VM would not boot within 180 seconds'
@@ -99,6 +100,7 @@ module Travis
           @server = nil
           @session = nil
           @running = false
+          @ready = false
         end
 
         def destroy_duplicate_server(hostname)
@@ -114,6 +116,10 @@ module Travis
 
         def prepare
           info "Sauce Labs API adapter prepared"
+        end
+
+        def check_connection
+          server && vm_ready?(server)
         end
 
         private
