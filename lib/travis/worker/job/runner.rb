@@ -38,14 +38,6 @@ module Travis
             super(msg)
             @original = original
           end
-
-          def message
-            super + ", original message: #{original.message}"
-          end
-
-          def backtrace
-            original.backtrace
-          end
         end
 
         attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
