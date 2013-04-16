@@ -1,4 +1,6 @@
 require 'sshjr'
+require 'sshjr/auth/public_key'
+require 'sshjr/auth/password'
 require 'thread'
 
 module Travis
