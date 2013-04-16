@@ -11,10 +11,15 @@ module Travis
           end
 
           def connect
-            options = { :port => @config.port }
-            options[:password] = @config.password if @config.password?
-            options[:private_key_paths] = [@config.private_key_path] if @config.private_key_path?
-            @client = ::SSHJr::Client.start(@config.host, @config.username, options)
+            @client = ::SSHJr::Client.new
+            @client.connect(@config.host, @config.port)
+            if @config.private_key_path?
+              @client.authenticate(::SSHJr::Auth::PublicKey.new(@config.username, @config.private_key_path, @config.password))
+            elsif @config.password?
+              @client.authenticate(::SSHJr::Auth::Password.new(@config.username, @config.password))
+            else
+              raise ArgumentError, 'No valid authentication method specified'
+            end
           end
 
           def close
