@@ -37,7 +37,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: c3be1910f0f88616105d1bf68413be7271fddb0a
+  revision: 52bcf02fb8812b4c3da759e963d12e2de6918c09
   specs:
     travis-build (0.0.1)
 
@@ -137,6 +137,7 @@ GEM
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   celluloid!
