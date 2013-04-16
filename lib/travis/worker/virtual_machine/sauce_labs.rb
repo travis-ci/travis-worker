@@ -45,7 +45,7 @@ module Travis
               begin
                 @password = generate_password
                 startup_info = { :password => @password, :hostname => hostname }
-                instance_id = connection.start_instance(startup_info)['instance_id']
+                instance_id = connection.start_instance(startup_info, 'ichef-osx8-10.8-travis')['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
 
