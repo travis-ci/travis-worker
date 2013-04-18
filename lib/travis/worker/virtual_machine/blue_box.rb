@@ -17,7 +17,8 @@ module Travis
         BLUE_BOX_VM_DEFAULTS = {
           :username  => 'travis',
           :flavor_id => Travis::Worker.config.blue_box.flavor_id,
-          :location_id => Travis::Worker.config.blue_box.location_id
+          :location_id => Travis::Worker.config.blue_box.location_id,
+          :ipv6_only => true
         }
 
         class << self
@@ -128,7 +129,7 @@ module Travis
         end
 
         def template_for_language(lang)
-          template_override if template_override
+          return template_override if template_override
 
           lang = Array(lang).first
           mapping = if lang
