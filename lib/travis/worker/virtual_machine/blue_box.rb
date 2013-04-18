@@ -18,7 +18,7 @@ module Travis
           :username  => 'travis',
           :flavor_id => Travis::Worker.config.blue_box.flavor_id,
           :location_id => Travis::Worker.config.blue_box.location_id,
-          :ipv6_only => true
+          :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
         }
 
         class << self
@@ -129,7 +129,7 @@ module Travis
         end
 
         def template_for_language(lang)
-          return template_override if template_override
+          return latest_templates[template_override] if template_override
 
           lang = Array(lang).first
           mapping = if lang
@@ -137,7 +137,7 @@ module Travis
           else
             'ruby'
           end
-          
+
           latest_templates[mapping] || latest_templates['ruby']
         end
 

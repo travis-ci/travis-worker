@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/travis-ci/fog
-  revision: f5592dca027e1090d98be1673c14f62ae6083c3b
+  revision: 34e03180370abdd61903bbc5cb3564e54bd1eec1
   specs:
     fog (1.10.1)
       builder
