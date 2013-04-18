@@ -128,6 +128,8 @@ module Travis
         end
 
         def template_for_language(lang)
+          template_override if template_override
+
           lang = Array(lang).first
           mapping = if lang
             language_mappings[lang] || lang.gsub('_', '-')
@@ -182,6 +184,10 @@ module Travis
 
           def language_mappings
             @language_mappings ||= Travis::Worker.config.language_mappings
+          end
+
+          def template_override
+            @template_override ||= Travis::Worker.config.template_override
           end
 
       end
