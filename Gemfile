@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
-gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid'
+gem 'celluloid',        '0.13.0'
 
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
 gem 'vagrant-vbguest'
@@ -15,7 +15,8 @@ gem 'simple_states',    '0.1.0.pre2'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
-gem 'fog',              '~> 1.9.0'
+
+gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git'
 
 gem 'metriks'
