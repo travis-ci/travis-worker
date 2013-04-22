@@ -1,6 +1,5 @@
 require 'travis-saucelabs-api'
 require 'shellwords'
-require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
@@ -24,7 +23,7 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:sauce_labs" }
 
-        attr_reader :name, :password, :server
+        attr_reader :name, :server
 
         def initialize(name)
           @name = name
@@ -43,8 +42,7 @@ module Travis
             Timeout.timeout(180) do
               instance_id = nil
               begin
-                @password = generate_password
-                startup_info = { :password => @password, :hostname => hostname }
+                startup_info = { :hostname => hostname }
                 instance_id = connection.start_instance(startup_info, 'ichef-osx8-10.8-travis')['instance_id']
                 @server = connection.instance_info(instance_id)
                 connection.allow_outgoing(instance_id)
@@ -124,10 +122,6 @@ module Travis
         def destroy_vm(vm)
           info "destroying the VM"
           connection.kill_instance(vm['instance_id'])
-        end
-
-        def generate_password
-          Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
         end
 
         def wait_for(&block)
