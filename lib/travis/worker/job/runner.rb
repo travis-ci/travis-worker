@@ -56,6 +56,8 @@ module Travis
         def compile_script
           Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
         rescue StandardError => e
+          warn "Script compilation error: #{e}"
+          warn e.backtrace.join("\n")
           raise ScriptCompileError, "An error occured while compiling the build script"
         end
 
