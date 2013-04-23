@@ -56,8 +56,6 @@ module Travis
         def compile_script
           Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
         rescue StandardError => e
-          warn "Script compilation error: #{e}"
-          warn e.backtrace.join("\n")
           raise ScriptCompileError, "An error occured while compiling the build script"
         end
 
@@ -86,7 +84,8 @@ module Travis
 
           result
         rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, ScriptCompileError => e
-          warn "build error : #{e.class}"
+          warn "build error : #{e.class}, #{e.message}"
+          warn "  #{e.backtrace.join("\n  ")}"
           stop
           announce("\n\n#{e.message}\n\n")
         rescue Timeout::Error => e
