@@ -11,8 +11,12 @@ module Travis
 
           def connect
             options = { port: @config.port, paranoid: false }
-            options[:password] = @config.password if @config.password?
-            options[:keys] = [@config.private_key_path] if @config.private_key_path?
+            if @config.private_key_path?
+              options[:keys] = [@config.private_key_path]
+              options[:passphrase] = @config.password if @config.password?
+            elsif @config.password?
+              options[:password] = @config.password
+            end
             @session = Net::SSH.start(@config.host, @config.username, options)
           end
 
