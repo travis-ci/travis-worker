@@ -38,7 +38,7 @@ module Travis
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
-          connector_class = CONNECTORS[@config.connector || :sshjr]
+          connector_class = CONNECTORS[@config.connector || :net_ssh]
           @connector = connector_class.new(@config)
         end
 
