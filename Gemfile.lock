@@ -15,7 +15,8 @@ GIT
 
 GIT
   remote: https://github.com/henrikhodne/travis-saucelabs-api.git
-  revision: ab6e9fed2e912ad67baed6762bc1c0cf37be8201
+  revision: c82f1a55e014a5d0325a033e84f2df0aacc8340d
+  tag: v0.0.1
   specs:
     travis-saucelabs-api (0.0.1)
       faraday (~> 0.7)
