@@ -21,24 +21,24 @@ module Travis
 
       log_header { "#{name}:worker:instance" }
 
-      def self.create(name, config, broker_connection)
-        Factory.new(name, config, broker_connection).worker
+      def self.create(name, vm_pool, config, broker_connection)
+        Factory.new(name, vm_pool, config, broker_connection).worker
       end
 
       states :created, :starting, :ready, :working, :stopping, :stopped, :errored
 
       attr_accessor :state
-      attr_reader   :name, :vm, :broker_connection, :queue, :queue_name,
+      attr_reader   :name, :vm_pool, :broker_connection, :queue, :queue_name,
                     :subscription, :config, :payload, :last_error, :observers
 
-      def initialize(name, vm, broker_connection, queue_name, config, observers = [])
+      def initialize(name, vm_pool, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
-        raise ArgumentError, "VM cannot be nil!" if vm.nil?
+        raise ArgumentError, "VM pool cannot be nil!" if vm_pool.nil?
         raise ArgumentError, "broker connection cannot be nil!" if broker_connection.nil?
         raise ArgumentError, "config cannot be nil!" if config.nil?
 
         @name              = name
-        @vm                = vm
+        @vm_pool           = vm_pool
         @queue_name        = queue_name
         @broker_connection = broker_connection
         @config            = config
@@ -47,7 +47,6 @@ module Travis
 
       def start
         set :starting
-        vm.prepare
         open_channels
         declare_queues
         subscribe
@@ -220,7 +219,7 @@ module Travis
       def reporter
         @reporter ||= Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
-      
+
       def reset_reporter
         reporter.close if @reporter
         @reporter = nil
@@ -237,8 +236,8 @@ module Travis
       def run_job
         runner = nil
 
-        vm.sandboxed(language: job_language) do
-          runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
+        vm_pool.get_session(language: job_language) do |session, full_name|
+          runner = Job::Runner.new(self.payload, session, reporter, full_name, config.timeouts.hard_limit, name)
           runner.setup
           runner.start
           runner.stop

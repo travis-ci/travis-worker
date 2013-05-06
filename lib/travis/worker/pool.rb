@@ -1,4 +1,5 @@
 require 'travis/worker/instance'
+require 'travis/worker/virtual_machine_pool'
 
 module Travis
   module Worker
@@ -10,15 +11,16 @@ module Travis
 
     class Pool
       def self.create(broker_connection)
-        new(Travis::Worker.config.names, Travis::Worker.config, broker_connection)
+        new(Travis::Worker.config.names, Travis::Worker.config, broker_connection, Travis::Worker::VirtualMachinePool.new)
       end
 
-      attr_reader :names, :config, :broker_connection
+      attr_reader :names, :config, :broker_connection, :vm_pool
 
-      def initialize(names, config, broker_connection)
+      def initialize(names, config, broker_connection, vm_pool)
         @names  = names
         @config = config
         @broker_connection = broker_connection
+        @vm_pool = vm_pool
       end
 
       def start(names)
@@ -27,6 +29,11 @@ module Travis
 
       def stop(names, options = {})
         each_worker(names) { |worker| worker.stop(options) }
+      end
+
+      def shutdown(names = [])
+        each_worker(names) { |worker| worker.shutdown }
+        vm_pool.async.shutdown
       end
 
       def status
@@ -39,7 +46,7 @@ module Travis
       end
 
       def workers
-        @workers ||= names.map { |name| Worker::Instance.create(name, config, broker_connection) }
+        @workers ||= names.map { |name| Worker::Instance.create(name, vm_pool, config, broker_connection) }
       end
 
       def worker(name)
