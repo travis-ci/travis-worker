@@ -106,11 +106,11 @@ module Travis
         def warn_about_configuration
           case payload["config"][:".result"]
           when "parse_error"
-            announce "WARNING: An error occured while trying to parse your .travis.yml file.\n"
+            announce "\033[33;1mWARNING\033[0m: An error occured while trying to parse your .travis.yml file.\n"
             announce "  Please make sure that the file is valid YAML.\n"
             announce "  Build will be treated as if no .travis.yml file exists\n\n"
           when "not_found"
-            announce "WARNING: We were unable to find a .travis.yml file. This may not be what you\n"
+            announce "\033[33;1mWARNING\033[0m: We were unable to find a .travis.yml file. This may not be what you\n"
             announce "  want. Build will be run with default settings.\n\n"
           end
         end
