@@ -53,6 +53,14 @@ module Travis
           @log_prefix   = log_prefix
         end
 
+        def run
+          if check_config
+            setup
+            start
+            stop
+          end
+        end
+
         def compile_script
           Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
         rescue StandardError => e
@@ -66,7 +74,6 @@ module Travis
         end
 
         def setup
-          warn_about_configuration
           setup_log_streaming
           start_session
         rescue Net::SSH::AuthenticationFailed, Errno::ECONNREFUSED, Timeout::Error => e
@@ -103,16 +110,19 @@ module Travis
           session.close
         end
 
-        def warn_about_configuration
+        def check_config
           case payload["config"][:".result"]
           when "parse_error"
-            announce "\033[33;1mWARNING\033[0m: An error occured while trying to parse your .travis.yml file.\n"
-            announce "  Please make sure that the file is valid YAML.\n"
-            announce "  Build will be treated as if no .travis.yml file exists\n\n"
+            announce "\033[31;1mERROR\033[0m: An error occured while trying to parse your .travis.yml file.\n"
+            announce "  Please make sure that the file is valid YAML.\n\n"
+            notify_job_finished(nil)
+            return false
           when "not_found"
             announce "\033[33;1mWARNING\033[0m: We were unable to find a .travis.yml file. This may not be what you\n"
             announce "  want. Build will be run with default settings.\n\n"
           end
+
+          true
         end
 
         def upload_and_run_script

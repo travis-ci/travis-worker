@@ -239,9 +239,7 @@ module Travis
 
         vm.sandboxed(language: job_language) do
           runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
-          runner.setup
-          runner.start
-          runner.stop
+          runner.run
         end
       ensure
         runner.terminate if runner && runner.alive?
