@@ -66,6 +66,7 @@ module Travis
         end
 
         def setup
+          warn_about_configuration
           setup_log_streaming
           start_session
         rescue Net::SSH::AuthenticationFailed, Errno::ECONNREFUSED, Timeout::Error => e
@@ -100,6 +101,18 @@ module Travis
           exit_exec!
           sleep 2
           session.close
+        end
+
+        def warn_about_configuration
+          case payload["config"][:".result"]
+          when "parse_error"
+            announce "WARNING: An error occured while trying to parse your .travis.yml file."
+            announce "  Please make sure that the file is valid YAML."
+            announce "  Build will be treated as if no .travis.yml file exists"
+          when "not_found"
+            announce "WARNING: We were unable to find a .travis.yml file. This may not be what you"
+            announce "  want. Build will be run with default settings."
+          end
         end
 
         def upload_and_run_script
