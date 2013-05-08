@@ -115,6 +115,10 @@ module Travis
           when "parse_error"
             announce "\033[31;1mERROR\033[0m: An error occured while trying to parse your .travis.yml file.\n"
             announce "  Please make sure that the file is valid YAML.\n\n"
+            # TODO: Remove all of this once we can actually error the build
+            #   before it gets to the worker
+            notify_job_started
+            sleep 4
             notify_job_finished(nil)
             return false
           when "not_found"
