@@ -62,21 +62,27 @@ module Travis
 
           retryable(:tries => 3) do
             destroy_duplicate_server(opts[:hostname])
-            Timeout.timeout(240) do
-              begin
-                @password = (opts[:password] = generate_password)
+            begin
+              Timeout.timeout(240) do
+                begin
+                  @password = (opts[:password] = generate_password)
 
-                @server = connection.servers.create(opts)
+                  @server = connection.servers.create(opts)
 
-                instrument { @server.wait_for { ready? } }
-              rescue Exception => e
-                error "BlueBox VM would not boot within 240 seconds"
+                  instrument { @server.wait_for { ready? } }
+                rescue Exception => e
+                  error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
+                  raise
+                end
+              end
+            rescue Timeout::Error => e
+              if @server
+                error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state}"
+                Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
                 raise
               end
             end
           end
-
-          @server
         end
 
         def session

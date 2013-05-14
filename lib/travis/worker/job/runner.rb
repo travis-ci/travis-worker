@@ -53,6 +53,14 @@ module Travis
           @log_prefix   = log_prefix
         end
 
+        def run
+          if check_config
+            setup
+            start
+            stop
+          end
+        end
+
         def compile_script
           Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
         rescue StandardError => e
@@ -84,7 +92,8 @@ module Travis
 
           result
         rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, ScriptCompileError => e
-          warn "build error : #{e.class}"
+          warn "build error : #{e.class}, #{e.message}"
+          warn "  #{e.backtrace.join("\n  ")}"
           stop
           announce("\n\n#{e.message}\n\n")
         rescue Timeout::Error => e
@@ -99,6 +108,25 @@ module Travis
           exit_exec!
           sleep 2
           session.close
+        end
+
+        def check_config
+          case payload["config"][:".result"]
+          when "parse_error"
+            announce "\033[31;1mERROR\033[0m: An error occured while trying to parse your .travis.yml file.\n"
+            announce "  Please make sure that the file is valid YAML.\n\n"
+            # TODO: Remove all of this once we can actually error the build
+            #   before it gets to the worker
+            notify_job_started
+            sleep 4
+            notify_job_finished(nil)
+            return false
+          when "not_found"
+            announce "\033[33;1mWARNING\033[0m: We were unable to find a .travis.yml file. This may not be what you\n"
+            announce "  want. Build will be run with default settings.\n\n"
+          end
+
+          true
         end
 
         def upload_and_run_script
