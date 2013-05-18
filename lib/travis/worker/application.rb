@@ -128,6 +128,7 @@ module Travis
       def graceful_shutdown
         return if @graceful_shutdown
         @graceful_shutdown = true
+        shutdown_at = Time.now + Travis.config.shutdown_timeout
 
         info "Gracefully shutting down all workers"
 
@@ -135,7 +136,17 @@ module Travis
 
         loop do
           sleep 10
-          quit if workers_stopped?
+
+          if Time.now > shutdown_at
+            info "Graceful timeout expired, shutting down"
+            quit
+          end
+
+          if workers_stopped?
+            info "All workers stopped, shutting down"
+            quit
+          end
+
           info "Waiting for #{active_workers} workers to finish their current jobs"
         end
       end
