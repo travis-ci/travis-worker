@@ -137,8 +137,13 @@ module Travis
         loop do
           sleep 10
 
-          if workers_stopped? || Time.now > shutdown_at
-            info "All workers stopped or graceful timeout expired, shutting down"
+          if Time.now > shutdown_at
+            info "Graceful timeout expired, shutting down"
+            quit
+          end
+
+          if workers_stopped?
+            info "All workers stopped, shutting down"
             quit
           end
 
