@@ -128,7 +128,7 @@ module Travis
       def graceful_shutdown
         return if @graceful_shutdown
         @graceful_shutdown = true
-        shutdown_at = Time.now + Travis.config.shutdown_timeout
+        shutdown_at = Time.now + Travis::Worker.config.shutdown_timeout
 
         info "Gracefully shutting down all workers"
 
