@@ -69,7 +69,7 @@ module Travis
                   @password = (opts[:password] = generate_password)
 
                   @server = connection.servers.create(opts)
-                  info "Booting #{@server.hostname} (#{ip_address}) on #{vsh_name}"
+                  info "Booting #{@server.hostname} (#{ip_address})"
                   instrument { @server.wait_for { ready? } }
                 rescue Exception => e
                   error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
