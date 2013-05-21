@@ -115,7 +115,11 @@ module Travis
         end
 
         def vsh_name
-          @vsh_name ||= Resolv::DNS.new.getresource(server.hostname, Resolv::DNS::Resource::IN::TXT).strings.first
+          @vsh_name ||= begin
+            Timeout::timeout(5) { Resolv::DNS.new.getresource(server.hostname, Resolv::DNS::Resource::IN::TXT).strings.first }
+          rescue StandardError => e
+            "[unknown]"
+          end
         end
 
         def grouped_templates
