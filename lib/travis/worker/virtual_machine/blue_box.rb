@@ -4,6 +4,7 @@ require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
+require 'resolv'
 
 module Travis
   module Worker
@@ -68,7 +69,7 @@ module Travis
                   @password = (opts[:password] = generate_password)
 
                   @server = connection.servers.create(opts)
-
+                  info "Booting #{@server.hostname} (#{ip_address}) on #{vsh_name}"
                   instrument { @server.wait_for { ready? } }
                 rescue Exception => e
                   error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
@@ -77,7 +78,7 @@ module Travis
               end
             rescue Timeout::Error => e
               if @server
-                error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state}"
+                error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
                 Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
                 raise
               end
@@ -111,6 +112,10 @@ module Travis
 
         def ip_address
           server.ips.first['address']
+        end
+
+        def vsh_name
+          @vsh_name ||= Resolv::DNS.new.getresource(server.hostname, Resolv::DNS::Resource::IN::TXT).strings.first
         end
 
         def grouped_templates
