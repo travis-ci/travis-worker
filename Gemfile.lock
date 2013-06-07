@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 16d4860733c48141f29e52d57601f48c4fcefc41
+  revision: 70cc11c57ac33f5d6ce458e0167547ece6a1ee1b
   specs:
     travis-build (0.0.1)
 
@@ -77,6 +77,7 @@ GEM
     ffi (1.8.1-java)
     formatador (0.2.4)
     hashr (0.0.22)
+    hitimes (1.2.1)
     hitimes (1.2.1-java)
     hot_bunnies (1.4.0-java)
     i18n (0.6.4)
