@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 70cc11c57ac33f5d6ce458e0167547ece6a1ee1b
+  revision: 689c5eae8d0fe2e56bee23c30cfe35e5882220b5
   specs:
     travis-build (0.0.1)
 
@@ -67,17 +67,16 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     diff-lcs (1.2.4)
     erubis (2.7.0)
-    excon (0.22.1)
+    excon (0.24.0)
     faraday (0.7.6)
       addressable (~> 2.2)
       multipart-post (~> 1.1)
       rack (~> 1.1)
     faraday_middleware (0.9.0)
       faraday (>= 0.7.4, < 0.9)
-    ffi (1.8.1-java)
+    ffi (1.9.0-java)
     formatador (0.2.4)
     hashr (0.0.22)
-    hitimes (1.2.1)
     hitimes (1.2.1-java)
     hot_bunnies (1.4.0-java)
     i18n (0.6.4)
@@ -99,7 +98,7 @@ GEM
     net-scp (1.1.1)
       net-ssh (>= 2.6.5)
     net-ssh (2.6.7)
-    nokogiri (1.5.9-java)
+    nokogiri (1.5.10-java)
     rack (1.5.2)
     rake (0.9.6)
     rspec (2.13.0)
