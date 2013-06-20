@@ -19,6 +19,8 @@ gem 'json'
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git'
 
+gem 'net-ssh',          :git => 'http://github.com/joshk/net-ssh'
+
 gem 'metriks'
 
 platform :jruby do

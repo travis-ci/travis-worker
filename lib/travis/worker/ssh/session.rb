@@ -4,26 +4,6 @@ require 'travis/worker/utils/buffer'
 require 'travis/support/logging'
 require 'base64'
 
-# This is a monkey patch to see if adding a sleep
-# helps with shutting down VMs
-# our code has a timeout which isn't being fired due
-# to something blocking it, this potentially is the cause
-require 'net/ssh/connection/session'
-module Net
-  module SSH
-    module Connection
-      class Sesssion
-        def close
-          info { "closing remaining channels (#{channels.length} open)" }
-          channels.each { |id, channel| channel.close }
-          loop(0.1) { channels.any? }
-          transport.close
-        end
-      end
-    end
-  end
-end
-
 module Travis
   module Worker
     module Ssh
