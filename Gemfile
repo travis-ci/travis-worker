@@ -24,7 +24,7 @@ gem 'net-ssh',          :git => 'http://github.com/joshk/net-ssh'
 gem 'metriks'
 
 platform :jruby do
-  gem 'hot_bunnies',    '~> 1.4.0'
+  gem 'hot_bunnies',    '~> 1.5.0'
   gem 'jruby-openssl',  '~> 0.8.0'
 end
 

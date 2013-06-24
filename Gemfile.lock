@@ -73,7 +73,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     diff-lcs (1.2.4)
     erubis (2.7.0)
-    excon (0.24.0)
+    excon (0.25.0)
     faraday (0.7.6)
       addressable (~> 2.2)
       multipart-post (~> 1.1)
@@ -84,7 +84,7 @@ GEM
     formatador (0.2.4)
     hashr (0.0.22)
     hitimes (1.2.1-java)
-    hot_bunnies (1.4.0-java)
+    hot_bunnies (1.5.0-java)
     i18n (0.6.4)
     jruby-openssl (0.8.8)
       bouncy-castle-java (>= 1.5.0147)
@@ -137,7 +137,7 @@ DEPENDENCIES
   faraday (~> 0.7.5)
   fog!
   hashr (~> 0.0.18)
-  hot_bunnies (~> 1.4.0)
+  hot_bunnies (~> 1.5.0)
   jruby-openssl (~> 0.8.0)
   json
   metriks
