@@ -19,6 +19,10 @@ gem 'json'
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git'
 
+# lock this down for now due to :
+# Excon::Errors::SocketError: uninitialized constant OpenSSL::Config::DEFAULT_CONFIG_FILE (NameError)
+gem 'excon',            '0.24.0'
+
 gem 'net-ssh',          :git => 'http://github.com/joshk/net-ssh'
 
 gem 'metriks'
