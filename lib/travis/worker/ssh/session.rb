@@ -51,6 +51,7 @@ module Travis
           true
         rescue
           warn "ssh connection could not be closed gracefully"
+          Metriks.meter('worker.vm.ssh.could_not_close').mark
           false
         ensure
           buffer.stop
