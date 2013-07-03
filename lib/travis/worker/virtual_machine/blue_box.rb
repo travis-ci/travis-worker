@@ -70,7 +70,6 @@ module Travis
             begin
               @password = (opts[:password] = generate_password)
 
-              Metriks.meter('worker.vm.provider.bluebox.boot').mark
               @server = connection.servers.create(opts)
               info "Booting #{@server.hostname} (#{ip_address})"
               instrument { @server.wait_for { ready? } }
