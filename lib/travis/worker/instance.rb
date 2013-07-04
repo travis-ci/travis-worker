@@ -248,6 +248,7 @@ module Travis
       def restart_job
         if reporter && payload['job']['id']
           info "requeuing job"
+          Metriks.meter('worker.job.requeue').mark
           reporter.restart(payload['job']['id'])
         end
       end

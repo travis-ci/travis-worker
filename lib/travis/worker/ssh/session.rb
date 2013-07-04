@@ -54,8 +54,11 @@ module Travis
         # Closes the Shell, flushes and resets the buffer
         def close
           Timeout.timeout(5) { @connector.close }
+          true
         rescue
           warn "ssh connection could not be closed gracefully"
+          Metriks.meter('worker.vm.ssh.could_not_close').mark
+          false
         ensure
           buffer.stop
           @buffer = nil

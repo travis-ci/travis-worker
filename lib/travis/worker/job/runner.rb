@@ -91,7 +91,14 @@ module Travis
           end
 
           result
-        rescue Utils::Buffer::OutputLimitExceededError, Ssh::Session::NoOutputReceivedError, ScriptCompileError => e
+        rescue Ssh::Session::NoOutputReceivedError => e
+          warn "build error : #{e.class}, #{e.message}"
+          warn "  #{e.backtrace.join("\n  ")}"
+          unless stop
+            warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
+          end
+          announce("\n\n#{e.message}\n\n")          
+        rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           warn "build error : #{e.class}, #{e.message}"
           warn "  #{e.backtrace.join("\n  ")}"
           stop
@@ -184,7 +191,7 @@ module Travis
         end
 
         def connection_error
-          announce("I'm sorry but there was an error connection to the VM.\n\nYour job will be requeued shortly.")
+          announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
         end
       end

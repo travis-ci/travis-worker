@@ -4,6 +4,7 @@ require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
+require 'resolv'
 
 module Travis
   module Worker
@@ -53,35 +54,43 @@ module Travis
           
           info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
-          prefix = Worker.config.host.split('.').first
-
-          opts = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
+          config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
             :image_id => template['id'], 
-            :hostname => "testing-#{prefix}-#{Process.pid}-#{name}"
+            :hostname => hostname
           }))
 
           retryable(:tries => 3) do
-            destroy_duplicate_server(opts[:hostname])
+            destroy_duplicate_server(hostname)
+            create_new_server(config)
+          end
+        end
+
+        def create_new_server(opts)
+          Timeout.timeout(240) do
             begin
-              Timeout.timeout(240) do
-                begin
-                  @password = (opts[:password] = generate_password)
+              @password = (opts[:password] = generate_password)
 
-                  @server = connection.servers.create(opts)
-
-                  instrument { @server.wait_for { ready? } }
-                rescue Exception => e
-                  error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
-                  raise
-                end
-              end
-            rescue Timeout::Error => e
-              if @server
-                error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state}"
-                Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
-                raise
-              end
+              @server = connection.servers.create(opts)
+              info "Booting #{@server.hostname} (#{ip_address})"
+              instrument { @server.wait_for { ready? } }
+            rescue Exception => e
+              Metriks.meter('worker.vm.provider.bluebox.boot.error').mark
+              error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
+              raise
             end
+          end
+        rescue Timeout::Error => e
+          if @server
+            error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
+            Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
+            raise
+          end
+        end
+
+        def hostname
+          @hostname ||= begin
+            prefix = Worker.config.host.split('.').first
+            "testing-#{prefix}-#{Process.pid}-#{name}"
           end
         end
 
@@ -111,6 +120,14 @@ module Travis
 
         def ip_address
           server.ips.first['address']
+        end
+
+        def vsh_name
+          @vsh_name ||= begin
+            Timeout::timeout(5) { Resolv::DNS.new.getresource(server.hostname, Resolv::DNS::Resource::IN::TXT).strings.first }
+          rescue StandardError => e
+            "[unknown]"
+          end
         end
 
         def grouped_templates

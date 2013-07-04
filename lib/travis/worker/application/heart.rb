@@ -34,7 +34,7 @@ module Travis
 
           data = encode(current)
           options = {
-            :properties => { :type => 'worker:status' },
+            :properties => { :type => 'worker:status', :expiration => "5000" },
             :routing_key => @target_queue_name,
             :uuid => Travis.uuid
           }

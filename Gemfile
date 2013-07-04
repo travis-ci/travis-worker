@@ -20,10 +20,16 @@ gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git', :tag => 'v0.0.1'
 gem 'sshjr', :git => 'https://github.com/joshk/sshjr.git'
 
+# lock this down for now due to :
+# Excon::Errors::SocketError: uninitialized constant OpenSSL::Config::DEFAULT_CONFIG_FILE (NameError)
+gem 'excon',            '0.24.0'
+
+gem 'net-ssh',          :git => 'http://github.com/joshk/net-ssh'
+
 gem 'metriks'
 
 platform :jruby do
-  gem 'hot_bunnies',    '~> 1.4.0'
+  gem 'hot_bunnies',    '~> 1.5.0'
   gem 'jruby-openssl',  '~> 0.8.0'
 end
 
