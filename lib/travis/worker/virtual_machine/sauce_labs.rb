@@ -34,22 +34,15 @@ module Travis
         end
 
         def create_server(opts = {})
-          prefix = Worker.config.host.split('.').first
-          hostname = "testing-#{prefix}-#{Process.pid}-#{name}"
-
           retryable(:tries => 3) do
             destroy_duplicate_server(hostname)
             Timeout.timeout(180) do
-              instance_id = nil
               begin
-                startup_info = { :hostname => hostname }
-                instance_id = connection.start_instance(startup_info, 'ichef-osx8-10.8-travis')['instance_id']
-                @server = connection.instance_info(instance_id)
-                connection.allow_outgoing(instance_id)
+                @server = start_server
 
                 instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
-                connection.kill_instance(instance_id) if instance_id
+                connection.kill_instance(@server["instance_id"]) if @server
                 error 'SauceLabs VM would not boot within 180 seconds'
                 raise
               end
@@ -85,8 +78,19 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
+        def hostname
+          @hostname ||= "testing-#{Worker.config.host.split(".").first}-#{Process.pid}-#{name}"
+        end
+
         def ip_address
           @server['private_ip']
+        end
+
+        def start_server(hostname)
+          instance_id = connection.start_instance({ hostname: hostname }, 'ichef-osx8-10.8-travis')['instance_id']
+          connection.allow_outgoing(instance_id)
+
+          connection.instance_info(instance_id)
         end
 
         def destroy_server(opts = {})
