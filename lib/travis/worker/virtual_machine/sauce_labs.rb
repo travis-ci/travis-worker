@@ -1,6 +1,5 @@
 require 'travis-saucelabs-api'
 require 'shellwords'
-require 'digest/sha1'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
@@ -24,7 +23,7 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:sauce_labs" }
 
-        attr_reader :name, :password, :server
+        attr_reader :name, :server
 
         def initialize(name)
           @name = name
@@ -35,23 +34,15 @@ module Travis
         end
 
         def create_server(opts = {})
-          prefix = Worker.config.host.split('.').first
-          hostname = "testing-#{prefix}-#{Process.pid}-#{name}"
-
           retryable(:tries => 3) do
             destroy_duplicate_server(hostname)
             Timeout.timeout(180) do
-              instance_id = nil
               begin
-                @password = generate_password
-                startup_info = { :password => @password, :hostname => hostname }
-                instance_id = connection.start_instance(startup_info)['instance_id']
-                @server = connection.instance_info(instance_id)
-                connection.allow_outgoing(instance_id)
+                @server = start_server
 
                 instrument { wait_for { vm_ready?(@server) } }
               rescue Exception => e
-                connection.kill_instance(instance_id) if instance_id
+                connection.kill_instance(@server["instance_id"]) if @server
                 error 'SauceLabs VM would not boot within 180 seconds'
                 raise
               end
@@ -67,7 +58,8 @@ module Travis
             :host => ip_address,
             :port => 3422,
             :username => 'travis',
-            :password => password,
+            :private_key_path => Travis::Worker.config.sauce_labs.private_key_path,
+            :password => Travis::Worker.config.sauce_labs.private_key_passphrase,
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts,
             :platform => :osx,
@@ -86,8 +78,20 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
+        def hostname
+          @hostname ||= "testing-#{Worker.config.host.split(".").first}-#{Process.pid}-#{name}"
+        end
+
         def ip_address
-          @server['private_ip']
+          @server['public_ip']
+        end
+
+        def start_server(hostname)
+          instance_id = connection.start_instance({ hostname: hostname }, 'ichef-osx8-10.8-travis')['instance_id']
+          connection.allow_outgoing(instance_id)
+          connection.allow_incoming(instance_id, "0.0.0.0/0", 3422)
+
+          connection.instance_info(instance_id)
         end
 
         def destroy_server(opts = {})
@@ -123,10 +127,6 @@ module Travis
         def destroy_vm(vm)
           info "destroying the VM"
           connection.kill_instance(vm['instance_id'])
-        end
-
-        def generate_password
-          Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
         end
 
         def wait_for(&block)

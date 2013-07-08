@@ -17,7 +17,8 @@ gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
-gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git'
+gem 'travis-saucelabs-api', :git => 'https://github.com/henrikhodne/travis-saucelabs-api.git', :tag => 'v0.0.1'
+gem 'sshjr', :git => 'https://github.com/joshk/sshjr.git'
 
 # lock this down for now due to :
 # Excon::Errors::SocketError: uninitialized constant OpenSSL::Config::DEFAULT_CONFIG_FILE (NameError)
