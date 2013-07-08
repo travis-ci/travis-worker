@@ -83,12 +83,13 @@ module Travis
         end
 
         def ip_address
-          @server['private_ip']
+          @server['public_ip']
         end
 
         def start_server(hostname)
           instance_id = connection.start_instance({ hostname: hostname }, 'ichef-osx8-10.8-travis')['instance_id']
           connection.allow_outgoing(instance_id)
+          connection.allow_incoming(instance_id, "0.0.0.0/0", 3422)
 
           connection.instance_info(instance_id)
         end
