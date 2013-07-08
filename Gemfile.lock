@@ -20,22 +20,6 @@ GIT
       ruby-hmac
 
 GIT
-  remote: https://github.com/henrikhodne/travis-saucelabs-api.git
-  revision: c82f1a55e014a5d0325a033e84f2df0aacc8340d
-  tag: v0.0.1
-  specs:
-    travis-saucelabs-api (0.0.1)
-      faraday (~> 0.7)
-      faraday_middleware (~> 0.9)
-      thor (~> 0.14)
-
-GIT
-  remote: https://github.com/joshk/sshjr.git
-  revision: 35c2fdf006295a1d2c1da77b81f39ac5deb89e9e
-  specs:
-    sshjr (0.1.0)
-
-GIT
   remote: https://github.com/joshk/vagrant
   revision: 8ccf5a2ee1d563a6eca39dafaeb05fdcc3b72a98
   branch: 1-0-stable
@@ -131,6 +115,10 @@ GEM
     simplecov-html (0.7.1)
     thor (0.14.6)
     timers (1.1.0)
+    travis-saucelabs-api (0.0.2)
+      faraday (~> 0.7)
+      faraday_middleware (~> 0.9)
+      thor (~> 0.14)
     vagrant-vbguest (0.8.0)
       i18n (~> 0.6.0)
       log4r (~> 1.1.9)
@@ -156,10 +144,9 @@ DEPENDENCIES
   rspec
   simple_states (= 0.1.0.pre2)
   simplecov (>= 0.4.0)
-  sshjr!
   thor (~> 0.14.6)
   travis-build!
-  travis-saucelabs-api!
+  travis-saucelabs-api (~> 0.0)
   travis-support!
   vagrant!
   vagrant-vbguest
