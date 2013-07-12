@@ -70,7 +70,17 @@ module Travis
 
           @server = connection.servers.create(opts)
           info "Booting #{@server.hostname} (#{ip_address})"
-          instrument { @server.wait_for(240, 3) { ready? } }
+          instrument do
+            @server.wait_for(240, 3) do
+              begin
+                ready?
+              rescue Excon::Errors::HTTPStatusError => e
+                Metriks.meter("worker.vm.provider.bluebox.boot.error.#{e.response[:status]}").mark
+                error "BlueBox API returned error code #{e.response[:status]} : #{e.inspect}"
+                false
+              end
+            end
+          end
         rescue Timeout::Error => e
           if @server
             error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
