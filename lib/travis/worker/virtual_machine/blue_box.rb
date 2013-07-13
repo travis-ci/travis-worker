@@ -66,25 +66,31 @@ module Travis
         end
 
         def create_new_server(opts)
-          Timeout.timeout(240) do
-            begin
-              @password = (opts[:password] = generate_password)
+          @password = (opts[:password] = generate_password)
 
-              @server = connection.servers.create(opts)
-              info "Booting #{@server.hostname} (#{ip_address})"
-              instrument { @server.wait_for { ready? } }
-            rescue Exception => e
-              Metriks.meter('worker.vm.provider.bluebox.boot.error').mark
-              error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
-              raise
+          @server = connection.servers.create(opts)
+          info "Booting #{@server.hostname} (#{ip_address})"
+          instrument do
+            @server.wait_for(240, 3) do
+              begin
+                ready?
+              rescue Excon::Errors::HTTPStatusError => e
+                Metriks.meter("worker.vm.provider.bluebox.boot.error.#{e.response[:status]}").mark
+                error "BlueBox API returned error code #{e.response[:status]} : #{e.inspect}"
+                false
+              end
             end
           end
         rescue Timeout::Error => e
           if @server
             error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
-            Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
-            raise
           end
+          Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
+          raise
+        rescue Exception => e
+          Metriks.meter('worker.vm.provider.bluebox.boot.error').mark
+          error "Booting a BlueBox VM failed with the following error: #{e.inspect}"
+          raise
         end
 
         def hostname
