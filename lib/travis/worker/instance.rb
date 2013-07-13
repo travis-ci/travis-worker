@@ -1,4 +1,3 @@
-require 'simple_states'
 require 'multi_json'
 require 'thread'
 require 'celluloid'
@@ -16,7 +15,6 @@ module Travis
   module Worker
     class Instance
       include Celluloid
-      include SimpleStates
       include Logging
 
       log_header { "#{name}:worker:instance" }
@@ -25,11 +23,11 @@ module Travis
         Factory.new(name, config, broker_connection).worker
       end
 
-      states :created, :starting, :ready, :working, :stopping, :stopped, :errored
+      STATES = [:created, :starting, :ready, :working, :stopping, :stopped, :errored]
 
-      attr_accessor :state
-      attr_reader   :name, :vm, :broker_connection, :queue, :queue_name,
-                    :subscription, :config, :payload, :last_error, :observers
+      attr_reader :state
+      attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
+                  :subscription, :config, :payload, :last_error, :observers
 
       def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
@@ -104,6 +102,14 @@ module Travis
         stop
       end
 
+      def working?
+        @state == :working
+      end
+
+      def stopping?
+        @state == :stopping
+      end
+
       protected
 
       def open_channels
@@ -173,7 +179,7 @@ module Travis
       end
 
       def set(state)
-        self.state = state
+        @state = state
         observers.each { |observer| observer.notify(report) }
         state
       end
