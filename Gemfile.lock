@@ -44,7 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 75fd092c4b273513d0def2878c9772318269da00
+  revision: 8c77a69955511e12bc476e407a5a469acc57059c
   specs:
     travis-build (0.0.1)
 
@@ -70,7 +70,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     diff-lcs (1.2.4)
     erubis (2.7.0)
-    excon (0.25.1)
+    excon (0.25.3)
     faraday (0.7.6)
       addressable (~> 2.2)
       multipart-post (~> 1.1)
