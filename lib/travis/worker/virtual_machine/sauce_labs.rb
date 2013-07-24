@@ -134,7 +134,7 @@ module Travis
         end
 
         def vm_ready?(vm)
-          socket = TCPSocket.new(vm['private_ip'], 3422)
+          socket = TCPSocket.new(vm['public_ip'], 3422)
           true
         rescue StandardError
           false
