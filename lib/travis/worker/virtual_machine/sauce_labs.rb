@@ -3,6 +3,7 @@ require 'shellwords'
 require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
+require "fog"
 
 module Travis
   module Worker
@@ -36,20 +37,28 @@ module Travis
         def create_server(opts = {})
           retryable(:tries => 3) do
             destroy_duplicate_server(hostname)
-            Timeout.timeout(180) do
-              begin
-                @server = start_server
+            create_new_server
+          end
+        end
 
-                instrument { wait_for { vm_ready?(@server) } }
-              rescue Exception => e
-                connection.kill_instance(@server["instance_id"]) if @server
-                error 'SauceLabs VM would not boot within 180 seconds'
-                raise
-              end
+        def create_new_server
+          @server = start_server
+          info "Booting #{hostname} (#{ip_address})"
+          instrument do
+            Fog.wait_for(240, 3) do
+              vm_ready?(@server)
             end
           end
-
-          @server
+        rescue Timeout::Error, Fog::Errors::TimeoutError => e
+          if @server
+            error "Sauce Labs VM would not boot within 240 seconds: id=#{@server["instance_id"]}"
+          end
+          Metriks.meter("worker.vm.provider.saucelabs.boot.timeout").mark
+          raise
+        rescue StandardError => e
+          Metriks.meter("worker.vm.provider.saucelabs.boot.error").mark
+          error "Booting a Sauce Labs VM failed without the following error: #{e.inspect}"
+          raise
         end
 
         def session
@@ -127,10 +136,6 @@ module Travis
         def destroy_vm(vm)
           info "destroying the VM"
           connection.kill_instance(vm['instance_id'])
-        end
-
-        def wait_for(&block)
-          sleep 1.0 until yield
         end
 
         def vm_ready?(vm)
