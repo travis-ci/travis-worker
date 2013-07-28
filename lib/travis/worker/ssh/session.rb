@@ -48,6 +48,10 @@ module Travis
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
           @connector.connect
+          if @config.platform == :osx
+            info "unlocking keychain" unless silent
+            exec("security unlock-keychain -p #{Travis::Worker.config.sauce_labs.keychain_password}")
+          end
           true
         end
 
