@@ -76,8 +76,7 @@ module Travis
                 @server.reload
                 @server.ready?
               rescue Excon::Errors::HTTPStatusError => e
-                Metriks.meter("worker.vm.provider.bluebox.boot.error.#{e.response[:status]}").mark
-                error "BlueBox API returned error code #{e.response[:status]} : #{e.inspect}"
+                mark_api_error(e)
                 false
               end
             end
@@ -87,6 +86,9 @@ module Travis
             error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
           end
           Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
+          raise
+        rescue Excon::Errors::HTTPStatusError => e
+          mark_api_error(e)
           raise
         rescue Exception => e
           Metriks.meter('worker.vm.provider.bluebox.boot.error').mark
@@ -178,9 +180,14 @@ module Travis
         end
 
         def destroy_duplicate_server(hostname)
-          server = connection.servers.detect do |server|
-            name = server.hostname.split('.').first
-            name == hostname
+          begin
+            server = connection.servers.detect do |server|
+              name = server.hostname.split('.').first
+              name == hostname
+            end
+          rescue Excon::Errors::HTTPStatusError => e
+            mark_api_error(e)
+            raise
           end
           destroy_vm(server) if server
         end
@@ -198,6 +205,11 @@ module Travis
             Metriks.timer('worker.vm.provider.bluebox.boot').update(time)
           end
 
+          def mark_api_error(error)
+            Metriks.meter("worker.vm.provider.bluebox.api.error.#{error.response[:status]}").mark
+            error "BlueBox API returned error code #{error.response[:status]} : #{error.inspect}"
+          end
+
           def destroy_vm(vm)
             debug "vm is in #{vm.state} state"
             info "destroying the VM"
@@ -206,7 +218,7 @@ module Travis
             warn "went to destroy the VM but it didn't exist :/"
           rescue Excon::Errors::InternalServerError => e
             warn "went to destroy the VM but there was an internal server error"
-            log_exception(e)
+            mark_api_error(e)
           end
 
           def generate_password
