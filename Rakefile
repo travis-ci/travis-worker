@@ -15,3 +15,4 @@ end
 # task 'resque:setup' => 'travis:worker:config'
 
 task :default => :spec
+task :test => :spec
