@@ -19,6 +19,7 @@ gem 'json'
 
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
+gem 'docker-api'
 
 gem 'excon',            '~> 0.25.1'
 
