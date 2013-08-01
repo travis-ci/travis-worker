@@ -25,7 +25,7 @@ module Travis
 
       STATES = [:created, :starting, :ready, :working, :stopping, :stopped, :errored]
 
-      attr_reader :state
+      attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
                   :subscription, :config, :payload, :last_error, :observers
 
@@ -56,7 +56,7 @@ module Travis
       # need to relook at this method as it feels wrong to
       # report a worker at stopping while it is also working
       def stop(options = {})
-        # set :stopping
+        set :stopping
         unsubscribe
         kill if options[:force]
       end

@@ -60,7 +60,7 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :ready' do
       worker.start
-      worker.should be_ready
+      worker.state.should eql(:ready)
     end
 
     it 'notifies the reporter about the :ready state' do
@@ -81,7 +81,7 @@ describe Travis::Worker::Instance do
 
       it 'sets the current state to :stopping ' do
         worker.stop
-        worker.should be_stopping
+        worker.state.should eql(:stopping)
       end
 
       it 'notifies the reporter about the :stopping state' do
@@ -97,7 +97,7 @@ describe Travis::Worker::Instance do
 
       it 'sets the current state to :stopped' do
         worker.stop
-        worker.should be_stopped
+        worker.state.should eql(:stopped)
       end
 
       it 'notifies the reporter about the :stopped state' do
@@ -174,7 +174,7 @@ describe Travis::Worker::Instance do
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
       worker.send(:finish, metadata)
-      worker.payload.should be_nil
+      worker.payload.should eql(nil)
     end
 
     it 'acknowledges the message' do
@@ -212,7 +212,7 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :errored' do
       worker.send(:error_build, exception, metadata)
-      worker.should be_errored
+      worker.state.should eql(:errored)
     end
   end
 end
