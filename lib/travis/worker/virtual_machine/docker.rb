@@ -44,7 +44,16 @@ module Travis
         end
 
         def create_new_server(image_id)
-          @container = ::Docker::Container.create('Cmd' => ["/usr/sbin/sshd", "-D"], 'Image' => image_id, 'Hostname' => hostname, 'PortSpecs' => ["22"])
+          options = {
+            'Cmd' => ["/usr/sbin/sshd", "-D"],
+            'Image' => image_id, 
+            'CpuShares' => 1,
+            'Memory' => 2097152,
+            'Hostname' => hostname, 
+            'PortSpecs' => ["22"]
+          }
+          
+          @container = ::Docker::Container.create(options)
 
           instrument do
             container.start
