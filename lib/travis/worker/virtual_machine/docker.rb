@@ -48,7 +48,7 @@ module Travis
             'Cmd' => ["/usr/sbin/sshd", "-D"],
             'Image' => image_id, 
             'CpuShares' => 1,
-            'Memory' => 2097152,
+            'Memory' => 2147483648,
             'Hostname' => hostname, 
             'PortSpecs' => ["22"]
           }
