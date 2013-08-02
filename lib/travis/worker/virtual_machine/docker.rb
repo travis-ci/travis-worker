@@ -36,7 +36,7 @@ module Travis
         def create_server(opts = {})
           image = image_for_language(opts[:language])
           
-          info "Using template '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
+          info "Using image '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
 
           retryable(:tries => 3) do
             create_new_server(image.id)
@@ -113,13 +113,19 @@ module Travis
         end
 
         def image_for_language(lang)
-          if image_override
+          image = if image_override
             latest_images.detect { |i| i.id =~ /^#{image_override}/ }
           elsif lang.nil?
-            latest_images.detect { |i| i.tag == 'ruby' }
+            default_image
           else
-            latest_images.detect { |i| i.tag == lang }
+            latest_images.detect { |i| i.tag == lang.gsub(/[-_]/, "") }
           end
+          
+          image || default_image
+        end
+
+        def default_image
+          latest_images.detect { |i| i.tag == 'ruby' }
         end
 
         def destroy_server(opts = {})
