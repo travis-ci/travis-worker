@@ -115,6 +115,8 @@ module Travis
         def image_for_language(lang)
           if image_override
             latest_images.detect { |i| i.id == image_override }
+          elsif lang.nil?
+            latest_images.detect { |i| i.tag == 'ruby' }
           else
             latest_images.detect { |i| i.tag == lang }
           end
