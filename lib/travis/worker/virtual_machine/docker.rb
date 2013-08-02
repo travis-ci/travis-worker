@@ -39,7 +39,7 @@ module Travis
           info "Using template '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
 
           retryable(:tries => 3) do
-            create_new_server(image)
+            create_new_server(image.id)
           end
         end
 
