@@ -118,7 +118,7 @@ module Travis
           elsif lang.nil?
             default_image
           else
-            latest_images.detect { |i| i.tag == lang.gsub(/[-_]/, "") }
+            latest_images.detect { |i| i.tag.gsub(/[-_]/, "") == lang.gsub(/[-_]/, "") }
           end
           
           image || default_image
