@@ -36,7 +36,7 @@ module Travis
         def create_server(opts = {})
           image = image_for_language(opts[:language])
           
-          info "Using template '#{image['Repository']}:#{image['Tag']}' (#{image['Id']}) for language #{opts[:language] || '[nil]'}"
+          info "Using template '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
 
           retryable(:tries => 3) do
             create_new_server(image)
@@ -109,14 +109,15 @@ module Travis
         end
 
         def latest_images
-          @latest_images ||= begin
-            ::Docker::Image.all
-          end
+          @latest_images ||= ::Docker::Image.all.find_all { |i| i.repository == 'travis' }
         end
 
         def image_for_language(lang)
-          puts image_override
-          image_override
+          if image_override
+            latest_images.detect { |i| i.id == image_override }
+          else
+            latest_images.detect { |i| i.tag == lang }
+          end
         end
 
         def destroy_server(opts = {})
