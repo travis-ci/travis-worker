@@ -93,6 +93,7 @@ describe Travis::Worker::Instance do
     describe 'if the worker is not working' do
       before :each do
         worker.stubs(:working?).returns(false)
+        worker.stubs(:subscription).returns(stub(:cancelled? => false))
       end
 
       it 'sets the current state to :stopped' do
