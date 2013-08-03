@@ -207,7 +207,7 @@ describe Travis::Worker::Instance do
 
     it 'stores the error' do
       worker.send(:error_build, exception, metadata)
-      worker.last_error.should == "broken\nkaputt.rb"
+      worker.last_error.should eql("broken\nkaputt.rb")
     end
 
     it 'stops itself' do
