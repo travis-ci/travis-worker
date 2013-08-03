@@ -215,9 +215,9 @@ describe Travis::Worker::Instance do
       worker.send(:error_build, exception, metadata)
     end
 
-    it 'sets the current state to :errored' do
+    it 'sets the current state to :ready' do
       worker.send(:error_build, exception, metadata)
-      worker.state.should eql(:errored)
+      worker.state.should eql(:ready)
     end
   end
 end
