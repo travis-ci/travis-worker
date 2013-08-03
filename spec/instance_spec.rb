@@ -27,7 +27,7 @@ describe Travis::Worker::Instance do
   let(:worker)       { Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, observer).wrapped_object }
 
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
-  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123, 'language' => 'ruby' } } }
+  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' } } }
   let(:payload)         { MultiJson.encode(decoded_payload) }
 
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
