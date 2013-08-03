@@ -140,6 +140,7 @@ describe Travis::Worker::Instance do
   describe 'work' do
     before(:each) do
       worker.state = :ready
+      worker.stubs(:payload => decoded_payload)
       metadata.stubs(:redelivered?).returns(false)
     end
     after(:each) do
