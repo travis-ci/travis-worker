@@ -10,6 +10,7 @@ require 'travis/worker/reporter'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/utils/serialization'
 require 'travis/worker/job/runner'
+require 'metriks'
 
 module Travis
   module Worker
