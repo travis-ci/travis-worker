@@ -195,6 +195,7 @@ describe Travis::Worker::Instance do
     before(:each) do
       metadata.stubs(:reject)
       worker.stubs(:payload => decoded_payload)
+      worker.stubs(:sleep)
     end
     after(:each)  { worker.shutdown }
 
