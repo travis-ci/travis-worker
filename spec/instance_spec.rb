@@ -141,7 +141,7 @@ describe Travis::Worker::Instance do
   describe 'work' do
     before(:each) do
       worker.state = :ready
-      worker.stubs(:payload => decoded_payload)
+      worker.stubs(:payload).returns(decoded_payload)
       metadata.stubs(:redelivered?).returns(false)
     end
     after(:each) do
@@ -149,7 +149,7 @@ describe Travis::Worker::Instance do
     end
 
     it 'prepares work' do
-      worker.stubs(:payload => decoded_payload)
+      worker.stubs(:payload).returns(decoded_payload)
       worker.expects(:prepare)
       worker.work(metadata, payload)
     end
@@ -196,7 +196,7 @@ describe Travis::Worker::Instance do
   describe 'error' do
     before(:each) do
       metadata.stubs(:reject)
-      worker.stubs(:payload => decoded_payload)
+      worker.stubs(:payload).returns(decoded_payload)
       worker.stubs(:sleep)
     end
     after(:each)  { worker.shutdown }
