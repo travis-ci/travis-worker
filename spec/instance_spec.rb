@@ -192,7 +192,10 @@ describe Travis::Worker::Instance do
   end
 
   describe 'error' do
-    before(:each) { metadata.stubs(:reject) }
+    before(:each) do
+      metadata.stubs(:reject)
+      worker.stubs(:payload => decoded_payload)
+    end
     after(:each)  { worker.shutdown }
 
     it 'requeues the message' do
