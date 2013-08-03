@@ -19,7 +19,7 @@ end
 describe Travis::Worker::Instance do
   include_context "hot_bunnies connection"
 
-  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
+  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:observer)     { DummyObserver.new }
   let(:queue_name)   { "builds.php" }
   let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
