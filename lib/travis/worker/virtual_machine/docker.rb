@@ -45,7 +45,7 @@ module Travis
 
         def create_new_server(image_id)
           options = {
-            'Cmd' => ["/usr/sbin/sshd", "-D"],
+            'Cmd' => ["/sbin/init"],
             'Image' => image_id, 
             'CpuShares' => 1,
             'Memory' => 2147483648,
