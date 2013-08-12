@@ -47,6 +47,7 @@ module Travis
             decoded = decoded_payload(payload)
             case decoded["type"]
             when "cancel_job"
+              info "cancel job message received for job id:#{decoded["job_id"]}"
               Commands::CancelJob.new(pool, decoded["job_id"]).run
             when nil
               warn "type not present"
