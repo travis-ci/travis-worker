@@ -57,12 +57,19 @@ module Travis
       # report a worker at stopping while it is also working
       def stop(options = {})
         # set :stopping
+        info "stopping job"
         unsubscribe
         kill if options[:force]
       end
-      log :stop
 
-      def kill
+      def cancel
+        if @runner
+          info "cancelling job"
+          @runner.cancel
+        else
+          @job_canceled = true
+          info "marked job for cancellation as it is not running yet"
+        end
         # vm.shell.terminate("Worker #{name} was stopped forcefully.")
       end
 
@@ -73,6 +80,7 @@ module Travis
         error_build(error, message)
       ensure
         reset_reporter
+        @job_canceled = false
       end
 
       def work(message, payload)
@@ -91,7 +99,6 @@ module Travis
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a connection error"
         finish(message, :restart => true)
       end
-      log :work, :as => :debug
 
       def report
         { :name => name, :host => host, :state => state, :last_error => last_error, :payload => payload }
@@ -241,14 +248,20 @@ module Travis
       end
 
       def run_job
-        runner = nil
+        @runner = nil
 
         vm.sandboxed(language: job_language) do
-          runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
-          runner.run
+          if @job_canceled
+            reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
+            reporter.notify_job_finished(payload.job.id, 'canceled')
+          else
+            @runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
+            @runner.run
+          end
         end
       ensure
-        runner.terminate if runner && runner.alive?
+        # @runner.terminate if @runner && @runner.alive?
+        @runner = nil
       end
 
       def restart_job
