@@ -3,7 +3,7 @@ require 'hot_bunnies'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
 require 'travis/worker/pool'
-require 'travis/worker/application/command'
+require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
 require 'travis/worker/application/remote'
 
@@ -28,6 +28,7 @@ module Travis
       def boot(options = {})
         install_signal_traps
         start_metriks
+        start_commands_dispatcher
         start(options)
         heart.start
         sleep
@@ -56,7 +57,7 @@ module Travis
 
       def terminate(options = {})
         stop(options)
-        Command.shutdown
+        stop_commands_dispatcher
         disconnect
         update if options[:update]
         reboot if options[:reboot]
@@ -72,6 +73,15 @@ module Travis
 
       def config
         Travis::Worker.config
+      end
+
+      def start_commands_dispatcher
+        @commands ||= Commands::Dispatcher.new(workers)
+        @commands.start
+      end
+
+      def stop_commands_dispatcher
+        @commands.shutdown
       end
 
       def workers
