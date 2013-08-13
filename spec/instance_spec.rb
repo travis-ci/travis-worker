@@ -19,7 +19,7 @@ end
 describe Travis::Worker::Instance do
   include_context "hot_bunnies connection"
 
-  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
+  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:observer)     { DummyObserver.new }
   let(:queue_name)   { "builds.php" }
   let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
@@ -27,7 +27,7 @@ describe Travis::Worker::Instance do
   let(:worker)       { Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, observer).wrapped_object }
 
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
-  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 } } }
+  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' } } }
   let(:payload)         { MultiJson.encode(decoded_payload) }
 
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
@@ -60,7 +60,7 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :ready' do
       worker.start
-      worker.should be_ready
+      worker.state.should eql(:ready)
     end
 
     it 'notifies the reporter about the :ready state' do
@@ -81,7 +81,7 @@ describe Travis::Worker::Instance do
 
       it 'sets the current state to :stopping ' do
         worker.stop
-        worker.should be_stopping
+        worker.state.should eql(:stopping)
       end
 
       it 'notifies the reporter about the :stopping state' do
@@ -93,11 +93,12 @@ describe Travis::Worker::Instance do
     describe 'if the worker is not working' do
       before :each do
         worker.stubs(:working?).returns(false)
+        worker.stubs(:subscription).returns(stub(:cancelled? => false))
       end
 
       it 'sets the current state to :stopped' do
         worker.stop
-        worker.should be_stopped
+        worker.state.should eql(:stopped)
       end
 
       it 'notifies the reporter about the :stopped state' do
@@ -140,6 +141,7 @@ describe Travis::Worker::Instance do
   describe 'work' do
     before(:each) do
       worker.state = :ready
+      worker.stubs(:payload).returns(decoded_payload)
       metadata.stubs(:redelivered?).returns(false)
     end
     after(:each) do
@@ -147,7 +149,7 @@ describe Travis::Worker::Instance do
     end
 
     it 'prepares work' do
-      worker.stubs(:payload => decoded_payload)
+      worker.stubs(:payload).returns(decoded_payload)
       worker.expects(:prepare)
       worker.work(metadata, payload)
     end
@@ -174,7 +176,7 @@ describe Travis::Worker::Instance do
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
       worker.send(:finish, metadata)
-      worker.payload.should be_nil
+      worker.payload.should eql(nil)
     end
 
     it 'acknowledges the message' do
@@ -192,7 +194,11 @@ describe Travis::Worker::Instance do
   end
 
   describe 'error' do
-    before(:each) { metadata.stubs(:reject) }
+    before(:each) do
+      metadata.stubs(:reject)
+      worker.stubs(:payload).returns(decoded_payload)
+      worker.stubs(:sleep)
+    end
     after(:each)  { worker.shutdown }
 
     it 'requeues the message' do
@@ -202,7 +208,7 @@ describe Travis::Worker::Instance do
 
     it 'stores the error' do
       worker.send(:error_build, exception, metadata)
-      worker.last_error.should == "broken\nkaputt.rb"
+      worker.last_error.should eql("broken\nkaputt.rb")
     end
 
     it 'stops itself' do
@@ -210,9 +216,9 @@ describe Travis::Worker::Instance do
       worker.send(:error_build, exception, metadata)
     end
 
-    it 'sets the current state to :errored' do
+    it 'sets the current state to :ready' do
       worker.send(:error_build, exception, metadata)
-      worker.should be_errored
+      worker.state.should eql(:ready)
     end
   end
 end

@@ -10,6 +10,7 @@ require 'travis/worker/reporter'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/utils/serialization'
 require 'travis/worker/job/runner'
+require 'metriks'
 
 module Travis
   module Worker
@@ -25,7 +26,7 @@ module Travis
 
       STATES = [:created, :starting, :ready, :working, :stopping, :stopped, :errored]
 
-      attr_reader :state
+      attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
                   :subscription, :config, :payload, :last_error, :observers
 
@@ -56,8 +57,7 @@ module Travis
       # need to relook at this method as it feels wrong to
       # report a worker at stopping while it is also working
       def stop(options = {})
-        # set :stopping
-        info "stopping job"
+        set :stopping
         unsubscribe
         kill if options[:force]
       end

@@ -15,7 +15,7 @@ describe Travis::Worker::Factory do
     end
 
     it 'has a vm' do
-      worker.vm.class.to_s.should == "Travis::Worker::VirtualMachine::VirtualBox"
+      worker.vm.class.to_s.should == "Travis::Worker::VirtualMachine::BlueBox"
     end
 
     describe 'queues' do
