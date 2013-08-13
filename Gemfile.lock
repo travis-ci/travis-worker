@@ -15,8 +15,8 @@ GIT
 
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: b595996d116131e1eca02e9699f239b0dd4a5a31
-  ref: b595996
+  revision: 8a8d92582b01c7347ef1b90e9c89189afbed7786
+  ref: 8a8d925
   specs:
     celluloid (0.15.0.pre)
       timers (>= 1.0.0)
@@ -82,7 +82,7 @@ GEM
     hashr (0.0.22)
     hitimes (1.2.1-java)
     hot_bunnies (2.0.0.pre10-java)
-    i18n (0.6.4)
+    i18n (0.6.5)
     jruby-openssl (0.8.8)
       bouncy-castle-java (>= 1.5.0147)
     json (1.8.0-java)
