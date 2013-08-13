@@ -26,7 +26,7 @@ module Travis
     module Job
       class Runner
         include Logging
-        include Celluloid
+        # include Celluloid
         include Retryable
 
         class ConnectionError < StandardError; end
@@ -108,6 +108,11 @@ module Travis
         rescue IOError, Errno::ECONNREFUSED => e
           connection_error
         ensure
+          if @canceled
+            sleep 2
+            reporter.send_log(job_id, "\n\nDone: Job Cancelled\n")
+            result = 'canceled'
+          end
           notify_job_finished(result)
         end
 
@@ -115,6 +120,12 @@ module Travis
           exit_exec!
           sleep 2
           session.close
+        end
+
+        def cancel
+          @canceled = true
+          stop
+          # need to mark job as canceled
         end
 
         def check_config

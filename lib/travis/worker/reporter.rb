@@ -81,6 +81,7 @@ module Travis
       end
 
       def normalized_state(result)
+        return result if result.is_a?(String)
         case result
         when 0; 'passed'
         when 1; 'failed'
