@@ -27,9 +27,6 @@ gem 'sshjr',            :git => 'https://github.com/joshk/sshjr'
 
 gem 'metriks'
 
-# downgrade to 1.1.1 due to https://github.com/headius/ruby-atomic/commit/1b687675363d57d881353f90518267d49dabef4b
-gem 'atomic',           '1.1.1'
-
 platform :jruby do
   gem 'hot_bunnies',    '2.0.0.pre10'
   gem 'jruby-openssl',  '~> 0.8.0'
