@@ -52,7 +52,7 @@ module Travis
             when nil
               warn "type not present"
             else
-              wanr "type:#{decoded["type"]} not recognized"
+              warn "type:#{decoded["type"]} not recognized"
             end
             # reply(target.send(command, *args))
           rescue Exception => e
