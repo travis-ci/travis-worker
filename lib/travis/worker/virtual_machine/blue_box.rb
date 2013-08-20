@@ -171,6 +171,9 @@ module Travis
           end
 
           latest_templates[mapping] || latest_templates['ruby']
+        rescue => e
+          error "Error figuring out what template to use: #{e.inspect}"
+          latest_templates['ruby']
         end
 
         def destroy_server(opts = {})
