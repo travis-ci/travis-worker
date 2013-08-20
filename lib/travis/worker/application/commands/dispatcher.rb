@@ -26,7 +26,7 @@ module Travis
 
             exchange = channel.fanout("worker.commands")
             
-            queue = channel.queue("worker.commands", durable: false)
+            queue = channel.queue("", :exclusive => true)
             queue.bind(exchange)
             
             @consumer = queue.subscribe(ack: true) do |message, payload|
