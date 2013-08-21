@@ -26,7 +26,7 @@ module Travis
 
             exchange = channel.fanout("worker.commands")
 
-            queue = channel.queue("worker.commands", durable: false)
+            queue = channel.queue("", :exclusive => true)
             queue.bind(exchange)
 
             @consumer = queue.subscribe(ack: true) do |message, payload|
@@ -47,11 +47,12 @@ module Travis
             decoded = decoded_payload(payload)
             case decoded["type"]
             when "cancel_job"
+              info "cancel job message received for job id:#{decoded["job_id"]}"
               Commands::CancelJob.new(pool, decoded["job_id"]).run
             when nil
               warn "type not present"
             else
-              wanr "type:#{decoded["type"]} not recognized"
+              warn "type:#{decoded["type"]} not recognized"
             end
             # reply(target.send(command, *args))
           rescue Exception => e
