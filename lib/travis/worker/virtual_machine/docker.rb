@@ -53,6 +53,8 @@ module Travis
             'PortSpecs' => ["22"]
           }
           
+          options['Privileged'] = true if Travis::Worker.config.docker.privileged_support
+          
           @container = ::Docker::Container.create(options)
 
           instrument do
