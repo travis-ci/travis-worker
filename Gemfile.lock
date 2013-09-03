@@ -44,7 +44,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 7e78698c40f037da9d18579345ae041c6cd43189
+  revision: fb013ff4aa512f7cfa710c6c496a9b37ff4275d8
+  ref: mm-apt-cache
   specs:
     travis-build (0.0.1)
 
@@ -130,6 +131,7 @@ GEM
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   activesupport
