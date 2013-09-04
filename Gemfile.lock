@@ -44,7 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: b23d74d23b091c09f1b5d91fa939e4f30661cc23
+  revision: b5f6161fdbf5efebb5b36911f92f091507af0f95
   ref: mm-apt-cache
   specs:
     travis-build (0.0.1)
