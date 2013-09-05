@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
+gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build', branch: 'sf-te'
 gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
 gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid', :ref => '8a8d925'
