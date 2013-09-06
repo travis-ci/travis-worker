@@ -62,7 +62,7 @@ module Travis
         end
 
         def compile_script
-          Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
+          Build.script(payload.merge(timeouts: false, hosts: Travis::Worker.config[:host_names]), logs: { build: false, state: true }).compile
         rescue StandardError => e
           raise ScriptCompileError, "An error occured while compiling the build script"
         end
