@@ -44,8 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 4844e73df9cb4665438d3e20b2772bda6900d9cb
-  ref: mm-code-climate-addon
+  revision: 4d9778158a9bcd7388bd6248de21937b64a9201a
   specs:
     travis-build (0.0.1)
 
