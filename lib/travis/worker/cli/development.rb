@@ -1,7 +1,8 @@
 require "thor"
 
 require "java"
-require "march_hare" require "multi_json"
+require "march_hare"
+require "multi_json"
 require 'travis/worker'
 
 module Travis
