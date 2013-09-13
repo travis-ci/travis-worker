@@ -3,7 +3,6 @@ require 'travis/support/logging'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/build'
 
-
 # monkey patch net-ssh for now
 require 'net/ssh/buffered_io'
 module Net
@@ -97,7 +96,7 @@ module Travis
           unless stop
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
-          announce("\n\n#{e.message}\n\n")          
+          announce("\n\n#{e.message}\n\n")
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           warn "build error : #{e.class}, #{e.message}"
           warn "  #{e.backtrace.join("\n  ")}"

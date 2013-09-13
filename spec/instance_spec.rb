@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'hashr'
 require 'stringio'
-require 'hot_bunnies'
+require 'march_hare'
 require 'travis/worker/instance'
 
 class DummyObserver
@@ -17,7 +17,7 @@ class DummyObserver
 end
 
 describe Travis::Worker::Instance do
-  include_context "hot_bunnies connection"
+  include_context "march_hare connection"
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
   let(:observer)     { DummyObserver.new }

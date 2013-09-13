@@ -29,7 +29,7 @@ gem 'sshjr',            :git => 'https://github.com/joshk/sshjr'
 gem 'metriks'
 
 platform :jruby do
-  gem 'hot_bunnies',    '2.0.0.pre13'
+  gem 'march_hare',     '2.0.0.rc1'
   gem 'jruby-openssl',  '~> 0.8.0'
 end
 

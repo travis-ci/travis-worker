@@ -1,7 +1,7 @@
 require 'hashr'
 require 'json'
 require 'multi_json'
-require 'hot_bunnies'
+require 'march_hare'
 require 'travis/support'
 require 'travis/worker/application/commands/cancel_job'
 
@@ -25,10 +25,10 @@ module Travis
             channel.prefetch = 1
 
             exchange = channel.fanout("worker.commands")
-            
+
             queue = channel.queue("", :exclusive => true)
             queue.bind(exchange)
-            
+
             @consumer = queue.subscribe(ack: true) do |message, payload|
               process_command(payload)
               message.ack
