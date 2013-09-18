@@ -54,6 +54,8 @@ module Travis
           
           info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
+          hostname = hostname(opts[:job_id])
+
           config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
             :image_id => template['id'], 
             :hostname => hostname
@@ -96,11 +98,9 @@ module Travis
           raise
         end
 
-        def hostname
-          @hostname ||= begin
-            prefix = Worker.config.host.split('.').first
-            "testing-#{prefix}-#{Process.pid}-#{name}"
-          end
+        def hostname(suffix)
+          prefix = Worker.config.host.split('.').first
+          "testing-#{prefix}-#{Process.pid}-#{name}-#{suffix}"
         end
 
         def session
@@ -178,6 +178,7 @@ module Travis
 
         def destroy_server(opts = {})
           destroy_vm(server)
+        ensure
           @server = nil
           @session = nil
         end
@@ -216,11 +217,15 @@ module Travis
           def destroy_vm(vm)
             debug "vm is in #{vm.state} state"
             info "destroying the VM"
-            vm.destroy
+            retryable(tries: 3) do
+              vm.destroy
+            end
           rescue Fog::Compute::Bluebox::NotFound => e
-            warn "went to destroy the VM but it didn't exist :/"
+            warn "went to destroy the VM but it didn't exist :/ : #{e.inspect}"
+          rescue Excon::Errors::HTTPStatusError => e
+            warn "went to destroy the VM but there was an http status error : #{e.inspect}"
           rescue Excon::Errors::InternalServerError => e
-            warn "went to destroy the VM but there was an internal server error"
+            warn "went to destroy the VM but there was an internal server error : #{e.inspect}"
             mark_api_error(e)
           end
 
