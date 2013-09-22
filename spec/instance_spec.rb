@@ -23,7 +23,7 @@ describe Travis::Worker::Instance do
   
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
 
-  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid'} }
+  let(:decoded_payload) { Hashr.new('id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid') }
  
   let(:payload)         { MultiJson.encode(decoded_payload) }
 
