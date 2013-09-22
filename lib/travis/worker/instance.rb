@@ -25,7 +25,7 @@ module Travis
 
       STATES = [:created, :starting, :ready, :working, :stopping, :stopped, :errored]
 
-      attr_reader :state
+      attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
                   :subscription, :config, :payload, :last_error, :observers
 
