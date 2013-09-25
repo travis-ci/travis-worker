@@ -31,6 +31,6 @@ describe Travis::Worker::Utils::Buffer do
     buffer << '1ą234512345'
     buffer.send(:flush)
 
-    result.should == ["1ą", "234", "512", "345"]
+    result.should == ["1", "ą", "234", "512", "345"]
   end
 end

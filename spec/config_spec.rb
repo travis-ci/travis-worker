@@ -59,32 +59,8 @@ describe Travis::Worker::Config do
   end
 
   describe :defaults do
-    it 'before_script timeout defaults to 300' do
-      config.timeouts.before_script.should == 300
-    end
-
-    it 'after_script timeout defaults to 300' do
-      config.timeouts.after_script.should == 300
-    end
-
-    it 'after_success timeout defaults to 300' do
-      config.timeouts.after_success.should == 300
-    end
-
-    it 'after_failure timeout defaults to 300' do
-      config.timeouts.after_failure.should == 300
-    end
-
-    it 'script timeout defaults to 600' do
-      config.timeouts.script.should == 600
-    end
-
-    it 'bundle timeout defaults to 300' do
-      config.timeouts.install.should == 300
-    end
-
-    it 'default timeout is 180' do
-      config.timeouts.default.should == 180
+    it 'hard limit is 3000' do
+      config.timeouts.hard_limit.should == 3000
     end
 
     it 'queue defaults to builds' do

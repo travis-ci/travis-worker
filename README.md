@@ -1,4 +1,5 @@
 # About travis-worker #
+[![Build Status](https://travis-ci.org/travis-ci/travis-worker.png)](https://travis-ci.org/travis-ci/travis-worker)
 
 This is home for the next generation of Travis CI worker. It is a WIP and is still very rough around the edges for broader community of contributors to jump in.
 
