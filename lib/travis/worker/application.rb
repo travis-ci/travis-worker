@@ -1,5 +1,5 @@
 require 'java'
-require 'hot_bunnies'
+require 'march_hare'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
 require 'travis/worker/pool'
@@ -66,7 +66,7 @@ module Travis
       log :terminate
 
       def broker_connection
-        @broker_connection ||= HotBunnies.connect(config.fetch(:amqp, Hashr.new))
+        @broker_connection ||= MarchHare.connect(config.fetch(:amqp, Hashr.new))
       end
 
       protected
