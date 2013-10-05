@@ -1,46 +1,47 @@
 require 'spec_helper'
-require 'hashr'
-require 'stringio'
 require 'hot_bunnies'
+require 'hashr'
 require 'travis/worker/instance'
-
-class DummyObserver
-  attr_reader :events
-
-  def initialize
-    @events = []
-  end
-
-  def notify(event)
-    @events << event
-  end
-end
+require 'celluloid/autostart'
 
 describe Travis::Worker::Instance do
   include_context "hot_bunnies connection"
 
-  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil)  }
-  let(:observer)     { DummyObserver.new }
+  let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:queue_name)   { "builds.php" }
+  
   let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
 
-  let(:worker)       { Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, observer).wrapped_object }
+  let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
 
+
+  let(:observer) { stub('observer', :notify) }
+ 
+  def worker
+    @worker ||= Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, [observer]).wrapped_object
+  end
+  
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
-  let(:decoded_payload) { { 'id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 } } }
+
+  let(:decoded_payload) { Hashr.new('id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid') }
+ 
   let(:payload)         { MultiJson.encode(decoded_payload) }
 
-  let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
-  let(:build)        { stub('build', :run => nil) }
-  let(:io)           { StringIO.new }
 
   before :each do
-    Socket.stubs(:gethostname).returns('host')
-    Travis.logger = Logger.new(io)
-    Travis::Build.stubs(:create).returns(build)
+    Travis::Worker.config.host = 'host'
+    Celluloid.logger = nil
+    Celluloid.shutdown; Celluloid.boot
+    worker.stubs(:subscription).returns(stub(:cancelled? => false, :cancel => nil))
   end
 
+  after :each do
+    @worker = nil
+  end
+
+
   describe 'start' do
+    
     it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
@@ -49,8 +50,8 @@ describe Travis::Worker::Instance do
     end
 
     it 'notifies the reporter about the :starting state' do
+      observer.expects(:notify).with({ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil })
       worker.start
-      observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :starting, :payload => nil, :last_error => nil })
     end
 
     it 'prepares the vm' do
@@ -60,12 +61,12 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :ready' do
       worker.start
-      worker.should be_ready
+      worker.state.should eql(:ready)
     end
 
     it 'notifies the reporter about the :ready state' do
+      observer.expects(:notify).with({ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil })
       worker.start
-      observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :ready, :payload => nil, :last_error => nil })
     end
   end
 
@@ -74,36 +75,18 @@ describe Travis::Worker::Instance do
       worker.shutdown
     end
 
-    describe 'if the worker is still working' do
-      before :each do
-        worker.stubs(:working?).returns(true)
-      end
-
-      it 'sets the current state to :stopping ' do
-        worker.stop
-        worker.should be_stopping
-      end
-
-      it 'notifies the reporter about the :stopping state' do
-        worker.stop
-        observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :stopping, :payload => nil, :last_error => nil })
-      end
+    before :each do
+      worker.state = :foobarbaz
     end
 
-    describe 'if the worker is not working' do
-      before :each do
-        worker.stubs(:working?).returns(false)
-      end
+    it 'sets the current state to :stopped' do
+      worker.stop
+      worker.state.should eql(:stopped)
+    end
 
-      it 'sets the current state to :stopped' do
-        worker.stop
-        worker.should be_stopped
-      end
-
-      it 'notifies the reporter about the :stopped state' do
-        worker.stop
-        observer.events.should include({ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil })
-      end
+    it 'notifies the reporter about the :stopped state' do
+      observer.expects(:notify).with({ :name => 'worker-1', :host => 'host', :state => :stopped, :payload => nil, :last_error => nil })
+      worker.stop
     end
   end
 
@@ -113,11 +96,11 @@ describe Travis::Worker::Instance do
       after(:each)  { worker.shutdown }
 
       it 'works' do
-        worker.expects(:work)
+        worker.expects(:work).with(metadata, payload)
         worker.process(metadata, payload)
       end
     end
-
+    
     describe 'with an exception rescued' do
       let(:exception) { Exception.new }
 
@@ -140,6 +123,7 @@ describe Travis::Worker::Instance do
   describe 'work' do
     before(:each) do
       worker.state = :ready
+      worker.stubs(:payload).returns(decoded_payload)
       metadata.stubs(:redelivered?).returns(false)
     end
     after(:each) do
@@ -147,19 +131,10 @@ describe Travis::Worker::Instance do
     end
 
     it 'prepares work' do
-      worker.stubs(:payload => decoded_payload)
-      worker.expects(:prepare)
       worker.work(metadata, payload)
-    end
-
-    it 'creates a new build job' do
-      Travis::Build.expects(:create).returns(build)
-      worker.work(metadata, payload)
-    end
-
-    it 'runs the build' do
-      build.expects(:run)
-      worker.work(metadata, payload)
+      worker.payload.should eql(decoded_payload)
+      # Doesn't work, due to Travis.uuid being thread-specific in Celluloid
+      Travis.uuid.should eql(decoded_payload['uuid'])
     end
 
     it 'finishes' do
@@ -174,7 +149,7 @@ describe Travis::Worker::Instance do
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
       worker.send(:finish, metadata)
-      worker.payload.should be_nil
+      worker.payload.should eql(nil)
     end
 
     it 'acknowledges the message' do
@@ -183,36 +158,37 @@ describe Travis::Worker::Instance do
     end
 
     context "if the worker is working" do
-      it 'sets the current state to :ready'
+      before(:each) { worker.state = :working }
+      it 'sets the current state to :ready' do
+        worker.send(:finish, metadata)
+        worker.state.should eql(:ready)
+      end
     end
 
     context "if the worker is stopping" do
-      it 'sets the current state to :stopped'
+      before(:each) { worker.state = :stopping }
+      it 'sets the current state to :stopped' do
+        worker.send(:finish, metadata)
+        worker.state.should eql(:stopped)
+      end
     end
   end
 
-  describe 'error' do
-    before(:each) { metadata.stubs(:reject) }
-    after(:each)  { worker.shutdown }
-
-    it 'requeues the message' do
-      metadata.expects(:reject).with(:requeue => true)
-      worker.send(:error_build, exception, metadata)
+  describe 'error_build' do
+    before(:each) do
+      worker.stubs(:payload).returns(decoded_payload)
+      worker.stubs(:sleep)
     end
+    after(:each)  { worker.shutdown }
 
     it 'stores the error' do
       worker.send(:error_build, exception, metadata)
-      worker.last_error.should == "broken\nkaputt.rb"
+      worker.last_error.should eql([exception.message, exception.backtrace].flatten.join("\n"))
     end
 
-    it 'stops itself' do
-      worker.expects(:stop)
+    it 'calls finish' do
+      worker.expects(:finish).with(metadata, restart: true)
       worker.send(:error_build, exception, metadata)
-    end
-
-    it 'sets the current state to :errored' do
-      worker.send(:error_build, exception, metadata)
-      worker.should be_errored
     end
   end
 end

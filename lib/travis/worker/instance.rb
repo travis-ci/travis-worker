@@ -25,7 +25,7 @@ module Travis
 
       STATES = [:created, :starting, :ready, :working, :stopping, :stopped, :errored]
 
-      attr_reader :state
+      attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
                   :subscription, :config, :payload, :last_error, :observers
 
@@ -250,7 +250,7 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language) do
+        vm.sandboxed(language: job_language, job_id: payload.job.id) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')

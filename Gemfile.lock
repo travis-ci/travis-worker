@@ -53,13 +53,13 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 4570c021fc530589fac21b8d82318b305256c666
+  revision: a3d04607a0e5917f258e1a297d1bab1de6f73c16
   specs:
     travis-build (0.0.1)
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: 7c69fe727968b31551ce3acbe0d4f2e0e5bc8fa3
+  revision: fffb09b3e6967cdb6c33f04ac7f7840a8df77400
   specs:
     travis-support (0.0.1)
 
@@ -71,7 +71,7 @@ GEM
       multi_json (~> 1.0)
     addressable (2.3.5)
     archive-tar-minitar (0.5.2)
-    atomic (1.1.13-java)
+    atomic (1.1.14-java)
     avl_tree (1.1.3)
     bouncy-castle-java (1.5.0147)
     builder (3.2.2)
@@ -92,7 +92,7 @@ GEM
     hitimes (1.2.1-java)
     hot_bunnies (2.0.0.pre13-java)
     i18n (0.6.5)
-    jruby-openssl (0.8.8)
+    jruby-openssl (0.8.10)
       bouncy-castle-java (>= 1.5.0147)
     json (1.8.0-java)
     log4r (1.1.10)
@@ -101,7 +101,7 @@ GEM
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
-    micromachine (1.0.4)
+    micromachine (1.1.0)
     mime-types (1.25)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
@@ -118,7 +118,7 @@ GEM
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
     rspec-core (2.14.5)
-    rspec-expectations (2.14.2)
+    rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.3)
     ruby-hmac (0.4.0)
@@ -132,10 +132,10 @@ GEM
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
-    vagrant-vbguest (0.8.0)
+    vagrant-vbguest (0.9.0)
       i18n (~> 0.6.0)
       log4r (~> 1.1.9)
-      micromachine (~> 1.0.4)
+      micromachine (~> 1.1.0)
 
 PLATFORMS
   java

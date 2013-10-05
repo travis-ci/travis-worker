@@ -62,9 +62,10 @@ module Travis
         end
 
         def compile_script
-          Build.script(payload.merge(timeouts: false), logs: { build: false, state: true }).compile
+          data = payload.merge(timeouts: false, hosts: Travis::Worker.config[:hosts], cache_options: Travis::Worker.config[:cache_options])
+          Build.script(data, logs: { build: false, state: true }).compile
         rescue StandardError => e
-          raise ScriptCompileError, "An error occured while compiling the build script"
+          raise ScriptCompileError, "An error occured while compiling the build script : #{e.message}"
         end
 
         def setup_log_streaming
@@ -97,7 +98,7 @@ module Travis
           unless stop
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
-          announce("\n\n#{e.message}\n\n")          
+          announce("\n\n#{e.message}\n\n")
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           warn "build error : #{e.class}, #{e.message}"
           warn "  #{e.backtrace.join("\n  ")}"
@@ -149,7 +150,7 @@ module Travis
 
         def upload_and_run_script
           info "uploading build.sh"
-          session.upload_file("~/build.sh", compile_script)
+          session.upload_file("~/build.sh", payload['script'] || compile_script)
 
           info "setting +x permission on build.sh"
           session.exec("chmod +x ~/build.sh")
