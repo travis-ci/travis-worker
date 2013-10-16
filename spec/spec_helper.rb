@@ -4,7 +4,7 @@ require 'rubygems'
 require "bundler/setup"
 
 require 'rspec'
-require 'mocha'
+require 'mocha/api'
 require 'hashr'
 require 'hot_bunnies'
 
