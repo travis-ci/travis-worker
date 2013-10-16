@@ -34,8 +34,8 @@ end
 
 group :test do
   gem 'rake',           '~> 0.9.2'
-  gem 'mocha',          '~> 0.11.0'
+  gem 'mocha',          '~> 0.14.0', require: false
   gem 'rspec'
-  gem 'simplecov',      '>= 0.4.0', :require => false
+  gem 'simplecov',      '>= 0.4.0', require: false
 end
 
