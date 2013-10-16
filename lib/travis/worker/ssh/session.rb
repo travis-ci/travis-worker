@@ -22,7 +22,7 @@ module Travis
 
         CONNECTORS = {
           net_ssh: Connector::NetSSH,
-          sshjr:   Connector::SSHJr,
+          sshjr:   Connector::SSHJr
         }
 
         log_header { "#{name}:shell:session" }
@@ -31,15 +31,17 @@ module Travis
 
         # Initialize a shell Session
         #
+        # name   - a name of the session
         # config - A hash containing the timeouts, shell buffer time and ssh connection information
-        # block - An optional block of commands to be excuted within the session. If
-        #         a block is provided then the session will be started, block evaluated,
-        #         and then the session will be closed.
         def initialize(name, config)
           @name = name
           @config = Hashr.new(config)
-          connector_class = CONNECTORS[@config.connector || :net_ssh]
-          @connector = connector_class.new(@config)
+          if @config.connector && !@config.connector.is_a?(Symbol)
+            @connector = @config.connector
+          else
+            connector_class = CONNECTORS[@config.connector || :net_ssh]
+            @connector = connector_class.new(@config)
+          end
         end
 
         # Connects to the remote host.
@@ -88,11 +90,13 @@ module Travis
         #           from the shell command.
         #
         # Returns the exit status (0 or 1)
-        def exec(command, &block)
-          if block
+        def exec(command)
+          if block_given?
             @connector.exec(command, buffer) do
               buffer_flush_exceeded?
-              block.call
+              if !yield
+                close
+              end
             end
           else
             @connector.exec(command, buffer)
