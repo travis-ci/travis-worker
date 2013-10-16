@@ -25,10 +25,10 @@ module Travis
             channel.prefetch = 1
 
             exchange = channel.fanout("worker.commands")
-            
+
             queue = channel.queue("", :exclusive => true)
             queue.bind(exchange)
-            
+
             @consumer = queue.subscribe(ack: true) do |message, payload|
               process_command(payload)
               message.ack
@@ -47,7 +47,7 @@ module Travis
             decoded = decoded_payload(payload)
             case decoded["type"]
             when "cancel_job"
-              info "cancel job message received for job id:#{decoded["job_id"]}"
+              info "cancel job message received for job id:#{decoded["job_id"]}, source:#{decoded["source"]}"
               Commands::CancelJob.new(pool, decoded["job_id"]).run
             when nil
               warn "type not present"
