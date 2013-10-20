@@ -53,20 +53,20 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: a3d04607a0e5917f258e1a297d1bab1de6f73c16
+  revision: d9ae2575130dca7dc7e0c24c20283a48471436b3
   specs:
     travis-build (0.0.1)
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: fffb09b3e6967cdb6c33f04ac7f7840a8df77400
+  revision: e5294f7d1f04243ea7315de27c36f2feeccec5da
   specs:
     travis-support (0.0.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (3.2.14)
+    activesupport (3.2.15)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.5)
@@ -93,7 +93,7 @@ GEM
     i18n (0.6.5)
     jruby-openssl (0.8.10)
       bouncy-castle-java (>= 1.5.0147)
-    json (1.8.0-java)
+    json (1.8.1-java)
     log4r (1.1.10)
     march_hare (2.0.0.rc1-java)
     metaclass (0.0.1)
@@ -117,10 +117,10 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
-    rspec-core (2.14.5)
+    rspec-core (2.14.6)
     rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
-    rspec-mocks (2.14.3)
+    rspec-mocks (2.14.4)
     ruby-hmac (0.4.0)
     simplecov (0.7.1)
       multi_json (~> 1.0)
