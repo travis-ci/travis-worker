@@ -66,10 +66,21 @@ module Travis
       log :terminate
 
       def broker_connection
-        @broker_connection ||= MarchHare.connect(config.fetch(:amqp, Hashr.new))
+        @broker_connection ||= begin
+          thread_pool_config = Proc.new { MarchHare::ThreadPools.fixed_of_size(vm_count + 10) }
+
+          amqp_config = config.fetch(:amqp, Hashr.new)
+          amqp_config.merge!(:executor_factory => thread_pool_config)
+
+          MarchHare.connect(amqp_config)
+        end
       end
 
       protected
+
+      def vm_count
+        config.fetch(:vms, {}).fetch(:count, 0)
+      end
 
       def config
         Travis::Worker.config
