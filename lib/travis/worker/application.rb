@@ -67,11 +67,8 @@ module Travis
 
       def broker_connection
         @broker_connection ||= begin
-          thread_pool_config = Proc.new { MarchHare::ThreadPools.fixed_of_size(vm_count + 10) }
-
           amqp_config = config.fetch(:amqp, Hashr.new)
-          amqp_config.merge!(:executor_factory => thread_pool_config)
-
+          amqp_config.merge!(:thread_pool_size => (vm_count + 10))
           MarchHare.connect(amqp_config)
         end
       end
