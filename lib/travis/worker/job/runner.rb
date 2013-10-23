@@ -150,7 +150,7 @@ module Travis
 
         def upload_and_run_script
           info "making sure build.sh doesn't exist"
-          if session.exec("test -f ~/build.sh") != 0
+          if session.exec("test -f ~/build.sh") == 0
             warn "Reused VM with leftover data, requeueing"
             connection_error
           end
