@@ -132,9 +132,8 @@ module Travis
 
         def destroy_server(opts = {})
           info "stopping and removing container:#{container.id}"
-          container.stop
-          container.remove
-          @container = nil
+          stop_container
+          remove_container
           @session = nil
         end
 
@@ -144,6 +143,20 @@ module Travis
         end
 
         private
+
+          def stop_container
+            container.stop
+          rescue Docker::Error::ServerError => e
+            warn "error when trying to stop container : #{e.inspect}"
+          end
+
+          def remove_container
+            container.remove
+          rescue Docker::Error::ServerError => e
+            warn "error when trying to remove container : #{e.inspect}"
+          ensure
+            @container = nil
+          end
 
           def instrument
             info "Starting container with hostname: #{hostname}"
