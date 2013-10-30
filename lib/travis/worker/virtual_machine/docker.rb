@@ -151,7 +151,9 @@ module Travis
           end
 
           def remove_container
-            container.remove
+            retryable(:tries => 3, :sleep => 3) do
+              container.remove
+            end
           rescue ::Docker::Error::ServerError => e
             warn "error when trying to remove container : #{e.inspect}"
           ensure
