@@ -151,7 +151,7 @@ module Travis
           end
 
           def remove_container
-            retryable(:tries => 3, :sleep => 3) do
+            retryable(:tries => 5, :sleep => 3) do
               container.remove
             end
           rescue ::Docker::Error::ServerError => e
