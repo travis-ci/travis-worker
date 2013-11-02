@@ -131,7 +131,6 @@ module Travis
         end
 
         def destroy_server(opts = {})
-          info "stopping and removing container:#{container.id}"
           stop_container
           remove_container
           @session = nil
@@ -145,6 +144,7 @@ module Travis
         private
 
           def stop_container
+            info "stopping container:#{container.id}"
             container.stop
           rescue ::Docker::Error::ServerError => e
             warn "error when trying to stop container : #{e.inspect}"
@@ -152,7 +152,9 @@ module Travis
 
           def remove_container
             retryable(:tries => 5, :sleep => 3) do
+              info "trying to remove container:#{container.id}"
               container.remove
+              info "removed container:#{container.id}"
             end
           rescue ::Docker::Error::ServerError => e
             warn "error when trying to remove container : #{e.inspect}"
