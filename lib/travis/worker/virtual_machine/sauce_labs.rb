@@ -105,6 +105,7 @@ module Travis
 
         def destroy_server(opts = {})
           destroy_vm(server)
+        ensure
           @server = nil
           @session = nil
         end
@@ -135,7 +136,9 @@ module Travis
 
         def destroy_vm(vm)
           info "destroying the VM"
-          connection.kill_instance(vm['instance_id'])
+          retryable(tries: 3) do
+            connection.kill_instance(vm['instance_id'])
+          end
         end
 
         def vm_ready?(vm)
