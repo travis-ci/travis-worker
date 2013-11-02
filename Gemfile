@@ -5,9 +5,6 @@ gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
 
 gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid', :ref => '8a8d925'
 
-gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
-gem 'vagrant-vbguest'
-
 gem 'activesupport'
 
 gem 'thor',             '~> 0.14.6'
