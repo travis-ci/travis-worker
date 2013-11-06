@@ -156,7 +156,7 @@ module Travis
               container.remove
               info "removed container:#{container.id}"
             end
-          rescue ::Docker::Error::ServerError => e
+          rescue ::Docker::Error::ServerError, ::Docker::Error::NotFound => e
             warn "error when trying to remove container : #{e.inspect}"
           ensure
             @container = nil
