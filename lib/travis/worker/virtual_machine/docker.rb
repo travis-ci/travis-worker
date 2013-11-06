@@ -116,7 +116,7 @@ module Travis
 
         def image_for_language(lang)
           image = if image_override
-            latest_images.detect { |i| i.id =~ /^#{image_override}/ }
+            latest_images.detect { |i| "#{i.repository}:#{i.tag}" == image_override }
           elsif lang.nil?
             default_image
           else
