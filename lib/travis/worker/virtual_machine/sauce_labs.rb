@@ -57,7 +57,7 @@ module Travis
           raise
         rescue StandardError => e
           Metriks.meter("worker.vm.provider.saucelabs.boot.error").mark
-          error "Booting a Sauce Labs VM failed without the following error: #{e.inspect}"
+          error "Booting a Sauce Labs VM failed with the following error: #{e.inspect}"
           raise
         end
 
