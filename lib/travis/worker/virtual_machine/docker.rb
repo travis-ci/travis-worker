@@ -44,21 +44,26 @@ module Travis
         end
 
         def create_new_server(image_id)
-          options = {
+          create_options = {
             'Cmd' => ["/sbin/init"],
             'Image' => image_id, 
             'CpuShares' => 1,
             'Memory' => 2147483648,
             'Hostname' => hostname, 
-            'PortSpecs' => ["22"]
+            'ExposedPorts' => ["22"]
           }
-          
-          options['Privileged'] = true if Travis::Worker.config.docker.privileged_support
-          
-          @container = ::Docker::Container.create(options)
+
+          start_options = {
+            "PortBindings" => { 
+              "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
+            }
+          }
+          start_options['Privileged'] = true if Travis::Worker.config.docker.privileged_support
+
+          @container = ::Docker::Container.create(create_options)
 
           instrument do
-            container.start
+            container.start(start_options)
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end

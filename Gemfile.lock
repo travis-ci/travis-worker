@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/joshk/docker-api
-  revision: 24724cb2de32950a0f3eae5b136df1149a1d487e
+  revision: 1f8a8dafef74ac027ece4df220a145cb9988a08e
   specs:
     docker-api (1.3.0)
       archive-tar-minitar
