@@ -50,7 +50,7 @@ module Travis
             'CpuShares' => 1,
             'Memory' => 2147483648,
             'Hostname' => hostname, 
-            'ExposedPorts' => ["22"]
+            'ExposedPorts' => { "22/tcp" => {} }
           }
 
           start_options = {
