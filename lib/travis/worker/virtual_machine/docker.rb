@@ -112,7 +112,7 @@ module Travis
         end
 
         def port
-          container.json["NetworkSettings"]["PortMapping"]["Tcp"]["22"]
+          container.json["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"]
         end
 
         def latest_images
