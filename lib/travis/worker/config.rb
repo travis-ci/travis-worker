@@ -27,7 +27,7 @@ module Travis
       define :amqp      => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :heartbeat => { :interval => 10 },
              :log_level => :info,
-             :queue     => 'builds.common',
+             :queue     => 'builds.linux',
              :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0.5 },
              :timeouts  => { :hard_limit => 3000 },
