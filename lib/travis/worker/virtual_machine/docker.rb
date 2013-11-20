@@ -38,7 +38,7 @@ module Travis
           
           info "Using image '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
 
-          retryable(:tries => 3) do
+          retryable(:tries => 5) do
             create_new_server(image.id)
           end
         end
@@ -103,7 +103,7 @@ module Travis
           create_server(opts)
           yield
         ensure
-          session.close
+          session.close if @session
           destroy_server
         end
 
