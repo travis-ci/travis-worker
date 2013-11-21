@@ -57,7 +57,7 @@ module Travis
           raise
         rescue StandardError => e
           Metriks.meter("worker.vm.provider.saucelabs.boot.error").mark
-          error "Booting a Sauce Labs VM failed without the following error: #{e.inspect}"
+          error "Booting a Sauce Labs VM failed with the following error: #{e.inspect}"
           raise
         end
 
@@ -96,10 +96,7 @@ module Travis
         end
 
         def start_server
-          instance_id = connection.start_instance({ hostname: hostname }, 'ichef-osx8-10.8-travis')['instance_id']
-          connection.allow_outgoing(instance_id)
-          connection.allow_incoming(instance_id, "0.0.0.0/0", 3422)
-
+          instance_id = connection.start_instance({ hostname: hostname }, 'ichef-travis-osx8-latest')['instance_id']
           connection.instance_info(instance_id)
         end
 
