@@ -5,6 +5,7 @@ require 'travis/worker/ssh/connector/sshjr'
 require 'travis/support/logging'
 require 'base64'
 require 'hashr'
+require 'hard_timeout'
 
 module Travis
   module Worker
@@ -47,7 +48,9 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          @connector.connect
+          HardTimeout.timeout(10) do
+            @connector.connect
+          end
           if @config.platform == :osx
             info "unlocking keychain" unless silent
             exec("security unlock-keychain -p #{Travis::Worker.config.sauce_labs.keychain_password}")
