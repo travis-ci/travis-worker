@@ -56,6 +56,9 @@ module Travis
             exec("security unlock-keychain -p #{Travis::Worker.config.sauce_labs.keychain_password}")
           end
           true
+        rescue Timeout::Error
+          warn "Timed out attempting to open SSH connection"
+          raise
         end
 
         # Closes the Shell, flushes and resets the buffer
