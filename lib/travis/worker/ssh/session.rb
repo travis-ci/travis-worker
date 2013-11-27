@@ -48,7 +48,7 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          HardTimeout.timeout(10) do
+          HardTimeout.timeout(15) do
             @connector.connect
           end
           if @config.platform == :osx
