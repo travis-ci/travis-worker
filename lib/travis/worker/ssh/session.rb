@@ -1,11 +1,11 @@
 require 'shellwords'
 require 'travis/worker/utils/buffer'
+require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/ssh/connector/net_ssh'
 require 'travis/worker/ssh/connector/sshjr'
 require 'travis/support/logging'
 require 'base64'
 require 'hashr'
-require 'hard_timeout'
 
 module Travis
   module Worker
