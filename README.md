@@ -22,9 +22,6 @@ Run the worker with VisualVM support on a remote machine:
 
     JRUBY_OPTS="-J-Dcom.sun.management.jmxremote.port=1099 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J-Djava.rmi.server.hostname=127.0.0.1" nohup bin/thor travis:worker:boot >> log/worker.log 2>&1 &
 
-
-
-
 ## Running the Thor console
 
     ruby -Ilib -rubygems lib/thor/console.rb
@@ -45,6 +42,9 @@ On JRuby:
 
     bundle exec rake test
 
+## Reporting Issues
+
+Please report any issues on the [central Travis CI issue tracker](https://github.com/travis-ci/travis-ci/issues).
 
 ## License & copyright information ##
 
