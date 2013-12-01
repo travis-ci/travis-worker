@@ -83,30 +83,17 @@ module Travis
         end
 
         def start
-          result = nil
-
           notify_job_started
-
-          Timeout::timeout(hard_timeout) do
-            result = upload_and_run_script
-          end
-
-          result
+          result = Timeout::timeout(hard_timeout) { upload_and_run_script }
         rescue Ssh::Session::NoOutputReceivedError => e
-          warn "build error : #{e.class}, #{e.message}"
-          warn "  #{e.backtrace.join("\n  ")}"
-          unless stop
+          unless stop_with_exception(e)
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
-          announce("\n\n#{e.message}\n\n")
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
-          warn "build error : #{e.class}, #{e.message}"
-          warn "  #{e.backtrace.join("\n  ")}"
-          stop
-          announce("\n\n#{e.message}\n\n")
-        rescue Timeout::Error => e
+          stop_with_exception(e)
+        rescue Timeout::Error
           timedout
-        rescue IOError, Errno::ECONNREFUSED => e
+        rescue IOError, Errno::ECONNREFUSED
           connection_error
         ensure
           if @canceled
@@ -211,6 +198,15 @@ module Travis
         def connection_error
           announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
+        end
+
+        def stop_with_exception(exception)
+          warn "build error : #{exception.class}, #{exception.message}"
+          warn "  #{exception.backtrace.join("\n  ")}"
+          stopped = stop
+          announce("\n\n#{exception.message}\n\n")
+
+          stopped
         end
       end
     end
