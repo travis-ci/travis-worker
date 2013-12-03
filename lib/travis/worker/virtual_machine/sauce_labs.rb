@@ -52,7 +52,7 @@ module Travis
           create_server(opts)
           yield
         ensure
-          session.close if session
+          session.close if @session
           destroy_server
         end
 
