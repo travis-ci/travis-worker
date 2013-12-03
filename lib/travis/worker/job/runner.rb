@@ -84,15 +84,14 @@ module Travis
 
         def start
           notify_job_started
-          result = Timeout::timeout(hard_timeout) { upload_and_run_script }
+          upload_script
+          result = run_script
         rescue Ssh::Session::NoOutputReceivedError => e
           unless stop_with_exception(e)
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           stop_with_exception(e)
-        rescue Timeout::Error
-          timedout
         rescue IOError, Errno::ECONNREFUSED
           connection_error
         ensure
@@ -135,21 +134,31 @@ module Travis
           true
         end
 
-        def upload_and_run_script
-          info "making sure build.sh doesn't exist"
-          if session.exec("test -f ~/build.sh") == 0
-            warn "Reused VM with leftover data, requeueing"
-            connection_error
+        def upload_script
+          Timeout::timeout(15) do
+            info "making sure build.sh doesn't exist"
+            if session.exec("test -f ~/build.sh") == 0
+              warn "Reused VM with leftover data, requeueing"
+              connection_error
+            end
+
+            info "uploading build.sh"
+            session.upload_file("~/build.sh", payload['script'] || compile_script)
+
+            info "setting +x permission on build.sh"
+            session.exec("chmod +x ~/build.sh") }
           end
+        rescue Timeout::Error
+          connection_error
+        end
 
-          info "uploading build.sh"
-          session.upload_file("~/build.sh", payload['script'] || compile_script)
-
-          info "setting +x permission on build.sh"
-          session.exec("chmod +x ~/build.sh")
-
+        def run_script
           info "running the build"
-          session.exec("~/build.sh") { exit_exec? }
+          Timeout::timeout(hard_timeout) do
+            session.exec("~/build.sh") { exit_exec? }
+          end
+        rescue Timeout::Error
+          timedout
         end
 
         def start_session
