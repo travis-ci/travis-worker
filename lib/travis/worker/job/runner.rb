@@ -146,7 +146,7 @@ module Travis
             session.upload_file("~/build.sh", payload['script'] || compile_script)
 
             info "setting +x permission on build.sh"
-            session.exec("chmod +x ~/build.sh") }
+            session.exec("chmod +x ~/build.sh")
           end
         rescue Timeout::Error
           connection_error
