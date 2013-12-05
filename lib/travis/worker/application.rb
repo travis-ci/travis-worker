@@ -14,7 +14,6 @@ module Travis
 
       def initialize
         Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
-        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
 
         Travis::Amqp.config = config.amqp
 
@@ -69,7 +68,19 @@ module Travis
         @broker_connection ||= begin
           amqp_config = config.fetch(:amqp, Hashr.new)
           amqp_config.merge!(:thread_pool_size => (vm_count + 10))
-          MarchHare.connect(amqp_config)
+          conn = MarchHare.connect(amqp_config)
+          # doesn't seem to work as expected:
+          #
+          #  * the callback seems to be fired when rabbit comes back up, not when it shuts down, saying:
+          #    connection error; reason: {#method<connection.close>(reply-code=320, reply-text=CONNECTION_FORCED -
+          #    broker forced connection closure with reason 'shutdown', class-id=0, method-id=0), null, ""}
+          #  * the app/process isn't actually terminated, possibly because of the celluloid actors
+          #
+          # conn.on_shutdown do |conn, reason|
+          #   Travis.logger.error "Lost connection to rabbitmq: #{reason}"
+          #   terminate
+          # end
+          conn
         end
       end
 
