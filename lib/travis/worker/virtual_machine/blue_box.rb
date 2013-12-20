@@ -119,7 +119,7 @@ module Travis
           create_server(opts)
           yield
         ensure
-          session.close
+          clean_and_close_session
           destroy_server
         end
 
@@ -174,6 +174,13 @@ module Travis
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
           latest_templates['ruby']
+        end
+
+        def clean_and_close_session
+          if @session
+            session.exec("sudo rm -rf $HOME")
+            session.close
+          end
         end
 
         def destroy_server(opts = {})
