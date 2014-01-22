@@ -145,7 +145,12 @@ module Travis
 
           grouping_regex = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
 
-          templates.group_by { |t| grouping_regex.match(t['description'])[1] }
+          grouped = templates.group_by do |t|
+            match = grouping_regex.match(t['description'])
+            match ? match[1] : nil
+          end
+
+          grouped.compact
         end
 
         def latest_templates
