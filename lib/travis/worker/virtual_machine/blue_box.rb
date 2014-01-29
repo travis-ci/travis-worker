@@ -212,7 +212,7 @@ module Travis
         end
 
         def prepare
-          # info "using latest templates : '#{latest_templates}'"
+          info "Blue Box API adapter prepared"
         end
 
         private
