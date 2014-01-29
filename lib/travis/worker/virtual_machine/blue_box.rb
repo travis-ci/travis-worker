@@ -104,7 +104,9 @@ module Travis
         end
 
         def session
-          create_server unless server
+          unless server
+            raise StandardError, 'VM is not currently available'
+          end
           @session ||= Ssh::Session.new(name,
             :host => ip_address,
             :port => 22,
