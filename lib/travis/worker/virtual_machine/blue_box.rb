@@ -22,6 +22,8 @@ module Travis
           :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
         }
 
+        DUPLICATE_MATCH_REGEX = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -61,7 +63,7 @@ module Travis
             :hostname => hostname
           }))
 
-          retryable(:tries => 3) do
+          retryable(tries: 3, sleep: 5) do
             destroy_duplicate_server(hostname)
             create_new_server(config)
           end
@@ -190,21 +192,27 @@ module Travis
           @session = nil
         end
 
-        def destroy_duplicate_server(hostname)
-          begin
-            server = connection.servers.detect do |server|
-              name = server.hostname.split('.').first
-              name == hostname
-            end
-          rescue Excon::Errors::HTTPStatusError => e
-            mark_api_error(e)
-            raise
+        def destroy_duplicate_server(hn)
+          dup_match = DUPLICATE_MATCH_REGEX.match(hn)
+          unless dup_match
+            warn "VM duplicate match regex failed, please review the regex for #{hn}"
+            return
           end
-          destroy_vm(server) if server
+          dup_server = connection.servers.detect do |server|
+            match = DUPLICATE_MATCH_REGEX.match(server.hostname)
+            match && match[1] == dup_match[1]
+          end
+          if dup_server
+            destroy_vm(server)
+            info "Destroying duplicate server #{dup_server.hostname}"
+          end
+        rescue Excon::Errors::HTTPStatusError => e
+          mark_api_error(e)
+          raise
         end
 
         def prepare
-          info "using latest templates : '#{latest_templates}'"
+          # info "using latest templates : '#{latest_templates}'"
         end
 
         private
