@@ -121,8 +121,8 @@ module Travis
           create_server(opts)
           yield
         ensure
-          session.close
-          destroy_server
+          session.close if @session
+          destroy_server if @server
         end
 
         def full_name
