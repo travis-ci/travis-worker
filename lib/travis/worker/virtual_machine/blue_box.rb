@@ -195,16 +195,20 @@ module Travis
         def destroy_duplicate_server(hn)
           dup_match = DUPLICATE_MATCH_REGEX.match(hn)
           unless dup_match
-            warn "VM duplicate match regex failed, please review the regex for #{hn}"
+            warn "VM duplicate match failed, please review the regex for #{hn}"
             return
           end
-          dup_server = connection.servers.detect do |server|
+
+          dup_servers = connection.servers.find_all do |server|
             match = DUPLICATE_MATCH_REGEX.match(server.hostname)
             match && match[1] == dup_match[1]
           end
-          if dup_server
+
+          return unless dup_servers.any?
+
+          dup_servers.each do |server|
+            info "destroying duplicate server #{server.hostname}"
             destroy_vm(server)
-            info "Destroying duplicate server #{dup_server.hostname}"
           end
         rescue Excon::Errors::HTTPStatusError => e
           mark_api_error(e)
