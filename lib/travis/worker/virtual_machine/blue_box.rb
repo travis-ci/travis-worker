@@ -222,7 +222,7 @@ module Travis
           def destroy_vm(vm)
             debug "vm is in #{vm.state} state"
             info "destroying the VM"
-            retryable(tries: 3) do
+            retryable(tries: 3, sleep: 5) do
               vm.destroy
             end
           rescue Fog::Compute::Bluebox::NotFound => e
