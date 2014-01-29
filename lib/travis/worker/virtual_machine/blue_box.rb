@@ -64,7 +64,7 @@ module Travis
           }))
 
           retryable(tries: 3, sleep: 5) do
-            destroy_duplicate_server(hostname)
+            destroy_duplicate_servers
             create_new_server(config)
           end
         end
@@ -192,34 +192,26 @@ module Travis
           @session = nil
         end
 
-        def destroy_duplicate_server(hn)
-          dup_match = DUPLICATE_MATCH_REGEX.match(hn)
-          unless dup_match
-            warn "VM duplicate match failed, please review the regex for #{hn}"
-            return
-          end
-
-          dup_servers = connection.servers.find_all do |server|
-            match = DUPLICATE_MATCH_REGEX.match(server.hostname)
-            match && match[1] == dup_match[1]
-          end
-
-          return unless dup_servers.any?
-
-          dup_servers.each do |server|
-            info "destroying duplicate server #{server.hostname}"
-            destroy_vm(server)
-          end
-        rescue Excon::Errors::HTTPStatusError => e
-          mark_api_error(e)
-          raise
-        end
-
         def prepare
           info "Blue Box API adapter prepared"
         end
 
         private
+
+          def destroy_duplicate_servers
+            duplicate_servers.each do |server|
+              info "destroying duplicate server #{server.hostname}"
+              destroy_vm(server)
+            end
+          end
+
+          def duplicate_servers
+            connection.servers.select do |server|
+              DUPLICATE_MATCH_REGEX.match(server.hostname) do |match|
+                match[1] == "#{Worker.config.host.split('.').first}-#{Process.pid}-#{name}"
+              end
+            end
+          end
 
           def instrument
             info "Provisioning a BlueBox VM"
