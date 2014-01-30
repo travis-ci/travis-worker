@@ -22,7 +22,8 @@ module Travis
           :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
         }
 
-        DUPLICATE_MATCH_REGEX = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
+        TEMPLATE_GROUPING = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+        DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
         class << self
           def vm_count
@@ -145,12 +146,12 @@ module Travis
 
         def grouped_templates
           templates = connection.get_templates.body
-          templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-/ }
-
-          grouping_regex = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+          templates = templates.find_all do |t|
+            t['public'] == false && t['description'] =~ /^travis-/
+          end
 
           grouped = templates.group_by do |t|
-            match = grouping_regex.match(t['description'])
+            match = TEMPLATE_GROUPING.match(t['description'])
             match ? match[1] : nil
           end
 
@@ -193,14 +194,14 @@ module Travis
         end
 
         def destroy_duplicate_server(hn)
-          dup_match = DUPLICATE_MATCH_REGEX.match(hn)
+          dup_match = DUPLICATE_MATCH.match(hn)
           unless dup_match
             warn "VM duplicate match failed, please review the regex for #{hn}"
             return
           end
 
           dup_servers = connection.servers.find_all do |server|
-            match = DUPLICATE_MATCH_REGEX.match(server.hostname)
+            match = DUPLICATE_MATCH.match(server.hostname)
             match && match[1] == dup_match[1]
           end
 
