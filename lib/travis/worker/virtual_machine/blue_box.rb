@@ -22,6 +22,9 @@ module Travis
           :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
         }
 
+        TEMPLATE_GROUPING = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+        DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -61,8 +64,8 @@ module Travis
             :hostname => hostname
           }))
 
-          retryable(:tries => 3) do
-            destroy_duplicate_server(hostname)
+          retryable(tries: 3, sleep: 5) do
+            destroy_duplicate_servers
             create_new_server(config)
           end
         end
@@ -104,7 +107,9 @@ module Travis
         end
 
         def session
-          create_server unless server
+          unless server
+            raise StandardError, 'VM is not currently available'
+          end
           @session ||= Ssh::Session.new(name,
             :host => ip_address,
             :port => 22,
@@ -119,8 +124,8 @@ module Travis
           create_server(opts)
           yield
         ensure
-          session.close
-          destroy_server
+          session.close if @session
+          destroy_server if @server
         end
 
         def full_name
@@ -141,11 +146,16 @@ module Travis
 
         def grouped_templates
           templates = connection.get_templates.body
-          templates = templates.find_all { |t| t['public'] == false && t['description'] =~ /^travis-/ }
+          templates = templates.find_all do |t|
+            t['public'] == false && t['description'] =~ /^travis-/
+          end
 
-          grouping_regex = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
+          grouped = templates.group_by do |t|
+            match = TEMPLATE_GROUPING.match(t['description'])
+            match ? match[1] : nil
+          end
 
-          templates.group_by { |t| grouping_regex.match(t['description'])[1] }
+          grouped.compact
         end
 
         def latest_templates
@@ -183,24 +193,26 @@ module Travis
           @session = nil
         end
 
-        def destroy_duplicate_server(hostname)
-          begin
-            server = connection.servers.detect do |server|
-              name = server.hostname.split('.').first
-              name == hostname
-            end
-          rescue Excon::Errors::HTTPStatusError => e
-            mark_api_error(e)
-            raise
-          end
-          destroy_vm(server) if server
-        end
-
         def prepare
-          info "using latest templates : '#{latest_templates}'"
+          info "Blue Box API adapter prepared"
         end
 
         private
+
+          def destroy_duplicate_servers
+            duplicate_servers.each do |server|
+              info "destroying duplicate server #{server.hostname}"
+              destroy_vm(server)
+            end
+          end
+
+          def duplicate_servers
+            connection.servers.select do |server|
+              DUPLICATE_MATCH.match(server.hostname) do |match|
+                match[1] == "#{Worker.config.host.split('.').first}-#{Process.pid}-#{name}"
+              end
+            end
+          end
 
           def instrument
             info "Provisioning a BlueBox VM"
@@ -217,7 +229,7 @@ module Travis
           def destroy_vm(vm)
             debug "vm is in #{vm.state} state"
             info "destroying the VM"
-            retryable(tries: 3) do
+            retryable(tries: 3, sleep: 5) do
               vm.destroy
             end
           rescue Fog::Compute::Bluebox::NotFound => e
