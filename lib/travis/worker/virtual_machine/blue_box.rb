@@ -212,6 +212,10 @@ module Travis
                 match[1] == "#{Worker.config.host.split('.').first}-#{Process.pid}-#{name}"
               end
             end
+          rescue Excon::Errors::HTTPStatusError => e
+            warn "could not retrieve the current VM list : #{e.inspect}"
+            mark_api_error(e)
+            raise
           end
 
           def instrument
