@@ -44,7 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: d14ee8248f3a69dd8876303a7ab85e417d85dae0
+  revision: 7851a7f0408e568317c42e6efd31f6ff1f4b30d1
   specs:
     travis-build (0.0.1)
 
@@ -95,7 +95,7 @@ GEM
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
     micromachine (1.1.0)
-    mime-types (2.0)
+    mime-types (2.1)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     multi_json (1.2.0)
