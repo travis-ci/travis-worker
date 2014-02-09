@@ -44,7 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: b06b6d792d1bba462ad3b159d509de07edb25c06
+  revision: 14989806414b8d3d7b9335dbea2314cccd9b5553
   specs:
     travis-build (0.0.1)
 
