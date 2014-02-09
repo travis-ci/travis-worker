@@ -16,11 +16,9 @@ gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 
-gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
+gem 'fog',              :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
-gem 'docker-api',           :git => 'http://github.com/joshk/docker-api'
-
-gem 'excon',            '~> 0.25.1'
+gem 'docker-api'
 
 gem 'net-ssh',          '~> 2.6.8'
 gem 'sshjr',            :git => 'https://github.com/joshk/sshjr'

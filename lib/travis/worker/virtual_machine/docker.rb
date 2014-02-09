@@ -6,6 +6,12 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 
+# TODO should go into config, but without this docker-api will
+# now try to use the socket and fail because travis-worker is
+# not running as root
+Docker.url = 'http://localhost:4243'
+Docker::API_VERSION.replace('1.7')
+
 module Travis
   module Worker
     module VirtualMachine
@@ -35,8 +41,8 @@ module Travis
 
         def create_server(opts = {})
           image = image_for_language(opts[:language])
-          
-          info "Using image '#{image.repository}:#{image.tag}' (#{image.id}) for language #{opts[:language] || '[nil]'}"
+
+          info "Using image '#{image} for language #{opts[:language] || '[nil]'}"
 
           retryable(:tries => 5) do
             create_new_server(image.id)
@@ -46,15 +52,15 @@ module Travis
         def create_new_server(image_id)
           create_options = {
             'Cmd' => ["/sbin/init"],
-            'Image' => image_id, 
+            'Image' => image_id,
             'CpuShares' => 1,
             'Memory' => 2147483648,
-            'Hostname' => hostname, 
+            'Hostname' => hostname,
             'ExposedPorts' => { "22/tcp" => {} }
           }
 
           start_options = {
-            "PortBindings" => { 
+            "PortBindings" => {
               "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
             }
           }
@@ -116,23 +122,27 @@ module Travis
         end
 
         def latest_images
-          @latest_images ||= ::Docker::Image.all.find_all { |i| i.repository == 'travis' }
+          @latest_images ||= ::Docker::Image.all.find_all { |i| image_matches?(i, /^travis:/) }
         end
 
         def image_for_language(lang)
           image = if image_override
-            latest_images.detect { |i| "#{i.repository}:#{i.tag}" == image_override }
-          elsif lang.nil?
-            default_image
+            latest_images.detect { |i| image_matches?(i, "travis:#{image_override}") }
           else
-            latest_images.detect { |i| i.tag.gsub(/[-_]/, "") == lang.gsub(/[-_]/, "") }
+            latest_images.detect { |i| image_matches?(i, "travis:#{lang || 'ruby'}") }
           end
-          
+
           image || default_image
         end
 
         def default_image
-          latest_images.detect { |i| i.tag == 'ruby' }
+          latest_images.detect { |i| image_matches?(i, 'travis:ruby') }
+        end
+
+        def image_matches?(image, tag)
+          image.info['RepoTags'].any? do |t|
+            tag.is_a?(Regexp) ? t =~ tag : t.gsub(/[-_]/, '') == tag.gsub(/[-_]/, '')
+          end
         end
 
         def destroy_server(opts = {})
@@ -161,7 +171,7 @@ module Travis
               container.remove
               info "removed container:#{container.id}"
             end
-          rescue ::Docker::Error::ServerError, ::Docker::Error::NotFound => e
+          rescue ::Docker::Error::ServerError, ::Docker::Error::NotFoundError => e
             warn "error when trying to remove container : #{e.inspect}"
           ensure
             @container = nil
