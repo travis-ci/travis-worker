@@ -168,7 +168,7 @@ module Travis
           def remove_container
             retryable(:tries => 5, :sleep => 3) do
               info "trying to remove container:#{container.id}"
-              container.remove
+              container.delete
               info "removed container:#{container.id}"
             end
           rescue ::Docker::Error::ServerError, ::Docker::Error::NotFoundError => e
