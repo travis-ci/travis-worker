@@ -145,8 +145,7 @@ module Travis
         end
 
         def grouped_templates
-          templates = connection.get_templates.body
-          templates = templates.find_all do |t|
+          templates = fetch_templates.find_all do |t|
             t['public'] == false && t['description'] =~ /^travis-/
           end
 
@@ -159,15 +158,13 @@ module Travis
         end
 
         def latest_templates
-          @latest_templates ||= begin
-            latest_templates = {}
+          template_list = {}
 
-            grouped_templates.each do |k,v|
-              latest_templates[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
-            end
-
-            latest_templates
+          grouped_templates.each do |k,v|
+            template_list[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
           end
+
+          template_list
         end
 
         def template_for_language(lang)
@@ -243,6 +240,18 @@ module Travis
           rescue Excon::Errors::InternalServerError => e
             warn "went to destroy the VM but there was an internal server error : #{e.inspect}"
             mark_api_error(e)
+          end
+
+          def fetch_templates
+            retryable(tries: 3, sleep: 5) do
+              begin
+                connection.get_templates.body
+              rescue Excon::Errors::HTTPStatusError => e
+                warn "could not fetch template list due to an http status error : #{e.inspect}"
+                mark_api_error(e)
+                raise
+              end
+            end
           end
 
           def generate_password
