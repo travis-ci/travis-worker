@@ -70,6 +70,7 @@ GEM
     builder (3.2.2)
     childprocess (0.3.9)
       ffi (~> 1.0, >= 1.0.11)
+    coder (0.4.0)
     diff-lcs (1.2.5)
     docile (1.1.2)
     erubis (2.7.0)
@@ -143,6 +144,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   celluloid!
+  coder
   excon (~> 0.25.1)
   faraday (~> 0.7.5)
   fog!
