@@ -9,7 +9,8 @@ require 'travis/worker/ssh/session'
 # TODO should go into config, but without this docker-api will
 # now try to use the socket and fail because travis-worker is
 # not running as root
-Docker.url = 'http://localhost:4243'
+# Docker.url = 'http://localhost:4243'
+Docker.url = 'http://172.17.42.1:4243'
 Docker::API_VERSION.replace('1.7')
 
 module Travis
@@ -96,7 +97,7 @@ module Travis
         def session
           create_server unless container
           @session ||= Ssh::Session.new(name,
-            :host => "127.0.0.1",
+            :host => '172.17.42.1',
             :port => port,
             :username => 'travis',
             :private_key_path => Travis::Worker.config.docker.private_key_path,
