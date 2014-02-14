@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: c2cd8f448da9df630cf72a2a4d6ab0f7bb318468
+  revision: 2bb9e3802d4f19965adb2a806fcf70884f5b5ce3
   specs:
     travis-build (0.0.1)
 
@@ -73,6 +73,7 @@ GEM
     i18n (0.6.9)
     jruby-openssl (0.8.10)
       bouncy-castle-java (>= 1.5.0147)
+    json (1.8.1)
     json (1.8.1-java)
     march_hare (2.0.0.rc3-java)
     metaclass (0.0.2)
