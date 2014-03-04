@@ -1,6 +1,7 @@
 require 'travis/support/logging'
 require 'travis/support/chunkifier'
 require 'json'
+require 'coder'
 
 module Travis
   module Worker

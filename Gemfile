@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
-gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support'
+gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support', :ref => 'e5294f7'
 
 gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid', :ref => '8a8d925'
 
@@ -16,6 +16,7 @@ gem 'faraday',          '~> 0.7.5'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
+gem 'coder'
 
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
