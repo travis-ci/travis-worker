@@ -155,7 +155,7 @@ module Travis
         def run_script
           info "running the build"
           Timeout::timeout(hard_timeout) do
-            session.exec("~/build.sh") { exit_exec? }
+            session.exec("bash --login ~/build.sh") { exit_exec? }
           end
         rescue Timeout::Error
           timedout
