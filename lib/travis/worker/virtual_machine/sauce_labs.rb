@@ -69,12 +69,12 @@ module Travis
         def create_server(opts = {})
           retryable(:tries => 3) do
             destroy_duplicate_server(hostname)
-            create_new_server
+            create_new_server(opts)
           end
         end
 
-        def create_new_server
-          @server = start_server
+        def create_new_server(opts)
+          @server = start_server(opts)
           info "Booting #{hostname} (#{ip_address})"
           instrument do
             Fog.wait_for(240, 3) do
@@ -101,8 +101,11 @@ module Travis
           @server['private_ip']
         end
 
-        def start_server
-          instance_id = api.start_instance({ hostname: hostname }, 'ichef-travis-osx8-latest')['instance_id']
+        def start_server(opts)
+          image_name = opts[:custom_image] || 'default'
+          image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings.default
+
+          instance_id = api.start_instance({ hostname: hostname }, image)['instance_id']
           api.instance_info(instance_id)
         end
 
