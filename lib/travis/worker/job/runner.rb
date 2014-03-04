@@ -83,30 +83,16 @@ module Travis
         end
 
         def start
-          result = nil
-
           notify_job_started
-
-          Timeout::timeout(hard_timeout) do
-            result = upload_and_run_script
-          end
-
-          result
+          upload_script
+          result = run_script
         rescue Ssh::Session::NoOutputReceivedError => e
-          warn "build error : #{e.class}, #{e.message}"
-          warn "  #{e.backtrace.join("\n  ")}"
-          unless stop
+          unless stop_with_exception(e)
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
-          announce("\n\n#{e.message}\n\n")
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
-          warn "build error : #{e.class}, #{e.message}"
-          warn "  #{e.backtrace.join("\n  ")}"
-          stop
-          announce("\n\n#{e.message}\n\n")
-        rescue Timeout::Error => e
-          timedout
-        rescue IOError, Errno::ECONNREFUSED => e
+          stop_with_exception(e)
+        rescue IOError, Errno::ECONNREFUSED
           connection_error
         ensure
           if @canceled
@@ -148,21 +134,31 @@ module Travis
           true
         end
 
-        def upload_and_run_script
-          info "making sure build.sh doesn't exist"
-          if session.exec("test -f ~/build.sh") == 0
-            warn "Reused VM with leftover data, requeueing"
-            connection_error
+        def upload_script
+          Timeout::timeout(15) do
+            info "making sure build.sh doesn't exist"
+            if session.exec("test -f ~/build.sh") == 0
+              warn "Reused VM with leftover data, requeueing"
+              connection_error
+            end
+
+            info "uploading build.sh"
+            session.upload_file("~/build.sh", payload['script'] || compile_script)
+
+            info "setting +x permission on build.sh"
+            session.exec("chmod +x ~/build.sh")
           end
+        rescue Timeout::Error
+          connection_error
+        end
 
-          info "uploading build.sh"
-          session.upload_file("~/build.sh", payload['script'] || compile_script)
-
-          info "setting +x permission on build.sh"
-          session.exec("chmod +x ~/build.sh")
-
+        def run_script
           info "running the build"
-          session.exec("~/build.sh") { exit_exec? }
+          Timeout::timeout(hard_timeout) do
+            session.exec("~/build.sh") { exit_exec? }
+          end
+        rescue Timeout::Error
+          timedout
         end
 
         def start_session
@@ -211,6 +207,15 @@ module Travis
         def connection_error
           announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
+        end
+
+        def stop_with_exception(exception)
+          warn "build error : #{exception.class}, #{exception.message}"
+          warn "  #{exception.backtrace.join("\n  ")}"
+          stopped = stop
+          announce("\n\n#{exception.message}\n\n")
+
+          stopped
         end
       end
     end
