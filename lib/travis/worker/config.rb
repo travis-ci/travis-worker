@@ -35,7 +35,8 @@ module Travis
              :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :last_flushed => 10, :log_chunk_size => 9216 },
              :language_mappings => { },
-             :image_mappings => { }
+             :image_mappings => { },
+             :keychain_password => { }
 
       def name
         @name ||= host.split('.').first

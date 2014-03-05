@@ -53,7 +53,7 @@ module Travis
           end
           if @config.platform == :osx
             info "unlocking keychain" unless silent
-            exec("security unlock-keychain -p #{Travis::Worker.config.sauce_labs.keychain_password}")
+            exec("security unlock-keychain -p #{config.keychain_password}")
           end
           true
         rescue Timeout::Error

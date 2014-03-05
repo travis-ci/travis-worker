@@ -45,6 +45,7 @@ module Travis
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts,
             :platform => :osx,
+            :keychain_password => Travis::Worker.config.keychain_password[@vm_image],
           )
         end
 
@@ -103,9 +104,9 @@ module Travis
 
         def start_server(opts)
           image_name = opts[:custom_image] || 'default'
-          image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings.default
+          @vm_image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings.default
 
-          instance_id = api.start_instance({ hostname: hostname }, image)['instance_id']
+          instance_id = api.start_instance({ hostname: hostname }, @vm_image)['instance_id']
           api.instance_info(instance_id)
         end
 
