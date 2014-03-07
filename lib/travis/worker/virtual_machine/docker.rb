@@ -6,8 +6,9 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 
-docker = Travis::Worker.config.docker
-Docker.url = "http://#{docker.host || 'localhost'}:#{docker.port || '4243'}"
+# TODO move this ... where?
+api = Travis::Worker.config.docker.api
+Docker.url = "http://#{api.host || 'localhost'}:#{api.port || '4243'}"
 Docker::API_VERSION.replace('1.7')
 
 module Travis
@@ -94,8 +95,8 @@ module Travis
         def session
           create_server unless container
           @session ||= Ssh::Session.new(name,
-            :host => host,
-            :port => port,
+            :host => ssh_host,
+            :port => ssh_port,
             :username => 'travis',
             :private_key_path => Travis::Worker.config.docker.private_key_path,
             :buffer => Travis::Worker.config.shell.buffer,
@@ -115,11 +116,11 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
-        def host
-          Travis::Worker.config.docker.host
+        def ssh_host
+          Travis::Worker.config.docker.ssh.host || '127.0.0.1'
         end
 
-        def port
+        def ssh_port
           container.json["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"]
         end
 
