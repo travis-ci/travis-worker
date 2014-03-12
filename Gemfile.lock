@@ -44,8 +44,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 031a7d050e8fc06d54a40a9a1affe50fed33e26e
-  ref: mm-multiple-keys
+  revision: 76c9ebe97a71a6000321dd4df1deca908f54363d
   specs:
     travis-build (0.0.1)
 
