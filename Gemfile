@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build'
+gem 'travis-build',     :git => 'https://github.com/travis-ci/travis-build', :ref => 'mm-multiple-keys'
 gem 'travis-support',   :git => 'https://github.com/travis-ci/travis-support', :ref => 'e5294f7'
 
 gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid', :ref => '8a8d925'
