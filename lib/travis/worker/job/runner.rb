@@ -61,9 +61,23 @@ module Travis
         end
 
         def compile_script
-          data = payload.merge(timeouts: false, hosts: Travis::Worker.config[:hosts], cache_options: Travis::Worker.config[:cache_options])
-          opts = { logs: { build: false, state: true }, disallow_sudo: Travis::Worker.config.docker? }
-          Build.script(data, opts).compile
+          data = payload.merge(
+            timeouts: false,
+            hosts: Travis::Worker.config[:hosts],
+            cache_options:
+            Travis::Worker.config[:cache_options]
+          )
+
+          options = { logs: { build: false, state: true } }
+          if Travis::Worker.config.docker?
+            options = options.merge(
+              skip_resolv_updates: true,
+              skip_etc_hosts_fix: true,
+              disallow_sudo: true
+            )
+          end
+
+          Build.script(data, options).compile
         rescue StandardError => e
           raise ScriptCompileError, "An error occured while compiling the build script : #{e.message}"
         end
