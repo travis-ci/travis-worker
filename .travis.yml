@@ -5,7 +5,7 @@ bundler_args: --deployment --binstubs
 services:
   - rabbitmq
 rvm:
-  - jruby-19mode
+  - jruby-1.7.10
   - jruby-head
 env:
   - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"

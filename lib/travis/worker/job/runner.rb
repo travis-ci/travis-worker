@@ -92,6 +92,7 @@ module Travis
           end
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           stop_with_exception(e)
+          result = 'errored'
         rescue IOError, Errno::ECONNREFUSED
           connection_error
         ensure
@@ -100,7 +101,7 @@ module Travis
             reporter.send_log(job_id, "\n\nDone: Job Cancelled\n")
             result = 'canceled'
           end
-          notify_job_finished(result)
+          notify_job_finished(result) if result
         end
 
         def stop
