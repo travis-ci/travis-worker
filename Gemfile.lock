@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 4b7ad8a7dd925b75a98805ea3d436dbd0d10283e
+  revision: 6122c91721ad6685e82b6e251aa063bc9da0250a
   ref: sf-disallow_sudo
   specs:
     travis-build (0.0.1)
