@@ -9,6 +9,7 @@ require 'travis/worker/ssh/session'
 # TODO move this ... where?
 api = Travis::Worker.config.docker.api
 Docker.url = "http://#{api.host || 'localhost'}:#{api.port || '4243'}"
+# TODO this might be fixed in the latest version of docker-api
 Docker::API_VERSION.replace('1.7')
 
 module Travis
@@ -63,7 +64,6 @@ module Travis
               "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
             }
           }
-          start_options['Privileged'] = true if Travis::Worker.config.docker.privileged_support
 
           @container = ::Docker::Container.create(create_options)
 
