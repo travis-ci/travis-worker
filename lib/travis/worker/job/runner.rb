@@ -69,11 +69,11 @@ module Travis
           )
 
           options = { logs: { build: false, state: true } }
-          if Travis::Worker.config.docker?
+          if docker = Travis::Worker.config.docker
             options = options.merge(
               skip_resolv_updates: true,
               skip_etc_hosts_fix: true,
-              restrict_sudo: Travis::Worker.config.restrict_sudo
+              restrict_sudo: docker.restrict_sudo
             )
           end
 
