@@ -73,7 +73,7 @@ module Travis
             options = options.merge(
               skip_resolv_updates: true,
               skip_etc_hosts_fix: true,
-              disallow_sudo: true
+              restrict_sudo: Travis::Worker.config.restrict_sudo
             )
           end
 
