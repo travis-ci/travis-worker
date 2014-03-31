@@ -16,6 +16,7 @@ gem 'faraday',          '~> 0.7.5'
 gem 'hashr',            '~> 0.0.18'
 gem 'multi_json',       '~> 1.2.0'
 gem 'json'
+gem 'coder'
 
 gem 'fog',                  :git => 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
