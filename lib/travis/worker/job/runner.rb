@@ -100,7 +100,7 @@ module Travis
             reporter.send_log(job_id, "\n\nDone: Job Cancelled\n")
             result = 'canceled'
           end
-          notify_job_finished(result)
+          notify_job_finished(result) if result
         end
 
         def stop
