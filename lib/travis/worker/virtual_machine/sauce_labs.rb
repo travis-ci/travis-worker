@@ -111,7 +111,7 @@ module Travis
         end
 
         def destroy_server(opts = {})
-          destroy_vm(server)
+          destroy_vm(server) if @server
         ensure
           @server = nil
           @session = nil
