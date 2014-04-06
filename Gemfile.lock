@@ -129,7 +129,7 @@ GEM
     thor (0.14.6)
     timers (2.0.0)
       hitimes
-    travis-saucelabs-api (0.0.2)
+    travis-saucelabs-api (0.0.3)
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
