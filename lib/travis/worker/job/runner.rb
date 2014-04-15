@@ -64,8 +64,8 @@ module Travis
           data = payload.merge(
             timeouts: false,
             hosts: Travis::Worker.config[:hosts],
-            cache_options:
-            Travis::Worker.config[:cache_options]
+            paranoid: Travis::Worker.config[:paranoid],
+            cache_options: Travis::Worker.config[:cache_options]
           )
 
           options = { logs: { build: false, state: true } }

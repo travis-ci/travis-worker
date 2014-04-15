@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 1ddf6cd75eb61906dc2b9b697f09ed3746fceffd
-  ref: sf-restrict_sudo
+  revision: a6b97932b1d1d35d0a4fde52b46be8b58098095a
+  ref: hh-paranoid-mode
   specs:
     travis-build (0.0.1)
 
