@@ -44,7 +44,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: a92daa0aaeec00f06507d32288cc874391cf8a8a
+  revision: a6b97932b1d1d35d0a4fde52b46be8b58098095a
+  branch: hh-paranoid-mode
   specs:
     travis-build (0.0.1)
 
@@ -58,13 +59,16 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (3.2.16)
-      i18n (~> 0.6, >= 0.6.4)
-      multi_json (~> 1.0)
-    addressable (2.3.5)
+    activesupport (4.1.0)
+      i18n (~> 0.6, >= 0.6.9)
+      json (~> 1.7, >= 1.7.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.1)
+      tzinfo (~> 1.1)
+    addressable (2.3.6)
     archive-tar-minitar (0.5.2)
-    atomic (1.1.14)
-    atomic (1.1.14-java)
+    atomic (1.1.16)
+    atomic (1.1.16-java)
     avl_tree (1.1.3)
     bouncy-castle-java (1.5.0147)
     builder (3.2.2)
@@ -72,7 +76,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     coder (0.4.0)
     diff-lcs (1.2.5)
-    docile (1.1.2)
+    docile (1.1.3)
     erubis (2.7.0)
     excon (0.25.3)
     faraday (0.7.6)
@@ -94,18 +98,19 @@ GEM
     json (1.8.1)
     json (1.8.1-java)
     log4r (1.1.10)
-    metaclass (0.0.2)
-    metriks (0.9.9.5)
+    metaclass (0.0.4)
+    metriks (0.9.9.6)
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
     micromachine (1.1.0)
-    mime-types (2.1)
+    mime-types (2.2)
+    minitest (5.3.3)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     multi_json (1.2.0)
     multipart-post (1.2.0)
-    net-scp (1.1.2)
+    net-scp (1.2.0)
       net-ssh (>= 2.6.5)
     net-ssh (2.6.8)
     nokogiri (1.5.11)
@@ -116,10 +121,10 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
-    rspec-core (2.14.7)
-    rspec-expectations (2.14.4)
+    rspec-core (2.14.8)
+    rspec-expectations (2.14.5)
       diff-lcs (>= 1.1.3, < 2.0)
-    rspec-mocks (2.14.4)
+    rspec-mocks (2.14.6)
     ruby-hmac (0.4.0)
     simplecov (0.8.2)
       docile (~> 1.1.0)
@@ -127,12 +132,16 @@ GEM
       simplecov-html (~> 0.8.0)
     simplecov-html (0.8.0)
     thor (0.14.6)
+    thread_safe (0.3.3)
+    thread_safe (0.3.3-java)
     timers (2.0.0)
       hitimes
-    travis-saucelabs-api (0.0.2)
+    travis-saucelabs-api (0.0.3)
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
+    tzinfo (1.1.0)
+      thread_safe (~> 0.1)
     vagrant-vbguest (0.10.0)
       i18n
       log4r
