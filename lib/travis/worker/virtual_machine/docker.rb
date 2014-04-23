@@ -53,7 +53,6 @@ module Travis
           create_options = {
             'Cmd' => ["/sbin/init"],
             'Image' => image_id,
-            'CpuShares' => 1,
             'Memory' => 2147483648,
             'Hostname' => hostname,
             'ExposedPorts' => { "22/tcp" => {} }
@@ -62,7 +61,8 @@ module Travis
           start_options = {
             "PortBindings" => {
               "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
-            }
+            },
+            'LxcConf' => { "lxc.cgroup.cpuset.cpus" => worker_number }
           }
 
           @container = ::Docker::Container.create(create_options)
@@ -160,6 +160,10 @@ module Travis
         end
 
         private
+
+          def worker_number
+            /\w+-(\d+)/.match(name)[1]
+          end
 
           def stop_container
             info "stopping container:#{container.id}"
