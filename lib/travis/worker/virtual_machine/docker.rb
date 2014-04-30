@@ -62,7 +62,7 @@ module Travis
             "PortBindings" => {
               "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
             },
-            'LxcConf' => { "lxc.cgroup.cpuset.cpus" => worker_number }
+            "LxcConf" => [{ "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set }]
           }
 
           @container = ::Docker::Container.create(create_options)
@@ -162,7 +162,13 @@ module Travis
         private
 
           def worker_number
-            /\w+-(\d+)/.match(name)[1]
+            /\w+-(\d+)/.match(name)[1].to_i
+          end
+
+          def cpu_set
+            # 1 => 0-1
+            offset = worker_number * 2
+            "#{offset - 2}-#{offset - 1}"
           end
 
           def stop_container
