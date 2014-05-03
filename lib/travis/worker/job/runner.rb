@@ -159,7 +159,7 @@ module Travis
           end
 
           info "uploading build.sh"
-          session.upload_file("~/build.sh", payload['script'] || compile_script)
+          session.upload_file("~/build.sh", (payload['script'] || compile_script).force_encoding('ASCII-8BIT'))
 
           info "setting +x permission on build.sh"
           session.exec("chmod +x ~/build.sh")
