@@ -71,6 +71,7 @@ GEM
     childprocess (0.3.9)
       ffi (~> 1.0, >= 1.0.11)
     coder (0.4.0)
+    coderay (1.1.0)
     diff-lcs (1.2.5)
     docile (1.1.2)
     erubis (2.7.0)
@@ -95,6 +96,7 @@ GEM
     json (1.8.1-java)
     log4r (1.1.10)
     metaclass (0.0.2)
+    method_source (0.8.2)
     metriks (0.9.9.5)
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
@@ -110,6 +112,11 @@ GEM
     net-ssh (2.6.8)
     nokogiri (1.5.11)
     nokogiri (1.5.11-java)
+    pry (0.9.12.6-java)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+      spoon (~> 0.0)
     rack (1.5.2)
     rake (0.9.6)
     rspec (2.14.1)
@@ -126,6 +133,9 @@ GEM
       multi_json
       simplecov-html (~> 0.8.0)
     simplecov-html (0.8.0)
+    slop (3.4.7)
+    spoon (0.0.4)
+      ffi
     thor (0.14.6)
     timers (2.0.0)
       hitimes
@@ -157,6 +167,7 @@ DEPENDENCIES
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)
   net-ssh (~> 2.6.8)
+  pry
   rake (~> 0.9.2)
   rspec
   simplecov (>= 0.4.0)
