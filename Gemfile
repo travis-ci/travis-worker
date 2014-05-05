@@ -40,3 +40,7 @@ group :test do
   gem 'simplecov',      '>= 0.4.0', :require => false
 end
 
+group :development do
+  gem 'pry'
+end
+
