@@ -53,7 +53,7 @@ module Travis
           create_options = {
             'Cmd' => ["/sbin/init"],
             'Image' => image_id,
-            'Memory' => 2147483648,
+            'Memory' => (1024 * 1024 * 1024 * (Travis::Worker.config.docker.memory || 2)),
             'Hostname' => hostname,
             'ExposedPorts' => { "22/tcp" => {} }
           }
