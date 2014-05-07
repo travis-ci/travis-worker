@@ -7,7 +7,7 @@ require 'travis/support'
 require 'travis/worker/ssh/session'
 
 # TODO move this ... where?
-api = Travis::Worker.config.docker.api
+api = Travis::Worker.config.docker.api || Hashr.new
 Docker.url = "http://#{api.host || 'localhost'}:#{api.port || '4243'}"
 # TODO this might be fixed in the latest version of docker-api
 Docker::API_VERSION.replace('1.7')
