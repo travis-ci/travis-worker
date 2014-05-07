@@ -65,17 +65,12 @@ module Travis
             timeouts: false,
             hosts: Travis::Worker.config[:hosts],
             paranoid: Travis::Worker.config[:paranoid],
+            skip_resolv_updates: Travis::Worker.config[:skip_resolv_updates],
+            skip_etc_hosts_fix: Travis::Worker.config[:skip_etc_hosts_fix],
             cache_options: Travis::Worker.config[:cache_options]
           )
 
           options = { logs: { build: false, state: true } }
-          if docker = Travis::Worker.config.docker
-            options = options.merge(
-              skip_resolv_updates: true,
-              skip_etc_hosts_fix: true,
-              restrict_sudo: docker.restrict_sudo
-            )
-          end
 
           Build.script(data, options).compile
         rescue StandardError => e
