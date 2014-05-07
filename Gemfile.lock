@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 7857b51f1d47f315910e88c82cc205d7ead881a9
+  revision: 3a660012ef341a410796af71f68441580c187e2c
   ref: hh-paranoid-mode
   specs:
     travis-build (0.0.1)
