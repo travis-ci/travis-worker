@@ -117,7 +117,7 @@ module Travis
         end
 
         def ssh_host
-          Travis::Worker.config.docker.ssh.host || '127.0.0.1'
+          (Travis::Worker.config.docker.ssh || Hashr.new).host || '127.0.0.1'
         end
 
         def ssh_port
