@@ -108,13 +108,16 @@ module Travis
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
           announce("\n\n#{e.message}\n\n")
+          result = 'errored'
         rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
           warn "build error : #{e.class}, #{e.message}"
           warn "  #{e.backtrace.join("\n  ")}"
           stop
           announce("\n\n#{e.message}\n\n")
+          result = 'errored'
         rescue Timeout::Error => e
           timedout
+          result = 'errored'
         rescue IOError, Errno::ECONNREFUSED => e
           connection_error
         ensure
@@ -123,7 +126,7 @@ module Travis
             reporter.send_log(job_id, "\n\nDone: Job Cancelled\n")
             result = 'canceled'
           end
-          notify_job_finished(result)
+          notify_job_finished(result) if result
         end
 
         def stop
