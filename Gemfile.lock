@@ -76,7 +76,7 @@ GEM
     jruby-openssl (0.8.10)
       bouncy-castle-java (>= 1.5.0147)
     json (1.8.1-java)
-    march_hare (2.0.0-java)
+    march_hare (2.1.2-java)
     metaclass (0.0.4)
     metriks (0.9.9.6)
       atomic (~> 1.0)
@@ -131,7 +131,7 @@ DEPENDENCIES
   hashr (~> 0.0.18)
   jruby-openssl (~> 0.8.0)
   json
-  march_hare (= 2.0.0)
+  march_hare (= 2.1.2)
   metriks
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)
