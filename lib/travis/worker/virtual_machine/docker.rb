@@ -72,7 +72,7 @@ module Travis
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end
-            `arping -Idocker0 -c1 #{container.json['NetworkSettings']['IPAddress']}`
+            flush_arpcache(container.json['NetworkSettings']['IPAddress'])
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if @container
@@ -170,6 +170,15 @@ module Travis
             # 1 => 0-1
             offset = worker_number * 2
             "#{offset - 2}-#{offset - 1}"
+          end
+
+          def flush_arpcache(ip_address)
+            `arping -Idocker0 -c1 #{ip_address}`
+            if $?.exitstatus == 0
+              info "arpcache flushed successfully"
+            else
+              warn "error flushing arpcache"
+            end
           end
 
           def stop_container
