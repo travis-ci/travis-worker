@@ -72,6 +72,7 @@ module Travis
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end
+            `arping -Idocker0 -c1 #{container.json['NetworkSettings']['IPAddress']}`
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if @container
