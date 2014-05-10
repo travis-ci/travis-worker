@@ -173,11 +173,12 @@ module Travis
           end
 
           def flush_arpcache(ip_address)
-            `arping -Idocker0 -c1 #{ip_address}`
+            cmd = "sudo arping -Idocker0 -c1 #{ip_address}"
+            res = `#{cmd}`
             if $?.exitstatus == 0
               info "arpcache flushed successfully"
             else
-              warn "error flushing arpcache"
+              warn "error flushing arpcache : '#{cmd}' => #{res}"
             end
           end
 
