@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 3a660012ef341a410796af71f68441580c187e2c
+  revision: 725f8e69edd6e16a5629e69b579472b25d11bcae
   ref: hh-paranoid-mode
   specs:
     travis-build (0.0.1)
@@ -44,12 +44,9 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.1.1)
-      i18n (~> 0.6, >= 0.6.9)
-      json (~> 1.7, >= 1.7.7)
-      minitest (~> 5.1)
-      thread_safe (~> 0.1)
-      tzinfo (~> 1.1)
+    activesupport (3.2.18)
+      i18n (~> 0.6, >= 0.6.4)
+      multi_json (~> 1.0)
     addressable (2.3.6)
     archive-tar-minitar (0.5.2)
     atomic (1.1.16-java)
@@ -84,7 +81,6 @@ GEM
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
     mime-types (2.2)
-    minitest (5.3.3)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     multi_json (1.2.0)
@@ -118,21 +114,18 @@ GEM
     spoon (0.0.4)
       ffi
     thor (0.14.6)
-    thread_safe (0.3.3-java)
     timers (2.0.0)
       hitimes
     travis-saucelabs-api (0.0.3)
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
-    tzinfo (1.1.0)
-      thread_safe (~> 0.1)
 
 PLATFORMS
   java
 
 DEPENDENCIES
-  activesupport
+  activesupport (~> 3.2)
   celluloid!
   coder
   docker-api

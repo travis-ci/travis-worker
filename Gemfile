@@ -7,7 +7,7 @@ gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref:
 
 gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '8a8d925'
 
-gem 'activesupport'
+gem 'activesupport',    '~> 3.2'
 
 gem 'thor',             '~> 0.14.6'
 
