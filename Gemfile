@@ -8,7 +8,7 @@ gem 'celluloid',        :git => 'https://github.com/celluloid/celluloid', :ref =
 gem 'vagrant',          :git => 'https://github.com/joshk/vagrant', :branch => '1-0-stable'
 gem 'vagrant-vbguest'
 
-gem 'activesupport'
+gem 'activesupport',    '~> 3.2'
 
 gem 'thor',             '~> 0.14.6'
 
@@ -26,7 +26,7 @@ gem 'excon',            '~> 0.25.1'
 gem 'net-ssh',          '~> 2.6.8'
 gem 'sshjr',            :git => 'https://github.com/joshk/sshjr'
 
-gem 'metriks'
+gem 'metriks',          '0.9.9.5'
 
 platform :jruby do
   gem 'hot_bunnies',    '2.0.0.pre10'
