@@ -55,14 +55,23 @@ module Travis
             'Image' => image_id,
             'Memory' => (1024 * 1024 * 1024 * (Travis::Worker.config.docker.memory || 2)),
             'Hostname' => hostname,
-            'ExposedPorts' => { "22/tcp" => {} }
+            # 'ExposedPorts' => { "22/tcp" => {} }
           }
 
           start_options = {
-            "PortBindings" => {
-              "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
-            },
-            "LxcConf" => [{ "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set }]
+            # "PortBindings" => {
+            #   "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
+            # },
+            # "NetworkSettings" => "none",
+            "LxcConf" => [
+              { "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set },
+            #   { "Key" => "lxc.network.type", "Value" => "veth" },
+            #   { "Key" => "lxc.network.ipv4", "Value" => ip_address },
+            #   { "Key" => "lxc.network.ipv4.gateway", "Value" => "172.17.42.1" },
+            #   { "Key" => "lxc.network.link = docker0", "Value" => "docker0" },
+            #   { "Key" => "lxc.network.name = eth0", "Value" => "eth0" },
+            #   { "Key" => "lxc.network.flags", "Value" => "up" }
+            ]
           }
 
           @container = ::Docker::Container.create(create_options)
@@ -72,7 +81,10 @@ module Travis
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end
-            flush_arpcache(container.json['NetworkSettings']['IPAddress'])
+            2.times do
+              remove_arp_entry(ip_address)
+              flush_arpcache(ip_address)
+            end
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if @container
@@ -118,11 +130,11 @@ module Travis
         end
 
         def ssh_host
-          (Travis::Worker.config.docker.ssh || Hashr.new).host || '127.0.0.1'
+          ip_address # (Travis::Worker.config.docker.ssh || Hashr.new).host || '127.0.0.1'
         end
 
         def ssh_port
-          container.json["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"]
+          22 # container.json["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"]
         end
 
         def latest_images
@@ -150,8 +162,10 @@ module Travis
         end
 
         def destroy_server(opts = {})
+          ip = ip_address
           stop_container
           remove_container
+          remove_arp_entry(ip)
           @session = nil
         end
 
@@ -161,6 +175,11 @@ module Travis
         end
 
         private
+
+          def ip_address
+            # "172.17.42.3#{worker_number}"
+            container.json['NetworkSettings']['IPAddress']
+          end
 
           def worker_number
             /\w+-(\d+)/.match(name)[1].to_i
@@ -179,6 +198,16 @@ module Travis
               info "arpcache flushed successfully"
             else
               warn "error flushing arpcache : '#{cmd}' => #{res}"
+            end
+          end
+
+          def remove_arp_entry(ip_address)
+            cmd = "sudo arp -d #{ip_address} -idocker0"
+            res = `#{cmd}`
+            if $?.exitstatus == 0
+              info "arp entry removed successfully"
+            else
+              warn "error removing arp entry : '#{cmd}' => #{res}"
             end
           end
 
