@@ -81,10 +81,10 @@ module Travis
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end
-            2.times do
-              remove_arp_entry(ip_address)
-              flush_arpcache(ip_address)
-            end
+            # 2.times do
+            #   remove_arp_entry(ip_address)
+            #   flush_arpcache(ip_address)
+            # end
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if @container
@@ -165,7 +165,7 @@ module Travis
           ip = ip_address
           stop_container
           remove_container
-          remove_arp_entry(ip)
+          # remove_arp_entry(ip)
           @session = nil
         end
 
