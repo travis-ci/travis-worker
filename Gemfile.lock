@@ -76,7 +76,7 @@ GEM
     march_hare (2.1.2-java)
     metaclass (0.0.4)
     method_source (0.8.2)
-    metriks (0.9.9.6)
+    metriks (0.9.9.5)
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
@@ -87,7 +87,7 @@ GEM
     multipart-post (1.2.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
-    net-ssh (2.9.0)
+    net-ssh (2.9.1)
     nokogiri (1.5.11-java)
     pry (0.9.12.6-java)
       coderay (~> 1.0)
@@ -134,7 +134,7 @@ DEPENDENCIES
   hashr (~> 0.0.18)
   json
   march_hare (= 2.1.2)
-  metriks
+  metriks (= 0.9.9.5)
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)
   net-ssh (~> 2.9.0)

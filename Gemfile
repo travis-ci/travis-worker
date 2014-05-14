@@ -24,7 +24,7 @@ gem 'docker-api'
 gem 'net-ssh',          '~> 2.9.0'
 gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
-gem 'metriks'
+gem 'metriks',          '0.9.9.5'
 
 gem 'march_hare',     '2.1.2'
 
