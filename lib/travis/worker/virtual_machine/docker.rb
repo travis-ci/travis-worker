@@ -62,7 +62,6 @@ module Travis
             # "PortBindings" => {
             #   "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
             # },
-            # "NetworkSettings" => "none",
             "LxcConf" => [
               { "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set },
             ]
@@ -75,10 +74,6 @@ module Travis
             Fog.wait_for(10, 2) do
               container.json['State']['Running']
             end
-            # 2.times do
-            #   remove_arp_entry(ip_address)
-            #   flush_arpcache(ip_address)
-            # end
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if @container
@@ -159,7 +154,6 @@ module Travis
           ip = ip_address
           stop_container
           remove_container
-          # remove_arp_entry(ip)
           @session = nil
         end
 
@@ -171,7 +165,7 @@ module Travis
         private
 
           def ip_address
-            # "172.17.42.3#{worker_number}"
+            # "127.0.0.1"
             container.json['NetworkSettings']['IPAddress']
           end
 
@@ -183,26 +177,6 @@ module Travis
             # 1 => 0-1
             offset = worker_number * 2
             "#{offset - 2}-#{offset - 1}"
-          end
-
-          def flush_arpcache(ip_address)
-            cmd = "sudo arping -Idocker0 -c1 #{ip_address}"
-            res = `#{cmd}`
-            if $?.exitstatus == 0
-              info "arpcache flushed successfully"
-            else
-              warn "error flushing arpcache : '#{cmd}' => #{res}"
-            end
-          end
-
-          def remove_arp_entry(ip_address)
-            cmd = "sudo arp -d #{ip_address} -idocker0"
-            res = `#{cmd}`
-            if $?.exitstatus == 0
-              info "arp entry removed successfully"
-            else
-              warn "error removing arp entry : '#{cmd}' => #{res}"
-            end
           end
 
           def stop_container
