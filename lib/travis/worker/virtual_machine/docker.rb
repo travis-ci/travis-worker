@@ -65,12 +65,6 @@ module Travis
             # "NetworkSettings" => "none",
             "LxcConf" => [
               { "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set },
-            #   { "Key" => "lxc.network.type", "Value" => "veth" },
-            #   { "Key" => "lxc.network.ipv4", "Value" => ip_address },
-            #   { "Key" => "lxc.network.ipv4.gateway", "Value" => "172.17.42.1" },
-            #   { "Key" => "lxc.network.link = docker0", "Value" => "docker0" },
-            #   { "Key" => "lxc.network.name = eth0", "Value" => "eth0" },
-            #   { "Key" => "lxc.network.flags", "Value" => "up" }
             ]
           }
 
