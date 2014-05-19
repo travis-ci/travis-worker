@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'hot_bunnies'
+require 'march_hare'
 require 'multi_json'
 require 'hashr'
 
@@ -28,7 +28,7 @@ class QueueTester
 
   private
   def connect
-    @connection = HotBunnies.connect(:host => 'localhost')
+    @connection = MarchHare.connect(:host => 'localhost')
   end
 
   def open_channel

@@ -25,10 +25,7 @@ gem 'sshjr',            :git => 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
 
-platform :jruby do
-  gem 'hot_bunnies',    '2.0.0.pre10'
-  gem 'jruby-openssl',  '~> 0.8.0'
-end
+gem 'march_hare',       '2.2.0'
 
 group :test do
   gem 'rake',           '~> 0.9.2'
