@@ -1,7 +1,7 @@
 require 'hashr'
 require 'json'
 require 'multi_json'
-require 'march_hare'
+require 'hot_bunnies'
 require 'travis/support'
 require 'travis/worker/application/commands/cancel_job'
 

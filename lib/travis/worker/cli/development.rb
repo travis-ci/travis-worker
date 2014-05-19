@@ -1,7 +1,7 @@
 require "thor"
 
 require "java"
-require "march_hare"
+require "hot_bunnies"
 require "multi_json"
 require 'travis/worker'
 
@@ -331,7 +331,7 @@ module Travis
         def publish(payload, routing_key, n = 1)
           puts payload.inspect
 
-          connection = MarchHare.connect(:vhost => "travisci.development", :username => "travisci_worker", :password => "travisci_worker_password")
+          connection = HotBunnies.connect(:vhost => "travisci.development", :username => "travisci_worker", :password => "travisci_worker_password")
           channel    = connection.create_channel
           exchange   = channel.default_exchange
 

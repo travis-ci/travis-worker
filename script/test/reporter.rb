@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'march_hare'
+require 'hot_bunnies'
 require 'multi_json'
 require 'hashr'
 
@@ -24,7 +24,7 @@ class Reporter
 
   private
   def connect
-    @connection = MarchHare.connect(:host => 'localhost')
+    @connection = HotBunnies.connect(:host => 'localhost')
   end
 
   def open_channel
