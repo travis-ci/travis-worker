@@ -161,7 +161,7 @@ module Travis
       end
 
       def unsubscribe
-        # due to some aspects of how RabbitMQ Java client works and MarchHare consumer
+        # due to some aspects of how RabbitMQ Java client works and HotBunnies consumer
         # implementation that uses thread pools (JDK executor services), we need to shut down
         # consumers manually to guarantee that after disconnect we leave no active non-daemon
         # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
