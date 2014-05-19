@@ -18,7 +18,8 @@ gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 gem 'coder'
 
-gem 'fog',              git: 'http://github.com/travis-ci/fog'
+
+gem 'fog',                  git: 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
 gem 'docker-api'
 
