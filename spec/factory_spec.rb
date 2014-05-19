@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Worker::Factory do
-  include_context "march_hare connection"
+  include_context "hot_bunnies connection"
 
   let(:config)  { Hashr.new({ :queue => "builds.php" }) }
   let(:factory) { Travis::Worker::Factory.new('worker-name', config, connection) }
