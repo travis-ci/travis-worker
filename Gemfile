@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
-ruby '1.9.3', engine: 'jruby', engine_version: '1.7.12'
+# removed for now as this would impact our hosted workers
+# ruby '1.9.3', engine: 'jruby', engine_version: '1.7.12'
 
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'f1cbac9'
