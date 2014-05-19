@@ -1,6 +1,6 @@
 require 'travis/worker/cli/app'
 require 'travis/worker/cli/console'
-require 'travis/worker/cli/development' if defined?(JRUBY_VERSION)
+require 'travis/worker/cli/development'
 
 $stdout.sync = true
 
