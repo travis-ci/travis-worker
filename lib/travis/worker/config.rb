@@ -27,12 +27,12 @@ module Travis
       define :amqp      => { :username => 'guest', :password => 'guest', :host => 'localhost' },
              :heartbeat => { :interval => 10 },
              :log_level => :info,
-             :queue     => 'builds.common',
+             :queue     => 'builds.linux',
              :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0.5 },
              :timeouts  => { :hard_limit => 3000 },
              :shutdown_timeout => 3600,
-             :vms       => { :provider => 'virtual_box', :count => 1, :_include => Vms },
+             :vms       => { :provider => 'blue_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :last_flushed => 10, :log_chunk_size => 9216 },
              :language_mappings => { }
 
