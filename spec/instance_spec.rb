@@ -1,11 +1,11 @@
 require 'spec_helper'
-require 'hot_bunnies'
+require 'march_hare'
 require 'hashr'
 require 'travis/worker/instance'
 require 'celluloid/autostart'
 
 describe Travis::Worker::Instance do
-  include_context "hot_bunnies connection"
+  include_context "march_hare connection"
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:queue_name)   { "builds.php" }

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'travis/worker/reporter'
 
 describe Travis::Worker::Reporter do
-  include_context 'hot_bunnies connection'
+  include_context 'march_hare connection'
 
   let(:channel)     { connection.create_channel }
   let(:routing_key) { 'reporting.jobs.logs' }

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'stringio'
 
 describe Travis::Worker::Pool do
-  include_context "hot_bunnies connection"
+  include_context "march_hare connection"
 
   let(:names)   { %w(worker-1 worker-2)}
   let(:pool)    { Travis::Worker::Pool.new(names, Travis::Worker.config, connection) }
