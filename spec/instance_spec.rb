@@ -22,7 +22,7 @@ describe Travis::Worker::Instance do
     @worker ||= Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, [observer]).wrapped_object
   end
   
-  let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
+  let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.linux") }
 
   let(:decoded_payload) { Hashr.new('id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid') }
  
