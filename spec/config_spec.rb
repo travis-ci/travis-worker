@@ -63,7 +63,7 @@ describe Travis::Worker::Config do
       config.timeouts.hard_limit.should == 3000
     end
 
-    it 'queue defaults to builds' do
+    it 'queue defaults to builds.linux' do
       config.queue.should == 'builds.linux'
     end
 

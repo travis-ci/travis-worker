@@ -15,11 +15,11 @@ GIT
 
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: 8a8d92582b01c7347ef1b90e9c89189afbed7786
-  ref: 8a8d925
+  revision: 5a560561b49241fc84c3b414bb6652826ce8ea71
+  ref: 5a56056
   specs:
-    celluloid (0.15.0.pre)
-      timers (>= 1.0.0)
+    celluloid (0.16.0.pre)
+      timers (~> 2.0.0)
 
 GIT
   remote: https://github.com/joshk/sshjr
