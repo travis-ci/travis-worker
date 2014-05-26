@@ -225,7 +225,7 @@ module Travis
         finish(message, restart: true)
         # stop
         set :errored
-        sleep 120
+        sleep 10
         set :ready
       end
       log :error, :as => :debug
