@@ -62,8 +62,16 @@ module Travis
         end
 
         def compile_script
-          data = payload.merge(timeouts: false, hosts: Travis::Worker.config[:hosts], cache_options: Travis::Worker.config[:cache_options])
-          Build.script(data, logs: { build: false, state: true }).compile
+          data = payload.merge(
+            timeouts: false,
+            hosts: Travis::Worker.config[:hosts],
+            paranoid: Travis::Worker.config[:paranoid],
+            skip_resolv_updates: Travis::Worker.config[:skip_resolv_updates],
+            skip_etc_hosts_fix: Travis::Worker.config[:skip_etc_hosts_fix],
+            cache_options: Travis::Worker.config[:cache_options]
+          )
+
+          Build.script(data).compile
         rescue StandardError => e
           raise ScriptCompileError, "An error occured while compiling the build script : #{e.message}"
         end
