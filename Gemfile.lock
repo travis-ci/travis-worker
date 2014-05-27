@@ -15,11 +15,11 @@ GIT
 
 GIT
   remote: https://github.com/celluloid/celluloid
-  revision: 8a8d92582b01c7347ef1b90e9c89189afbed7786
-  ref: 8a8d925
+  revision: 5a560561b49241fc84c3b414bb6652826ce8ea71
+  ref: 5a56056
   specs:
-    celluloid (0.15.0.pre)
-      timers (>= 1.0.0)
+    celluloid (0.16.0.pre)
+      timers (~> 2.0.0)
 
 GIT
   remote: https://github.com/joshk/sshjr
@@ -28,23 +28,8 @@ GIT
     sshjr (0.1.0)
 
 GIT
-  remote: https://github.com/joshk/vagrant
-  revision: 8ccf5a2ee1d563a6eca39dafaeb05fdcc3b72a98
-  branch: 1-0-stable
-  specs:
-    vagrant (1.0.7.dev)
-      archive-tar-minitar (= 0.5.2)
-      childprocess (~> 0.3.1)
-      erubis (~> 2.7.0)
-      i18n (~> 0.6.0)
-      json (~> 1.5)
-      log4r (~> 1.1.9)
-      net-scp (~> 1.0)
-      net-ssh (~> 2.2)
-
-GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 8a4d3ef9b95e934ed653d335d6c48006f0516075
+  revision: d50beeffd2eca4205ebc15c61943cb26d4f8cfb0
   specs:
     travis-build (0.0.1)
 
@@ -62,19 +47,13 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.6)
-    archive-tar-minitar (0.5.2)
-    atomic (1.1.16)
     atomic (1.1.16-java)
     avl_tree (1.1.3)
-    bouncy-castle-java (1.5.0147)
     builder (3.2.2)
-    childprocess (0.3.9)
-      ffi (~> 1.0, >= 1.0.11)
     coder (0.4.0)
     coderay (1.1.0)
     diff-lcs (1.2.5)
     docile (1.1.3)
-    erubis (2.7.0)
     excon (0.25.3)
     faraday (0.7.6)
       addressable (~> 2.2)
@@ -82,27 +61,20 @@ GEM
       rack (~> 1.1)
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
-    ffi (1.9.3)
     ffi (1.9.3-java)
-    formatador (0.2.4)
+    formatador (0.2.5)
     hashr (0.0.22)
-    hitimes (1.2.1)
     hitimes (1.2.1-java)
-    hot_bunnies (2.0.0.pre10-java)
     i18n (0.6.9)
-    jruby-openssl (0.8.10)
-      bouncy-castle-java (>= 1.5.0147)
-    json (1.8.1)
     json (1.8.1-java)
-    log4r (1.1.10)
+    march_hare (2.2.0-java)
     metaclass (0.0.4)
     method_source (0.8.2)
-    metriks (0.9.9.6)
+    metriks (0.9.9.5)
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
-    micromachine (1.1.0)
-    mime-types (2.2)
+    mime-types (2.3)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     multi_json (1.2.0)
@@ -110,7 +82,6 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (2.6.8)
-    nokogiri (1.5.11)
     nokogiri (1.5.11-java)
     pry (0.9.12.6-java)
       coderay (~> 1.0)
@@ -143,10 +114,6 @@ GEM
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
-    vagrant-vbguest (0.10.0)
-      i18n
-      log4r
-      micromachine (~> 1.1.0)
 
 PLATFORMS
   java
@@ -159,10 +126,9 @@ DEPENDENCIES
   faraday (~> 0.7.5)
   fog!
   hashr (~> 0.0.18)
-  hot_bunnies (= 2.0.0.pre10)
-  jruby-openssl (~> 0.8.0)
   json
-  metriks
+  march_hare (= 2.2.0)
+  metriks (= 0.9.9.5)
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)
   net-ssh (~> 2.6.8)
@@ -175,5 +141,3 @@ DEPENDENCIES
   travis-build!
   travis-saucelabs-api (~> 0.0)
   travis-support!
-  vagrant!
-  vagrant-vbguest
