@@ -62,7 +62,6 @@ module Travis
 
         def compile_script
           data = payload.merge(
-            timeouts: false,
             hosts: Travis::Worker.config[:hosts],
             paranoid: Travis::Worker.config[:paranoid],
             skip_resolv_updates: Travis::Worker.config[:skip_resolv_updates],
