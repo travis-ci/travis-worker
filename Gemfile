@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'e5294f7'
 
-gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '8a8d925'
+gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '5a56056'
 
 gem 'activesupport',    '~> 3.2'
 
@@ -25,10 +25,7 @@ gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
 
-platform :jruby do
-  gem 'hot_bunnies',    '2.0.0.pre10'
-  gem 'jruby-openssl',  '~> 0.8.0'
-end
+gem 'march_hare',       '2.2.0'
 
 group :test do
   gem 'rake',           '~> 0.9.2'
