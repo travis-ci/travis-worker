@@ -144,6 +144,7 @@ module Travis
           case payload["config"][:".result"]
           when "parse_error"
             announce "\033[31;1mERROR\033[0m: An error occured while trying to parse your .travis.yml file.\n"
+            announce "  http://lint.travis-ci.org can check your .travis.yml.\n"
             announce "  Please make sure that the file is valid YAML.\n\n"
             # TODO: Remove all of this once we can actually error the build
             #   before it gets to the worker
