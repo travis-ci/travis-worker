@@ -127,7 +127,11 @@ module Travis
         end
 
         def ssh_port
-          ssh_config.port || port
+          fixed_ssh_host? ? port : 22
+        end
+
+        def fixed_ssh_host?
+          !!ssh_config.host
         end
 
         def latest_images
