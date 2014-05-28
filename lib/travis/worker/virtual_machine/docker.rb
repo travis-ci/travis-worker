@@ -118,12 +118,16 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
+        def ssh_config
+          Travis::Worker.config.docker.ssh || Hashr.new
+        end
+
         def ssh_host
-          ip_address # (Travis::Worker.config.docker.ssh || Hashr.new).host || '127.0.0.1'
+          ssh_config.host || ip_address
         end
 
         def ssh_port
-          22 # container.json["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"]
+          ssh_config.port || port
         end
 
         def latest_images
@@ -164,13 +168,16 @@ module Travis
 
         private
 
+          def worker_number
+            /\w+-(\d+)/.match(name)[1].to_i
+          end
+
           def ip_address
-            # "127.0.0.1"
             container.json['NetworkSettings']['IPAddress']
           end
 
-          def worker_number
-            /\w+-(\d+)/.match(name)[1].to_i
+          def port
+            container.json['NetworkSettings']['Ports']['22/tcp'][0]['HostPort']
           end
 
           def cpu_set
