@@ -14,6 +14,7 @@ module Travis
 
       def initialize
         Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
+        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
 
         Travis::Amqp.config = config.amqp
 
