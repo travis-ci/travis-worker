@@ -30,7 +30,7 @@ describe Travis::Worker::Application do
   describe 'status' do
     it 'returns the workers status report' do
       workers.expects(:status).returns(:result)
-      app.status.should == :result
+      app.status.expects == :result
     end
   end
 
