@@ -33,7 +33,7 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:docker" }
 
-        attr_reader :name, :password, :container
+        attr_reader :name, :container
 
         def initialize(name)
           @name = name
