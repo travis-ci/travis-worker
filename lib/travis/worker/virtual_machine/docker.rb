@@ -6,12 +6,6 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 
-# TODO move this ... where?
-api = Travis::Worker.config.docker.api || Hashr.new
-Docker.url = "http://#{api.host || 'localhost'}:#{api.port || '4243'}"
-# TODO this might be fixed in the latest version of docker-api
-Docker::API_VERSION.replace('1.7')
-
 module Travis
   module Worker
     module VirtualMachine
@@ -67,7 +61,7 @@ module Travis
             ]
           }
 
-          @container = ::Docker::Container.create(create_options)
+          @container = ::Docker::Container.create(create_options, connection)
 
           instrument do
             container.start(start_options)
@@ -135,7 +129,7 @@ module Travis
         end
 
         def latest_images
-          @latest_images ||= ::Docker::Image.all.find_all { |i| image_matches?(i, /^travis:/) }
+          @latest_images ||= ::Docker::Image.all({}, connection).find_all { |i| image_matches?(i, /^travis:/) }
         end
 
         def image_for_language(lang)
@@ -168,6 +162,13 @@ module Travis
         def prepare
           info "using latest templates : '#{latest_images}'"
           info "image override is: '#{image_override}'" if image_override
+        end
+
+        def connection
+          @connection ||= begin
+            api = Travis::Worker.config.docker.api || Hashr.new
+            Docker::Connection.new("http://#{api.host || 'localhost'}:#{api.port || '4243'}")
+          end
         end
 
         private
