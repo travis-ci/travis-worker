@@ -167,7 +167,7 @@ module Travis
         def connection
           @connection ||= begin
             api = Travis::Worker.config.docker.api || Hashr.new
-            Docker::Connection.new("http://#{api.host || 'localhost'}:#{api.port || '4243'}")
+            ::Docker::Connection.new("http://#{api.host || 'localhost'}:#{api.port || '4243'}")
           end
         end
 
