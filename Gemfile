@@ -1,7 +1,10 @@
 source 'https://rubygems.org'
 
+# removed for now as this would impact our hosted workers
+# ruby '1.9.3', engine: 'jruby', engine_version: '1.7.12'
+
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
-gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'e5294f7'
+gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'f1cbac9'
 
 gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '5a56056'
 
@@ -17,10 +20,9 @@ gem 'coder'
 
 gem 'fog',                  git: 'http://github.com/travis-ci/fog'
 gem 'travis-saucelabs-api', '~> 0.0'
+gem 'docker-api'
 
-gem 'excon',            '~> 0.25.1'
-
-gem 'net-ssh',          '~> 2.6.8'
+gem 'net-ssh',          '~> 2.9.0'
 gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
