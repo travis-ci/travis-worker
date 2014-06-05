@@ -76,10 +76,6 @@ describe Travis::Worker::Config do
       config.vms.count = 2
       config.vms.names.should == %w(travis-test-1 travis-test-2)
     end
-
-    it 'vms.recipes? defaults to false' do
-      config.vms.recipes?.should be_false
-    end
   end
 
   describe 'set' do
