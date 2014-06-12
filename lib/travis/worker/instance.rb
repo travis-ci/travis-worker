@@ -210,7 +210,7 @@ module Travis
 
         restart_job if opts[:restart]
 
-        message.ack # TODO: check if the channel is open
+        message.ack
 
         @payload = nil
 
