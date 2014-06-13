@@ -27,7 +27,7 @@ module Travis
 
       attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
-                  :subscription, :config, :payload, :last_error, :observers
+                  :subscription, :config, :payload, :last_error, :observers, :reporter
 
       def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
@@ -41,6 +41,9 @@ module Travis
         @broker_connection = broker_connection
         @config            = config
         @observers         = Array(observers)
+
+        # create the reporter early so it is not created within the `process` callback
+        @reporter = Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
 
       def start
@@ -79,7 +82,7 @@ module Travis
         # puts error.message, error.backtrace
         error_build(error, message)
       ensure
-        reset_reporter
+        reporter.reset
         @job_canceled = false
       end
 
@@ -229,15 +232,6 @@ module Travis
         set :ready
       end
       log :error, :as => :debug
-
-      def reporter
-        @reporter ||= Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
-      end
-
-      def reset_reporter
-        reporter.close if @reporter
-        @reporter = nil
-      end
 
       def host
         Travis::Worker.config.host
