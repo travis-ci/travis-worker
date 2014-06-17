@@ -39,30 +39,41 @@ module Travis
           info "Using image '#{image} for language #{opts[:language] || '[nil]'}"
 
           retryable(:tries => 5) do
-            create_new_server(image.id)
+            @container = create_container(image.id)
+            start_container
           end
         end
 
-        def create_new_server(image_id)
+        def create_container(image_id)
           create_options = {
-            'Cmd' => ["/sbin/init"],
+            'Cmd' => ['/sbin/init'],
             'Image' => image_id,
-            'Memory' => (1024 * 1024 * 1024 * (Travis::Worker.config.docker.memory || 2)),
-            'Hostname' => hostname,
-            # 'ExposedPorts' => { "22/tcp" => {} }
+            'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
+            'Hostname' => hostname
           }
+          if docker_config.expose_ports
+            create_options.merge!(
+              'ExposedPorts' => {
+                '22/tcp' => {}
+              }
+            )
+          end
+          ::Docker::Container.create(create_options, connection)
+        end
 
+        def start_container
           start_options = {
-            # "PortBindings" => {
-            #   "22/tcp" => [{ "HostIp" => nil, "HostPort" => nil }]
-            # },
-            "LxcConf" => [
-              { "Key" => "lxc.cgroup.cpuset.cpus", "Value" => cpu_set },
+            'LxcConf' => [
+              { 'Key' => 'lxc.cgroup.cpuset.cpus', 'Value' => cpu_set },
             ]
           }
-
-          @container = ::Docker::Container.create(create_options, connection)
-
+          if docker_config.expose_ports
+            start_options.merge!(
+              'PortBindings' => {
+                '22/tcp' => [{ 'HostIp' => nil, 'HostPort' => nil }]
+              }
+            )
+          end
           instrument do
             container.start(start_options)
             Fog.wait_for(10, 2) do
@@ -94,7 +105,7 @@ module Travis
             :host => ssh_host,
             :port => ssh_port,
             :username => 'travis',
-            :private_key_path => Travis::Worker.config.docker.private_key_path,
+            :private_key_path => docker_config.private_key_path,
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts
           )
@@ -112,8 +123,12 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
+        def docker_config
+          Travis::Worker.config.docker || Hashr.new
+        end
+
         def ssh_config
-          Travis::Worker.config.docker.ssh || Hashr.new
+          docker_config.ssh || Hashr.new
         end
 
         def ssh_host
@@ -166,7 +181,7 @@ module Travis
 
         def connection
           @connection ||= begin
-            api = Travis::Worker.config.docker.api || Hashr.new
+            api = docker_config.api || Hashr.new
             ::Docker::Connection.new("http://#{api.host || 'localhost'}:#{api.port || '4243'}", {})
           end
         end
