@@ -63,7 +63,7 @@ module Travis
 
         # Closes the Shell, flushes and resets the buffer
         def close
-          Timeout.timeout(5) { @connector.close }
+          Timeout.timeout(3) { @connector.close }
           true
         rescue
           warn "ssh connection could not be closed gracefully"

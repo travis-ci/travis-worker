@@ -1,11 +1,12 @@
 require 'spec_helper'
-require 'hot_bunnies'
 require 'hashr'
+require 'stringio'
+require 'march_hare'
 require 'travis/worker/instance'
 require 'celluloid/autostart'
 
 describe Travis::Worker::Instance do
-  include_context "hot_bunnies connection"
+  include_context "march_hare connection"
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:queue_name)   { "builds.php" }
@@ -21,7 +22,7 @@ describe Travis::Worker::Instance do
     @worker ||= Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, [observer]).wrapped_object
   end
   
-  let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.common") }
+  let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.linux") }
 
   let(:decoded_payload) { Hashr.new('id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid') }
  

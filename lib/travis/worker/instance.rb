@@ -27,7 +27,7 @@ module Travis
 
       attr_accessor :state
       attr_reader :name, :vm, :broker_connection, :queue, :queue_name,
-                  :subscription, :config, :payload, :last_error, :observers
+                  :subscription, :config, :payload, :last_error, :observers, :reporter
 
       def initialize(name, vm, broker_connection, queue_name, config, observers = [])
         raise ArgumentError, "worker name cannot be nil!" if name.nil?
@@ -41,6 +41,9 @@ module Travis
         @broker_connection = broker_connection
         @config            = config
         @observers         = Array(observers)
+
+        # create the reporter early so it is not created within the `process` callback
+        @reporter = Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
       end
 
       def start
@@ -79,7 +82,7 @@ module Travis
         # puts error.message, error.backtrace
         error_build(error, message)
       ensure
-        reset_reporter
+        reporter.reset
         @job_canceled = false
       end
 
@@ -161,7 +164,7 @@ module Travis
       end
 
       def unsubscribe
-        # due to some aspects of how RabbitMQ Java client works and HotBunnies consumer
+        # due to some aspects of how RabbitMQ Java client works and MarchHare consumer
         # implementation that uses thread pools (JDK executor services), we need to shut down
         # consumers manually to guarantee that after disconnect we leave no active non-daemon
         # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
@@ -225,19 +228,10 @@ module Travis
         finish(message, restart: true)
         # stop
         set :errored
-        sleep 120
+        sleep 10
         set :ready
       end
       log :error, :as => :debug
-
-      def reporter
-        @reporter ||= Reporter.new(name, broker_connection.create_channel, broker_connection.create_channel)
-      end
-
-      def reset_reporter
-        reporter.close if @reporter
-        @reporter = nil
-      end
 
       def host
         Travis::Worker.config.host

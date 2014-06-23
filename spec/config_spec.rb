@@ -54,8 +54,8 @@ describe Travis::Worker::Config do
 
   it 'vms includes the Vms module' do
     Travis::Worker::Config.any_instance.stubs(:read_yml).returns({ 'vms' => { 'count' => 5 } })
-    config.vms.meta_class.included_modules.include?(Travis::Worker::Config::Vms).should be_true
-    config.vms.count.should eql 5
+    expect(config.vms.meta_class.included_modules.include?(Travis::Worker::Config::Vms)).to eq(true)
+    expect(config.vms.count).to eql(5)
   end
 
   describe :defaults do
@@ -63,8 +63,8 @@ describe Travis::Worker::Config do
       config.timeouts.hard_limit.should == 3000
     end
 
-    it 'queue defaults to builds' do
-      config.queue.should == 'builds.common'
+    it 'queue defaults to builds.linux' do
+      config.queue.should == 'builds.linux'
     end
 
     it 'vms.count defaults to 1' do
@@ -75,10 +75,6 @@ describe Travis::Worker::Config do
       Travis::Worker.config.env = 'test' # hrmm
       config.vms.count = 2
       config.vms.names.should == %w(travis-test-1 travis-test-2)
-    end
-
-    it 'vms.recipes? defaults to false' do
-      config.vms.recipes?.should be_false
     end
   end
 
