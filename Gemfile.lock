@@ -55,7 +55,7 @@ GEM
     coderay (1.1.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
-    docker-api (1.11.2)
+    docker-api (1.12.0)
       archive-tar-minitar
       excon (>= 0.37.0)
       json
