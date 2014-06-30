@@ -52,15 +52,7 @@ module Travis
         end
 
         def compile_script
-          data = payload.merge(
-            hosts: Travis::Worker.config[:hosts],
-            paranoid: Travis::Worker.config[:paranoid],
-            skip_resolv_updates: Travis::Worker.config[:skip_resolv_updates],
-            skip_etc_hosts_fix: Travis::Worker.config[:skip_etc_hosts_fix],
-            cache_options: Travis::Worker.config[:cache_options]
-          )
-
-          Script.new(data).script
+          Script.new(payload).script
         end
 
         def setup_log_streaming
