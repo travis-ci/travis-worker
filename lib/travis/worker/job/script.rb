@@ -35,7 +35,8 @@ module Travis
             headers: {
               "Authorization" => "token #{Travis::Worker.config[:build].fetch(:api_token)}",
               "User-Agent" => "travis-worker",
-            }
+            },
+            timeout: Travis::Worker.config[:timeouts].fetch(:build_script),
           )
         end
 
