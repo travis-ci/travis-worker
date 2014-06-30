@@ -28,12 +28,6 @@ GIT
     sshjr (0.1.0)
 
 GIT
-  remote: https://github.com/travis-ci/travis-build
-  revision: 5bff20d401900b751c885bc6c4d0b955b0b4149f
-  specs:
-    travis-build (0.0.1)
-
-GIT
   remote: https://github.com/travis-ci/travis-support
   revision: f1cbac986f09ee4045b3d381b6519adb95ab5695
   ref: f1cbac9
@@ -147,6 +141,5 @@ DEPENDENCIES
   simplecov (>= 0.4.0)
   sshjr!
   thor (~> 0.14.6)
-  travis-build!
   travis-saucelabs-api (~> 0.0)
   travis-support!
