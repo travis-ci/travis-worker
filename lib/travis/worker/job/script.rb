@@ -32,7 +32,10 @@ module Travis
         def connection
           @connection ||= Faraday.new(
             url: Travis::Worker.config[:build].fetch(:url),
-            headers: { "Authorization" => "token #{Travis::Worker.config[:build].fetch(:api_token)}" }
+            headers: {
+              "Authorization" => "token #{Travis::Worker.config[:build].fetch(:api_token)}",
+              "User-Agent" => "travis-worker",
+            }
           )
         end
 
