@@ -30,7 +30,8 @@ module Travis
              :shutdown_timeout => 3600,
              :vms       => { :provider => 'blue_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :last_flushed => 10, :log_chunk_size => 9216 },
-             :language_mappings => { }
+             :language_mappings => { },
+             :build => { }
 
       def name
         @name ||= host.split('.').first
