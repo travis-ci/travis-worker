@@ -16,6 +16,12 @@ describe Travis::Worker::Job::Script do
       expect(described_class.new(payload).script).to start_with("#!/bin/bash")
     end
 
+    it "sends the payload to the API" do
+      described_class.new(hello: "world").script
+
+      expect(a_request(:post, "example.com/script").with(headers: { "Content-Type" => "application/json" }, body: /"hello":"world"/)).to have_been_made
+    end
+
     context "when the API 500s" do
       before do
         stub_request(:post, "example.com/script").with(headers: { "Authorization" => "token foobar" }).to_return(status: 500, body: "this is the error")

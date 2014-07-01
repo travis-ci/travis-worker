@@ -15,7 +15,7 @@ module Travis
 
         def script
           response = retryable(tries: 3, on: Faraday::Error::TimeoutError) do
-            connection.post("/script", data, "Content-Type" => "application/json")
+            connection.post("/script", JSON.dump(data), "Content-Type" => "application/json")
           end
 
           if response.status == 500
