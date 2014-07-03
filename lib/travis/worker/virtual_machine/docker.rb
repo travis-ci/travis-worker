@@ -47,7 +47,7 @@ module Travis
           create_options = {
             'Cmd' => ['/sbin/init'],
             'Image' => image_id,
-            'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
+            # 'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
             'Hostname' => hostname
           }
           if docker_config.expose_ports
@@ -63,7 +63,7 @@ module Travis
         def start_container
           start_options = {
             'LxcConf' => [
-              { 'Key' => 'lxc.cgroup.cpuset.cpus', 'Value' => cpu_set },
+              # { 'Key' => 'lxc.cgroup.cpuset.cpus', 'Value' => cpu_set },
             ]
           }
           if docker_config.expose_ports
