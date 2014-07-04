@@ -10,6 +10,8 @@ rvm: jruby-1.7.12
 
 bundler_args: --deployment --binstubs
 
+cache: bundler
+
 jdk:
   - openjdk7
   - openjdk6
