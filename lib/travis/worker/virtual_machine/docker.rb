@@ -1,4 +1,5 @@
 require 'docker'
+require 'fog'
 require 'shellwords'
 require 'digest/sha1'
 require 'benchmark'
