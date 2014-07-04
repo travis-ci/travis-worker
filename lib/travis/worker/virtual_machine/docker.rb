@@ -180,6 +180,7 @@ module Travis
         def prepare
           info "using latest templates : '#{latest_images}'"
           info "image override is: '#{image_override}'" if image_override
+          info "language mappings include : '#{language_mappings}"
         end
 
         def connection
