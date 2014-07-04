@@ -148,10 +148,13 @@ module Travis
         end
 
         def image_for_language(lang)
+          lang = Array(lang).first
+          mapping = lang ? language_mappings[lang] : 'ruby'
+
           image = if image_override
             latest_images.detect { |i| image_matches?(i, "travis:#{image_override}") }
           else
-            latest_images.detect { |i| image_matches?(i, "travis:#{lang || 'ruby'}") }
+            latest_images.detect { |i| image_matches?(i, "travis:#{mapping}") }
           end
 
           image || default_image
