@@ -6,7 +6,7 @@ services:
 env:
   - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"
 
-rvm: jruby-1.7.12
+rvm: jruby-1.7.13
 
 bundler_args: --deployment --binstubs --jobs=3 --retry=3
 
