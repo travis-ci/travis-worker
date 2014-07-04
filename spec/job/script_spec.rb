@@ -59,5 +59,20 @@ describe Travis::Worker::Job::Script do
         end
       end
     end
+
+    context "when the config for the API isn't set" do
+      before do
+        # We call WebMock.reset! to remove any stubs that have been made, so
+        # any network requests will fail.
+        WebMock.reset!
+
+        Travis::Worker.config.build.delete(:url)
+        Travis::Worker.config.build.delete(:api_token)
+      end
+
+      it "still returns a build script" do
+        expect(described_class.new(payload).script).to start_with("#!/bin/bash")
+      end
+    end
   end
 end

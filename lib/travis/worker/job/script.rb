@@ -1,5 +1,6 @@
 require "faraday"
 require "json"
+require "travis/build"
 
 module Travis
   module Worker
@@ -14,6 +15,16 @@ module Travis
         end
 
         def script
+          if Travis::Worker.config[:build][:url]
+            fetch_from_api
+          else
+            generate_using_build
+          end
+        end
+
+        private
+
+        def fetch_from_api
           response = retryable(tries: 3, on: Faraday::Error::TimeoutError) do
             connection.post("/script", JSON.dump(data), {
               "Content-Type" => "application/json",
@@ -30,7 +41,11 @@ module Travis
           raise CompileError, "The build script API timed out"
         end
 
-        private
+        def generate_using_build
+          Travis::Build.script(data).compile
+        rescue => e
+          raise CompileError, "An error occurred while compiling the build script: #{e.message}"
+        end
 
         def connection
           @connection ||= Faraday.new(
