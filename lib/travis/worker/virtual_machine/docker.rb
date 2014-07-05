@@ -49,8 +49,10 @@ module Travis
             'Cmd' => ['/sbin/init'],
             'Image' => image_id,
             'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
+            'Cpuset' => cpu_set,
             'Hostname' => hostname
           }
+
           if docker_config.expose_ports
             create_options.merge!(
               'ExposedPorts' => {
@@ -58,15 +60,13 @@ module Travis
               }
             )
           end
+
           ::Docker::Container.create(create_options, connection)
         end
 
         def start_container
-          start_options = {
-            'LxcConf' => [
-              { 'Key' => 'lxc.cgroup.cpuset.cpus', 'Value' => cpu_set },
-            ]
-          }
+          start_options = { }
+
           if docker_config.expose_ports
             start_options.merge!(
               'PortBindings' => {
@@ -74,6 +74,7 @@ module Travis
               }
             )
           end
+
           instrument do
             container.start(start_options)
             Fog.wait_for(10, 2) do
