@@ -50,7 +50,8 @@ module Travis
             'Image' => image_id,
             'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
             'Cpuset' => cpu_set,
-            'Hostname' => hostname
+            'Hostname' => short_hostname,
+            'Domainname' => domainname
           }
 
           if docker_config.expose_ports
@@ -98,6 +99,14 @@ module Travis
             prefix = Worker.config.host.split('.').first
             "testing-#{prefix}-#{Process.pid}-#{name}.#{Worker.config.host.split('.')[1..-1].join('.')}"
           end
+        end
+
+        def short_hostname
+          hostname.split('.')[0]
+        end
+
+        def domainname
+          hostname.split('.')[1..-1].join('.')
         end
 
         def session
