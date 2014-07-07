@@ -18,10 +18,6 @@ module Travis
         def names
           (1..count.to_i).map { |num| "#{name_prefix}-#{num}" }
         end
-
-        def provision?
-          !recipes.empty? && File.directory?(cookbooks)
-        end
       end
 
       define :amqp      => { :username => 'guest', :password => 'guest', :host => 'localhost' },

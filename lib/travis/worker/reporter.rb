@@ -16,10 +16,12 @@ module Travis
 
       def initialize(name, state_channel, log_channel)
         @name = name
-
         @state_exchange = state_channel.exchange('reporting', type: :topic, durable: true)
         @log_exchange   = log_channel.exchange('reporting',   type: :topic, durable: true)
+        reset
+      end
 
+      def reset
         @logs_part_number = 0
       end
 

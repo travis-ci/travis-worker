@@ -3,7 +3,6 @@ require 'travis/support/logging'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/build'
 
-
 # monkey patch net-ssh for now
 require 'net/ssh/buffered_io'
 module Net
