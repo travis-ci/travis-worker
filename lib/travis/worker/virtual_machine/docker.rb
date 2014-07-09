@@ -49,8 +49,11 @@ module Travis
             'Cmd' => ['/sbin/init'],
             'Image' => image_id,
             'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
-            'Hostname' => hostname
+            'Cpuset' => cpu_set,
+            'Hostname' => short_hostname,
+            'Domainname' => domainname
           }
+
           if docker_config.expose_ports
             create_options.merge!(
               'ExposedPorts' => {
@@ -58,15 +61,13 @@ module Travis
               }
             )
           end
+
           ::Docker::Container.create(create_options, connection)
         end
 
         def start_container
-          start_options = {
-            'LxcConf' => [
-              { 'Key' => 'lxc.cgroup.cpuset.cpus', 'Value' => cpu_set },
-            ]
-          }
+          start_options = { }
+
           if docker_config.expose_ports
             start_options.merge!(
               'PortBindings' => {
@@ -74,6 +75,7 @@ module Travis
               }
             )
           end
+
           instrument do
             container.start(start_options)
             Fog.wait_for(10, 2) do
@@ -97,6 +99,14 @@ module Travis
             prefix = Worker.config.host.split('.').first
             "testing-#{prefix}-#{Process.pid}-#{name}.#{Worker.config.host.split('.')[1..-1].join('.')}"
           end
+        end
+
+        def short_hostname
+          hostname.split('.')[0]
+        end
+
+        def domainname
+          hostname.split('.')[1..-1].join('.')
         end
 
         def session
@@ -148,10 +158,13 @@ module Travis
         end
 
         def image_for_language(lang)
+          lang = Array(lang).first
+          mapping = language_mappings[lang.to_s.to_sym] || lang || 'ruby'
+
           image = if image_override
             latest_images.detect { |i| image_matches?(i, "travis:#{image_override}") }
           else
-            latest_images.detect { |i| image_matches?(i, "travis:#{lang || 'ruby'}") }
+            latest_images.detect { |i| image_matches?(i, "travis:#{mapping}") }
           end
 
           image || default_image
@@ -177,6 +190,7 @@ module Travis
         def prepare
           info "using latest templates : '#{latest_images}'"
           info "image override is: '#{image_override}'" if image_override
+          info "language mappings include : '#{language_mappings}"
         end
 
         def connection
