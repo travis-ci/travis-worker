@@ -1,6 +1,7 @@
 require "faraday"
 require "json"
 require "travis/build"
+require "metriks"
 
 module Travis
   module Worker
