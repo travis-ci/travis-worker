@@ -11,19 +11,21 @@ describe Travis::Worker::Job::Script do
     stub_request(:post, "example.com/script").with(headers: { "Authorization" => "token foobar" }).to_return(body: "#!/bin/bash\necho 'hello world'")
   end
 
+  subject(:script) { described_class.new(payload, "spec").script }
+
   describe "#script" do
     it "returns a bash script" do
-      expect(described_class.new(payload).script).to start_with("#!/bin/bash")
+      expect(script).to start_with("#!/bin/bash")
     end
 
     it "sends the payload to the API" do
-      described_class.new(hello: "world").script
+      described_class.new({ hello: "world" }, "spec").script
 
       expect(a_request(:post, "example.com/script").with(headers: { "Content-Type" => "application/json" }, body: /"hello":"world"/)).to have_been_made
     end
 
     it "sets the Accept header" do
-      described_class.new(payload).script
+      script
 
       expect(a_request(:post, "example.com/script").with(headers: { "Accept" => "text/plain" })).to have_been_made
     end
@@ -34,7 +36,7 @@ describe Travis::Worker::Job::Script do
       end
 
       it "raises a CompileError" do
-        expect { described_class.new(payload).script }.to raise_error(described_class::CompileError, /this is the error/)
+        expect { script }.to raise_error(described_class::CompileError, /this is the error/)
       end
     end
 
@@ -45,7 +47,7 @@ describe Travis::Worker::Job::Script do
         end
 
         it "returns a bash script" do
-          expect(described_class.new(payload).script).to start_with("#!/bin/bash")
+          expect(script).to start_with("#!/bin/bash")
         end
       end
 
@@ -55,7 +57,7 @@ describe Travis::Worker::Job::Script do
         end
 
         it "raises CompileError" do
-          expect { described_class.new(payload).script }.to raise_error(described_class::CompileError, /time/)
+          expect { script }.to raise_error(described_class::CompileError, /time/)
         end
       end
     end
@@ -71,7 +73,7 @@ describe Travis::Worker::Job::Script do
       end
 
       it "still returns a build script" do
-        expect(described_class.new(payload).script).to start_with("#!/bin/bash")
+        expect(script).to start_with("#!/bin/bash")
       end
     end
   end
