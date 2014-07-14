@@ -52,7 +52,7 @@ module Travis
         end
 
         def compile_script
-          Script.new(payload).script
+          Script.new(payload, @log_prefix).script
         end
 
         def setup_log_streaming

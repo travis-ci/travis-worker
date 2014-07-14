@@ -8,16 +8,22 @@ module Travis
       class Script
         CompileError = Class.new(StandardError)
 
+        include Logging
         include Retryable
 
-        def initialize(payload)
+        log_header { "#{@log_prefix}:worker:job:script" }
+
+        def initialize(payload, log_prefix)
           @payload = payload
+          @log_prefix = log_prefix
         end
 
         def script
           if Travis::Worker.config[:build][:url]
+            info "fetching script from API"
             fetch_from_api
           else
+            info "generating build script"
             generate_using_build
           end
         end
