@@ -32,10 +32,12 @@ module Travis
 
         def fetch_from_api
           response = retryable(tries: 3, on: Faraday::Error::TimeoutError) do
-            connection.post("/script", JSON.dump(data), {
-              "Content-Type" => "application/json",
-              "Accept" => "text/plain",
-            })
+            Metriks.timer("worker.job.script.api").time do
+              connection.post("/script", JSON.dump(data), {
+                "Content-Type" => "application/json",
+                "Accept" => "text/plain",
+              })
+            end
           end
 
           if response.status == 500
@@ -48,7 +50,9 @@ module Travis
         end
 
         def generate_using_build
-          Travis::Build.script(data).compile
+          Metriks.timer("worker.job.script.build").time do
+            Travis::Build.script(data).compile
+          end
         rescue => e
           raise CompileError, "An error occurred while compiling the build script: #{e.message}"
         end
