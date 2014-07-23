@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 01c06f466dc117a3c440e76ccf5392669333019c
+  revision: 2ae45995e381859ceb2cbfa8beed54fd9e4c3e1e
   branch: sf-measure-commands-execution-time
   specs:
     travis-build (0.0.1)
