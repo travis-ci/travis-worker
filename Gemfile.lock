@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 7526edfa46f8bdbd8f9a03216c19a6f7aa83a96b
+  revision: 01c06f466dc117a3c440e76ccf5392669333019c
   branch: sf-measure-commands-execution-time
   specs:
     travis-build (0.0.1)
@@ -53,7 +53,6 @@ GEM
       rack (~> 1.1)
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
-    ffi (1.9.3)
     ffi (1.9.3-java)
     fog (1.22.1)
       fog-brightbox
