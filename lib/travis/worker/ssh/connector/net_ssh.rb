@@ -10,7 +10,7 @@ module Travis
           end
 
           def connect
-            options = { port: @config.port, paranoid: false }
+            options = { port: @config.port, paranoid: false, timeout: 10 }
             if @config.private_key_path?
               options[:keys] = [@config.private_key_path]
               options[:passphrase] = @config.password if @config.password?
