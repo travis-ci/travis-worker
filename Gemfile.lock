@@ -14,8 +14,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 771b9545c8d74c85bdf72156a95afb1128072bb2
-  branch: sf-measure-commands-execution-time
+  revision: 3c5b1e8d3e8ed0099a5e5b1f3f3eef0a7176cc9e
+  branch: sf-refactor_to_travis_cmd_bash_function
   specs:
     travis-build (0.0.1)
 
