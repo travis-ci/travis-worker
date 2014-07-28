@@ -14,8 +14,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: ec75acc51f4742a66aaba30a09877d02c52ccfdf
-  branch: sf-refactor_to_travis_cmd_bash_function
+  revision: fc96fc7997c9bbf659bdb5c470d794b9e50367b2
+  branch: sf-remove_travis_cmd_trap
   specs:
     travis-build (0.0.1)
 
