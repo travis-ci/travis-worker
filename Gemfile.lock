@@ -39,6 +39,8 @@ GEM
     builder (3.2.2)
     coder (0.4.0)
     coderay (1.1.0)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
     docker-api (1.13.0)
@@ -123,6 +125,7 @@ GEM
     rspec-mocks (3.0.2)
       rspec-support (~> 3.0.0)
     rspec-support (3.0.2)
+    safe_yaml (1.0.3)
     simplecov (0.8.2)
       docile (~> 1.1.0)
       multi_json
@@ -138,6 +141,9 @@ GEM
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
+    webmock (1.18.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
 
 PLATFORMS
   java
@@ -166,3 +172,4 @@ DEPENDENCIES
   travis-build!
   travis-saucelabs-api (~> 0.0)
   travis-support!
+  webmock
