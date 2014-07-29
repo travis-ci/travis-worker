@@ -36,20 +36,33 @@ INCOMING_PAYLOADS = {
     }
   },
   'build:test-project-1' => {
+    'type' => 'test',
     'repository' => {
       'slug' => 'travis-ci/test-project-1',
+      'source_url' => 'git://github.com/travis-ci/test-project-1.git'
     },
-    'build' => {
+    'source' => {
       'id' => 1,
+      'number' => '1',
       'commit' => '1234567',
-      'config' => {
-        'rvm'           => '1.9.2',
-        'gemfile'       => 'Gemfile.rails-3.1',
-        'env'           => ['FOO=bar', 'BAR=baz'],
-        'before_script' => ['bundle exec rake ci:before'],
-        'after_script'  => ['bundle exec rake ci:after'],
-        'bundler_args'  => 'bundler_arg=1'
-      }
+    },
+    'config' => {
+      'rvm'           => '1.9.2',
+      'gemfile'       => 'Gemfile.rails-3.1',
+      'env'           => ['FOO=bar', 'BAR=baz'],
+      'before_script' => ['bundle exec rake ci:before'],
+      'after_script'  => ['bundle exec rake ci:after'],
+      'bundler_args'  => 'bundler_arg=1',
+      'os'            => 'linux'
+    },
+    'job' => {
+      'id' => 1,
+      'number' => '1.1',
+      'commit' => '1234567',
+      'branch' => 'master',
+      'commit_range' => '1234566..1234567',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true
     }
   }
 }
