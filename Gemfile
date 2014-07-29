@@ -34,6 +34,7 @@ group :test do
   gem 'mocha',          '~> 0.11.0'
   gem 'rspec'
   gem 'simplecov',      '>= 0.4.0', require: false
+  gem 'webmock'
 end
 
 group :development do
