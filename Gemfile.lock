@@ -1,19 +1,4 @@
 GIT
-  remote: http://github.com/travis-ci/fog
-  revision: 34e03180370abdd61903bbc5cb3564e54bd1eec1
-  specs:
-    fog (1.10.1)
-      builder
-      excon (~> 0.20)
-      formatador (~> 0.2.0)
-      json (~> 1.7)
-      mime-types
-      net-scp (~> 1.1)
-      net-ssh (>= 2.1.3)
-      nokogiri (~> 1.5.0)
-      ruby-hmac
-
-GIT
   remote: https://github.com/celluloid/celluloid
   revision: 5a560561b49241fc84c3b414bb6652826ce8ea71
   ref: 5a56056
@@ -29,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: e5553110116f026075d47dfd922c5b7427539dc7
+  revision: 8b0479f44b831b0f490434927cba6914266c1a98
   specs:
     travis-build (0.0.1)
 
@@ -43,19 +28,22 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (3.2.18)
+    activesupport (3.2.19)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.6)
     archive-tar-minitar (0.5.2)
+    atomic (1.1.16)
     atomic (1.1.16-java)
     avl_tree (1.1.3)
     builder (3.2.2)
     coder (0.4.0)
     coderay (1.1.0)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
-    docker-api (1.11.2)
+    docker-api (1.13.0)
       archive-tar-minitar
       excon (>= 0.37.0)
       json
@@ -67,10 +55,33 @@ GEM
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
     ffi (1.9.3-java)
+    fog (1.22.1)
+      fog-brightbox
+      fog-core (~> 1.22)
+      fog-json
+      ipaddress (~> 0.5)
+      nokogiri (~> 1.5, >= 1.5.11)
+    fog-brightbox (0.1.1)
+      fog-core (~> 1.22)
+      fog-json
+      inflecto
+    fog-core (1.22.0)
+      builder
+      excon (~> 0.33)
+      formatador (~> 0.2)
+      mime-types
+      net-scp (~> 1.1)
+      net-ssh (>= 2.1.3)
+    fog-json (1.0.0)
+      multi_json (~> 1.0)
     formatador (0.2.5)
     hashr (0.0.22)
+    hitimes (1.2.1)
     hitimes (1.2.1-java)
     i18n (0.6.9)
+    inflecto (0.0.2)
+    ipaddress (0.8.0)
+    json (1.8.1)
     json (1.8.1-java)
     march_hare (2.2.0-java)
     metaclass (0.0.4)
@@ -80,6 +91,7 @@ GEM
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
     mime-types (2.3)
+    mini_portile (0.6.0)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     multi_json (1.2.0)
@@ -87,7 +99,13 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (2.9.1)
-    nokogiri (1.5.11-java)
+    nokogiri (1.6.2.1)
+      mini_portile (= 0.6.0)
+    nokogiri (1.6.2.1-java)
+    pry (0.10.0)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
     pry (0.10.0-java)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -99,15 +117,15 @@ GEM
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
       rspec-mocks (~> 3.0.0)
-    rspec-core (3.0.1)
+    rspec-core (3.0.2)
       rspec-support (~> 3.0.0)
-    rspec-expectations (3.0.1)
+    rspec-expectations (3.0.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.0.0)
-    rspec-mocks (3.0.1)
+    rspec-mocks (3.0.2)
       rspec-support (~> 3.0.0)
-    rspec-support (3.0.0)
-    ruby-hmac (0.4.0)
+    rspec-support (3.0.2)
+    safe_yaml (1.0.3)
     simplecov (0.8.2)
       docile (~> 1.1.0)
       multi_json
@@ -123,9 +141,13 @@ GEM
       faraday (~> 0.7)
       faraday_middleware (~> 0.9)
       thor (~> 0.14)
+    webmock (1.18.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   activesupport (~> 3.2)
@@ -133,7 +155,7 @@ DEPENDENCIES
   coder
   docker-api
   faraday (~> 0.7.5)
-  fog!
+  fog
   hashr (~> 0.0.18)
   json
   march_hare (= 2.2.0)
@@ -150,3 +172,4 @@ DEPENDENCIES
   travis-build!
   travis-saucelabs-api (~> 0.0)
   travis-support!
+  webmock

@@ -1,7 +1,7 @@
 require 'celluloid'
 require 'travis/support/logging'
 require 'travis/worker/utils/hard_timeout'
-require 'travis/build'
+require 'travis/worker/job/script'
 
 # monkey patch net-ssh for now
 require 'net/ssh/buffered_io'
@@ -30,15 +30,6 @@ module Travis
 
         class ConnectionError < StandardError; end
 
-        class ScriptCompileError < StandardError
-          attr_reader :original
-
-          def initialize(msg, original = $!)
-            super(msg)
-            @original = original
-          end
-        end
-
         attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
 
         log_header { "#{log_prefix}:worker:job:runner" }
@@ -61,17 +52,7 @@ module Travis
         end
 
         def compile_script
-          data = payload.merge(
-            hosts: Travis::Worker.config[:hosts],
-            paranoid: Travis::Worker.config[:paranoid],
-            skip_resolv_updates: Travis::Worker.config[:skip_resolv_updates],
-            skip_etc_hosts_fix: Travis::Worker.config[:skip_etc_hosts_fix],
-            cache_options: Travis::Worker.config[:cache_options]
-          )
-
-          Build.script(data).compile
-        rescue StandardError => e
-          raise ScriptCompileError, "An error occured while compiling the build script : #{e.message}"
+          Script.new(payload, @log_prefix).script
         end
 
         def setup_log_streaming

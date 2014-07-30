@@ -7,6 +7,7 @@ require 'rspec'
 require 'mocha'
 require 'hashr'
 require 'march_hare'
+require 'webmock/rspec'
 
 require 'travis/worker'
 require 'logger'

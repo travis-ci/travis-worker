@@ -58,7 +58,7 @@ payload = MultiJson.encode({
   }
 })
 
-puts "about the start the queue tester\n\n"
+puts "about to start the queue tester\n\n"
 
 @queue_tester = QueueTester.new
 @queue_tester.start

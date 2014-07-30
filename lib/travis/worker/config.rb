@@ -26,13 +26,14 @@ module Travis
              :queue     => 'builds.linux',
              :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0.5 },
-             :timeouts  => { :hard_limit => 3000 },
+             :timeouts  => { :hard_limit => 3000, :build_script => 5 },
              :shutdown_timeout => 3600,
              :vms       => { :provider => 'blue_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :last_flushed => 10, :log_chunk_size => 9216 },
              :language_mappings => { },
              :image_mappings => { },
-             :keychain_password => { }
+             :keychain_password => { },
+             :build => { }
 
       def name
         @name ||= host.split('.').first
