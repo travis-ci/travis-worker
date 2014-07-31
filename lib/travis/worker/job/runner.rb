@@ -78,7 +78,7 @@ module Travis
             warn "[Possible VM Error] The job has been requeued as no output has been received and the ssh connection could not be closed"
           end
           result = 'errored'
-        rescue Utils::Buffer::OutputLimitExceededError, ScriptCompileError => e
+        rescue Utils::Buffer::OutputLimitExceededError, Script::CompileError => e
           stop_with_exception(e)
           result = 'errored'
         rescue IOError, Errno::ECONNREFUSED
