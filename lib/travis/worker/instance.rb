@@ -100,6 +100,9 @@ module Travis
       rescue Job::Runner::ConnectionError => e
         error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) was requeued as the runner had a connection error"
         finish(message, :restart => true)
+      rescue MultiJson::DecodeError => e
+        error "invalid JSON for a job, dropping message: #{e.message}"
+        finish(message)
       end
 
       def report
