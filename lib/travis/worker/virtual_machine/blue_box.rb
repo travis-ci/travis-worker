@@ -22,7 +22,6 @@ module Travis
           :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
         }
 
-        TEMPLATE_GROUPING = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
         class << self
@@ -53,14 +52,14 @@ module Travis
         end
 
         def create_server(opts = {})
-          template = template_for_language(opts[:language])
-          
+          template = template_for_language(opts[:language], opts[:queue])
+
           info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
           hostname = hostname(opts[:job_id])
 
           config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
-            :image_id => template['id'], 
+            :image_id => template['id'],
             :hostname => hostname
           }))
 
@@ -144,31 +143,31 @@ module Travis
           end
         end
 
-        def grouped_templates
+        def grouped_templates(pool = nil)
           templates = fetch_templates.find_all do |t|
-            t['public'] == false && t['description'] =~ /^travis-/
+            t['public'] == false && t['description'] =~ /^travis-/ && t['description'] =~ /\b#{pool}\b/
           end
 
           grouped = templates.group_by do |t|
-            match = TEMPLATE_GROUPING.match(t['description'])
+            match = match_templates_in_pool(description: t['description'], pool: pool)
             match ? match[1] : nil
           end
 
           grouped.compact
         end
 
-        def latest_templates
+        def latest_templates(pool = nil)
           template_list = {}
 
-          grouped_templates.each do |k,v|
+          grouped_templates(pool).each do |k,v|
             template_list[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
           end
 
           template_list
         end
 
-        def template_for_language(lang)
-          return latest_templates[template_override] if template_override
+        def template_for_language(lang, pool = nil)
+          return latest_templates(pool)[template_override] if template_override
 
           lang = Array(lang).first
           mapping = if lang
@@ -177,10 +176,10 @@ module Travis
             'ruby'
           end
 
-          latest_templates[mapping] || latest_templates['ruby']
+          latest_templates(pool)[mapping] || latest_templates(pool)['ruby']
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
-          latest_templates['ruby']
+          latest_templates(pool)['ruby']
         end
 
         def destroy_server(opts = {})
@@ -266,6 +265,12 @@ module Travis
             @template_override ||= Travis::Worker.config.template_override
           end
 
+          def match_templates_in_pool(opts = {})
+            # prefer templates with the name matching the specified 'pool' name,
+            # but fall back to templates without if none is found
+            /^travis(?:-#{opts[:pool]})?-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
+          end
       end
     end
   end
