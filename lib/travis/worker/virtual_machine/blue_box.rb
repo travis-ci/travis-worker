@@ -52,7 +52,7 @@ module Travis
         end
 
         def create_server(opts = {})
-          template = template_for_language(opts[:language], opts[:queue])
+          template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
           info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
@@ -143,31 +143,31 @@ module Travis
           end
         end
 
-        def grouped_templates(pool = nil)
+        def grouped_templates(group = nil, dist = nil)
           templates = fetch_templates.find_all do |t|
-            t['public'] == false && t['description'] =~ /^travis-/ && t['description'] =~ /\b#{pool}\b/
+            t['public'] == false && t['description'] =~ /^travis-/ && t['description'] =~ /\b#{group}\b/
           end
 
           grouped = templates.group_by do |t|
-            match = match_templates_in_pool(description: t['description'], pool: pool)
+            match = match_template_with_opts(description: t['description'], group: group, dist: dist)
             match ? match[1] : nil
           end
 
           grouped.compact
         end
 
-        def latest_templates(pool = nil)
+        def latest_templates(group = nil, dist = nil)
           template_list = {}
 
-          grouped_templates(pool).each do |k,v|
+          grouped_templates(group, dist).each do |k,v|
             template_list[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
           end
 
           template_list
         end
 
-        def template_for_language(lang, pool = nil)
-          return latest_templates(pool)[template_override] if template_override
+        def template_for_language(lang, group = nil, dist = nil)
+          return latest_templates(group, dist)[template_override] if template_override
 
           lang = Array(lang).first
           mapping = if lang
@@ -176,10 +176,10 @@ module Travis
             'ruby'
           end
 
-          latest_templates(pool)[mapping] || latest_templates(pool)['ruby']
+          latest_templates(group)[mapping] || latest_templates(group)['ruby']
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
-          latest_templates(pool)['ruby']
+          latest_templates(group)['ruby']
         end
 
         def destroy_server(opts = {})
@@ -265,10 +265,10 @@ module Travis
             @template_override ||= Travis::Worker.config.template_override
           end
 
-          def match_templates_in_pool(opts = {})
-            # prefer templates with the name matching the specified 'pool' name,
+          def match_template_with_opts(opts = {})
+            # prefer templates with the name matching the specified 'group' name,
             # but fall back to templates without if none is found
-            /^travis(?:-#{opts[:pool]})?-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
             /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
           end
       end
