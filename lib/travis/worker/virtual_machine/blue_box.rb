@@ -176,7 +176,7 @@ module Travis
             'ruby'
           end
 
-          latest_templates(group)[mapping] || latest_templates(group)['ruby']
+          latest_templates(group, dist)[mapping] || latest_templates(group, dist)['ruby']
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
           latest_templates(group)['ruby']
@@ -268,7 +268,8 @@ module Travis
           def match_template_with_opts(opts = {})
             # prefer templates with the name matching the specified 'group' name,
             # but fall back to templates without if none is found
-            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            # group 1 captures either a single word, or a hyphenated 2-word
+            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-(\w+(?:-]w+))-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
             /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
           end
       end
