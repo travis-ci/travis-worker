@@ -276,7 +276,15 @@ module Travis
             # prefer templates with the name matching the specified 'group' name,
             # but fall back to templates without if none is found
             # group 1 captures either a single word, or a hyphenated 2-word
-            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
+            # in the order of preference, find template
+            # when both DIST and GROUP are given
+            /^travis(?:-#{opts[:dist]})(?:-#{opts[:group]})-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            # when only GROUP is given
+            /^travis(?:-\w+)?(?:-#{opts[:group]})-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            # when only DIST is given
+            /^travis(?:-#{opts[:dist]})(?:-\w+)?-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
+            # legacy naming scheme
+            /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
           end
       end
     end
