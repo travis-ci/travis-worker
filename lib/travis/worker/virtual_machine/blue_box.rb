@@ -54,7 +54,8 @@ module Travis
         def create_server(opts = {})
           template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
-          info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
+          info "template: #{template}"
+          # info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
           hostname = hostname(opts[:job_id])
 
