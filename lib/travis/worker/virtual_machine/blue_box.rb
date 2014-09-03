@@ -276,8 +276,7 @@ module Travis
             # prefer templates with the name matching the specified 'group' name,
             # but fall back to templates without if none is found
             # group 1 captures either a single word, or a hyphenated 2-word
-            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
-            /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
+            /^travis(?:-#{opts[:dist]})?(?:-#{opts[:group]})?-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
           end
       end
     end
