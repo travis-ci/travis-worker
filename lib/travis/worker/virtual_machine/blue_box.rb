@@ -52,6 +52,7 @@ module Travis
         end
 
         def create_server(opts = {})
+          info "opts: #{opts}"
           template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
           info "template: #{template}"
@@ -149,10 +150,14 @@ module Travis
             t['public'] == false && t['description'] =~ /^travis-/ && t['description'] =~ /\b#{group}\b/
           end
 
+          info "Found templates:\n\n#{templates.join("\n")}"
+
           grouped = templates.group_by do |t|
             match = match_template_with_opts(description: t['description'], group: group, dist: dist)
             match ? match[1] : nil
           end
+
+          info "grouped: #{grouped}"
 
           grouped.compact
         end
@@ -177,6 +182,7 @@ module Travis
             'ruby'
           end
 
+          info "lang: #{lang}"
           latest_templates(group, dist)[mapping] || latest_templates(group, dist)['ruby']
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
