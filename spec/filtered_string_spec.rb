@@ -7,8 +7,8 @@ describe Travis::Worker::Utils::FilteredString do
     unfiltered = 'FOO=bar'
 
     str = Travis::Worker::Utils::FilteredString.new(unfiltered, filtered)
-    str.to_s.should   == "FOO=[secure]"
-    str.to_str.should == "FOO=[secure]"
+    expect(str.to_s).to   eq("FOO=[secure]")
+    expect(str.to_str).to eq("FOO=[secure]")
   end
 
   it 'preserves filtered strings after split' do
@@ -17,8 +17,8 @@ describe Travis::Worker::Utils::FilteredString do
 
     str = Travis::Worker::Utils::FilteredString.new(unfiltered, filtered)
     array = str.split("\n")
-    array.map { |s| s.to_s       }.should == ['FOO=[secure]', 'BAR=[secure]']
-    array.map { |s| s.unfiltered }.should == ['FOO=bar', 'BAR=baz']
+    expect(array.map { |s| s.to_s       }).to eq(['FOO=[secure]', 'BAR=[secure]'])
+    expect(array.map { |s| s.unfiltered }).to eq(['FOO=bar', 'BAR=baz'])
   end
 
   it 'raises an error if parts does not match after split' do

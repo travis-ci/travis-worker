@@ -41,7 +41,7 @@ describe Travis::Worker::Application do
 
     it 'sets the given configuration to Travis.config' do
       app.set('foo.bar.baz' => 1)
-      Travis::Worker.config.foo.bar.baz.should == 1
+      expect(Travis::Worker.config.foo.bar.baz).to eq(1)
     end
   end
 
@@ -54,12 +54,12 @@ describe Travis::Worker::Application do
 
     it 'should log starting the workers' do
       app.start
-      io.string.should =~ /start/
+      expect(io.string).to match(/start/)
     end
 
     it 'should log stopping the workers' do
       app.stop()
-      io.string.should =~ /stop/
+      expect(io.string).to match(/stop/)
     end
   end
 end

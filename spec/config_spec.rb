@@ -11,13 +11,13 @@ describe Travis::Worker::Config do
 
   it "looks for a file ./config/worker.yml" do
     File.stubs(:exists?).with('./config/worker.yml').returns(true)
-    config.path.should eql './config/worker.yml'
+    expect(config.path).to eql './config/worker.yml'
   end
 
   it "looks for a file ~/.worker.yml" do
     File.stubs(:exists?).with('./config/worker.yml').returns(false)
     File.stubs(:exists?).with('~/.worker.yml').returns(true)
-    config.path.should eql '~/.worker.yml'
+    expect(config.path).to eql '~/.worker.yml'
   end
 
   it "reads ./config/worker.yml first, ./config/worker.[env].yml second and merges them" do
@@ -31,25 +31,25 @@ describe Travis::Worker::Config do
       returns('bar' => 'env', "baz" => "env")
 
     merged = config.read
-    merged['env'].should eql 'staging'
-    merged['foo'].should eql 'local'
-    merged['bar'].should eql 'local'
-    merged['baz'].should eql 'env'
+    expect(merged['env']).to eql 'staging'
+    expect(merged['foo']).to eql 'local'
+    expect(merged['bar']).to eql 'local'
+    expect(merged['baz']).to eql 'env'
   end
 
   it 'name returns the first part of the host name' do
     Socket.stubs(:gethostname).returns('test-1.worker.travis-ci.org')
-    config.name.should == 'test-1'
+    expect(config.name).to eq('test-1')
   end
 
   it 'host return the machine hostname' do
     Socket.stubs(:gethostname).returns('test-1.worker.travis-ci.org')
-    config.host.should == 'test-1.worker.travis-ci.org'
+    expect(config.host).to eq('test-1.worker.travis-ci.org')
   end
 
   it 'names returns the vm names' do
     Travis::Worker::VirtualMachine.stubs(:provider => stub(:vm_names => %w(worker-1)))
-    config.names.should == %w(worker-1)
+    expect(config.names).to eq(%w(worker-1))
   end
 
   it 'vms includes the Vms module' do
@@ -60,28 +60,28 @@ describe Travis::Worker::Config do
 
   describe :defaults do
     it 'hard limit is 3000' do
-      config.timeouts.hard_limit.should == 3000
+      expect(config.timeouts.hard_limit).to eq(3000)
     end
 
     it 'queue defaults to builds.linux' do
-      config.queue.should == 'builds.linux'
+      expect(config.queue).to eq('builds.linux')
     end
 
     it 'vms.count defaults to 1' do
-      config.vms.count.should == 1
+      expect(config.vms.count).to eq(1)
     end
 
     it 'vms.names defaults to [travis-env-1]' do
       Travis::Worker.config.env = 'test' # hrmm
       config.vms.count = 2
-      config.vms.names.should == %w(travis-test-1 travis-test-2)
+      expect(config.vms.names).to eq(%w(travis-test-1 travis-test-2))
     end
   end
 
   describe 'set' do
     it 'sets a value to a dot-separated path' do
       config.set('foo.bar', 'baz' => 'buz')
-      config.foo.bar.baz.should == 'buz'
+      expect(config.foo.bar.baz).to eq('buz')
     end
   end
 end
