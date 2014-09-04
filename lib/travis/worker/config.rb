@@ -65,8 +65,7 @@ module Travis
         end
 
         def config_filename(environment)
-          # ['worker', environment, 'yml'].compact.join('.')
-          'worker.yml'
+          ['worker', environment, 'yml'].compact.join('.')
         end
 
         def path(environment = nil)
