@@ -33,7 +33,7 @@ describe Travis::Worker::Pool do
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { pool.start(['worker-3']) }.should raise_error(Travis::Worker::WorkerNotFound)
+        expect { pool.start(['worker-3']) }.to raise_error(Travis::Worker::WorkerNotFound)
       end
     end
   end
@@ -58,7 +58,7 @@ describe Travis::Worker::Pool do
       end
 
       it 'raises WorkerNotFound if there is no worker with the given name' do
-        lambda { pool.stop(['worker-3']) }.should raise_error(Travis::Worker::WorkerNotFound)
+        expect { pool.stop(['worker-3']) }.to raise_error(Travis::Worker::WorkerNotFound)
       end
     end
 

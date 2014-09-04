@@ -23,8 +23,8 @@ describe Travis::Worker::Reporter do
       sleep 0.5
       meta, payload = queue.get
 
-      decode(payload).should == { :log => '...', :uuid => Travis.uuid }
-      meta.properties.type.should == 'build:log'
+      expect(decode(payload)).to eq({ :log => '...', :uuid => Travis.uuid })
+      expect(meta.properties.type).to eq('build:log')
     end
   end
 end
