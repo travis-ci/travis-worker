@@ -81,6 +81,7 @@ module Travis
               begin
                 @server.reload
                 @server.ready?
+              puts "hello #{@server}"
               rescue Excon::Errors::HTTPStatusError => e
                 mark_api_error(e)
                 false
@@ -155,11 +156,9 @@ module Travis
           grouped = templates.group_by do |t|
             match = match_template_with_opts(description: t['description'], group: group, dist: dist)
             match ? match[1] : nil
-          end
+          end#.tap { |x| puts "grouped: #{x}" }
 
-          info "grouped: #{grouped}"
-
-          grouped.compact
+          # grouped.compact
         end
 
         def latest_templates(group = nil, dist = nil)
