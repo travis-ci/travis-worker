@@ -33,6 +33,8 @@ group :test do
   gem 'rake',           '~> 0.9.2'
   gem 'mocha',          '~> 0.11.0'
   gem 'rspec'
+  gem 'ZenTest'
+  gem 'rspec-autotest'
   gem 'simplecov',      '>= 0.4.0', require: false
   gem 'webmock'
 end
