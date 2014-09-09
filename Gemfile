@@ -10,7 +10,7 @@ gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '5a5
 
 gem 'activesupport',    '~> 3.2'
 
-gem 'thor',             '~> 0.14.6'
+gem 'thor'
 
 gem 'faraday',          '~> 0.7.5'
 gem 'hashr',            '~> 0.0.18'
