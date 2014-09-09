@@ -25,11 +25,11 @@ describe Travis::Worker::VirtualMachine::BlueBox do
       end
 
       before :example do
-        allow_any_instance_of(Fog::Compute::Bluebox::Server).to receive(:ready?).and_return(true)
+        Fog::Compute::Bluebox::Server.any_instance.stubs(:ready?).returns(true)
       end
 
-      it 'returns empty array' do
-        expect(@blue_box.create_server).to be_nil
+      it 'returns without errors' do
+        expect(@blue_box.create_server).to be_truthy
       end
 
     end

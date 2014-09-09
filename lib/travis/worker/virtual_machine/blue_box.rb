@@ -81,7 +81,6 @@ module Travis
               begin
                 @server.reload
                 @server.ready?
-              puts "hello #{@server}"
               rescue Excon::Errors::HTTPStatusError => e
                 mark_api_error(e)
                 false
