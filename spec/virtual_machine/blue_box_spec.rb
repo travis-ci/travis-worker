@@ -7,22 +7,26 @@ require 'travis/worker/virtual_machine/blue_box/template'
 require 'json'
 
 describe Travis::Worker::VirtualMachine::BlueBox do
+  let(:ruby_template_attr)                 { JSON.parse '{"id":"7f3bb248-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-28-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:46:37-07:00"}' }
+  let(:old_ruby_template_attr)             { JSON.parse '{"id":"7f3bb233-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
+  let(:nodejs_template_attr)               { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
+  let(:perl_template_attr)                 { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
+  let(:update_nodejs_template_attr)        { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
+  let(:update_trusty_nodejs_template_attr) { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba336333","status":"stored","description":"travis-trusty-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-30T13:11:32-07:00"}' }
+
   describe "#new" do
     blue_box = described_class.new('blue_box')
   end
 
   describe "#create_server" do
     context 'when every call to Blue Box succeeds' do
+      let(:response_body) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, update_nodejs_template_attr, update_trusty_nodejs_template_attr].to_json }
+
       let(:blue_box) { described_class.new 'blue_box' }
 
       before :example do
         stub_request(:get, 'https://boxpanel.bluebox.net/api/block_templates.json').
-          to_return(:status => 200, :headers => {}, :body => <<-BODY)
-            [
-              {"id":"7f3bb248-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-28-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:46:37-07:00"},
-              {"id":"18ce6892-c73b-449b-9a8f-c4a0ac5e49c0","status":"stored","description":"travis-update-standard-2014-08-28-23-34-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T12:56:36-07:00"}
-            ]
-          BODY
+          to_return(:status => 200, :headers => {}, :body => response_body)
         stub_request(:get, 'https://boxpanel.bluebox.net/api/blocks.json').
           to_return(:status => 200, :headers => {}, :body => <<-BODY)
             [
@@ -47,13 +51,6 @@ describe Travis::Worker::VirtualMachine::BlueBox do
 
   describe '#template_for_language' do
     context 'when a wide range of templates are available' do
-      let(:ruby_template_attr)                 { JSON.parse '{"id":"7f3bb248-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-28-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:46:37-07:00"}' }
-      let(:old_ruby_template_attr)             { JSON.parse '{"id":"7f3bb233-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
-      let(:nodejs_template_attr)               { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
-      let(:perl_template_attr)                 { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
-      let(:update_nodejs_template_attr)        { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
-      let(:update_trusty_nodejs_template_attr) { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba336333","status":"stored","description":"travis-trusty-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-30T13:11:32-07:00"}' }
-
       let(:response_body) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, update_nodejs_template_attr, update_trusty_nodejs_template_attr].to_json }
 
       let(:blue_box) { described_class.new('blue_box') }
