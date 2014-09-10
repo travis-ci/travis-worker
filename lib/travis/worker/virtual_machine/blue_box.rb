@@ -5,6 +5,7 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 require 'resolv'
+require 'travis/worker/virtual_machine/blue_box/template'
 
 module Travis
   module Worker
@@ -61,7 +62,7 @@ module Travis
           hostname = hostname(opts[:job_id])
 
           config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
-            :image_id => template['id'],
+            :image_id => template.id,
             :hostname => hostname
           }))
 
@@ -146,25 +147,22 @@ module Travis
         end
 
         def grouped_templates(group = nil, dist = nil)
-          templates = fetch_templates.find_all do |t|
-            t['public'] == false && t['description'] =~ /^travis-/ && t['description'] =~ /\b#{group}\b/
+          templates = create_templates(fetch_templates).find_all do |t|
+            ! t.public && t.description =~ /^travis-/ && t.description =~ /\b#{group}\b/ && t.description =~ /\b#{dist}\b/
           end
 
           info "Found templates:\n\n#{templates.join("\n")}"
 
           grouped = templates.group_by do |t|
-            match = match_template_with_opts(description: t['description'], group: group, dist: dist)
-            match ? match[1] : nil
-          end#.tap { |x| puts "grouped: #{x}" }
-
-          # grouped.compact
+            [t.dist, t.group, t.template]
+          end
         end
 
         def latest_templates(group = nil, dist = nil)
           template_list = {}
 
           grouped_templates(group, dist).each do |k,v|
-            template_list[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
+            template_list[k] = v.sort { |a, b| b.created <=> a.created }.first
           end
 
           template_list
@@ -181,7 +179,7 @@ module Travis
           end
 
           info "lang: #{lang}"
-          latest_templates(group, dist)[mapping] || latest_templates(group, dist)['ruby']
+          latest_templates(group, dist)[[dist, group, mapping]] || latest_templates(group, dist)[[dist, group, 'ruby']]
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
           latest_templates(group)['ruby']
@@ -258,6 +256,12 @@ module Travis
             end
           end
 
+          def create_templates(templates)
+            templates.map do |t|
+              obj = Template.new(t)
+            end
+          end
+
           def generate_password
             Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
           end
@@ -268,21 +272,6 @@ module Travis
 
           def template_override
             @template_override ||= Travis::Worker.config.template_override
-          end
-
-          def match_template_with_opts(opts = {})
-            # prefer templates with the name matching the specified 'group' name,
-            # but fall back to templates without if none is found
-            # group 1 captures either a single word, or a hyphenated 2-word
-            # in the order of preference, find template
-            # when both DIST and GROUP are given
-            /^travis-(?:#{opts[:dist]}-#{opts[:group]})-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
-            # when only GROUP is given
-            /^travis-(?:#{opts[:group]})-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
-            # when only DIST is given
-            /^travis-(?:#{opts[:dist]})-(\w+(?:-\w+)*?)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description]) ||
-            # legacy naming scheme
-            /^travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/.match(opts[:description])
           end
       end
     end
