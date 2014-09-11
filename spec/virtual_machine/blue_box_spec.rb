@@ -10,7 +10,9 @@ describe Travis::Worker::VirtualMachine::BlueBox do
   let(:ruby_template_attr)                 { JSON.parse '{"id":"7f3bb248-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-28-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:46:37-07:00"}' }
   let(:old_ruby_template_attr)             { JSON.parse '{"id":"7f3bb233-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
   let(:update_ruby_template_attr)          { JSON.parse '{"id":"7f3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-update-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
+  let(:current_ruby_template_attr)         { JSON.parse '{"id":"8f3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-current-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
   let(:trusty_update_ruby_template_attr)   { JSON.parse '{"id":"7f3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-trusty-update-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
+  let(:trusty_current_ruby_template_attr)  { JSON.parse '{"id":"af3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-trusty-current-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
   let(:perl_template_attr)                 { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
   let(:update_perl_template_attr)          { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3cafe","status":"stored","description":"travis-update-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
   let(:trusty_update_perl_template_attr)   { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3aaaa","status":"stored","description":"travis-trusty-update-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
@@ -92,18 +94,18 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         end
       end
 
-      context 'given valid template name and group' do
+      context 'given valid template name "node-js" and group' do
         subject { blue_box.template_for_language('node-js', 'update') }
-        it 'chooses the correct one' do
+        it 'chooses the "node-js" one' do
           expect(subject).to eq(
             Travis::Worker::VirtualMachine::BlueBox::Template.new update_nodejs_template_attr
           )
         end
       end
 
-      context 'given valid template name, group and dist' do
+      context 'given valid template name "node-js", group and dist' do
         subject { blue_box.template_for_language('node-js', 'update', 'trusty')}
-        it 'chooses the correct one' do
+        it 'chooses the "node-js" one' do
           expect(subject).to eq(
             Travis::Worker::VirtualMachine::BlueBox::Template.new trusty_update_nodejs_template_attr
           )
@@ -135,6 +137,40 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         it 'chooses default (Ruby) update template' do
           expect(subject).to eq(
             Travis::Worker::VirtualMachine::BlueBox::Template.new update_ruby_template_attr
+          )
+        end
+      end
+    end
+
+    context 'when a "current" group templates is also availabele' do
+      let(:response_body) { (base_templates << current_ruby_template_attr << update_ruby_template_attr).to_json }
+
+      context 'given valid template name without group' do
+        subject { blue_box.template_for_language('ruby') }
+
+        it 'chooses the "current" one' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new current_ruby_template_attr
+          )
+        end
+      end
+
+      context 'given valid template name with a valid group' do
+        subject { blue_box.template_for_language('ruby', 'update') }
+
+        it 'chooses one with the specified group' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new update_ruby_template_attr
+          )
+        end
+      end
+
+      context 'given valid template name with an invalid group' do
+        subject { blue_box.template_for_language('ruby', 'foobar') }
+
+        it 'chooses the "current" one' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new current_ruby_template_attr
           )
         end
       end

@@ -25,6 +25,9 @@ module Travis
 
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
+        DEFAULT_TEMPLATE_LANGUAGE = 'ruby'
+        DEFAULT_TEMPLATE_GROUP    = 'current'
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -292,15 +295,25 @@ module Travis
             templates
           end
 
+          # this method dictates the precedence of template selection
           def select_template(mapping, group, dist)
-            latest_templates(group, dist)[[dist, group, mapping]] ||
-            latest_templates(group, dist)[[nil,  group, mapping]] ||
-            latest_templates(group, dist)[[dist, nil,   mapping]] ||
-            latest_templates(group, dist)[[nil,  nil,   mapping]] ||
-            latest_templates(group, dist)[[dist, group, 'ruby' ]] ||
-            latest_templates(group, dist)[[nil,  group, 'ruby' ]] ||
-            latest_templates(group, dist)[[dist, nil,   'ruby' ]] ||
-            latest_templates(group, dist)[[nil,  nil,   'ruby' ]]
+            # first, if group is given, find the matching template
+            # if group is nil, look for DEFAULT_TEMPLATE_GROUP
+            latest_templates(group, dist)[[dist, (group || DEFAULT_TEMPLATE_GROUP), mapping]] ||
+            latest_templates(group, dist)[[nil,  (group || DEFAULT_TEMPLATE_GROUP), mapping]] ||
+            # if no matching template is found, look for DEFAULT_TEMPLATE_GROUP
+            latest_templates(group, dist)[[dist, DEFAULT_TEMPLATE_GROUP,            mapping]] ||
+            latest_templates(group, dist)[[nil,  DEFAULT_TEMPLATE_GROUP,            mapping]] ||
+            # if no template with group DEFAULT_TEMPLATE_GROUP is found, then look for template without group
+            latest_templates(group, dist)[[dist, nil,                               mapping]] ||
+            latest_templates(group, dist)[[nil,  nil,                               mapping]] ||
+            # go through the same checkdown list for unrecognized language, falling back to DEFAULT_TEMPLATE_LANGUAGE
+            latest_templates(group, dist)[[dist, (group || DEFAULT_TEMPLATE_GROUP), DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  (group || DEFAULT_TEMPLATE_GROUP), DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[dist, DEFAULT_TEMPLATE_GROUP,            DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  DEFAULT_TEMPLATE_GROUP,            DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[dist, nil,                               DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  nil,                               DEFAULT_TEMPLATE_LANGUAGE ]]
           end
       end
     end
