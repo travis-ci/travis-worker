@@ -57,7 +57,6 @@ module Travis
           template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
           info "template: #{template}"
-          # info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
           hostname = hostname(opts[:job_id])
 
@@ -147,11 +146,7 @@ module Travis
         end
 
         def grouped_templates(group = nil, dist = nil)
-          templates = create_templates(fetch_templates).find_all do |t|
-            ! t.public && t.description =~ /^travis-/ && t.description =~ /\b#{group}\b/ && t.description =~ /\b#{dist}\b/
-          end
-
-          info "Found templates:\n\n#{templates.join("\n")}"
+          templates = select_matching_templates(create_templates(fetch_templates), group, dist)
 
           grouped = templates.group_by do |t|
             [t.dist, t.group, t.template]
@@ -159,13 +154,14 @@ module Travis
         end
 
         def latest_templates(group = nil, dist = nil)
+          return @template_list if @template_list
           template_list = {}
 
           grouped_templates(group, dist).each do |k,v|
             template_list[k] = v.sort { |a, b| b.created <=> a.created }.first
           end
 
-          template_list
+          @template_list = template_list
         end
 
         def template_for_language(lang, group = nil, dist = nil)
@@ -179,10 +175,10 @@ module Travis
           end
 
           info "lang: #{lang}"
-          latest_templates(group, dist)[[dist, group, mapping]] || latest_templates(group, dist)[[dist, group, 'ruby']]
+          select_template(mapping, group, dist)
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
-          latest_templates(group)['ruby']
+          latest_templates(group)[[nil, nil, 'ruby']]
         end
 
         def destroy_server(opts = {})
@@ -256,8 +252,9 @@ module Travis
             end
           end
 
-          def create_templates(templates)
-            templates.map do |t|
+          # given JSON response from the server, put corresponding Template objects into an array
+          def create_templates(json_response)
+            json_response.map do |t|
               obj = Template.new(t)
             end
           end
@@ -272,6 +269,38 @@ module Travis
 
           def template_override
             @template_override ||= Travis::Worker.config.template_override
+          end
+
+          # given group and dist, select templates that match criteria
+          def select_matching_templates(template_objects, group, dist)
+            templates = template_objects.find_all do |t|
+              ! t.public && t.description =~ /^travis-/ && t.description =~ /\b#{group}\b/ && t.description =~ /\b#{dist}\b/
+            end
+
+            if templates.empty?
+              templates = template_objects.find_all do |t|
+                ! t.public && t.description =~ /^travis-/ && t.description =~ /\b(#{group}|#{dist})\b/
+              end
+            end
+
+            if templates.empty?
+              templates = template_objects.find_all do |t|
+                ! t.public && t.description =~ /^travis-/
+              end
+            end
+
+            templates
+          end
+
+          def select_template(mapping, group, dist)
+            latest_templates(group, dist)[[dist, group, mapping]] ||
+            latest_templates(group, dist)[[nil,  group, mapping]] ||
+            latest_templates(group, dist)[[dist, nil,   mapping]] ||
+            latest_templates(group, dist)[[nil,  nil,   mapping]] ||
+            latest_templates(group, dist)[[dist, group, 'ruby' ]] ||
+            latest_templates(group, dist)[[nil,  group, 'ruby' ]] ||
+            latest_templates(group, dist)[[dist, nil,   'ruby' ]] ||
+            latest_templates(group, dist)[[nil,  nil,   'ruby' ]]
           end
       end
     end

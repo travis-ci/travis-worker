@@ -9,10 +9,16 @@ require 'json'
 describe Travis::Worker::VirtualMachine::BlueBox do
   let(:ruby_template_attr)                 { JSON.parse '{"id":"7f3bb248-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-28-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:46:37-07:00"}' }
   let(:old_ruby_template_attr)             { JSON.parse '{"id":"7f3bb233-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
-  let(:nodejs_template_attr)               { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
+  let(:update_ruby_template_attr)          { JSON.parse '{"id":"7f3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-update-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
+  let(:update_trusy_ruby_template_attr)    { JSON.parse '{"id":"7f3bb567-7bf2-41aa-a8c2-d00f426803ee","status":"stored","description":"travis-update-trusty-ruby-2014-08-18-20-46-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-18T13:46:37-07:00"}' }
   let(:perl_template_attr)                 { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
-  let(:update_nodejs_template_attr)        { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
+  let(:update_perl_template_attr)          { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3cafe","status":"stored","description":"travis-update-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
+  let(:update_trusty_perl_template_attr)   { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3aaaa","status":"stored","description":"travis-update-trusty-perl-2014-08-28-22-29-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
+  let(:nodejs_template_attr)               { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
+  let(:update_nodejs_template_attr)        { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33aeda","status":"stored","description":"travis-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
   let(:update_trusty_nodejs_template_attr) { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba336333","status":"stored","description":"travis-trusty-update-node-js-2014-08-28-20-11-cf95d0f","public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-30T13:11:32-07:00"}' }
+
+  let(:base_templates) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, update_nodejs_template_attr, update_trusty_nodejs_template_attr] }
 
   describe "#new" do
     blue_box = described_class.new('blue_box')
@@ -20,7 +26,7 @@ describe Travis::Worker::VirtualMachine::BlueBox do
 
   describe "#create_server" do
     context 'when every call to Blue Box succeeds' do
-      let(:response_body) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, update_nodejs_template_attr, update_trusty_nodejs_template_attr].to_json }
+      let(:response_body) { base_templates.to_json }
 
       let(:blue_box) { described_class.new 'blue_box' }
 
@@ -43,15 +49,19 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         Fog::Compute::Bluebox::Server.any_instance.stubs(:ready?).returns(true)
       end
 
-      it 'returns without errors' do
-        expect(blue_box.create_server).to be_truthy
+      context 'when no arguments are given' do
+        it 'returns without errors' do
+          expect(blue_box.create_server).to be_truthy
+        end
       end
+
+
     end
   end
 
   describe '#template_for_language' do
     context 'when a wide range of templates are available' do
-      let(:response_body) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, update_nodejs_template_attr, update_trusty_nodejs_template_attr].to_json }
+      let(:response_body) { base_templates.to_json }
 
       let(:blue_box) { described_class.new('blue_box') }
 
@@ -72,7 +82,7 @@ describe Travis::Worker::VirtualMachine::BlueBox do
           to_return(:status => 200, :headers => {}, :body => '{"id":"1877a1e4-c3d6-4674-8534-54d48f4683e2","ips": [{"address":"2607:f700:8000:12d:89e:f3bc:143e:8c55"}],"memory":3221225472,"storage":21474836480,"hostname":"testing-worker-linux-10-1-14390-linux-1-34724668.c45665.blueboxgrid.com","cpu":1.5,"status":"queued"}')
       end
 
-      context 'given template name' do
+      context 'given valid template name' do
         subject { blue_box.template_for_language('ruby') }
         it 'chooses the most recent template' do
           expect(subject).to eq(
@@ -81,7 +91,7 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         end
       end
 
-      context 'given template name and group' do
+      context 'given valid template name and group' do
         subject { blue_box.template_for_language('node-js', 'update') }
         it 'chooses the correct one' do
           expect(subject).to eq(
@@ -90,7 +100,7 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         end
       end
 
-      context 'given template name, group and dist' do
+      context 'given valid template name, group and dist' do
         subject { blue_box.template_for_language('node-js', 'update', 'trusty')}
         it 'chooses the correct one' do
           expect(subject).to eq(
@@ -99,6 +109,34 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         end
       end
 
+      context 'given nonexistent name' do
+        subject { blue_box.template_for_language('foobar') }
+        it 'chooses default (Ruby) template' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new ruby_template_attr
+          )
+        end
+      end
+
+      context 'given valid template name and nonexistent group name' do
+        subject { blue_box.template_for_language('ruby', 'foobar') }
+        it 'chooses default (Ruby) template' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new ruby_template_attr
+          )
+        end
+      end
+
+      context 'given valid template name and group, but nonexistent dist name' do
+        let(:response_body) { (base_templates << update_ruby_template_attr).to_json }
+
+        subject { blue_box.template_for_language('ruby', 'update', 'foobar') }
+        it 'chooses default (Ruby) update template' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new update_ruby_template_attr
+          )
+        end
+      end
     end
   end
 end
