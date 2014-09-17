@@ -48,7 +48,7 @@ module Travis
           create_options = {
             'Cmd' => ['/sbin/init'],
             'Image' => image_id,
-            'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 2)),
+            'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 4)),
             'Cpuset' => cpu_set,
             'Hostname' => short_hostname,
             'Domainname' => domainname
