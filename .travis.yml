@@ -4,7 +4,7 @@ services:
   - rabbitmq
 
 env:
-  - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"
+  - JRUBY_OPTS="--dev -Xcext.enabled=false -Xcompile.invokedynamic=false"
 
 rvm: jruby-1.7.13
 
