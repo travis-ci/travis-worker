@@ -15,13 +15,6 @@ module Travis
         include Retryable
         include Logging
 
-        BLUE_BOX_VM_DEFAULTS = {
-          :username  => 'travis',
-          :flavor_id => Travis::Worker.config.blue_box.flavor_id,
-          :location_id => Travis::Worker.config.blue_box.location_id,
-          :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
-        }
-
         TEMPLATE_GROUPING = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
@@ -54,13 +47,13 @@ module Travis
 
         def create_server(opts = {})
           template = template_for_language(opts[:language])
-          
+
           info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
 
           hostname = hostname(opts[:job_id])
 
-          config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
-            :image_id => template['id'], 
+          config = blue_box_vm_defaults.merge(opts.merge({
+            :image_id => template['id'],
             :hostname => hostname
           }))
 
@@ -126,6 +119,15 @@ module Travis
         ensure
           session.close if @session
           destroy_server if @server
+        end
+
+        def blue_box_vm_defaults
+          {
+            :username  => 'travis',
+            :flavor_id => Travis::Worker.config.blue_box.flavor_id,
+            :location_id => Travis::Worker.config.blue_box.location_id,
+            :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
+          }
         end
 
         def full_name
