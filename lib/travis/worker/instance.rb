@@ -261,10 +261,12 @@ module Travis
       end
 
       def timeouts
-        {
-          hard_limit: payload.timouts.hard_limit || config.timeouts.hard_limit,
-          log_silence: payload.timouts.log_silence || config.timeouts.log_silence
-        }
+        { hard_limit: timeout(:hard_limit), log_silence: timeout(:log_silence) }
+      end
+
+      def timeout(type)
+        timeout = payload.timeouts && payload.timeouts.send(type) || config.timeouts.send(type)
+        timeout.to_i
       end
 
       def restart_job
