@@ -127,8 +127,8 @@ module Travis
 
           def check_log_silence
             elapsed = Time.now.to_i - buffer.last_flushed
-            if elapsed > log_silence_timeout * 60
-              warn "Flushed limit exceeded: timeout = #{log_silence_timeout}, now = #{Time.now.to_i}"
+            if elapsed > log_silence_timeout
+              warn "Flushed limit exceeded: timeout = #{log_silence_timeout} sec, now = #{Time.now.to_i}"
               buffer.stop
               raise NoOutputReceivedError.new(log_silence_timeout.to_s)
             end

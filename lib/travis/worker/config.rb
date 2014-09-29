@@ -26,7 +26,7 @@ module Travis
              :queue     => 'builds.linux',
              :logging_channel => 'reporting.jobs.logs',
              :shell     => { :buffer => 0.5 },
-             :timeouts  => { :build_script => 5, :hard_limit => 3000, :log_silence => 10 },
+             :timeouts  => { :build_script => 5, :hard_limit => 50 * 60, :log_silence => 10 * 60 },
              :shutdown_timeout => 3600,
              :vms       => { :provider => 'blue_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :log_chunk_size => 9216 },
