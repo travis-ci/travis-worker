@@ -15,14 +15,14 @@ describe Travis::Worker::Utils::Buffer do
     buffer << 'baz'
     buffer.send(:flush)
 
-    result.should == ['foobar', 'baz']
+    expect(result).to eq(['foobar', 'baz'])
   end
 
   it 'raises a OutputLimitExceeded exception when the log gets too long' do
     buffer.expects(:bytes_limit).at_least_once.returns(10)
     buffer << '12345'
     buffer << '12345'
-    lambda { buffer << '12345' }.should raise_error(Travis::Worker::Utils::Buffer::OutputLimitExceededError)
+    expect { buffer << '12345' }.to raise_error(Travis::Worker::Utils::Buffer::OutputLimitExceededError)
   end
 
   it 'limits each part to given "chunk_size", taking json conversion into account' do
@@ -31,6 +31,6 @@ describe Travis::Worker::Utils::Buffer do
     buffer << '1ą234512345'
     buffer.send(:flush)
 
-    result.should == ["1", "ą", "234", "512", "345"]
+    expect(result).to eq(["1", "ą", "234", "512", "345"])
   end
 end

@@ -76,7 +76,7 @@ module Travis
 
         def create_new_server(opts)
           @server = start_server(opts)
-          info "Booting #{hostname} (#{ip_address})"
+          info "Booting #{hostname} (#{ip_address}), #{@server["instance_id"]}"
           instrument do
             Fog.wait_for(240, 3) do
               vm_ready?(@server)
