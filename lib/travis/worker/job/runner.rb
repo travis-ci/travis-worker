@@ -177,7 +177,7 @@ module Travis
         def timedout
           stop
           minutes = timeouts.hard_limit / 60.0
-          announce("\n\nI'm sorry but your test run exceeded #{minutes} minutes. \n\nOne possible solution is to split up your test run.")
+          announce("\n\nYour test run exceeded #{minutes.to_i} minutes. \n\nOne possible solution is to split up your test run.")
           error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) took more than #{minutes} minutes and was cancelled"
         end
 
@@ -201,7 +201,7 @@ module Travis
         end
 
         def connection_error
-          announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
+          announce("There was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
         end
       end
