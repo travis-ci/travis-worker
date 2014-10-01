@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'travis/worker/factory'
 
 describe Travis::Worker::Factory do
   include_context "march_hare connection"
