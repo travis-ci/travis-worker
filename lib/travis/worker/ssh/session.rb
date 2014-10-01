@@ -14,9 +14,8 @@ module Travis
         include Logging
 
         class NoOutputReceivedError < StandardError
-          attr_reader :minutes
-          def initialize(minutes)
-            super("No output has been received in the last #{minutes} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
+          def initialize(seconds)
+            super("No output has been received in the last #{(seconds / 60).to_i} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
           end
         end
 
@@ -130,7 +129,7 @@ module Travis
             if elapsed > log_silence_timeout
               warn "Flushed limit exceeded: timeout = #{log_silence_timeout} sec, now = #{Time.now.to_i}"
               buffer.stop
-              raise NoOutputReceivedError.new(log_silence_timeout.to_s)
+              raise NoOutputReceivedError.new(log_silence_timeout)
             end
           end
       end
