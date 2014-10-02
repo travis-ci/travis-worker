@@ -16,13 +16,6 @@ module Travis
         include Retryable
         include Logging
 
-        BLUE_BOX_VM_DEFAULTS = {
-          :username  => 'travis',
-          :flavor_id => Travis::Worker.config.blue_box.flavor_id,
-          :location_id => Travis::Worker.config.blue_box.location_id,
-          :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
-        }
-
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
         DEFAULT_TEMPLATE_LANGUAGE = 'ruby'
@@ -63,7 +56,7 @@ module Travis
 
           hostname = hostname(opts[:job_id])
 
-          config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
+          config = blue_box_vm_defaults.merge(opts.merge({
             :image_id => template.id,
             :hostname => hostname
           }))
@@ -130,6 +123,15 @@ module Travis
         ensure
           session.close if @session
           destroy_server if @server
+        end
+
+        def blue_box_vm_defaults
+          {
+            :username  => 'travis',
+            :flavor_id => Travis::Worker.config.blue_box.flavor_id,
+            :location_id => Travis::Worker.config.blue_box.location_id,
+            :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
+          }
         end
 
         def full_name
