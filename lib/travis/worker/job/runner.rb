@@ -154,7 +154,13 @@ module Travis
           session.exec("chmod +x ~/build.sh")
 
           info "running the build"
-          session.exec("~/build.sh") { exit_exec? }
+          if session.config.platform == :osx
+            session.upload_file("~/proxy_script.sh", DATA)
+            session.exec("chmod +x ~/proxy_script.sh")
+            session.exec("~/proxy_script.sh ~/build.sh") { exit_exec? }
+          else
+            session.exec("~/build.sh") { exit_exec? }
+          end
         end
 
         def start_session
@@ -208,3 +214,24 @@ module Travis
     end
   end
 end
+
+__END__
+#!/bin/bash
+
+[[ -f exit.out ]] && rm exit.out
+
+osascript \
+  -e 'tell application "Terminal"' \
+  -e 'activate' \
+  -e 'do script "bash"' \
+  -e 'delay 1' \
+  -e 'do script "cd '"$(pwd)"'" in window 1' \
+  -e 'delay 1' \
+  -e 'do script "script -qt 0 /dev/null '"$@"' 2>&1 | nc 127.0.0.1 15782; echo \"${PIPESTATUS[0]}\" > exit.out" in window 1' \
+  -e 'end tell' &>/dev/null &
+
+nc -l 15782
+until [[ -f exit.out ]]; do
+  sleep 1
+done
+exit "$(cat exit.out)"
