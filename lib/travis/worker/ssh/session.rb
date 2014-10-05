@@ -15,9 +15,8 @@ module Travis
         include Logging
 
         class NoOutputReceivedError < StandardError
-          attr_reader :minutes
-          def initialize(minutes)
-            super("No output has been received in the last #{minutes} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
+          def initialize(seconds)
+            super("No output has been received in the last #{(seconds / 60).to_i} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
           end
         end
 
@@ -29,6 +28,7 @@ module Travis
         log_header { "#{name}:shell:session" }
 
         attr_reader :name, :config
+        attr_accessor :log_silence_timeout
 
         # Initialize a shell Session
         #
@@ -97,7 +97,7 @@ module Travis
         def exec(command, &block)
           if block
             @connector.exec(command, buffer) do
-              buffer_flush_exceeded?
+              check_log_silence
               block.call
             end
           else
@@ -130,13 +130,12 @@ module Travis
             end
           end
 
-          def buffer_flush_exceeded?
-            flushed_limit = Travis::Worker.config.limits.last_flushed
-
-            if (Time.now.to_i - buffer.last_flushed) > (flushed_limit * 60)
-              warn "Flushed limit exceeded: @flushed_limit = #{flushed_limit}, now = #{Time.now.to_i}"
+          def check_log_silence
+            elapsed = Time.now.to_i - buffer.last_flushed
+            if elapsed > log_silence_timeout
+              warn "Flushed limit exceeded: timeout = #{log_silence_timeout} sec, now = #{Time.now.to_i}"
               buffer.stop
-              raise NoOutputReceivedError.new(flushed_limit.to_s)
+              raise NoOutputReceivedError.new(log_silence_timeout)
             end
           end
       end

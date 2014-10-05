@@ -30,17 +30,17 @@ module Travis
 
         class ConnectionError < StandardError; end
 
-        attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
+        attr_reader :payload, :session, :reporter, :host_name, :timeouts, :log_prefix
 
         log_header { "#{log_prefix}:worker:job:runner" }
 
-        def initialize(payload, session, reporter, host_name, hard_timeout, log_prefix)
+        def initialize(payload, session, reporter, host_name, timeouts, log_prefix)
           @payload  = payload
           @session  = session
           @reporter = reporter
-          @host_name    = host_name
-          @hard_timeout = hard_timeout
-          @log_prefix   = log_prefix
+          @host_name  = host_name
+          @timeouts   = Hashr.new(timeouts)
+          @log_prefix = log_prefix
         end
 
         def run
@@ -56,6 +56,7 @@ module Travis
         end
 
         def setup_log_streaming
+          session.log_silence_timeout = timeouts.log_silence
           session.on_output do |output, options|
             announce(output)
           end
@@ -145,7 +146,13 @@ module Travis
         def run_script
           info "running the build"
           Timeout::timeout(hard_timeout) do
-            session.exec("bash --login ~/build.sh") { exit_exec? }
+            if session.config.platform == :osx
+              session.upload_file("~/proxy_script.sh", DATA)
+              session.exec("chmod +x ~/proxy_script.sh")
+              session.exec("~/proxy_script.sh 'bash --login ~/build.sh'") { exit_exec? }
+            else
+              session.exec("bash --login ~/build.sh") { exit_exec? }
+            end
           end
         rescue Timeout::Error
           timedout
@@ -171,8 +178,8 @@ module Travis
 
         def timedout
           stop
-          minutes = hard_timeout / 60.0
-          announce("\n\nI'm sorry but your test run exceeded #{minutes} minutes. \n\nOne possible solution is to split up your test run.")
+          minutes = timeouts.hard_limit / 60.0
+          announce("\n\nYour test run exceeded #{minutes.to_i} minutes. \n\nOne possible solution is to split up your test run.")
           error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) took more than #{minutes} minutes and was cancelled"
         end
 
@@ -196,7 +203,7 @@ module Travis
         end
 
         def connection_error
-          announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
+          announce("There was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
         end
 
@@ -212,3 +219,24 @@ module Travis
     end
   end
 end
+
+__END__
+#!/bin/bash
+
+[[ -f exit.out ]] && rm exit.out
+
+osascript \
+  -e 'tell application "Terminal"' \
+  -e 'activate' \
+  -e 'do script "bash"' \
+  -e 'delay 1' \
+  -e 'do script "cd '"$(pwd)"'" in window 1' \
+  -e 'delay 1' \
+  -e 'do script "script -qt 0 /dev/null '"$@"' 2>&1 | nc 127.0.0.1 15782; echo \"${PIPESTATUS[0]}\" > exit.out" in window 1' \
+  -e 'end tell' &>/dev/null &
+
+nc -l 15782
+until [[ -f exit.out ]]; do
+  sleep 1
+done
+exit "$(cat exit.out)"
