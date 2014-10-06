@@ -2,6 +2,7 @@ require 'celluloid'
 require 'travis/support/logging'
 require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/job/script'
+require 'net/vnc'
 
 # monkey patch net-ssh for now
 require 'net/ssh/buffered_io'
@@ -52,7 +53,7 @@ module Travis
         end
 
         def compile_script
-          Script.new(payload, @log_prefix).script
+          Script.new(payload, @log_prefix).script.gsub(/\A#!\/bin\/bash\n/, "#!/bin/bash --login\n")
         end
 
         def setup_log_streaming
@@ -145,11 +146,9 @@ module Travis
 
         def run_script
           info "running the build"
-          Timeout::timeout(hard_timeout) do
+          Timeout::timeout(timeouts.hard_timeout) do
             if session.config.platform == :osx
-              session.upload_file("~/proxy_script.sh", DATA)
-              session.exec("chmod +x ~/proxy_script.sh")
-              session.exec("~/proxy_script.sh 'bash --login ~/build.sh'") { exit_exec? }
+              session.exec("nc 127.0.0.1 25782") { exit_exec? }
             else
               session.exec("bash --login ~/build.sh") { exit_exec? }
             end
@@ -219,24 +218,3 @@ module Travis
     end
   end
 end
-
-__END__
-#!/bin/bash
-
-[[ -f exit.out ]] && rm exit.out
-
-osascript \
-  -e 'tell application "Terminal"' \
-  -e 'activate' \
-  -e 'do script "bash"' \
-  -e 'delay 1' \
-  -e 'do script "cd '"$(pwd)"'" in window 1' \
-  -e 'delay 1' \
-  -e 'do script "script -qt 0 /dev/null '"$@"' 2>&1 | nc 127.0.0.1 15782; echo \"${PIPESTATUS[0]}\" > exit.out" in window 1' \
-  -e 'end tell' &>/dev/null &
-
-nc -l 15782
-until [[ -f exit.out ]]; do
-  sleep 1
-done
-exit "$(cat exit.out)"

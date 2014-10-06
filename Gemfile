@@ -29,6 +29,8 @@ gem 'metriks',          '0.9.9.5'
 
 gem 'march_hare',       '2.2.0'
 
+gem 'ruby-vnc', git: 'https://github.com/tryphon/ruby-vnc.git'
+
 group :test do
   gem 'rake',           '~> 0.9.2'
   gem 'mocha',          '~> 0.11.0'

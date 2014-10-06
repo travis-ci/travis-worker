@@ -4,6 +4,7 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 require "fog"
+require 'net/vnc'
 
 module Travis
   module Worker
@@ -51,6 +52,7 @@ module Travis
 
         def sandboxed(opts={})
           create_server(opts)
+          upload_wrapper_script_and_run
           yield
         ensure
           session.close if @session
@@ -62,6 +64,46 @@ module Travis
         end
 
         private
+
+        def upload_wrapper_script_and_run
+          extra = @server["extra_info"]
+          vnc_host = extra["handlanger_host"]
+          vnc_port = extra["handlanger_vnc_port"].to_i
+          session.upload_file("~/proxy_build.rb", <<EOF)
+#!/usr/bin/env ruby
+
+require "open3"
+require "socket"
+
+server = TCPServer.new("127.0.0.1", 15782)
+socket = server.accept
+
+Open3.popen2e("/bin/bash", "--login", "~/build.sh") do |stdin, stdouterr, wait_thr|
+  until stdouterr.eof?
+    socket.print(stdouterr.read(1))
+  end
+
+  wait_thr.join
+end
+
+socket.close
+EOF
+          session.exec("chmod +x ~/proxy_build.rb")
+
+          Net::VNC.open("#{vnc_host}:#{vnc_port-5900}") do |vnc|
+            # Open Spotlight
+            vnc.key_press(:left_super, " ")
+            # Open Terminal.app
+            'terminal.app'.split(//).each { |char| vnc.key_press(char) }
+            vnc.key_press(:return)
+
+            sleep 1
+
+            # Enter ~/proxy_build.rb
+            '~/proxy_build.rb'.split(//).each { |char| vnc.key_press(char) }
+            vnc.key_press(:return)
+          end
+        end
 
         def api
           @api ||= Travis::SaucelabsAPI.new(Travis::Worker.config.sauce_labs.api_endpoint)
@@ -76,7 +118,10 @@ module Travis
 
         def create_new_server(opts)
           @server = start_server(opts)
-          info "Booting #{hostname} (#{ip_address}), #{@server["instance_id"]}"
+          extra = @server["extra_info"]
+          vnc_port = extra["handlanger_vnc_port"]
+          vnc_host = extra["handlanger_host"]
+          info "Booting #{hostname} (#{ip_address}), #{@server["instance_id"]}, jfvnc://minion1.travis.miso:#{vnc_port}?securitytype=SSH&hosttype=Mac&sshoptions=-lhenrik%20-L#{vnc_port}:#{vnc_host}:#{vnc_port}%20-p3422"
           instrument do
             Fog.wait_for(240, 3) do
               vm_ready?(@server)
