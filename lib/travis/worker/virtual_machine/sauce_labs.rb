@@ -51,6 +51,7 @@ module Travis
 
         def sandboxed(opts={})
           create_server(opts)
+          setup_wrapper_script
           yield
         ensure
           session.close if @session
@@ -62,6 +63,70 @@ module Travis
         end
 
         private
+
+        def setup_wrapper_script
+          # TODO: All of this should be added to the VM itself so we don't have
+          # to boot the VM twice.
+
+          info "Uploading wrapper script"
+          session.upload("~/runner.rb", <<EOF)
+#!/usr/bin/env ruby
+
+require "open3"
+require "socket"
+
+server = TCPServer.new("127.0.0.1", 15782)
+socket = server.accept
+
+Open3.popen2e("/bin/bash", "--login", "/Users/travis/build.sh") do |stdin, stdouterr, wait_thr|
+  until stdouterr.eof?
+    socket.print(stdouterr.read(1))
+  end
+
+  exit_status = wait_thr.value
+  File.open("/Users/travis/build.sh.exit", "w") { |f| f.print(exit_status.to_s) }
+end
+
+socket.close
+EOF
+
+          session.exec("chmod +x ~/runner.sh")
+
+          info "Uploading launch agent"
+          session.upload_file("~/Library/LaunchAgents/com.travis-ci.job-runner.plist", <<EOF)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.travis-ci.job-runner</string>
+    <key>Program</key>
+    <string>/Users/travis/runner.rb</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/job_runner.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/job_runner_err.log</string>
+  </dict>
+</plist>
+EOF
+
+          info "Enabling launch agent"
+          session.exec("launchctl load ~/Library/LaunchAgents/com.travis-ci.job-runner.plist")
+          info "Rebooting VM"
+          session.exec("sudo reboot")
+          session.close
+          @session = nil
+          # Wait for the shutdown process to start and the SSHd to shut down
+          sleep 10
+          Fog.wait_for(240, 3) do
+            vm_ready?(@server)
+          end
+          info "Done rebooting, proceeding with build"
+        end
 
         def api
           @api ||= Travis::SaucelabsAPI.new(Travis::Worker.config.sauce_labs.api_endpoint)
