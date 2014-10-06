@@ -84,7 +84,7 @@ Open3.popen2e("/bin/bash", "--login", "/Users/travis/build.sh") do |stdin, stdou
   end
 
   exit_status = wait_thr.value
-  File.open("/Users/travis/build.sh.exit", "w") { |f| f.print(exit_status.to_s) }
+  File.open("/Users/travis/build.sh.exit", "w") { |f| f.print((exit_status.exitstatus || 127).to_s) }
 end
 
 socket.close
