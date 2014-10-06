@@ -93,15 +93,19 @@ EOF
           Net::VNC.open("#{vnc_host}:#{vnc_port-5900}") do |vnc|
             # Open Spotlight
             vnc.key_press(:left_super, " ")
+            sleep 1
+
             # Open Terminal.app
-            'terminal.app'.split(//).each { |char| vnc.key_press(char) }
+            'terminal.app'.split(//).each { |char| vnc.key_press(char); sleep 0.1 }
             vnc.key_press(:return)
 
             sleep 1
 
             # Enter ~/proxy_build.rb
-            '~/proxy_build.rb'.split(//).each { |char| vnc.key_press(char) }
+            vnc.key_press(:left_shift, '`'); sleep 0.1
+            '/proxy_build.rb'.split(//).each { |char| vnc.key_press(char); sleep 0.1 }
             vnc.key_press(:return)
+            sleep 2
           end
         end
 
