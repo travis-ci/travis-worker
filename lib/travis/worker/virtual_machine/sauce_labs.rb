@@ -72,18 +72,23 @@ module Travis
           session.upload_file("~/runner.rb", <<EOF)
 #!/usr/bin/env ruby
 
-require "open3"
+require "pty"
 require "socket"
 
 server = TCPServer.new("127.0.0.1", 15782)
 socket = server.accept
 
-Open3.popen2e("/bin/bash", "--login", "/Users/travis/build.sh") do |stdin, stdouterr, wait_thr|
-  until stdouterr.eof?
-    socket.print(stdouterr.read(1))
+PTY.open do |io, file|
+  pid = Process.spawn({"TERM" => "xterm"}, "/bin/bash", "--login", "/Users/travis/build.sh", [:out, :err] => file)
+  pipe_thread = Thread.new do
+    loop do
+      socket.print(io.read(1))
+    end
   end
 
-  exit_status = wait_thr.value
+  _, exit_status = Process.wait2(pid)
+  pipe_thread.kill
+
   File.open("/Users/travis/build.sh.exit", "w") { |f| f.print((exit_status.exitstatus || 127).to_s) }
 end
 
