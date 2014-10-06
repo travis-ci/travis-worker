@@ -146,8 +146,17 @@ module Travis
           info "running the build"
           Timeout::timeout(hard_timeout) do
             if session.config.platform == :osx
-              session.exec("nc 127.0.0.1 15782") { exit_exec? }
-              session.exec("exit $(cat ~/build.sh.exit)")
+              session.upload_file("~/wrapper.sh", <<EOF)
+#!/bin/bash
+
+[[ -f ~/build.sh.exit ]] && rm ~/build.sh.exit
+
+until nc 127.0.0.1 15782; do sleep 1; done
+
+until [[ -f ~/build.sh.exit ]]; do sleep 1; done
+exit $(cat ~/build.sh.exit)
+EOF
+              session.exec("bash ~/wrapper.sh")
             else
               session.exec("bash --login ~/build.sh") { exit_exec? }
             end
