@@ -90,7 +90,7 @@ end
 socket.close
 EOF
 
-          session.exec("chmod +x ~/runner.sh")
+          session.exec("chmod +x ~/runner.rb")
 
           info "Uploading launch agent"
           session.upload_file("~/Library/LaunchAgents/com.travis-ci.job-runner.plist", <<EOF)
