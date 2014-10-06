@@ -145,7 +145,12 @@ module Travis
         def run_script
           info "running the build"
           Timeout::timeout(hard_timeout) do
-            session.exec("bash --login ~/build.sh") { exit_exec? }
+            if session.config.platform == :osx
+              session.exec("nc 127.0.0.1 15782") { exit_exec? }
+              session.exec("exit $(cat ~/build.sh.exit)")
+            else
+              session.exec("bash --login ~/build.sh") { exit_exec? }
+            end
           end
         rescue Timeout::Error
           timedout
