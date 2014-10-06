@@ -69,7 +69,7 @@ module Travis
           # to boot the VM twice.
 
           info "Uploading wrapper script"
-          session.upload("~/runner.rb", <<EOF)
+          session.upload_file("~/runner.rb", <<EOF)
 #!/usr/bin/env ruby
 
 require "open3"
