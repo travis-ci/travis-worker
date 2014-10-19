@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
-# removed for now as this would impact our hosted workers
-# ruby '1.9.3', engine: 'jruby', engine_version: '1.7.12'
+ruby '1.9.3', engine: 'jruby', engine_version: '1.7.16' if ENV.key?('DYNO')
 
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'f1cbac9'
@@ -43,4 +42,3 @@ group :development do
   gem 'guard-rspec'
   gem 'guard-bundler'
 end
-
