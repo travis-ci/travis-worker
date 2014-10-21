@@ -246,7 +246,7 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language, job_id: payload.job.id) do
+        vm.sandboxed(language: job_language, job_id: payload.job.id, dist: job_dist, group: job_group) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')
@@ -279,6 +279,14 @@ module Travis
 
       def job_language
         payload['config']['language']
+      end
+
+      def job_dist
+        payload['config']['dist']
+      end
+
+      def job_group
+        payload['config']['group']
       end
     end
   end
