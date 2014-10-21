@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
-# removed for now as this would impact our hosted workers
-# ruby '1.9.3', engine: 'jruby', engine_version: '1.7.12'
+ruby '1.9.3', engine: 'jruby', engine_version: '1.7.16' if ENV.key?('DYNO')
 
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'f1cbac9'
@@ -10,7 +9,7 @@ gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '5a5
 
 gem 'activesupport',    '~> 3.2'
 
-gem 'thor',             '~> 0.14.6'
+gem 'thor'
 
 gem 'faraday',          '~> 0.7.5'
 gem 'hashr',            '~> 0.0.18'
@@ -40,4 +39,3 @@ end
 group :development do
   gem 'pry'
 end
-

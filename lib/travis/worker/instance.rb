@@ -170,7 +170,7 @@ module Travis
         # implementation that uses thread pools (JDK executor services), we need to shut down
         # consumers manually to guarantee that after disconnect we leave no active non-daemon
         # threads (that are pretty much harmless but JVM won't exit as long as they are running). MK.
-        return if subscription.cancelled?
+        return if subscription.nil? || subscription.cancelled?
         if working?
           graceful_shutdown
         else
@@ -246,18 +246,27 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language, job_id: payload.job.id) do
+        vm.sandboxed(language: job_language, job_id: payload.job.id, dist: job_dist, group: job_group) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')
           else
-            @runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, config.timeouts.hard_limit, name)
+            @runner = Job::Runner.new(self.payload, vm.session, reporter, vm.full_name, timeouts, name)
             @runner.run
           end
         end
       ensure
         # @runner.terminate if @runner && @runner.alive?
         @runner = nil
+      end
+
+      def timeouts
+        { hard_limit: timeout(:hard_limit), log_silence: timeout(:log_silence) }
+      end
+
+      def timeout(type)
+        timeout = payload.timeouts && payload.timeouts.send(type) || config.timeouts.send(type)
+        timeout.to_i
       end
 
       def restart_job
@@ -270,6 +279,14 @@ module Travis
 
       def job_language
         payload['config']['language']
+      end
+
+      def job_dist
+        payload['config']['dist']
+      end
+
+      def job_group
+        payload['config']['group']
       end
     end
   end
