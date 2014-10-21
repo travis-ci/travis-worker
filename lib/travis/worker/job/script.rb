@@ -42,7 +42,7 @@ module Travis
           end
 
           if response.status == 500
-            raise CompileError, "An error occurred while compiling the build script: #{response.body}"
+            raise_compile_error_with_message response.body
           end
 
           response.body
@@ -55,7 +55,7 @@ module Travis
             Travis::Build.script(data).compile
           end
         rescue => e
-          raise CompileError, "An error occurred while compiling the build script: #{e.message}"
+          raise_compile_error_with_message e.message
         end
 
         def connection
@@ -77,6 +77,10 @@ module Travis
             skip_etc_hosts_fix: Travis::Worker.config[:skip_etc_hosts_fix],
             cache_options: Travis::Worker.config[:cache_options]
           )
+        end
+
+        def raise_compile_error_with_message(msg='')
+          raise CompileError "An error occurred while compiling the build script: #{msg}\n\nTest your configuration file with http://lint.travis-ci.org."
         end
       end
     end
