@@ -80,7 +80,7 @@ module Travis
         end
 
         def raise_compile_error_with_message(msg='')
-          raise CompileError "An error occurred while compiling the build script: #{msg}\n\nTest your configuration file with http://lint.travis-ci.org."
+          raise CompileError, "An error occurred while compiling the build script: #{msg}\n\nTest your configuration file with http://lint.travis-ci.org."
         end
       end
     end
