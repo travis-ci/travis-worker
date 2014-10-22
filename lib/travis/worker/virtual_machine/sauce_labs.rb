@@ -65,6 +65,9 @@ module Travis
         private
 
         def setup_wrapper_script
+          # Return if we're running on a VM with this already added to it
+          return if @vm_image =~ /osx9.1/
+
           # TODO: All of this should be added to the VM itself so we don't have
           # to boot the VM twice.
 
