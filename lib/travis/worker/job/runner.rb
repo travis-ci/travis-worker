@@ -30,17 +30,17 @@ module Travis
 
         class ConnectionError < StandardError; end
 
-        attr_reader :payload, :session, :reporter, :host_name, :hard_timeout, :log_prefix
+        attr_reader :payload, :session, :reporter, :host_name, :timeouts, :log_prefix
 
         log_header { "#{log_prefix}:worker:job:runner" }
 
-        def initialize(payload, session, reporter, host_name, hard_timeout, log_prefix)
+        def initialize(payload, session, reporter, host_name, timeouts, log_prefix)
           @payload  = payload
           @session  = session
           @reporter = reporter
-          @host_name    = host_name
-          @hard_timeout = hard_timeout
-          @log_prefix   = log_prefix
+          @host_name  = host_name
+          @timeouts   = Hashr.new(timeouts)
+          @log_prefix = log_prefix
         end
 
         def run
@@ -56,6 +56,7 @@ module Travis
         end
 
         def setup_log_streaming
+          session.log_silence_timeout = timeouts.log_silence
           session.on_output do |output, options|
             announce(output)
           end
@@ -74,7 +75,7 @@ module Travis
 
           notify_job_started
 
-          Timeout::timeout(hard_timeout) do
+          Timeout::timeout(timeouts.hard_limit) do
             result = upload_and_run_script
           end
 
@@ -175,8 +176,8 @@ module Travis
 
         def timedout
           stop
-          minutes = hard_timeout / 60.0
-          announce("\n\nI'm sorry but your test run exceeded #{minutes} minutes. \n\nOne possible solution is to split up your test run.")
+          minutes = timeouts.hard_limit / 60.0
+          announce("\n\nYour test run exceeded #{minutes.to_i} minutes. \n\nOne possible solution is to split up your test run.")
           error "the job (slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}) took more than #{minutes} minutes and was cancelled"
         end
 
@@ -200,7 +201,7 @@ module Travis
         end
 
         def connection_error
-          announce("I'm sorry but there was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
+          announce("There was an error with the connection to the VM.\n\nYour job will be requeued shortly.")
           raise ConnectionError
         end
       end

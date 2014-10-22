@@ -47,7 +47,7 @@ describe Travis::Worker::Instance do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
       worker.start
-      state.should == :starting
+      expect(state).to eq(:starting)
     end
 
     it 'notifies the reporter about the :starting state' do
@@ -62,7 +62,7 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :ready' do
       worker.start
-      worker.state.should eql(:ready)
+      expect(worker.state).to eql(:ready)
     end
 
     it 'notifies the reporter about the :ready state' do
@@ -82,7 +82,7 @@ describe Travis::Worker::Instance do
 
     it 'sets the current state to :stopped' do
       worker.stop
-      worker.state.should eql(:stopped)
+      expect(worker.state).to eql(:stopped)
     end
 
     it 'notifies the reporter about the :stopped state' do
@@ -133,9 +133,9 @@ describe Travis::Worker::Instance do
 
     it 'prepares work' do
       worker.work(metadata, payload)
-      worker.payload.should eql(decoded_payload)
+      expect(worker.payload).to eql(decoded_payload)
       # Doesn't work, due to Travis.uuid being thread-specific in Celluloid
-      Travis.uuid.should eql(decoded_payload['uuid'])
+      expect(Travis.uuid).to eql(decoded_payload['uuid'])
     end
 
     it 'finishes' do
@@ -150,7 +150,7 @@ describe Travis::Worker::Instance do
     it 'unsets the current payload' do
       worker.send(:prepare, '{ "id": 1 }')
       worker.send(:finish, metadata)
-      worker.payload.should eql(nil)
+      expect(worker.payload).to eql(nil)
     end
 
     it 'acknowledges the message' do
@@ -162,7 +162,7 @@ describe Travis::Worker::Instance do
       before(:each) { worker.state = :working }
       it 'sets the current state to :ready' do
         worker.send(:finish, metadata)
-        worker.state.should eql(:ready)
+        expect(worker.state).to eql(:ready)
       end
     end
 
@@ -170,7 +170,7 @@ describe Travis::Worker::Instance do
       before(:each) { worker.state = :stopping }
       it 'sets the current state to :stopped' do
         worker.send(:finish, metadata)
-        worker.state.should eql(:stopped)
+        expect(worker.state).to eql(:stopped)
       end
     end
   end
@@ -184,7 +184,7 @@ describe Travis::Worker::Instance do
 
     it 'stores the error' do
       worker.send(:error_build, exception, metadata)
-      worker.last_error.should eql([exception.message, exception.backtrace].flatten.join("\n"))
+      expect(worker.last_error).to eql([exception.message, exception.backtrace].flatten.join("\n"))
     end
 
     it 'calls finish' do

@@ -5,6 +5,7 @@ require 'benchmark'
 require 'travis/support'
 require 'travis/worker/ssh/session'
 require 'resolv'
+require 'travis/worker/virtual_machine/blue_box/template'
 
 module Travis
   module Worker
@@ -15,15 +16,10 @@ module Travis
         include Retryable
         include Logging
 
-        BLUE_BOX_VM_DEFAULTS = {
-          :username  => 'travis',
-          :flavor_id => Travis::Worker.config.blue_box.flavor_id,
-          :location_id => Travis::Worker.config.blue_box.location_id,
-          :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
-        }
-
-        TEMPLATE_GROUPING = /travis-([\w-]+)-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}/
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
+
+        DEFAULT_TEMPLATE_LANGUAGE = 'ruby'
+        DEFAULT_TEMPLATE_GROUP    = 'current'
 
         class << self
           def vm_count
@@ -53,14 +49,15 @@ module Travis
         end
 
         def create_server(opts = {})
-          template = template_for_language(opts[:language])
-          
-          info "Using template '#{template['description']}' (#{template['id']}) for language #{opts[:language] || '[nil]'}"
+          info "opts: #{opts}"
+          template = template_for_language(opts[:language], opts[:group], opts[:dist])
+
+          info "template: #{template}"
 
           hostname = hostname(opts[:job_id])
 
-          config = BLUE_BOX_VM_DEFAULTS.merge(opts.merge({
-            :image_id => template['id'], 
+          config = blue_box_vm_defaults.merge(opts.merge({
+            :image_id => template.id,
             :hostname => hostname
           }))
 
@@ -128,6 +125,15 @@ module Travis
           destroy_server if @server
         end
 
+        def blue_box_vm_defaults
+          {
+            :username  => 'travis',
+            :flavor_id => Travis::Worker.config.blue_box.flavor_id,
+            :location_id => Travis::Worker.config.blue_box.location_id,
+            :ipv6_only => Travis::Worker.config.blue_box.ipv6_only
+          }
+        end
+
         def full_name
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
@@ -144,31 +150,27 @@ module Travis
           end
         end
 
-        def grouped_templates
-          templates = fetch_templates.find_all do |t|
-            t['public'] == false && t['description'] =~ /^travis-/
-          end
+        def grouped_templates(group = nil, dist = nil)
+          templates = select_matching_templates(create_templates(fetch_templates), group, dist)
 
           grouped = templates.group_by do |t|
-            match = TEMPLATE_GROUPING.match(t['description'])
-            match ? match[1] : nil
+            [t.dist, t.group, t.template]
           end
-
-          grouped.compact
         end
 
-        def latest_templates
+        def latest_templates(group = nil, dist = nil)
+          return @template_list if @template_list
           template_list = {}
 
-          grouped_templates.each do |k,v|
-            template_list[k] = v.sort { |a, b| b['created'] <=> a['created'] }.first
+          grouped_templates(group, dist).each do |k,v|
+            template_list[k] = v.sort { |a, b| b.created <=> a.created }.first
           end
 
-          template_list
+          @template_list = template_list
         end
 
-        def template_for_language(lang)
-          return latest_templates[template_override] if template_override
+        def template_for_language(lang, group = nil, dist = nil)
+          return latest_templates(group, dist)[template_override] if template_override
 
           lang = Array(lang).first
           mapping = if lang
@@ -177,10 +179,11 @@ module Travis
             'ruby'
           end
 
-          latest_templates[mapping] || latest_templates['ruby']
+          info "lang: #{lang}"
+          select_template(mapping, group, dist)
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
-          latest_templates['ruby']
+          latest_templates(group)[[nil, nil, 'ruby']]
         end
 
         def destroy_server(opts = {})
@@ -254,6 +257,13 @@ module Travis
             end
           end
 
+          # given JSON response from the server, put corresponding Template objects into an array
+          def create_templates(json_response)
+            json_response.map do |t|
+              obj = Template.new(t)
+            end
+          end
+
           def generate_password
             Digest::SHA1.base64digest(OpenSSL::Random.random_bytes(30)).gsub(/[\&\+\/\=\\]/, '')[0..19]
           end
@@ -266,6 +276,47 @@ module Travis
             @template_override ||= Travis::Worker.config.template_override
           end
 
+          # given group and dist, select templates that match criteria
+          def select_matching_templates(template_objects, group, dist)
+            templates = template_objects.find_all do |t|
+              ! t.public && t.description =~ /^travis-/ && t.description =~ /\b#{group}\b/ && t.description =~ /\b#{dist}\b/
+            end
+
+            if templates.empty?
+              templates = template_objects.find_all do |t|
+                ! t.public && t.description =~ /^travis-/ && t.description =~ /\b(#{group}|#{dist})\b/
+              end
+            end
+
+            if templates.empty?
+              templates = template_objects.find_all do |t|
+                ! t.public && t.description =~ /^travis-/
+              end
+            end
+
+            templates
+          end
+
+          # this method dictates the precedence of template selection
+          def select_template(mapping, group, dist)
+            # first, if group is given, find the matching template
+            # if group is nil, look for DEFAULT_TEMPLATE_GROUP
+            latest_templates(group, dist)[[dist, (group || DEFAULT_TEMPLATE_GROUP), mapping]] ||
+            latest_templates(group, dist)[[nil,  (group || DEFAULT_TEMPLATE_GROUP), mapping]] ||
+            # if no matching template is found, look for DEFAULT_TEMPLATE_GROUP
+            latest_templates(group, dist)[[dist, DEFAULT_TEMPLATE_GROUP,            mapping]] ||
+            latest_templates(group, dist)[[nil,  DEFAULT_TEMPLATE_GROUP,            mapping]] ||
+            # if no template with group DEFAULT_TEMPLATE_GROUP is found, then look for template without group
+            latest_templates(group, dist)[[dist, nil,                               mapping]] ||
+            latest_templates(group, dist)[[nil,  nil,                               mapping]] ||
+            # go through the same checkdown list for unrecognized language, falling back to DEFAULT_TEMPLATE_LANGUAGE
+            latest_templates(group, dist)[[dist, (group || DEFAULT_TEMPLATE_GROUP), DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  (group || DEFAULT_TEMPLATE_GROUP), DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[dist, DEFAULT_TEMPLATE_GROUP,            DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  DEFAULT_TEMPLATE_GROUP,            DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[dist, nil,                               DEFAULT_TEMPLATE_LANGUAGE ]] ||
+            latest_templates(group, dist)[[nil,  nil,                               DEFAULT_TEMPLATE_LANGUAGE ]]
+          end
       end
     end
   end
