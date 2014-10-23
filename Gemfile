@@ -17,7 +17,8 @@ gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 gem 'coder'
 
-gem 'fog'
+# Use my fork until https://github.com/fog/fog/pull/3212 is merged and released
+gem 'fog',             git: 'https://github.com/BanzaiMan/fog', branch: 'ha-feature-bluebox-vhs_id'
 gem 'travis-saucelabs-api', '~> 0.0'
 gem 'docker-api'
 
