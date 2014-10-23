@@ -71,12 +71,12 @@ module Travis
           @password = (opts[:password] = generate_password)
 
           @server = connection.servers.create(opts)
-          info "Booting #{@server.hostname} (#{ip_address})"
+          info "Booting #{server.hostname} (#{ip_address})"
           instrument do
             Fog.wait_for(240, 3) do
               begin
-                @server.reload
-                @server.ready?
+                server.reload
+                server.ready?
               rescue Excon::Errors::HTTPStatusError => e
                 mark_api_error(e)
                 false
@@ -84,10 +84,10 @@ module Travis
             end
           end
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
-          if @server
-            error "BlueBox VM would not boot within 240 seconds : id=#{@server.id} state=#{@server.state} vsh=#{vsh_name}"
+          if server
+            error "BlueBox VM would not boot within 240 seconds : id=#{server.id} state=#{server.state} vsh=#{server.vsh_id}"
           end
-          Metriks.meter('worker.vm.provider.bluebox.boot.timeout').mark
+          Metriks.meter("worker.vm.provider.bluebox.boot.timeout.#{server.vsh_id}").mark
           raise
         rescue Excon::Errors::HTTPStatusError => e
           mark_api_error(e)
@@ -122,7 +122,7 @@ module Travis
           yield
         ensure
           session.close if @session
-          destroy_server if @server
+          destroy_server if server
         end
 
         def blue_box_vm_defaults
@@ -140,14 +140,6 @@ module Travis
 
         def ip_address
           server.ips.first['address']
-        end
-
-        def vsh_name
-          @vsh_name ||= begin
-            Timeout::timeout(5) { Resolv::DNS.new.getresource(server.hostname, Resolv::DNS::Resource::IN::TXT).strings.first }
-          rescue StandardError => e
-            "[unknown]"
-          end
         end
 
         def grouped_templates(group = nil, dist = nil)
@@ -189,7 +181,7 @@ module Travis
         def destroy_server(opts = {})
           destroy_vm(server)
         ensure
-          @server = nil
+          server = nil
           @session = nil
         end
 
