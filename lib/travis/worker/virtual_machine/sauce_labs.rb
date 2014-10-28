@@ -210,11 +210,19 @@ EOF
 
         def destroy_vm(vm)
           info "destroying the VM"
-          retryable(tries: 3) do
-            api.kill_instance(vm['instance_id'])
+
+          time = Benchmark.realtime do
+            retryable(tries: 3) do
+              api.kill_instance(vm['instance_id'])
+            end
+
+            Fog.wait_for(60, 2) do
+              vm_destroyed?(vm)
+            end
           end
-          Fog.wait_for(60, 3) { vm_destroyed?(vm) }
-          info "destroyed VM"
+
+          info "destroyed VM in #{time.round(2)} seconds"
+          Metriks.timer("worker.vm.provider.saucelabs.shutdown").update(time)
         end
 
         def vm_ready?(vm)
