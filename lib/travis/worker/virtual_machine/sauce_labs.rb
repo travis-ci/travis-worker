@@ -213,6 +213,8 @@ EOF
           retryable(tries: 3) do
             api.kill_instance(vm['instance_id'])
           end
+          Fog.wait_for(60, 3) { vm_destroyed?(vm) }
+          info "destroyed VM"
         end
 
         def vm_ready?(vm)
@@ -222,6 +224,14 @@ EOF
           false
         ensure
           socket.close if socket
+        end
+
+        def vm_destroyed?(vm)
+          api.instance_info(vm['instance_id'])['State'] != 'poweredOn'
+        rescue
+          # The instance info could potentially disappear by the time we
+          # query it, in which case the instance is shut down.
+          false
         end
       end
     end
