@@ -177,7 +177,7 @@ EOF
 
         def start_server(opts)
           image_name = opts[:custom_image] || 'default'
-          @vm_image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings.default
+          @vm_image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings["default"]
 
           info "Booting image #{image_name} (#{@vm_image})"
 
