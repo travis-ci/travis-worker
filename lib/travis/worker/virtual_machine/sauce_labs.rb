@@ -179,7 +179,9 @@ EOF
           image_name = opts[:custom_image] || 'default'
           @vm_image = Travis::Worker.config.image_mappings[image_name] || Travis::Worker.config.image_mappings.default
 
-          instance_id = api.start_instance({ hostname: hostname }, @vm_image)['instance_id']
+          info "Booting image #{image_name} (#{@vm_image})"
+
+          instance_id = api.start_instance({ hostname: hostname, source: "worker", worker_pid: Process.pid }, @vm_image)['instance_id']
           api.instance_info(instance_id)
         end
 
