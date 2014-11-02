@@ -171,7 +171,6 @@ module Travis
             'ruby'
           end
 
-          info "lang: #{lang}"
           select_template(mapping, group, dist)
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
