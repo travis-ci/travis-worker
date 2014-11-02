@@ -52,7 +52,7 @@ module Travis
           info "opts: #{opts}"
           template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
-          info "template: #{template}"
+          info "template: #{template.slice('id', 'description', 'created')}"
 
           hostname = hostname(opts[:job_id])
 
