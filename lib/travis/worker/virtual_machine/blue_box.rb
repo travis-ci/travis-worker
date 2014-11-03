@@ -71,7 +71,7 @@ module Travis
           @password = (opts[:password] = generate_password)
 
           @server = connection.servers.create(opts)
-          info "Booting #{server.hostname} (#{ip_address})"
+          info "Booting #{server.hostname} (#{ip_address}) on #{server.vsh_id}"
           instrument do
             Fog.wait_for(240, 3) do
               begin
