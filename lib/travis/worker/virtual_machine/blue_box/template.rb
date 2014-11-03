@@ -64,6 +64,10 @@ module Travis
             @hash.to_s
           end
 
+          def info
+            @hash.slice('id', 'description', 'created')
+          end
+
           def ==(other)
             to_h == other.to_h
           end
