@@ -52,7 +52,7 @@ module Travis
           info "opts: #{opts}"
           template = template_for_language(opts[:language], opts[:group], opts[:dist])
 
-          info "template: #{template}"
+          info "template: #{template.info}"
 
           hostname = hostname(opts[:job_id])
 
@@ -71,7 +71,7 @@ module Travis
           @password = (opts[:password] = generate_password)
 
           @server = connection.servers.create(opts)
-          info "Booting #{server.hostname} (#{ip_address})"
+          info "Booting #{server.hostname} (#{ip_address}) on #{server.vsh_id}"
           instrument do
             Fog.wait_for(240, 3) do
               begin
@@ -171,7 +171,6 @@ module Travis
             'ruby'
           end
 
-          info "lang: #{lang}"
           select_template(mapping, group, dist)
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
