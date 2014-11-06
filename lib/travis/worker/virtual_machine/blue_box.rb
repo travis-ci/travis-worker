@@ -151,14 +151,13 @@ module Travis
         end
 
         def latest_templates(group = nil, dist = nil)
-          return @template_list if @template_list
           template_list = {}
 
           grouped_templates(group, dist).each do |k,v|
             template_list[k] = v.sort { |a, b| b.created <=> a.created }.first
           end
 
-          @template_list = template_list
+          template_list
         end
 
         def template_for_language(lang, group = nil, dist = nil)
