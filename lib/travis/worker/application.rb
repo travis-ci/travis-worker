@@ -6,6 +6,7 @@ require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
 require 'travis/worker/application/remote'
+require 'travis/support/amqp'
 
 module Travis
   module Worker
@@ -14,7 +15,6 @@ module Travis
 
       def initialize
         Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
-        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
 
         Travis::Amqp.config = config.amqp
 
