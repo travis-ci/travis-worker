@@ -30,7 +30,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 9e8b2d6b27f1afc7dd45f5f6200e9326b31a4cae
+  revision: 4853ca285dffb7d5e671f221845c21cd02d7c7a9
+  ref: sf-cache-config-missing
   specs:
     travis-build (0.0.1)
 
