@@ -78,6 +78,7 @@ module Travis
       def process(message, payload)
         work(message, payload)
       rescue => error
+        Raven.capture_exception(error)
         error_build(error, message) unless @job_canceled
       ensure
         reporter.reset

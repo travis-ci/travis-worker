@@ -18,6 +18,10 @@ module Travis
 
         Travis::Amqp.config = config.amqp
 
+        Raven.configure do |raven_config|
+          raven_config.dsn = config.sentry.dsn
+        end
+
         # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
         # we should use ok_json
         # bad (AS::JSON) : http://staging.travis-ci.org/#!/travis-repos/rake-pipeline/builds/367776

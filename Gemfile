@@ -29,6 +29,8 @@ gem 'metriks',          '0.9.9.5'
 
 gem 'march_hare',       '2.7.0'
 
+gem 'sentry-raven',     require: 'raven'
+
 group :test do
   gem 'rake',           '~> 0.9.2'
   gem 'mocha',          '~> 0.11.0'
