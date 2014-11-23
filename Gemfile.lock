@@ -106,7 +106,7 @@ GEM
     ipaddress (0.8.0)
     json (1.8.1)
     json (1.8.1-java)
-    march_hare (2.2.0-java)
+    march_hare (2.7.0-java)
     metaclass (0.0.4)
     method_source (0.8.2)
     metriks (0.9.9.5)
@@ -181,7 +181,7 @@ DEPENDENCIES
   fog!
   hashr (~> 0.0.18)
   json
-  march_hare (= 2.2.0)
+  march_hare (= 2.7.0)
   metriks (= 0.9.9.5)
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)

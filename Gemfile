@@ -27,7 +27,7 @@ gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
 
-gem 'march_hare',       '2.2.0'
+gem 'march_hare',       '2.7.0'
 
 group :test do
   gem 'rake',           '~> 0.9.2'
