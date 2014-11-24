@@ -3,6 +3,7 @@ require 'march_hare'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
 require 'raven'
+require 'travis/support/logger'
 require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
@@ -14,8 +15,7 @@ module Travis
       include Logging
 
       def initialize
-        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
-        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
+        Travis::Logger.configure(Travis.logger)
 
         if config.sentry.dsn
           Raven.configure do |raven_config|
