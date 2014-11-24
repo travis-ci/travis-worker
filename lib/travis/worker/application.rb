@@ -17,8 +17,10 @@ module Travis
         Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
         Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
 
-        Raven.configure do |raven_config|
-          raven_config.dsn = config.sentry.dsn
+        if config.sentry.dsn
+          Raven.configure do |raven_config|
+            raven_config.dsn = config.sentry.dsn
+          end
         end
 
         # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
