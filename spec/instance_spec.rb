@@ -103,7 +103,7 @@ describe Travis::Worker::Instance do
     end
     
     describe 'with an exception rescued' do
-      let(:exception) { Exception.new }
+      let(:exception) { StandardError.new("This is the test exception that should be captured") }
 
       before :each do
         worker.state = :ready
