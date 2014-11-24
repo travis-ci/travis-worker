@@ -10,22 +10,22 @@ describe Travis::Worker::Instance do
 
   let(:vm)           { stub('vm', :name => 'vm-name', :shell => nil, :prepare => nil, :sandboxed => nil)  }
   let(:queue_name)   { "builds.php" }
-  
+
   let(:config)       { Hashr.new(:amqp => {}, :queue => queue_name, :timeouts => { :hard_timeout => 5 }) }
 
   let(:exception)    { stub('exception', :message => 'broken', :backtrace => ['kaputt.rb']) }
 
 
   let(:observer) { stub('observer', :notify) }
- 
+
   def worker
     @worker ||= Travis::Worker::Instance.new('worker-1', vm, connection, queue_name, config, [observer]).wrapped_object
   end
-  
+
   let(:metadata)        { stub('metadata', :ack => nil, :routing_key => "builds.linux") }
 
   let(:decoded_payload) { Hashr.new('id' => 1, 'repository' => { 'slug' => 'joshk/fun_times' }, 'job' => { 'id' => 123 }, 'config' => { 'language' => 'ruby' }, 'uuid' => 'a-uuid') }
- 
+
   let(:payload)         { MultiJson.encode(decoded_payload) }
 
 
@@ -42,7 +42,7 @@ describe Travis::Worker::Instance do
 
 
   describe 'start' do
-    
+
     it 'sets the current state to :starting while it prepares the vm' do
       state = nil
       vm.stubs(:prepare).with { state = worker.state } # hrmm, mocha doesn't support spies, does it?
@@ -101,7 +101,7 @@ describe Travis::Worker::Instance do
         worker.process(metadata, payload)
       end
     end
-    
+
     describe 'with an exception rescued' do
       let(:exception) { StandardError.new("This is the test exception that should be captured") }
 
