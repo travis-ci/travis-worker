@@ -1,4 +1,6 @@
 # From https://github.com/celluloid/celluloid/issues/26#issuecomment-4968921
+require 'celluloid'
+
 RSpec.configuration.before(:each) do
   class Celluloid::ActorProxy
     unless @rspec_compatible
