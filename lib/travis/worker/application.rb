@@ -3,6 +3,7 @@ require 'march_hare'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
 require 'raven'
+require 'travis/support/amqp'
 require 'travis/support/logger'
 require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
@@ -16,6 +17,7 @@ module Travis
 
       def initialize
         Travis::Logger.configure(Travis.logger)
+        Travis::Amqp.config = config.amqp
 
         if config.sentry.dsn
           Raven.configure do |raven_config|
