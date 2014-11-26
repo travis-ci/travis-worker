@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '1.9.3', engine: 'jruby', engine_version: '1.7.16' if ENV.key?('DYNO')
 
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
-gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support', ref: 'f1cbac9'
+gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support'
 
 gem 'celluloid',        git: 'https://github.com/celluloid/celluloid', ref: '5a56056'
 
@@ -17,8 +17,7 @@ gem 'multi_json',       '~> 1.2.0'
 gem 'json'
 gem 'coder'
 
-# Use my fork until https://github.com/fog/fog/pull/3212 is merged and released
-gem 'fog',             git: 'https://github.com/BanzaiMan/fog', branch: 'ha-feature-bluebox-vhs_id'
+gem 'fog',              '~> 1.25.0'
 gem 'travis-saucelabs-api', '~> 0.0'
 gem 'docker-api'
 
@@ -27,7 +26,9 @@ gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
 
-gem 'march_hare',       '2.2.0'
+gem 'march_hare',       '2.7.0'
+
+gem 'sentry-raven',     require: 'raven'
 
 group :test do
   gem 'rake',           '~> 0.9.2'

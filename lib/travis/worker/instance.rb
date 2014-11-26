@@ -77,9 +77,9 @@ module Travis
 
       def process(message, payload)
         work(message, payload)
-      rescue Errno::ECONNREFUSED, Exception => error
-        # puts error.message, error.backtrace
-        error_build(error, message)
+      rescue => error
+        Raven.capture_exception(error)
+        error_build(error, message) unless @job_canceled
       ensure
         reporter.reset
         @job_canceled = false
