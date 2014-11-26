@@ -20,8 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: f1cbac986f09ee4045b3d381b6519adb95ab5695
-  ref: f1cbac9
+  revision: 40365216662f639d36fc3a0463c4e189ee1563dd
   specs:
     travis-support (0.0.1)
 
@@ -121,7 +120,7 @@ GEM
     ipaddress (0.8.0)
     json (1.8.1)
     json (1.8.1-java)
-    march_hare (2.2.0-java)
+    march_hare (2.7.0-java)
     metaclass (0.0.4)
     method_source (0.8.2)
     metriks (0.9.9.5)
@@ -167,6 +166,8 @@ GEM
       rspec-support (~> 3.1.0)
     rspec-support (3.1.0)
     safe_yaml (1.0.3)
+    sentry-raven (0.12.1)
+      faraday (>= 0.7.6)
     simplecov (0.9.0)
       docile (~> 1.1.0)
       multi_json
@@ -199,7 +200,7 @@ DEPENDENCIES
   fog (~> 1.25.0)
   hashr (~> 0.0.18)
   json
-  march_hare (= 2.2.0)
+  march_hare (= 2.7.0)
   metriks (= 0.9.9.5)
   mocha (~> 0.11.0)
   multi_json (~> 1.2.0)
@@ -207,6 +208,7 @@ DEPENDENCIES
   pry
   rake (~> 0.9.2)
   rspec
+  sentry-raven
   simplecov (>= 0.4.0)
   sshjr!
   thor

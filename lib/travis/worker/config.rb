@@ -31,7 +31,8 @@ module Travis
              :vms       => { :provider => 'blue_box', :count => 1, :_include => Vms },
              :limits    => { :log_length => 4, :log_chunk_size => 9216 },
              :language_mappings => { },
-             :build     => {}
+             :build     => {},
+             :sentry    => {}
 
       def name
         @name ||= host.split('.').first
