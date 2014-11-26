@@ -2,6 +2,9 @@ require 'java'
 require 'march_hare'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
+require 'raven'
+require 'travis/support/amqp'
+require 'travis/support/logger'
 require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
@@ -13,10 +16,14 @@ module Travis
       include Logging
 
       def initialize
-        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
-        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
-
+        Travis::Logger.configure(Travis.logger)
         Travis::Amqp.config = config.amqp
+
+        if config.sentry.dsn
+          Raven.configure do |raven_config|
+            raven_config.dsn = config.sentry.dsn
+          end
+        end
 
         # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
         # we should use ok_json
