@@ -52,14 +52,24 @@ describe Travis::Worker::Application do
       Travis.logger = Logger.new(io)
     end
 
-    it 'should log starting the workers' do
+    it 'logs starting the workers' do
       app.start
       expect(io.string).to match(/start/)
     end
 
-    it 'should log stopping the workers' do
+    it 'logs stopping the workers' do
       app.stop()
       expect(io.string).to match(/stop/)
+    end
+
+    it 'includes the process id' do
+      Travis.logger.info('foo')
+      expect(io.string).to match(/ PID=\d+ /)
+    end
+
+    it 'includes the thread id' do
+      Travis.logger.info('foo')
+      expect(io.string).to match(/ TID=\d+ /)
     end
   end
 end
