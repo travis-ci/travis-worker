@@ -69,6 +69,7 @@ module Travis
           log_exception(e)
           connection_error
         end
+        log :setup, as: :debug
 
         def start
           result = nil
@@ -165,6 +166,7 @@ module Travis
             end
           end
         end
+        log :start_session, as: :debug
 
         def job_id
           payload['job']['id']
