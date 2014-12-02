@@ -103,6 +103,9 @@ module Travis
       rescue MultiJson::DecodeError => e
         error "invalid JSON for a job, dropping message: #{e.message}"
         finish(message)
+      rescue Java::JavaLang::IllegalArgumentException => e
+        error "illegal argument, likely a decode error, dropping message: #{e.message}"
+        finish(message)
       end
 
       def report
