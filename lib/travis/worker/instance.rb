@@ -234,9 +234,9 @@ module Travis
       log :error_build, :as => :debug
 
       def log_errored_build(error)
-        Raven.capture_exception(error)
         @last_error = [error.message, error.backtrace].flatten.join("\n")
         log_exception(error)
+        Raven.capture_exception(error)
       rescue => error
         $stderr.puts "ERROR: failed to log error: #{error}"
       end
