@@ -78,7 +78,6 @@ module Travis
       def process(message, payload)
         work(message, payload)
       rescue => error
-        Raven.capture_exception(error)
         error_build(error, message) unless @job_canceled
       ensure
         reporter.reset
@@ -225,15 +224,22 @@ module Travis
       log :finish, :params => false
 
       def error_build(error, message)
-        @last_error = [error.message, error.backtrace].flatten.join("\n")
-        log_exception(error)
+        log_errored_build(error)
         finish(message, restart: true)
         # stop
         set :errored
         sleep 10
         set :ready
       end
-      log :error, :as => :debug
+      log :error_build, :as => :debug
+
+      def log_errored_build(error)
+        Raven.capture_exception(error)
+        @last_error = [error.message, error.backtrace].flatten.join("\n")
+        log_exception(error)
+      rescue => error
+        $stderr.puts "ERROR: failed to log error: #{error}"
+      end
 
       def host
         Travis::Worker.config.host
