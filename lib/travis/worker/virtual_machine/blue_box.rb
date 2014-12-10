@@ -50,7 +50,8 @@ module Travis
 
         def create_server(opts = {})
           info "opts: #{opts}"
-          template = template_for_language(opts[:language], opts[:group], opts[:dist])
+          template = template_for_language(opts[:language], opts[:group], opts[:dist]) ||
+            template_for_language(DEFAULT_TEMPLATE_LANGUAGE, nil, nil)
 
           info "template: #{template.info}"
 
@@ -167,13 +168,13 @@ module Travis
           mapping = if lang
             language_mappings[lang] || lang.gsub('_', '-')
           else
-            'ruby'
+            DEFAULT_TEMPLATE_LANGUAGE
           end
 
           select_template(mapping, group, dist)
         rescue => e
           error "Error figuring out what template to use: #{e.inspect}"
-          latest_templates(group)[[nil, nil, 'ruby']]
+          latest_templates(group)[[nil, nil, DEFAULT_TEMPLATE_LANGUAGE]]
         end
 
         def destroy_server(opts = {})
