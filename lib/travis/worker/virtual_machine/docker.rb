@@ -51,8 +51,11 @@ module Travis
             'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 4)),
             'Cpuset' => cpu_set,
             'Hostname' => short_hostname,
-            'Domainname' => domainname
           }
+
+          # Allow for opting out of 'Domainname' as this results in lxc-start
+          # explosions on docker 1.3.2 (and maybe others?)
+          create_options['Domainname'] = domainname unless docker_config.omit_domainname
 
           if docker_config.expose_ports
             create_options.merge!(
