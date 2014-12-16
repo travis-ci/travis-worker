@@ -252,7 +252,15 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language, job_id: payload.job.id, dist: job_dist, group: job_group) do
+        vm_opts = {
+          language: job_language,
+          job_id: payload.job.id,
+          custom_image: job_image,
+          dist: job_dist,
+          group: job_group
+        }
+
+        vm.sandboxed(vm_opts) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')
@@ -293,6 +301,10 @@ module Travis
 
       def job_group
         payload['config']['group']
+      end
+
+      def job_image
+        payload['config']['osx_image']
       end
     end
   end
