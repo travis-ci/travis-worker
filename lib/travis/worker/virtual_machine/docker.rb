@@ -161,7 +161,7 @@ module Travis
         end
 
         def image_for_language(lang)
-          lang = Array(lang).first
+          lang = Array(lang).first.downcase.strip
           mapping = language_mappings[lang.to_s.to_sym] || lang || 'ruby'
 
           image = if image_override
