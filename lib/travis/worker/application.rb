@@ -33,6 +33,7 @@ module Travis
       end
 
       def boot(options = {})
+        @start_hook = options[:start_hook]
         @stop_hook = options[:stop_hook]
         install_signal_traps
         start_metriks
@@ -46,6 +47,7 @@ module Travis
       log :boot
 
       def start(options = {})
+        system "#{@start_hook}" if @start_hook
         workers.start(options[:workers] || [])
       end
       log :start
