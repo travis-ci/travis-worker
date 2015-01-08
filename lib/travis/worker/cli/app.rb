@@ -11,7 +11,7 @@ module Travis
         desc 'boot', 'Boot the manager and start workers'
         def boot(*workers)
           $0 = "travis-worker #{Worker.config.name}:#{Worker.config.queue}:#{Worker.config.env}"
-          app.boot(:workers => workers)
+          app.boot(:workers => workers, :stop_hook => ENV['STOP_HOOK'])
         end
 
         desc 'reboot', 'Reboot the manager and workers'

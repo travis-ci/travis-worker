@@ -33,6 +33,7 @@ module Travis
       end
 
       def boot(options = {})
+        @stop_hook = options[:stop_hook]
         install_signal_traps
         start_metriks
         start_commands_dispatcher
@@ -143,6 +144,7 @@ module Travis
       log :disconnect
 
       def quit
+        system "#{@stop_hook}" if @stop_hook
         java.lang.System.exit(0)
       end
 
