@@ -9,9 +9,11 @@ module Travis
         namespace 'travis:worker'
 
         desc 'boot', 'Boot the manager and start workers'
+        method_option :start_hook, :default => ENV['START_HOOK'], :desc => 'Executable or command to run when starting'
+        method_option :stop_hook, :default => ENV['STOP_HOOK'], :desc => 'Executable or command to run when stopping'
         def boot(*workers)
           $0 = "travis-worker #{Worker.config.name}:#{Worker.config.queue}:#{Worker.config.env}"
-          app.boot(:workers => workers)
+          app.boot(:workers => workers, :start_hook => options['start_hook'], :stop_hook => options['stop_hook'])
         end
 
         desc 'reboot', 'Reboot the manager and workers'

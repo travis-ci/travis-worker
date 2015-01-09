@@ -33,6 +33,8 @@ module Travis
       end
 
       def boot(options = {})
+        @start_hook = options[:start_hook]
+        @stop_hook = options[:stop_hook]
         install_signal_traps
         start_metriks
         start_commands_dispatcher
@@ -45,6 +47,7 @@ module Travis
       log :boot
 
       def start(options = {})
+        system "#{@start_hook}" if @start_hook
         workers.start(options[:workers] || [])
       end
       log :start
@@ -143,6 +146,7 @@ module Travis
       log :disconnect
 
       def quit
+        system "#{@stop_hook}" if @stop_hook
         java.lang.System.exit(0)
       end
 
