@@ -35,6 +35,7 @@ module Travis
       def boot(options = {})
         @start_hook = options[:start_hook]
         @stop_hook = options[:stop_hook]
+        http_heartbeat(options[:heartbeat_url]).start if options[:heartbeat_url]
         install_signal_traps
         start_metriks
         start_commands_dispatcher
@@ -67,6 +68,7 @@ module Travis
 
       def terminate(options = {})
         stop(options)
+        http_heartbeat.stop
         stop_commands_dispatcher
         disconnect
         update if options[:update]
@@ -97,6 +99,10 @@ module Travis
       def start_commands_dispatcher
         @commands ||= Commands::Dispatcher.new(workers)
         @commands.start
+      end
+
+      def http_heartbeat(heartbeat_url)
+        @http_heartbeat ||= HTTPHeartbeat.new(heartbeat_url) { graceful_shutdown }
       end
 
       def stop_commands_dispatcher

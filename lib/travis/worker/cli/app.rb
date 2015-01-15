@@ -11,9 +11,10 @@ module Travis
         desc 'boot', 'Boot the manager and start workers'
         method_option :start_hook, :default => ENV['START_HOOK'], :desc => 'Executable or command to run when starting'
         method_option :stop_hook, :default => ENV['STOP_HOOK'], :desc => 'Executable or command to run when stopping'
+        method_option :heartbeat_url, :default => ENV['HEARTBEAT_URL'], :desc => 'HTTP(S) heartbeat URL'
         def boot(*workers)
           $0 = "travis-worker #{Worker.config.name}:#{Worker.config.queue}:#{Worker.config.env}"
-          app.boot(:workers => workers, :start_hook => options['start_hook'], :stop_hook => options['stop_hook'])
+          app.boot(:workers => workers, :start_hook => options['start_hook'], :stop_hook => options['stop_hook'], :heartbeat_url => options['heartbeat_url'])
         end
 
         desc 'reboot', 'Reboot the manager and workers'
