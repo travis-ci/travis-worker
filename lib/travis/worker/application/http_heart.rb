@@ -5,12 +5,15 @@ require 'excon'
 module Travis
   module Worker
     class Application
-      class HTTPHeartbeat
+      class HTTPHeart
         include Celluloid
 
         attr_reader :url, :shutdown_block, :interval
 
-        def initialize(url, &shutdown_block)
+        def initialize(url, shutdown_block)
+          # The shutdown block is accepted as a param and not a block because
+          # Celluloid does something special with blocks given to #initialize
+          # and ZOMG WHYYY
           @url, @shutdown_block = url, shutdown_block
           @interval = Travis::Worker.config.heartbeat.interval
           conn
@@ -36,7 +39,10 @@ module Travis
 
         def raw_response
           response = conn.post(headers: {'Date' => Time.now.utc.httpdate})
-          MultiJson.decode(conn.post.data[:body])
+          MultiJson.decode(response.data[:body])
+        rescue => e
+          warn e
+          { 'expected_state' => 'up' }
         end
 
         def conn
