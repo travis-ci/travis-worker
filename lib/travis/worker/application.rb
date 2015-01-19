@@ -68,7 +68,7 @@ module Travis
 
       def terminate(options = {})
         stop(options)
-        http_heart.stop
+        @http_heart.stop if @http_heart
         stop_commands_dispatcher
         disconnect
         update if options[:update]
