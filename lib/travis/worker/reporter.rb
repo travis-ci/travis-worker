@@ -70,8 +70,12 @@ module Travis
         send_log(job_id, "", true)
       end
 
+      def notify_job_received(job_id)
+        notify('job:test:receive', id: job_id, state: 'received', received_at: Time.now.utc, worker: Travis::Worker.config.hostname)
+      end
+
       def notify_job_started(job_id)
-        notify('job:test:start',  id: job_id, state: 'started', started_at: Time.now.utc)
+        notify('job:test:start', id: job_id, state: 'started', started_at: Time.now.utc)
       end
 
       def notify_job_finished(job_id, result)
