@@ -8,6 +8,7 @@ require 'travis/support/logger'
 require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
+require 'travis/worker/application/http_heart'
 require 'travis/worker/application/remote'
 
 module Travis
