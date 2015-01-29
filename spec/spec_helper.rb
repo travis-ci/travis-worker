@@ -23,7 +23,7 @@ include Mocha::API
 RSpec.configure do |config|
   config.mock_with :mocha
 
-  config.before :each do
+  config.before(:each) do
     Travis.logger = Logger.new(StringIO.new)
   end
 

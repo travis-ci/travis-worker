@@ -90,6 +90,7 @@ module Travis
         info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
         info "this is a requeued message" if message.redelivered?
 
+        notify_job_received
         run_job
 
         finish(message)
@@ -252,7 +253,15 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language, job_id: payload.job.id, dist: job_dist, group: job_group) do
+        vm_opts = {
+          language: job_language,
+          job_id: payload.job.id,
+          custom_image: job_image,
+          dist: job_dist,
+          group: job_group
+        }
+
+        vm.sandboxed(vm_opts) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')
@@ -275,6 +284,10 @@ module Travis
         timeout.to_i
       end
 
+      def notify_job_received
+        reporter.notify_job_received(self.payload['job']['id'])
+      end
+
       def restart_job
         if reporter && payload['job']['id']
           info "requeuing job"
@@ -293,6 +306,10 @@ module Travis
 
       def job_group
         payload['config']['group']
+      end
+
+      def job_image
+        payload['config']['osx_image']
       end
     end
   end

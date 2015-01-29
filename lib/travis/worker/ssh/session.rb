@@ -1,5 +1,6 @@
 require 'shellwords'
 require 'travis/worker/utils/buffer'
+require 'travis/worker/utils/hard_timeout'
 require 'travis/worker/ssh/connector/net_ssh'
 require 'travis/worker/ssh/connector/sshjr'
 require 'travis/support/logging'
@@ -47,12 +48,17 @@ module Travis
         # Returns the Net::SSH::Shell
         def connect(silent = false)
           info "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          @connector.connect
+          Travis::Worker::Utils::HardTimeout.timeout(15) do
+            @connector.connect
+          end
           if @config.platform == :osx
             info "unlocking keychain" unless silent
-            exec("security unlock-keychain -p #{Travis::Worker.config.sauce_labs.keychain_password}")
+            exec("security unlock-keychain -p #{config.keychain_password}")
           end
           true
+        rescue Timeout::Error
+          warn "Timed out attempting to open SSH connection"
+          raise
         end
 
         # Closes the Shell, flushes and resets the buffer
