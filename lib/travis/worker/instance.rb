@@ -90,6 +90,7 @@ module Travis
         info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
         info "this is a requeued message" if message.redelivered?
 
+        notify_job_received
         run_job
 
         finish(message)
@@ -281,6 +282,10 @@ module Travis
       def timeout(type)
         timeout = payload.timeouts && payload.timeouts.send(type) || config.timeouts.send(type)
         timeout.to_i
+      end
+
+      def notify_job_received
+        reporter.notify_job_received(self.payload['job']['id'])
       end
 
       def restart_job
