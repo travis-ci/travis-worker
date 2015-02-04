@@ -159,7 +159,7 @@ until nc 127.0.0.1 15782; do sleep 1; done
 until [[ -f ~/build.sh.exit ]]; do sleep 1; done
 exit $(cat ~/build.sh.exit)
 EOF
-              session.exec("bash ~/wrapper.sh")
+              session.exec("bash ~/wrapper.sh") { exit_exec? }
             else
               session.exec("bash --login ~/build.sh") { exit_exec? }
             end
