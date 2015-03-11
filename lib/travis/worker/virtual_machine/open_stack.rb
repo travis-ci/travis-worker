@@ -77,12 +77,14 @@ module Travis
 
           info "opts: #{opts}"
           @server = connection.servers.create(opts)
-          info "Booting #{server.name} (#{ip_address})"
           instrument do
             Fog.wait_for(300, 3) do
               begin
                 server.reload
                 server.ready?
+
+                info "Booted #{server.name} (#{ip_address})"
+
               rescue Excon::Errors::HTTPStatusError => e
                 mark_api_error(e)
                 false
@@ -144,7 +146,13 @@ module Travis
         end
 
         def ip_address
-          @ip_address ||= connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
+          return @ip_address if @ip_address
+
+          # assume that server is ready
+          connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
+          connection.associate_address(server.id, ip.body["floating_ip"]["ip"])
+
+          @ip_address = server.floating_ip_addresses.first
         end
 
         def grouped_templates(group = nil, dist = nil)
