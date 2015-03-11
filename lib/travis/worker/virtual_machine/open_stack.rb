@@ -65,7 +65,7 @@ module Travis
           @password = (opts[:password] = generate_password)
 
           @server = connection.servers.create(opts)
-          info "Booting #{server.hostname} (#{ip_address})"
+          info "Booting #{server.name} (#{ip_address})"
           instrument do
             Fog.wait_for(300, 3) do
               begin
@@ -184,14 +184,14 @@ module Travis
 
           def destroy_duplicate_servers
             duplicate_servers.each do |server|
-              info "destroying duplicate server #{server.hostname}"
+              info "destroying duplicate server #{server.name}"
               destroy_vm(server)
             end
           end
 
           def duplicate_servers
             connection.servers.select do |server|
-              DUPLICATE_MATCH.match(server.hostname) do |match|
+              DUPLICATE_MATCH.match(server.name) do |match|
                 match[1] == "#{Worker.config.host.split('.').first}-#{Process.pid}-#{name}"
               end
             end
