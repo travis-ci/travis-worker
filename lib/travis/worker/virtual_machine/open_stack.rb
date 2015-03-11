@@ -51,7 +51,7 @@ module Travis
           hostname = hostname(opts[:job_id])
 
           config = open_stack_vm_defaults.merge(opts.merge({
-            :image_id => MINIMAL_TEMPLATE_ID,
+            :image_ref => MINIMAL_TEMPLATE_ID,
             :name => hostname
           }))
 
@@ -123,7 +123,7 @@ module Travis
           {
             :username  => 'travis',
             :flavor_ref => Travis::Worker.config.open_stack.flavor_id,
-            :location_id => Travis::Worker.config.open_stack.location_id
+            :nics => [{ net_id: config.internal_network_id }]
           }
         end
 
