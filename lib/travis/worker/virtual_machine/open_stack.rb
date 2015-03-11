@@ -73,7 +73,7 @@ module Travis
           user_data += %Q{sudo service ssh restart}
 
           opts[:user_data] = user_data
-          opts[:key_name]  = Travis::Worker.config.key_name
+          opts[:key_name]  = Travis::Worker.config.open_stack.key_name
 
           info "opts: #{opts}"
           @server = connection.servers.create(opts)
@@ -135,7 +135,7 @@ module Travis
           {
             :username  => 'travis',
             :flavor_ref => Travis::Worker.config.open_stack.flavor_id,
-            :nics => [{ net_id: Travis::Worker.config.internal_network_id }]
+            :nics => [{ net_id: Travis::Worker.config.open_stack.internal_network_id }]
           }
         end
 
@@ -144,7 +144,7 @@ module Travis
         end
 
         def ip_address
-          @ip_address ||= connection.allocate_address(config.external_network_id)
+          @ip_address ||= connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
         end
 
         def grouped_templates(group = nil, dist = nil)
