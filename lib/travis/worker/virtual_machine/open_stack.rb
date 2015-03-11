@@ -123,7 +123,7 @@ module Travis
           {
             :username  => 'travis',
             :flavor_ref => Travis::Worker.config.open_stack.flavor_id,
-            :nics => [{ net_id: config.internal_network_id }]
+            :nics => [{ net_id: Travis::Worker.config.internal_network_id }]
           }
         end
 
