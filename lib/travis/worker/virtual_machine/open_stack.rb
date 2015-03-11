@@ -52,7 +52,7 @@ module Travis
 
           config = open_stack_vm_defaults.merge(opts.merge({
             :image_id => MINIMAL_TEMPLATE_ID,
-            :hostname => hostname
+            :name => hostname
           }))
 
           retryable(tries: 3, sleep: 5) do
@@ -122,7 +122,7 @@ module Travis
         def open_stack_vm_defaults
           {
             :username  => 'travis',
-            :flavor_id => Travis::Worker.config.open_stack.flavor_id,
+            :flavor_ref => Travis::Worker.config.open_stack.flavor_id,
             :location_id => Travis::Worker.config.open_stack.location_id
           }
         end
