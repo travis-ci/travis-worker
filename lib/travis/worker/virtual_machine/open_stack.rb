@@ -190,6 +190,10 @@ module Travis
         end
 
         def destroy_server(opts = {})
+          if ip_obj = connection.addresses.detect {|addr| addr.ip == server.floating_ip_address }
+            connection.release_address(ip_obj.id)
+          end
+
           destroy_vm(server)
         ensure
           server = nil
