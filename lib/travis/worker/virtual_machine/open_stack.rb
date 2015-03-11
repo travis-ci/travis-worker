@@ -130,7 +130,7 @@ module Travis
         end
 
         def ip_address
-          server.ips.first['address']
+          @ip_address ||= connection.allocate_address(config.external_network_id)
         end
 
         def grouped_templates(group = nil, dist = nil)
