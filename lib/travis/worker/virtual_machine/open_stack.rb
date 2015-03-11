@@ -75,8 +75,9 @@ module Travis
           opts[:user_data] = user_data
           opts[:key_name]  = Travis::Worker.config.key_name
 
-          info "Booting #{server.name} (#{ip_address}) with opts: #{opts}"
+          info "opts: #{opts}"
           @server = connection.servers.create(opts)
+          info "Booting #{server.name} (#{ip_address})"
           instrument do
             Fog.wait_for(300, 3) do
               begin
