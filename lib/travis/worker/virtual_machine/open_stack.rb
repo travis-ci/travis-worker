@@ -149,7 +149,7 @@ module Travis
           return @ip_address if @ip_address
 
           # assume that server is ready
-          connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
+          ip = connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
           connection.associate_address(server.id, ip.body["floating_ip"]["ip"])
 
           @ip_address = server.floating_ip_addresses.first
