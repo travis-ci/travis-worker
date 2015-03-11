@@ -14,6 +14,10 @@ module Travis
         include Retryable
         include Logging
 
+        DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
+
+        MINIMAL_TEMPLATE_ID = '8695dfe8-2312-4d58-8371-ee6ada389c67'
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -23,8 +27,6 @@ module Travis
             vm_count.times.map { |num| "#{Travis::Worker.config.vms.name_prefix}-#{num + 1}" }
           end
         end
-
-        MINIMAL_TEMPLATE_ID = '8695dfe8-2312-4d58-8371-ee6ada389c67'
 
         log_header { "#{name}:worker:virtual_machine:open_stack" }
 
