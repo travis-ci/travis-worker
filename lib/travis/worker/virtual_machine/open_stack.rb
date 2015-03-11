@@ -24,6 +24,8 @@ module Travis
           end
         end
 
+        MINIMAL_TEMPLATE_ID = '8695dfe8-2312-4d58-8371-ee6ada389c67'
+
         log_header { "#{name}:worker:virtual_machine:open_stack" }
 
         attr_reader :name, :password, :server
@@ -44,15 +46,10 @@ module Travis
         end
 
         def create_server(opts = {})
-          info "opts: #{opts}"
-          template = template_for_language(opts[:language], opts[:group], opts[:dist])
-
-          info "template: #{template.info}"
-
           hostname = hostname(opts[:job_id])
 
           config = open_stack_vm_defaults.merge(opts.merge({
-            :image_id => template.id,
+            :image_id => MINIMAL_TEMPLATE_ID,
             :hostname => hostname
           }))
 
