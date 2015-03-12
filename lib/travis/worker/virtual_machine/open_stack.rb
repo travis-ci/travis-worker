@@ -75,22 +75,20 @@ module Travis
           opts[:user_data] = user_data
           opts[:key_name]  = Travis::Worker.config.open_stack.key_name
 
-          info "opts: #{opts}"
           @server = connection.servers.create(opts)
           instrument do
             Fog.wait_for(300, 3) do
               begin
                 server.reload
                 server.ready?
-
-                info "Booted #{server.name} (#{ip_address})"
-
               rescue Excon::Errors::HTTPStatusError => e
                 mark_api_error(e)
                 false
               end
             end
           end
+
+          info "Booted #{server.name} (#{ip_address})"
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if server
             error "OpenStack VM would not boot within 240 seconds : id=#{server.id} state=#{server.state} vsh=#{server.vsh_id}"
@@ -150,9 +148,10 @@ module Travis
 
           # assume that server is ready
           ip = connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
-          # connection.associate_address(server.id, ip.body["floating_ip"]["ip"])
+          addr = ip.body["floating_ip"]["ip"]
+          connection.associate_address(server.id, addr)
 
-          @ip_address = server.floating_ip_addresses.first
+          @ip_address = addr
         end
 
         def grouped_templates(group = nil, dist = nil)
