@@ -30,7 +30,7 @@ module Travis
 
         log_header { "#{name}:worker:virtual_machine:open_stack" }
 
-        attr_reader :name, :password, :server
+        attr_reader :name, :password, :server, :ip_address
 
         def initialize(name)
           @name = name
