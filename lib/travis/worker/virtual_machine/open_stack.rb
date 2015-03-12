@@ -88,19 +88,24 @@ module Travis
             end
           end
 
+          allocate_and_associate_ip_address_for(server)
+
           info "Booted #{server.name} (#{ip_address})"
         rescue Timeout::Error, Fog::Errors::TimeoutError => e
           if server
             error "OpenStack VM would not boot within 240 seconds : id=#{server.id} state=#{server.state} vsh=#{server.vsh_id}"
           end
           Metriks.meter("worker.vm.provider.openstack.boot.timeout.#{server.vsh_id}").mark
+          release_floating_ip(ip_address) if ip_address
           raise
         rescue Excon::Errors::HTTPStatusError => e
           mark_api_error(e)
+          release_floating_ip(ip_address) if ip_address
           raise
         rescue Exception => e
           Metriks.meter('worker.vm.provider.openstack.boot.error').mark
           error "Booting a OpenStack VM failed with the following error: #{e.inspect}"
+          release_floating_ip(ip_address) if ip_address
           raise
         end
 
@@ -143,13 +148,13 @@ module Travis
           "#{Travis::Worker.config.host}:travis-#{name}"
         end
 
-        def ip_address
+        def allocate_and_associate_ip_address_for(srv)
           return @ip_address if @ip_address
 
           # assume that server is ready
           ip = connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
           addr = ip.body["floating_ip"]["ip"]
-          connection.associate_address(server.id, addr)
+          connection.associate_address(srv.id, addr)
 
           @ip_address = addr
         end
@@ -189,11 +194,7 @@ module Travis
         end
 
         def destroy_server(opts = {})
-          info "addresses: #{connection.addresses}"
-          if ip_obj = connection.addresses.detect {|addr| info addr.ip; addr.ip == ip_address }
-            connection.release_address(ip_obj.id)
-          end
-
+          release_floating_ip(ip_address)
           destroy_vm(server)
         ensure
           server = nil
@@ -250,6 +251,13 @@ module Travis
           rescue Excon::Errors::InternalServerError => e
             warn "went to destroy the VM but there was an internal server error : #{e.inspect}"
             mark_api_error(e)
+          end
+
+          def release_floating_ip(address)
+            if ip_obj = connection.addresses.detect {|addr| addr.ip == address }
+              info "releasing floating IP #{address}"
+              connection.release_address(ip_obj.id)
+            end
           end
 
           def fetch_templates
