@@ -73,7 +73,6 @@ module Travis
           user_data += %Q{sudo service ssh restart}
 
           opts[:user_data] = user_data
-          opts[:key_name]  = Travis::Worker.config.open_stack.key_name
 
           @server = connection.servers.create(opts)
           instrument do
