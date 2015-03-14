@@ -16,7 +16,7 @@ module Travis
 
         DUPLICATE_MATCH = /testing-(\w*-?\w+-?\d*-?\d*-\d+-\w+-\d+)-(\d+)/
 
-        MINIMAL_TEMPLATE_ID = '8695dfe8-2312-4d58-8371-ee6ada389c67'
+        DEFAULT_TEMPLATE_ID = Travis::Worker.config.open_stack.default_template_id
 
         class << self
           def vm_count
@@ -51,7 +51,7 @@ module Travis
           hostname = hostname(opts[:job_id])
 
           config = open_stack_vm_defaults.merge(opts.merge({
-            :image_ref => MINIMAL_TEMPLATE_ID,
+            :image_ref => DEFAULT_TEMPLATE_ID,
             :name => hostname
           }))
 
