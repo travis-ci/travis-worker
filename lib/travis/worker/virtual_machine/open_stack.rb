@@ -156,6 +156,7 @@ module Travis
           ip = connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
           addr = ip.body["floating_ip"]["ip"]
           connection.associate_address(srv.id, addr)
+          debug "Allocated #{addr} and assigned it to #{srv.name}"
 
           @ip_address = addr
         end
