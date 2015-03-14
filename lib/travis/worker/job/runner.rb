@@ -171,8 +171,8 @@ EOF
 
         def start_session
           announce("Using worker: #{host_name}\n\n")
-          retryable(:tries => 5, :sleep => 3) do
-            Timeout.timeout(10) do
+          retryable(:tries => 10, :sleep => 3) do
+            Timeout.timeout(20) do
               session.connect
             end
           end
