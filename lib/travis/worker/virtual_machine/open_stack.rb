@@ -148,7 +148,11 @@ module Travis
         end
 
         def allocate_and_associate_ip_address_for(srv)
-          # assume that server is ready
+          unless srv.ready?
+            info "#{srv} is not ready"
+            return
+          end
+
           ip = connection.allocate_address(Travis::Worker.config.open_stack.external_network_id)
           addr = ip.body["floating_ip"]["ip"]
           connection.associate_address(srv.id, addr)
