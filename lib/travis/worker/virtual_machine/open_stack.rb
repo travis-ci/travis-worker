@@ -18,6 +18,8 @@ module Travis
 
         DEFAULT_TEMPLATE_ID = Travis::Worker.config.open_stack.default_template_id
 
+        USER_NAME = 'travis'
+
         class << self
           def vm_count
             Travis::Worker.config.vms.count
@@ -67,10 +69,10 @@ module Travis
           user_data  = %Q{#! /bin/bash\n}
           user_data += %Q{cat /etc/hosts | sed -e 's/^\\(127\\.0\\.0\\.1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{opts[:name]} \\2/' | sudo tee /etc/hosts >/dev/null\n}
           user_data += %Q{cat /etc/hosts | sed -e 's/^\\(::1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{opts[:name]} \\2/' | sudo tee /etc/hosts >/dev/null\n}
-          user_data += %Q{sudo useradd travis -m -s /bin/bash || true\n}
-          user_data += %Q{echo travis:#{opts[:password]} | sudo chpasswd\n} if opts[:password]
-          user_data += %Q{sudo sed -i '/travis/d' /etc/sudoers\n}
-          user_data += %Q{echo "travis ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers >/dev/null\n}
+          user_data += %Q{sudo useradd #{USER_NAME} -m -s /bin/bash || true\n}
+          user_data += %Q{echo #{USER_NAME}:#{opts[:password]} | sudo chpasswd\n} if opts[:password]
+          user_data += %Q{sudo sed -i '/#{USER_NAME}/d' /etc/sudoers\n}
+          user_data += %Q{echo "#{USER_NAME} ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers >/dev/null\n}
           user_data += %Q{sudo sed -i '/PasswordAuthentication/ d' /etc/ssh/sshd_config\n}
           user_data += %Q{echo 'PasswordAuthentication yes' | tee -a /etc/ssh/sshd_config >/dev/null\n}
           user_data += %Q{sudo sed -i '/UseDNS/ d' /etc/ssh/sshd_config\n}
@@ -125,7 +127,7 @@ module Travis
           @session ||= Ssh::Session.new(name,
             :host => ip_address,
             :port => 22,
-            :username => 'travis',
+            :username => USER_NAME,
             :password => password,
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts
@@ -142,7 +144,7 @@ module Travis
 
         def open_stack_vm_defaults
           {
-            :username  => 'travis',
+            :username  => USER_NAME,
             :flavor_ref => Travis::Worker.config.open_stack.flavor_id,
             :nics => [{ net_id: Travis::Worker.config.open_stack.internal_network_id }]
           }
