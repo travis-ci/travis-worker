@@ -154,7 +154,7 @@ module Travis
 
         def allocate_and_associate_ip_address_for(srv)
           unless srv.ready?
-            info "#{srv} is not ready"
+            info "#{srv.name} is not ready"
             return
           end
 
