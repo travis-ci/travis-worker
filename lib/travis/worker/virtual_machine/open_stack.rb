@@ -66,20 +66,7 @@ module Travis
         def create_new_server(opts)
           @password = (opts[:password] = generate_password)
 
-          user_data  = %Q{#! /bin/bash\n}
-          user_data += %Q{cat /etc/hosts | sed -e 's/^\\(127\\.0\\.0\\.1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{opts[:name]} \\2/' | sudo tee /etc/hosts >/dev/null\n}
-          user_data += %Q{cat /etc/hosts | sed -e 's/^\\(::1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{opts[:name]} \\2/' | sudo tee /etc/hosts >/dev/null\n}
-          user_data += %Q{sudo useradd #{USER_NAME} -m -s /bin/bash || true\n}
-          user_data += %Q{echo #{USER_NAME}:#{opts[:password]} | sudo chpasswd\n} if opts[:password]
-          user_data += %Q{sudo sed -i '/#{USER_NAME}/d' /etc/sudoers\n}
-          user_data += %Q{echo "#{USER_NAME} ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers >/dev/null\n}
-          user_data += %Q{sudo sed -i '/PasswordAuthentication/ d' /etc/ssh/sshd_config\n}
-          user_data += %Q{echo 'PasswordAuthentication yes' | tee -a /etc/ssh/sshd_config >/dev/null\n}
-          user_data += %Q{sudo sed -i '/UseDNS/ d' /etc/ssh/sshd_config\n}
-          user_data += %Q{echo 'UseDNS no' | tee -a /etc/ssh/sshd_config >/dev/null\n}
-          user_data += %Q{sudo service ssh restart}
-
-          opts[:user_data] = user_data
+          opts[:user_data] = user_data(opts[:name], USER_NAME, opts[:password])
 
           @server = connection.servers.create(opts)
           instrument do
@@ -340,6 +327,21 @@ module Travis
             latest_templates(group, dist)[[nil,  DEFAULT_TEMPLATE_GROUP,            DEFAULT_TEMPLATE_LANGUAGE ]] ||
             latest_templates(group, dist)[[dist, nil,                               DEFAULT_TEMPLATE_LANGUAGE ]] ||
             latest_templates(group, dist)[[nil,  nil,                               DEFAULT_TEMPLATE_LANGUAGE ]]
+          end
+
+          def user_data(hostname, username, passwd)
+            user_data  = %Q{#! /bin/bash\n}
+            user_data += %Q{cat /etc/hosts | sed -e 's/^\\(127\\.0\\.0\\.1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{hostname} \\2/' | sudo tee /etc/hosts >/dev/null\n}
+            user_data += %Q{cat /etc/hosts | sed -e 's/^\\(::1.*\\)localhost\\s*\\(.*\\)$/\\1localhost #{hostname} \\2/' | sudo tee /etc/hosts >/dev/null\n}
+            user_data += %Q{sudo useradd #{username} -m -s /bin/bash || true\n}
+            user_data += %Q{echo #{username}:#{passwd} | sudo chpasswd\n} if passwd
+            user_data += %Q{sudo sed -i '/#{username}/d' /etc/sudoers\n}
+            user_data += %Q{echo "#{username} ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers >/dev/null\n}
+            user_data += %Q{sudo sed -i '/PasswordAuthentication/ d' /etc/ssh/sshd_config\n}
+            user_data += %Q{echo 'PasswordAuthentication yes' | tee -a /etc/ssh/sshd_config >/dev/null\n}
+            user_data += %Q{sudo sed -i '/UseDNS/ d' /etc/ssh/sshd_config\n}
+            user_data += %Q{echo 'UseDNS no' | tee -a /etc/ssh/sshd_config >/dev/null\n}
+            user_data += %Q{sudo service ssh restart}
           end
 
       end
