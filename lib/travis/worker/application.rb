@@ -2,9 +2,13 @@ require 'java'
 require 'march_hare'
 require 'metriks'
 require 'metriks/reporter/librato_metrics'
+require 'raven'
+require 'travis/support/amqp'
+require 'travis/support/logger'
 require 'travis/worker/pool'
 require 'travis/worker/application/commands/dispatcher'
 require 'travis/worker/application/heart'
+require 'travis/worker/application/http_heart'
 require 'travis/worker/application/remote'
 
 module Travis
@@ -13,10 +17,14 @@ module Travis
       include Logging
 
       def initialize
-        Travis.logger.level = Logger.const_get(config.log_level.to_s.upcase)
-        Travis.logger.formatter = proc { |*args| Travis::Logging::Format.format(*args) }
-
+        Travis::Logger.configure(Travis.logger)
         Travis::Amqp.config = config.amqp
+
+        if config.sentry.dsn
+          Raven.configure do |raven_config|
+            raven_config.dsn = config.sentry.dsn
+          end
+        end
 
         # due to https://rails.lighthouseapp.com/projects/8994/tickets/1112-redundant-utf-8-sequence-in-stringto_json
         # we should use ok_json
@@ -26,6 +34,9 @@ module Travis
       end
 
       def boot(options = {})
+        @start_hook = options[:start_hook]
+        @stop_hook = options[:stop_hook]
+        http_heart(options[:heartbeat_url]).start if options[:heartbeat_url]
         install_signal_traps
         start_metriks
         start_commands_dispatcher
@@ -38,6 +49,7 @@ module Travis
       log :boot
 
       def start(options = {})
+        system "#{@start_hook}" if @start_hook
         workers.start(options[:workers] || [])
       end
       log :start
@@ -57,6 +69,7 @@ module Travis
 
       def terminate(options = {})
         stop(options)
+        @http_heart.stop if @http_heart
         stop_commands_dispatcher
         disconnect
         update if options[:update]
@@ -87,6 +100,10 @@ module Travis
       def start_commands_dispatcher
         @commands ||= Commands::Dispatcher.new(workers)
         @commands.start
+      end
+
+      def http_heart(heartbeat_url)
+        @http_heart ||= HTTPHeart.new(heartbeat_url, -> { graceful_shutdown })
       end
 
       def stop_commands_dispatcher
@@ -136,6 +153,7 @@ module Travis
       log :disconnect
 
       def quit
+        system "#{@stop_hook}" if @stop_hook
         java.lang.System.exit(0)
       end
 

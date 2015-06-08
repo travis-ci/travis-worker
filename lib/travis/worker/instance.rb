@@ -77,9 +77,8 @@ module Travis
 
       def process(message, payload)
         work(message, payload)
-      rescue Errno::ECONNREFUSED, Exception => error
-        # puts error.message, error.backtrace
-        error_build(error, message)
+      rescue => error
+        error_build(error, message) unless @job_canceled
       ensure
         reporter.reset
         @job_canceled = false
@@ -91,6 +90,7 @@ module Travis
         info "starting job slug:#{self.payload['repository']['slug']} id:#{self.payload['job']['id']}"
         info "this is a requeued message" if message.redelivered?
 
+        notify_job_received
         run_job
 
         finish(message)
@@ -225,15 +225,22 @@ module Travis
       log :finish, :params => false
 
       def error_build(error, message)
-        @last_error = [error.message, error.backtrace].flatten.join("\n")
-        log_exception(error)
+        log_errored_build(error)
         finish(message, restart: true)
         # stop
         set :errored
         sleep 10
         set :ready
       end
-      log :error, :as => :debug
+      log :error_build, :as => :debug
+
+      def log_errored_build(error)
+        @last_error = [error.message, error.backtrace].flatten.join("\n")
+        log_exception(error)
+        Raven.capture_exception(error)
+      rescue => error
+        $stderr.puts "ERROR: failed to log error: #{error}"
+      end
 
       def host
         Travis::Worker.config.host
@@ -246,7 +253,15 @@ module Travis
       def run_job
         @runner = nil
 
-        vm.sandboxed(language: job_language, job_id: payload.job.id, dist: job_dist, group: job_group) do
+        vm_opts = {
+          language: job_language,
+          job_id: payload.job.id,
+          custom_image: job_image,
+          dist: job_dist,
+          group: job_group
+        }
+
+        vm.sandboxed(vm_opts) do
           if @job_canceled
             reporter.send_log(payload.job.id, "\n\nDone: Job Cancelled\n")
             reporter.notify_job_finished(payload.job.id, 'canceled')
@@ -269,6 +284,10 @@ module Travis
         timeout.to_i
       end
 
+      def notify_job_received
+        reporter.notify_job_received(self.payload['job']['id'])
+      end
+
       def restart_job
         if reporter && payload['job']['id']
           info "requeuing job"
@@ -287,6 +306,10 @@ module Travis
 
       def job_group
         payload['config']['group']
+      end
+
+      def job_image
+        payload['config']['osx_image']
       end
     end
   end

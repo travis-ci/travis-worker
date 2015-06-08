@@ -1,8 +1,8 @@
 require 'hashr'
 require 'json'
 require 'multi_json'
-require 'march_hare'
 require 'travis/support'
+require 'travis/support/amqp'
 require 'travis/worker/application/commands/cancel_job'
 
 module Travis

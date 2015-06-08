@@ -6,7 +6,9 @@ services:
 env:
   - JRUBY_OPTS="--dev -Xcext.enabled=false -Xcompile.invokedynamic=false"
 
-rvm: jruby-1.7.16
+rvm:
+  - jruby-1.7.16
+  - jruby-head
 
 bundler_args: --deployment --binstubs --jobs=3 --retry=3
 
@@ -22,3 +24,7 @@ sudo: false
 before_script: cp config/worker.example.yml config/worker.yml
 
 script: bin/rspec spec
+
+matrix:
+  allow_failures:
+    - rvm: jruby-head
