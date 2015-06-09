@@ -19,7 +19,7 @@ gem 'coder'
 
 gem 'fog',              '~> 1.25.0'
 gem 'travis-saucelabs-api', '~> 0.0'
-gem 'docker-api'
+gem 'docker-api',       '1.13.2'
 
 gem 'net-ssh',          '~> 2.9.0'
 gem 'sshjr',            git: 'https://github.com/joshk/sshjr'

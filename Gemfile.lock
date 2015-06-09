@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-build
-  revision: 21d3c275b6bd01417ff1bcadb7510e5dfdc806d6
+  revision: c6fcb6b75062663ba714b476e1a3d6637d47088f
   specs:
     travis-build (0.0.1)
 
@@ -32,6 +32,7 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.8)
+    archive-tar-minitar (0.5.2)
     atomic (1.1.99-java)
     avl_tree (1.1.3)
     builder (3.2.2)
@@ -41,7 +42,8 @@ GEM
       safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
-    docker-api (1.21.4)
+    docker-api (1.13.2)
+      archive-tar-minitar
       excon (>= 0.38.0)
       json
     excon (0.45.3)
@@ -83,7 +85,7 @@ GEM
     fog-json (1.0.1)
       fog-core (~> 1.0)
       multi_json (~> 1.0)
-    fog-profitbricks (0.0.2)
+    fog-profitbricks (0.0.3)
       fog-core
       fog-xml
       nokogiri
@@ -190,7 +192,7 @@ DEPENDENCIES
   activesupport (~> 3.2)
   celluloid!
   coder
-  docker-api
+  docker-api (= 1.13.2)
   faraday (~> 0.7.5)
   fog (~> 1.25.0)
   hashr (~> 0.0.18)
