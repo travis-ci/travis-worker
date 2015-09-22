@@ -7,12 +7,6 @@ GIT
       timers (~> 2.0.0)
 
 GIT
-  remote: https://github.com/joshk/sshjr
-  revision: 35c2fdf006295a1d2c1da77b81f39ac5deb89e9e
-  specs:
-    sshjr (0.1.0)
-
-GIT
   remote: https://github.com/travis-ci/travis-build
   revision: 67471ac6a6f437a2593d619721e39121b1b2dae0
   specs:
@@ -210,7 +204,6 @@ DEPENDENCIES
   rspec
   sentry-raven
   simplecov (>= 0.4.0)
-  sshjr!
   thor
   travis-build!
   travis-saucelabs-api (~> 0.0)

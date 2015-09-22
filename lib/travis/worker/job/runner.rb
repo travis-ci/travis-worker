@@ -110,7 +110,7 @@ module Travis
         def check_config
           case payload["config"][:".result"]
           when "parse_error"
-            announce "\033[31;1mERROR\033[0m: An error occured while trying to parse your .travis.yml file.\n"
+            announce "\033[31;1mERROR\033[0m: An error occurred while trying to parse your .travis.yml file.\n"
             announce "  http://lint.travis-ci.org can check your .travis.yml.\n"
             announce "  Please make sure that the file is valid YAML.\n\n"
             # TODO: Remove all of this once we can actually error the build
@@ -159,7 +159,7 @@ until nc 127.0.0.1 15782; do sleep 1; done
 until [[ -f ~/build.sh.exit ]]; do sleep 1; done
 exit $(cat ~/build.sh.exit)
 EOF
-              session.exec("bash ~/wrapper.sh")
+              session.exec("bash ~/wrapper.sh") { exit_exec? }
             else
               session.exec("bash --login ~/build.sh") { exit_exec? }
             end
@@ -172,7 +172,7 @@ EOF
         def start_session
           announce("Using worker: #{host_name}\n\n")
           retryable(:tries => 5, :sleep => 3) do
-            Timeout.timeout(5) do
+            Timeout.timeout(10) do
               session.connect
             end
           end
