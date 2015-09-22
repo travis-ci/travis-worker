@@ -16,11 +16,12 @@ describe Travis::Worker::VirtualMachine::BlueBox do
   let(:perl_template_attr)                { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-perl-2014-08-28-22-29-cf95d0f",               "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
   let(:dev_perl_template_attr)            { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3cafe","status":"stored","description":"travis-dev-perl-2014-08-28-22-29-cf95d0f",           "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
   let(:trusty_dev_perl_template_attr)     { JSON.parse '{"id":"4d0e7e03-3230-40f8-817a-6e8271e3aaaa","status":"stored","description":"travis-trusty-dev-perl-2014-08-28-22-29-cf95d0f",    "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
+  let(:erlang_template_attr)              { JSON.parse '{"id":"6d0e7e03-3230-40f8-817a-6e8271e39e0c","status":"stored","description":"travis-erlang-2014-08-28-22-29-cf95d0f",             "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T15:29:00-07:00"}' }
   let(:nodejs_template_attr)              { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33674b","status":"stored","description":"travis-node-js-2014-08-28-20-11-cf95d0f",            "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
   let(:dev_nodejs_template_attr)          { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba33aeda","status":"stored","description":"travis-dev-node-js-2014-08-28-20-11-cf95d0f",        "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-28T13:11:32-07:00"}' }
   let(:trusty_dev_nodejs_template_attr)   { JSON.parse '{"id":"ff7bd191-f433-4830-b7aa-facdba336333","status":"stored","description":"travis-trusty-dev-node-js-2014-08-28-20-11-cf95d0f", "public":false,"locations":["016cdf0f-821b-4bed-8b9c-cd46f02c2363"],"created":"2014-08-30T13:11:32-07:00"}' }
 
-  let(:base_templates) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, dev_nodejs_template_attr, trusty_dev_nodejs_template_attr] }
+  let(:base_templates) { [ruby_template_attr, old_ruby_template_attr, nodejs_template_attr, perl_template_attr, erlang_template_attr, dev_nodejs_template_attr, trusty_dev_nodejs_template_attr] }
 
   describe "#new" do
     blue_box = described_class.new('blue_box')
@@ -90,6 +91,15 @@ describe Travis::Worker::VirtualMachine::BlueBox do
         it 'chooses the most recent template' do
           expect(subject).to eq(
             Travis::Worker::VirtualMachine::BlueBox::Template.new ruby_template_attr
+          )
+        end
+      end
+
+      context 'given capitalized nondefault valid template name' do
+        subject { blue_box.template_for_language('Erlang') }
+        it 'chooses the most recent template' do
+          expect(subject).to eq(
+            Travis::Worker::VirtualMachine::BlueBox::Template.new erlang_template_attr
           )
         end
       end

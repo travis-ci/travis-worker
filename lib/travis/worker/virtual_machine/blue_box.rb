@@ -163,7 +163,7 @@ module Travis
         def template_for_language(lang, group = nil, dist = nil)
           return latest_templates(group, dist)[template_override] if template_override
 
-          lang = Array(lang).first
+          lang = Array(lang).first.downcase.strip
           mapping = if lang
             language_mappings[lang] || lang.gsub('_', '-')
           else
