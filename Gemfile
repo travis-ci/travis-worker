@@ -22,7 +22,6 @@ gem 'travis-saucelabs-api', '~> 0.0'
 gem 'docker-api'
 
 gem 'net-ssh',          '~> 2.9.0'
-gem 'sshjr',            git: 'https://github.com/joshk/sshjr'
 
 gem 'metriks',          '0.9.9.5'
 
