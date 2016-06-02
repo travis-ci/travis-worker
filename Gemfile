@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-ruby '1.9.3', engine: 'jruby', engine_version: '1.7.16' if ENV.key?('DYNO')
-
 gem 'travis-build',     git: 'https://github.com/travis-ci/travis-build'
 gem 'travis-support',   git: 'https://github.com/travis-ci/travis-support'
 
