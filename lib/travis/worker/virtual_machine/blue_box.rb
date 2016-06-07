@@ -73,7 +73,9 @@ module Travis
           @server = connection.servers.create(opts)
           info "Booting #{server.hostname} (#{ip_address}) on #{server.vsh_id}"
           instrument do
-            Fog.wait_for(300, 3) do
+            # Blue Box block/vps spinup time is 30-40 seconds
+            sleep(24)
+            Fog.wait_for(300, 6) do
               begin
                 server.reload
                 server.ready?
