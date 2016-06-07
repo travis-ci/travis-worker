@@ -7,12 +7,7 @@ linux:
     password: password
     virtual_host: vhost
   vms:
-    provider: blue_box
+    provider: docker
     count: 3
-  blue_box:
-    customer_id: cust_id
-    api_key: 'apikey'
-    flavor_id: '80be5b49-2d30-4188-bed8-38eebb21f5d1' # 3gig vm
-    location_id: 'locationid'
   language_mappings:
     haskell: jvm

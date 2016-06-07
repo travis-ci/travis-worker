@@ -16,7 +16,7 @@ describe Travis::Worker::Factory do
     end
 
     it 'has a vm' do
-      expect(worker.vm.class.to_s).to eq("Travis::Worker::VirtualMachine::BlueBox")
+      expect(worker.vm.class.to_s).to eq("Travis::Worker::VirtualMachine::Docker")
     end
 
     describe 'queues' do

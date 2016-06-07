@@ -9,8 +9,6 @@ require 'travis/worker/ssh/session'
 module Travis
   module Worker
     module VirtualMachine
-      # A simple encapsulation of the BlueBox commands used in the
-      # Travis Virtual Machine lifecycle.
       class Docker
         include Retryable
         include Logging

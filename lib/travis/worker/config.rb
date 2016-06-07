@@ -29,7 +29,7 @@ module Travis
              shell:     { buffer: 0.5 },
              timeouts:  { build_script: 5, hard_limit: 50 * 60, log_silence: 10 * 60 },
              shutdown_timeout: 3600,
-             vms:       { provider: 'blue_box', count: 1, _include: Vms },
+             vms:       { provider: 'docker', count: 1, _include: Vms },
              limits:    { log_length: 4, log_chunk_size: 9216 },
              language_mappings: { },
              image_mappings: {},
