@@ -16,7 +16,6 @@ gem 'json'
 gem 'coder'
 
 gem 'fog',              '~> 1.25.0'
-gem 'travis-saucelabs-api', '~> 0.0'
 gem 'docker-api'
 
 gem 'net-ssh',          '~> 2.9.0'
