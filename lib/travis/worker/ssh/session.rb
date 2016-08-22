@@ -15,7 +15,7 @@ module Travis
 
         class NoOutputReceivedError < StandardError
           def initialize(seconds)
-            super("No output has been received in the last #{(seconds / 60).to_i} minutes, this potentially indicates a stalled build or something wrong with the build itself.\n\nThe build has been terminated")
+            super("No output has been received in the last #{(seconds / 60).to_i} minutes, this potentially indicates a stalled build or something wrong with the build itself.\nCheck the details on how to adjust your build configuration on: https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received\n\nThe build has been terminated")
           end
         end
 
