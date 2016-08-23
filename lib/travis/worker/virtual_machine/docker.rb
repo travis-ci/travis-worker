@@ -44,12 +44,13 @@ module Travis
 
         def create_container(image_id)
           create_options = {
-            'Cmd' => ['/sbin/init'],
             'Image' => image_id,
             'Memory' => (1024 * 1024 * 1024 * (docker_config.memory || 4)),
-            'Cpuset' => cpu_set,
             'Hostname' => short_hostname,
           }
+
+          create_options['Cpuset'] = cpu_set if docker_config.enable_cpuset
+          create_options['Cmd'] = docker_config.cmd if docker_config.cmd
 
           # Allow for opting out of 'Domainname' as this results in lxc-start
           # explosions on docker 1.3.2 (and maybe others?)
@@ -115,7 +116,7 @@ module Travis
           @session ||= Ssh::Session.new(name,
             :host => ssh_host,
             :port => ssh_port,
-            :username => 'travis',
+            :username => docker_config.username,
             :private_key_path => docker_config.private_key_path,
             :buffer => Travis::Worker.config.shell.buffer,
             :timeouts => Travis::Worker.config.timeouts
@@ -155,7 +156,9 @@ module Travis
         end
 
         def latest_images
-          @latest_images ||= ::Docker::Image.all({}, connection).find_all { |i| image_matches?(i, /^travis:/) }
+          @latest_images ||= ::Docker::Image.all({}, connection).find_all do |i|
+             image_matches?(i, /^#{Regexp.escape(docker_config.image_name)}:/)
+          end
         end
 
         def image_for_language(lang)
@@ -172,7 +175,7 @@ module Travis
         end
 
         def default_image
-          latest_images.detect { |i| image_matches?(i, 'travis:ruby') }
+          latest_images.detect { |i| image_matches?(i, docker_config.default_image) }
         end
 
         def image_matches?(image, tag)

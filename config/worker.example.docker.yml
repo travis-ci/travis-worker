@@ -1,0 +1,25 @@
+env: linux
+linux:
+  amqp:
+    host: host
+    port: port
+    username: username
+    password: password
+    virtual_host: vhost
+  vms:
+    provider: blue_box
+    count: 3
+  docker:
+    cmd:
+    username: travis
+    enable_cpuset: true
+    image_name: cip
+    default_image: cip:latest
+    private_key_path: /path/to/ssh/id_rsa
+    api:
+      host: localhost
+      port: 4234
+    memory: 4
+    expose_ports:
+  language_mappings:
+    haskell: jvm
