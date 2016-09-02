@@ -1,0 +1,19 @@
+env: linux
+queue: builds.linux.static
+linux:
+  amqp:
+    host: localhost
+    port: 5672
+    username: travisci_worker
+    password: travisci_worker_password
+    virtual_host: travisci.development
+  vms:
+    provider: static_machine
+    count: 2
+  static_machine:
+    username: travis
+    private_key_path: /path/to/kay/id_rsa
+    ip: [192.168.1.100, 192.168.1.101]
+    port: 22
+  language_mappings:
+    haskell: jvm
